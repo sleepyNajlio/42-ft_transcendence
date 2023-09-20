@@ -1,0 +1,126 @@
+.Navbar
+{
+  background: white;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  justify-content: start;
+  align-items: center;
+  row-gap: 20px;
+}
+.logo
+{
+    align-items: flex-start;
+    flex :none;
+}
+.logo img
+{
+    width: 187px;
+    height: auto;
+}
+
+.container
+{
+    grid-template-columns: 333px 1fr;
+}
+
+input {
+
+    width: 250px;
+    height: 40px;
+    padding-left: 40px;
+    padding-right: 10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    font-family: 'inter';
+    font-weight: bold;
+    font-style: normal;
+    font-size: 14px;
+    font-weight: 100;
+    border-radius: 13px;
+    background-color: #f2f4f6;
+    color: black;
+    border: none;
+}
+
+input:focus 
+{
+    outline: none;
+}
+
+input:focus {
+    box-shadow: 0 0 5px #ff8471; /* Adjust the color and size as needed */
+}
+
+.search_container {
+    position: relative;
+}
+  
+.search-icon {
+    position: absolute;
+    top: 50%;
+    left: 10px; 
+    transform: translateY(-50%);
+    width: 20px; 
+    height: 20px; 
+}
+  
+.search-icon img {
+      width: 100%; 
+      height: 100%; 
+      fill: #333;
+}
+
+/* btn style */
+
+.btn_container 
+{
+    position: relative;
+}
+
+.icon {
+    position: absolute;
+    top: 56%;
+    left: 14px;
+    transform: translateY(-50%);
+    width: auto; 
+}
+
+.icon img 
+{
+    width: 34px;
+}
+.btn
+{
+    padding-left: 68px;
+    font-size: 16px;
+    width: 300px;
+    height: 44px;
+    padding-right: 10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    font-family: 'inter';
+    font-weight: bold;
+    font-style: normal;
+    font-weight: 100;
+    border-radius: 13px;
+    background-color: #fff;
+    color: black;
+    border: none;
+    text-align: start;
+    cursor: pointer;
+
+}
+
+.line
+{
+    height: 2px;
+    background-color: #f2f4f6;
+    width: 270px;
+}
+
+.btn:hover
+{
+    font-size: 19px;
+
+}
