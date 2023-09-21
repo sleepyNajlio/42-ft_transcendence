@@ -5,6 +5,10 @@ import './styles/css/App.css';
 import { TwoFA } from './TwoFA.tsx';
 import { Verify2FA } from './Verify2FA.tsx';
 import { Play } from './Play.tsx';
+import { Chat } from './Chat.tsx';
+import { Settings } from './Settings.tsx'
+import { Leaderboard } from './Leaderboard.tsx'
+import { Profil } from './Profil.tsx'
 
 function App()
 {
@@ -16,8 +20,10 @@ function App()
                 <Route path="/TwoFA" element={<TwoFA />} />
                 <Route path="/Verify2FA" element={<Verify2FA />} />
                 <Route path="/Play" element={<Play />} />
-
-                
+                <Route path="/Chat" element={<Chat />} />
+                <Route path="/Settings" element={<Settings />} />
+                <Route path="/Leaderboard" element={<Leaderboard />} />
+                <Route path="/Profil" element={<Profil />} />
             </Routes>
 	</BrowserRouter>
     </div>
