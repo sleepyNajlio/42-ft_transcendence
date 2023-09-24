@@ -8,7 +8,7 @@ import { Play } from './Play.tsx';
 import { Chat } from './Chat.tsx';
 import { Settings } from './Settings.tsx'
 import { Leaderboard } from './Leaderboard.tsx'
-import { Profil } from './Profil.tsx'
+import { Profile } from './Profile.tsx'
 
 function App()
 {
@@ -23,7 +23,7 @@ function App()
                 <Route path="/Chat" element={<Chat />} />
                 <Route path="/Settings" element={<Settings />} />
                 <Route path="/Leaderboard" element={<Leaderboard />} />
-                <Route path="/Profil" element={<Profil />} />
+                <Route path="/Profil" element={<Profile />} />
             </Routes>
 	</BrowserRouter>
     </div>
