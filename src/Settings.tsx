@@ -26,7 +26,7 @@ export function Settings() {
                         </div>
                         <div className="sbox__input">
                             <label htmlFor="input">Choose a Nickname *</label>
-                            <input type="text" id="input" name="input" placeholder='ex: buffaloLi7wak'/>
+                            <input type="text" id="input" name="input" placeholder='ex: 3ndk a tsakl ma3ndkch matsaklch'/>
                         </div>
                     </div>
                 </div>
