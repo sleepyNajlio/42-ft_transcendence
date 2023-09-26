@@ -2,7 +2,7 @@
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-
+  height: 100%;
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
 
@@ -11,6 +11,11 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
+}
+
+#root 
+{
+  height: 100%;
 }
 /* ChargeVector Regular */
 @font-face {
@@ -47,6 +52,7 @@ body
 {
   margin: 0;
   min-width: 320px;
-  min-height: 100vh;
+  height: 100%;
+  font-size: 16px;
   background-color: rgb(17, 7, 7);
 }

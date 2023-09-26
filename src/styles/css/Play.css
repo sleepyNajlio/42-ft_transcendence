@@ -2,6 +2,7 @@
 {
   background: white;
   display: flex;
+box-sizing: border-box;
   flex-direction: column;
   text-align: center;
   justify-content: start;
@@ -21,12 +22,12 @@
 
 .container
 {
-    grid-template-columns: 333px 1fr;
+    grid-template-columns: 20% 1fr;
 }
 
-input {
-
-    width: 250px;
+.search_container input {
+    box-sizing: border-box;
+    width: 100%;
     height: 40px;
     padding-left: 40px;
     padding-right: 10px;
@@ -43,16 +44,17 @@ input {
     border: none;
 }
 
-input:focus 
+.search_container input:focus 
 {
     outline: none;
 }
 
-input:focus {
+.search_container input:focus {
     box-shadow: 0 0 5px #ff8471; /* Adjust the color and size as needed */
 }
 
 .search_container {
+    width: 90%;
     position: relative;
 }
   
@@ -76,6 +78,7 @@ input:focus {
 .btn_container 
 {
     position: relative;
+    width: 90%;
 }
 
 .icon {
@@ -94,8 +97,9 @@ input:focus {
 {
     padding-left: 68px;
     font-size: 16px;
-    width: 300px;
+    width: 100%;
     height: 44px;
+    box-sizing: border-box;
     padding-right: 10px;
     padding-top: 10px;
     padding-bottom: 10px;

@@ -1,7 +1,22 @@
 .container
 {
-  height: 100vh;
+  height: 100%;
   display: grid;
   grid-template-columns: 438px 1fr;
 
+}
+
+::-webkit-scrollbar {
+  width: 12px; /* Set the width of the scrollbar */
+}
+
+/* Scrollbar thumb (the draggable part) */
+::-webkit-scrollbar-thumb {
+  background-color: rgba(128, 128, 128, 0.5); /* Grey color with some transparency */
+  border-radius: 6px; /* Rounded corners */
+}
+
+/* Scrollbar track (the non-draggable part) */
+::-webkit-scrollbar-track {
+  background-color: rgba(192, 192, 192, 0.5); /* Grey color with some transparency */
 }

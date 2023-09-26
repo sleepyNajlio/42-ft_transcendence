@@ -4,13 +4,15 @@
 .wrapper {
     background: linear-gradient(65.87deg, #173256 20.93%, #0F597B 92.75%);
     display: flex;
-    min-height: 100vh;
+box-sizing: border-box;
+    height: 100%;
     align-items: center;
     justify-content: center;
 }
 
 .sbox {
     display: flex;
+box-sizing: border-box;
     flex-direction: column;
     justify-content: center;
     align-items: center;
@@ -26,6 +28,7 @@
 
 .bbox {
     display: flex;
+box-sizing: border-box;
     flex-direction: column;
     justify-content: center;
     align-items: center;
@@ -37,6 +40,7 @@
 
 .sbox__btn {
     display: flex;
+box-sizing: border-box;
     flex-direction: row;
     align-items: flex-start;
     padding: 0px;
@@ -52,6 +56,7 @@
 
     /* Auto layout */
     display: flex;
+box-sizing: border-box;
     flex-direction: row;
     justify-content: center;
     align-items: flex-start;
@@ -68,6 +73,7 @@
     line-height: 20px;
     /* identical to box height */
     display: flex;
+box-sizing: border-box;
     align-items: center;
     text-align: center;
 
@@ -92,7 +98,7 @@
 
 .btitle {
     margin: inherit;
-    text-align: center;
+    text-align: left;
 }
 
 .stitle {
@@ -102,6 +108,7 @@
 
 .sbox__cercle{
     display: flex;
+box-sizing: border-box;
     justify-content: right;
     width: 70px;
     height: 70px;
@@ -130,7 +137,6 @@
     display: inline-flex;
     color: white;
     column-gap: 20px;
-    align-self: flex-start;
     align-items: center;
 }
 
@@ -163,6 +169,7 @@
 
 .sbox__checkbox{
     display: flex;
+box-sizing: border-box;
     flex-direction: row;
     align-items: center;
     justify-content: flex-start;
@@ -241,15 +248,17 @@ input[type="checkbox"].checkbox:checked + label::before {
     padding-top: 10px;
     padding-bottom: 10px;
     display: flex;
+box-sizing: border-box;
     flex-direction: row;
     justify-content: space-evenly;
     align-items: center;
-    gap: 50px;
+    gap: 2%;
 }
 
 .stats
 {
     display: flex;
+box-sizing: border-box;
     flex-direction: column;
     justify-content: center;
     align-items: center;
@@ -259,6 +268,7 @@ input[type="checkbox"].checkbox:checked + label::before {
 .rank
 {
     display: flex;
+box-sizing: border-box;
     flex-direction: column;
     justify-content: center;
     align-items: center;
@@ -296,14 +306,15 @@ input[type="checkbox"].checkbox:checked + label::before {
 {
     font-family: 'Montserrat';
     font-style: normal;
-    font-weight: 500;
-    font-size: 12px;
+    font-weight: 700;
+    font-size: 29px;
     line-height: 15px;
 }
 
 .wrapper.leader
 {
     display: flex;
+box-sizing: border-box;
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
@@ -312,11 +323,10 @@ input[type="checkbox"].checkbox:checked + label::before {
 .profil .container {
     display: grid;
     grid-template-columns: 7fr 4fr;
-    grid-template-rows: 10% 1fr;
     margin: 0;
     grid-gap: 37px;
     width: 90%;
-    height: 90%;
+    height: 98%;
   }
   
   .title {
@@ -325,17 +335,20 @@ input[type="checkbox"].checkbox:checked + label::before {
     grid-column: 1 / span 2;
     grid-row: 1;
     display: flex;
+box-sizing: border-box;
     justify-content: center;
     align-items: center;
   }
   
   .left-div {
     display: flex;
+box-sizing: border-box;
     flex-direction: column;
     justify-content: space-between;
     color: #fff;
     gap:70px;
     grid-column: 1;
+    height: 90%;
     grid-row: 2;
   }
   
@@ -344,22 +357,30 @@ input[type="checkbox"].checkbox:checked + label::before {
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.25);
     border-radius: 16px;
     padding: 20px;
+    overflow: auto;
     grid-column: 2;
+    height: 90%;
+    box-sizing: border-box;
     grid-row: 2;
   }
   
   .left-content {
     flex: 1;
-    padding: 10px;
     text-align: center;
     background: rgba(156, 163, 175, 0.1);
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.25);
     border-radius: 16px;
   }
+
+  .achivements
+  {
+    overflow: auto;
+  }
   
   .history
   {
     display: flex;
+box-sizing: border-box;
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
@@ -369,6 +390,7 @@ input[type="checkbox"].checkbox:checked + label::before {
   .score
   {
       display: flex;
+box-sizing: border-box;
       flex-direction: row;
       justify-content: center;
       align-items: center;
@@ -378,16 +400,18 @@ input[type="checkbox"].checkbox:checked + label::before {
 .achivements_cells
 {
     display: flex;
+box-sizing: border-box;
     flex-flow: row wrap;
     gap: 10px;
 }
 .achivements_cells .cell
 {
-    width: 190px;
+    width: 170px;
     height: 130px;
     justify-content: center;
     align-items: center;
     display: flex;
+box-sizing: border-box;
     position: relative; /* Make it a positioned container */
 
 }
@@ -412,6 +436,7 @@ input[type="checkbox"].checkbox:checked + label::before {
 }
 .ptest{
     display: flex;
+box-sizing: border-box;
     flex-direction: row;
     justify-content: center;
     align-items: center;
@@ -421,18 +446,20 @@ input[type="checkbox"].checkbox:checked + label::before {
 .profil__card
 {
     display: flex;
+box-sizing: border-box;
     flex-direction: row;
     justify-content: space-evenly;
     align-items: center;
     gap: 10px;
     height: 100%;
-    flex: 3;
+    flex: 2;
 }
 
 .profil__info
 {
     height: 100%;
     display: flex;
+box-sizing: border-box;
     flex-direction: column;
     flex: 1;
 }
@@ -457,6 +484,7 @@ input[type="checkbox"].checkbox:checked + label::before {
 {
     flex: 1;
     display: flex;
+box-sizing: border-box;
     flex-direction: column;
     justify-content: center;
     align-items: center;
@@ -469,19 +497,23 @@ input[type="checkbox"].checkbox:checked + label::before {
     flex-direction: column;
     gap: 30px;
     display: flex;
+box-sizing: border-box;
+    padding: 20px;
 }
 
 .profil__stats__info
 {
     display: flex;
-    flex: 3;
+box-sizing: border-box;
+    flex: 2;
     justify-content: center;
-    align-items: start;
+    align-items: center;
 }
 
 .profil__stats__info__cell
 {
     display: flex;
+box-sizing: border-box;
     flex: 1;
     flex-direction: column;
     justify-content: center;
@@ -500,6 +532,7 @@ input[type="checkbox"].checkbox:checked + label::before {
 
 .profil__ratio {
     display: flex;
+box-sizing: border-box;
     flex: 3;
     justify-content: center;
     align-items: center;
@@ -541,4 +574,130 @@ input[type="checkbox"].checkbox:checked + label::before {
     stroke-linecap: round;
     stroke-dasharray: 500;
     stroke-dashoffset: 400;
+  }
+
+  .ptitle{
+    flex: 1;
+  }
+  .hamburger
+{
+    flex: 0.8;
+    box-sizing: border-box;
+    display: none;
+}
+
+  /* Hamburger menu icon styles */
+.menu-icon {
+    display: block;
+    cursor: pointer;
+    padding: 15px;
+  }
+  
+  .bar {
+    width: 30px;
+    height: 3px;
+    background-color: #333;
+    margin: 6px 0;
+    transition: 0.4s;
+  }
+  
+  /* Hamburger menu input styles (hidden) */
+  #menu-toggle {
+    display: none;
+  }
+  
+  /* Toggle the menu icon's bars when the input is checked */
+  #menu-toggle:checked + .menu-icon .bar:nth-child(1) {
+    transform: rotate(-45deg) translate(-5px, 5px);
+  }
+  
+  #menu-toggle:checked + .menu-icon .bar:nth-child(2) {
+    opacity: 0;
+  }
+  
+  #menu-toggle:checked + .menu-icon .bar:nth-child(3) {
+    transform: rotate(45deg) translate(-5px, -5px);
+  }
+  
+
+  /* Small screens (576px and below) */
+@media (max-width: 576px) {
+    /* Styles specific to small screens */
+  }
+  
+  /* Medium screens (577px to 768px) */
+  @media (min-width: 577px) and (max-width: 768px) {
+    .hamburger{
+        display: contents;
+    }
+    .container {
+        grid-template-columns: 1fr;
+        grid-template-rows: 4% 60% 30%;
+    }
+    .Navbar {
+        display: none;
+    }
+    /* Styles specific to medium screens */
+  }
+  
+  /* Large screens (769px to 992px) */
+  @media (min-width: 769px) and (max-width: 992px) {
+    /* Styles specific to large screens */
+  }
+  
+  /* Extra large screens (993px and above) */
+  @media (min-width: 769px) and (max-width: 1235px){
+    .profil .container {
+        grid-template-rows: 4% 60% 30%;
+        grid-template-columns: 1fr;
+    }
+    .title {
+        grid-row: 1;
+        grid-column: 1;
+    }
+    .left-div {
+        grid-row: 2;
+        grid-column: 1;
+        height: 100%;
+        gap: 37px;
+    }
+    .right-div {
+        white-space: nowrap; /* Prevent child elements from wrapping */
+        position: relative;
+        padding-top: 6px;
+        grid-row: 3;
+        grid-column: 1;
+        height: 90%;
+    }
+    .rankbar > * {
+        margin-right: 10px; /* Adjust the margin as needed for spacing */
+        margin-left: 10px;
+    }
+    .rankbar {
+        gap: inherit;
+        height: 100%;
+    }
+    .rank__title{
+        left: 10px;
+        position: sticky;
+        text-align: center;
+    }
+    .history {
+        flex-direction: row;
+        height: 76%;
+    }
+  }
+
+  @media (min-height: 780px) {
+    /* Styles specific to large height */
+    .wrapper{
+        height: 100vh;
+    }
+  }
+
+
+  
+  /* Show the navbar when the input is checked */
+  #menu-toggle:checked ~ .navbar {
+    display: none;
   }

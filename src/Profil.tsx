@@ -5,11 +5,20 @@ import lock from './assets/lock_line.svg';
 export function Profil() {
   return (
     <>
-      <Navbar></Navbar>
-      <main className="wrapper profil">
+        <Navbar ></Navbar>
+
+      <main id='page-wrap' className="wrapper profil">
         <div className="profil container">
         <div className="title">
-          <h1 className="ptitle">Profile</h1>
+          <div className="hamburger">
+            <input type="checkbox" id="menu-toggle"/>
+            <label htmlFor="menu-toggle" className="menu-icon">
+              <div className="bar"></div>
+              <div className="bar"></div>
+              <div className="bar"></div>
+            </label>
+          </div>
+            <h1 className="ptitle">Profile</h1>
         </div>
         <div className="left-div">
           <div className="ptest">
@@ -47,7 +56,7 @@ export function Profil() {
             </div>
           </div>
           <div className="left-content achivements">
-            <h1 className="rank__title">Acheivements</h1>
+            <h1 className="ach__title">Acheivements</h1>
             <div className="achivements_cells">
               <div className="cell">
                   <div className="achivements__cercle">
@@ -86,15 +95,15 @@ export function Profil() {
           </div>
         </div>
         <div className="right-div">
+              <h1 className="rank__title">History</h1>
               <div className="history">
-                <h1 className="rank__title">History</h1>
                 <div className="rankbar">
                     <div className="rank__user">
                         <div className="rank__cercle"></div>
                     </div>
                     <div className="score">
                         <span className="rankval">1</span>
-                        <span className="rankname">---</span>
+                        <span className="rankname">-</span>
                         <span className="rankval">1</span>
                     </div>
                     <div className="rank__user">
@@ -106,7 +115,7 @@ export function Profil() {
                     </div>
                     <div className="score">
                         <span className="rankval">1</span>
-                        <span className="rankname">---</span>
+                        <span className="rankname">-</span>
                         <span className="rankval">1</span>
                     </div>
                     <div className="rank__user">
@@ -118,7 +127,7 @@ export function Profil() {
                     </div>
                     <div className="score">
                         <span className="rankval">1</span>
-                        <span className="rankname">---</span>
+                        <span className="rankname">-</span>
                         <span className="rankval">1</span>
                     </div>
                     <div className="rank__user">
@@ -130,7 +139,7 @@ export function Profil() {
                     </div>
                     <div className="score">
                         <span className="rankval">1</span>
-                        <span className="rankname">---</span>
+                        <span className="rankname">-</span>
                         <span className="rankval">1</span>
                     </div>
                     <div className="rank__user">
@@ -142,7 +151,7 @@ export function Profil() {
                     </div>
                     <div className="score">
                         <span className="rankval">1</span>
-                        <span className="rankname">---</span>
+                        <span className="rankname">-</span>
                         <span className="rankval">1</span>
                     </div>
                     <div className="rank__user">
@@ -154,7 +163,7 @@ export function Profil() {
                     </div>
                     <div className="score">
                         <span className="rankval">1</span>
-                        <span className="rankname">---</span>
+                        <span className="rankname">-</span>
                         <span className="rankval">1</span>
                     </div>
                     <div className="rank__user">
@@ -166,7 +175,7 @@ export function Profil() {
                     </div>
                     <div className="score">
                         <span className="rankval">1</span>
-                        <span className="rankname">---</span>
+                        <span className="rankname">-</span>
                         <span className="rankval">1</span>
                     </div>
                     <div className="rank__user">

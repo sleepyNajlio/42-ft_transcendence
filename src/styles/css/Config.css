@@ -2,6 +2,8 @@
 {
     background: linear-gradient(65.87deg, #173256 20.93%, #0F597B 92.75%);
     display: flex;
+box-sizing: border-box;
+
     flex-direction: column;
     text-align: center;
     justify-content: center;
@@ -20,6 +22,7 @@
 {
     flex: 2;
     display: flex;
+box-sizing: border-box;
     flex-direction: column;
     text-align: center;
     justify-content: start;

@@ -2,6 +2,7 @@
 {
   background: linear-gradient(65.87deg, #173256 20.93%, #0F597B 92.75%);
   display: flex;
+box-sizing: border-box;
   flex-direction: column;
   
 }
@@ -17,6 +18,7 @@
   width: 100%;
   flex : 1;
   display: flex;
+box-sizing: border-box;
   justify-content: center;
   align-items: center;
 
@@ -53,6 +55,7 @@
 {
   flex : 2;
   display: flex;
+box-sizing: border-box;
   flex-direction: column;
   text-align: center;
   justify-content: center;
@@ -71,7 +74,7 @@
 
 .raketa img
 {
-  height: 100vh;
+  height: 100%;
   float: right;
   /* width: 100%; */
   /* margin: 50px; */
