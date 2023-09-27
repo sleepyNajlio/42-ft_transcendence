@@ -12,7 +12,6 @@ box-sizing: border-box;
 
 .sbox {
     display: flex;
-box-sizing: border-box;
     flex-direction: column;
     justify-content: center;
     align-items: center;
@@ -318,8 +317,14 @@ box-sizing: border-box;
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
+    overflow: auto;
     gap: 20px;
 }
+
+.leader .rankbar{
+    min-width: 653px;
+}
+
 .profil .container {
     display: grid;
     grid-template-columns: 7fr 4fr;
@@ -579,46 +584,6 @@ box-sizing: border-box;
   .ptitle{
     flex: 1;
   }
-  .hamburger
-{
-    flex: 0.8;
-    box-sizing: border-box;
-    display: none;
-}
-
-  /* Hamburger menu icon styles */
-.menu-icon {
-    display: block;
-    cursor: pointer;
-    padding: 15px;
-  }
-  
-  .bar {
-    width: 30px;
-    height: 3px;
-    background-color: #333;
-    margin: 6px 0;
-    transition: 0.4s;
-  }
-  
-  /* Hamburger menu input styles (hidden) */
-  #menu-toggle {
-    display: none;
-  }
-  
-  /* Toggle the menu icon's bars when the input is checked */
-  #menu-toggle:checked + .menu-icon .bar:nth-child(1) {
-    transform: rotate(-45deg) translate(-5px, 5px);
-  }
-  
-  #menu-toggle:checked + .menu-icon .bar:nth-child(2) {
-    opacity: 0;
-  }
-  
-  #menu-toggle:checked + .menu-icon .bar:nth-child(3) {
-    transform: rotate(45deg) translate(-5px, -5px);
-  }
-  
 
   /* Small screens (576px and below) */
 @media (max-width: 576px) {
@@ -626,16 +591,10 @@ box-sizing: border-box;
   }
   
   /* Medium screens (577px to 768px) */
-  @media (min-width: 577px) and (max-width: 768px) {
-    .hamburger{
-        display: contents;
-    }
+  @media (max-width: 768px) {
     .container {
         grid-template-columns: 1fr;
         grid-template-rows: 4% 60% 30%;
-    }
-    .Navbar {
-        display: none;
     }
     /* Styles specific to medium screens */
   }
@@ -646,7 +605,7 @@ box-sizing: border-box;
   }
   
   /* Extra large screens (993px and above) */
-  @media (min-width: 769px) and (max-width: 1235px){
+  @media (max-width: 1235px){
     .profil .container {
         grid-template-rows: 4% 60% 30%;
         grid-template-columns: 1fr;
@@ -675,6 +634,7 @@ box-sizing: border-box;
     }
     .rankbar {
         gap: inherit;
+        max-height: 80px;
         height: 100%;
     }
     .rank__title{
@@ -695,9 +655,3 @@ box-sizing: border-box;
     }
   }
 
-
-  
-  /* Show the navbar when the input is checked */
-  #menu-toggle:checked ~ .navbar {
-    display: none;
-  }

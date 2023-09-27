@@ -20,7 +20,7 @@ box-sizing: border-box;
 
 .lll
 {
-    flex: 2;
+    flex: 4;
     display: flex;
 box-sizing: border-box;
     flex-direction: column;
@@ -71,6 +71,7 @@ input {
   text-align: center;
   font-family: 'inter';
   font-style: normal;
+  color: white;
   font-size: 20px;
   cursor: pointer;
   width: 242px;

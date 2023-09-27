@@ -11,8 +11,7 @@ box-sizing: border-box;
 }
 .logo
 {
-    align-items: flex-start;
-    flex :none;
+    flex: 2;
 }
 .logo img
 {
@@ -158,3 +157,69 @@ box-sizing: border-box;
     box-shadow: inset 0px 1px 0px #F2F4F6;
     border-radius: 0px 0px 8px 8px;
 }
+
+
+.hamburger
+{
+    flex: 0.8;
+    box-sizing: border-box;
+    display: none;
+}
+
+  /* Hamburger menu icon styles */
+.menu-icon {
+    position: absolute;
+    cursor: pointer;
+    padding: 15px;
+    display: none;
+    z-index: 6;
+  }
+  
+  .bar {
+    width: 30px;
+    height: 3px;
+    background-color: #666666;
+    margin: 6px 0;
+    transition: 0.4s;
+  }
+  
+  /* Hamburger menu input styles (hidden) */
+  #menu-toggle {
+    display: none;
+  }
+  
+  /* Toggle the menu icon's bars when the input is checked */
+  #menu-toggle:checked + .menu-icon .bar:nth-child(1) {
+    transform: rotate(-45deg) translate(-5px, 5px);
+  }
+  
+  #menu-toggle:checked + .menu-icon .bar:nth-child(2) {
+    opacity: 0;
+  }
+  
+  #menu-toggle:checked + .menu-icon .bar:nth-child(3) {
+    transform: rotate(45deg) translate(-5px, -5px);
+  }
+  
+
+@media (max-width: 768px) {
+    .menu-icon
+    {
+        display: block;
+
+    }
+    .Navbar {
+        
+        transition: transform 0.5s ease-in-out;
+        transform: translate(-150%);
+        position: absolute;
+        z-index: 5;
+        height: inherit;
+    }
+}
+
+  
+  /* Show the navbar when the input is checked */
+  #menu-toggle:checked ~ .Navbar {
+    transform: translateX(0);
+  }
