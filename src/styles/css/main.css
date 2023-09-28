@@ -594,7 +594,6 @@ box-sizing: border-box;
   @media (max-width: 768px) {
     .container {
         grid-template-columns: 1fr;
-        grid-template-rows: 4% 60% 30%;
     }
     /* Styles specific to medium screens */
   }

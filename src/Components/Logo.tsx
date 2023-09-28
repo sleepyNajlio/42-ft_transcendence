@@ -1,10 +1,14 @@
 import logo from '/logo.png'
 import '../styles/css/Login.css';
 
-function Logo(){
+const htmlclass={
+    name: "logo"
+}
+
+function Logo(props : typeof htmlclass){
     return (
     <>
-    <div className="logo">
+    <div className={props.name || "logo"}>
         <img src={logo} alt="logo" />
     </div>
     </>

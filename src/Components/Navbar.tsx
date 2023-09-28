@@ -19,7 +19,7 @@ export default function Navbar() {
         <div className="bar"></div>
       </label>
     <section className="Navbar">
-      <Logo></Logo>
+      <Logo name={"plogo"}></Logo>
         <div className="search_container">
         <input type="text" placeholder="Search" />
             <div className="search-icon">

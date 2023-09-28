@@ -4,12 +4,14 @@ import raketa from "/raketa.png";
 import Button from './Components/Button'
 import './styles/css/Login.css';
 
+
+
 export function Login() {
 
   return (
     <>
     <section className="sidebar">
-      <Logo></Logo>
+      <Logo name={''}></Logo>
       <div className="signin">
         <div className="ftlogo">
           <img src={ftlogo} alt="ftlogo" />
@@ -17,7 +19,7 @@ export function Login() {
           <Button msg= "Sign in with intra"/>
       </div>
     </section>
-    <main className="main">
+    <main className="cmain">
       <div className="raketa">
         <img src={raketa} alt="raketa" />
       </div>

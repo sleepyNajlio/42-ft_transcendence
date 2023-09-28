@@ -2,16 +2,15 @@
 {
   background: linear-gradient(65.87deg, #173256 20.93%, #0F597B 92.75%);
   display: flex;
+  padding: 60px;
 box-sizing: border-box;
   flex-direction: column;
   
 }
 
-.main
+.cmain
 {
   background: rgba(15, 89, 123, 1);
-
-
 }
 .logo
 {
@@ -84,3 +83,20 @@ box-sizing: border-box;
   /* margin: 50px; */
   /* padding: 0; */ 
 }
+
+.container.one {
+  overflow: hidden;
+  grid-template-columns: 1fr 1fr;
+}
+
+@media screen and (max-width: 768px) {
+  .cmain
+  {
+    display: none;
+  }
+  .container.one {
+    grid-template-columns: 1fr;
+    grid-template-rows: none;
+  }
+}
+

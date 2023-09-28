@@ -8,7 +8,7 @@ export function TwoFA() {
   return (
     <>
     <section className="Config">
-      <Logo></Logo>
+      <Logo name={''}></Logo>
       <div className="lll">
         <div className="cercle"></div>
         <input type="text" placeholder="Enter your phone number.." />
