@@ -1,8 +1,38 @@
 import Navbar from './Components/Navbar.tsx';
+import PofilCard from './Components/PofilCard.tsx';
+import MobProfilCard from './Components/MobProfilCard.tsx';
 import './styles/css/main.css';
-import lock from './assets/lock_line.svg';
+import { useMediaPredicate } from 'react-media-hook';
+import { user } from './Components/types.ts';
 
 export function Profil() {
+    
+  const checkIfMediumPlus = useMediaPredicate(
+    '(min-width: 769px)'
+  );
+
+  const user = {
+    id: "1",
+    name: "Buffalo",
+    image: "/bsk.png",
+    rank: 1,
+    user_stats: {
+      total_matches: 341,
+      wins: 203,
+      winsRat: 64,
+      achievement: 3,
+    },
+    achievement: [
+        {name: "First win", description: "Win your first game", progress: 1, max: 1},
+        {name: "Win 10 games", description: "Win 10 games", progress: 10, max: 10},
+        {name: "Win 100 games", description: "Win 100 games", progress: 99, max: 100},
+        {name: "default", description: "Win 100 games", progress: 0, max: 100},
+        {name: "default", description: "Win 100 games", progress: 0, max: 100},
+        {name: "default", description: "Win 100 games", progress: 0, max: 100},
+    ],
+  } as user;
+  
+
   return (
     <>
       
@@ -11,83 +41,13 @@ export function Profil() {
       <main id='page-wrap' className="wrapper profil">
         <div className="profil container">
         <div className="title">
-            
             <h1 className="ptitle">Profile</h1>
         </div>
-        <div className="left-div">
-          <div className="ptest">
-            <div className="left-content profil__info">
-              <img src="/bsk.png" alt="" className="profil__pic" />
-              <div className="profil__user">
-                <h4 className="profil__username">Richard</h4>
-                <h6 className="profil__rank">#1</h6>
-              </div>
-            </div>
-            <div className="left-content profil__card">
-              <div className="profil__stats">
-                <div className='profil__ratio'>
-                  <h3>13%</h3>
-                  <h6>Ratio</h6>
-                  <svg>
-                    <circle id="progress" cx="90" cy="90" r="80"></circle>
-                  </svg>
-                </div>
-                <div className="profil__stats__info">
-                  <div className="profil__stats__info__cell">
-                    <h6>Total matches</h6>
-                    <h3>13</h3>
-                  </div>
-                  <div className="profil__stats__info__cell">
-                    <h6>Wins</h6>
-                    <h3>13</h3>
-                  </div>
-                  <div className="profil__stats__info__cell">
-                    <h6>Acheivemnt</h6>
-                    <h3>13</h3>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="left-content achivements">
-            <h1 className="ach__title">Acheivements</h1>
-            <div className="achivements_cells">
-              <div className="cell">
-                  <div className="achivements__cercle">
-                  </div>
-                  <img src={lock} alt="" className="achivement__img"/>
-              </div>
-              <div className="cell">
-                <div className="achivements__cercle"></div>
-                <img src={lock} alt="" className="achivement__img"/>
-              </div>
-              <div className="cell">
-                <div className="achivements__cercle"></div>
-                <img src={lock} alt="" className="achivement__img"/>
-              </div>
-              <div className="cell">
-                <div className="achivements__cercle"></div>
-                <img src={lock} alt="" className="achivement__img"/>
-              </div>
-              <div className="cell">
-                <div className="achivements__cercle"></div>
-                <img src={lock} alt="" className="achivement__img"/>
-              </div>
-              <div className="cell">
-                <div className="achivements__cercle"></div>
-                <img src={lock} alt="" className="achivement__img"/>
-              </div>
-              <div className="cell">
-                <div className="achivements__cercle"></div>
-                <img src={lock} alt="" className="achivement__img"/>
-              </div>
-              <div className="cell">
-                <div className="achivements__cercle"></div>
-                <img src={lock} alt="" className="achivement__img"/>
-              </div>
-            </div>
-          </div>
-        </div>
+        {checkIfMediumPlus ? (
+            <PofilCard user={user}></PofilCard>
+            ) : (
+            <MobProfilCard user={user}></MobProfilCard>
+        )}
         <div className="right-div">
               <h1 className="rank__title">History</h1>
               <div className="history">

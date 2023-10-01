@@ -16,10 +16,10 @@ box-sizing: border-box;
     height: auto;
 }
 
-.container
-{
+.container {
     grid-template-columns: 20% 1fr;
 }
+
 
 .search_container input {
     box-sizing: border-box;
@@ -214,8 +214,22 @@ box-sizing: border-box;
         height: inherit;
     }
 }
+@media (max-width: 1200px) {
 
-  
+    .container
+    {
+        grid-template-columns: 225px 1fr;
+    }
+}
+
+@media (max-height: 768px) {
+    .Navbar {
+        overflow: auto;
+    }
+    .right-div{
+        height: fit-content;
+    }
+}
   /* Show the navbar when the input is checked */
   #menu-toggle:checked ~ .Navbar {
     transform: translateX(0);

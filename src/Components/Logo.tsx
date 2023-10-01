@@ -1,11 +1,11 @@
 import logo from '/logo.png'
 import '../styles/css/Login.css';
 
-const htmlclass={
-    name: "logo"
-}
+type htmlclass = {
+    name: string;
+  }
 
-function Logo(props : typeof htmlclass){
+function Logo(props : htmlclass){
     return (
     <>
     <div className={props.name || "logo"}>

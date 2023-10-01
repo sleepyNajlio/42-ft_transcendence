@@ -5,7 +5,7 @@
     background: linear-gradient(65.87deg, #173256 20.93%, #0F597B 92.75%);
     display: flex;
 box-sizing: border-box;
-    height: 100%;
+    min-height: fit-content;
     align-items: center;
     justify-content: center;
 }
@@ -426,6 +426,7 @@ box-sizing: border-box;
     height: 100px;
     border-radius: 100%;
     background-image: url('/bsk.png');
+    background-color: transparent;
     background-size: cover;
     filter: blur(5px); /* Add a blur effect */
     z-index: 0; /* Place it behind the lock image */
@@ -470,9 +471,8 @@ box-sizing: border-box;
 }
 .profil__info img
 {
-    width: 100%;
     height: 180px;
-    object-fit: cover;
+    object-fit: contain;
 }
 
 .profil__info h4, .profil__info h6
@@ -587,12 +587,70 @@ box-sizing: border-box;
 
   /* Small screens (576px and below) */
 @media (max-width: 576px) {
+    .profil__info img
+    {
+        height: 130px;
+    }
     /* Styles specific to small screens */
   }
   
   /* Medium screens (577px to 768px) */
   @media (max-width: 768px) {
+    .achivements__cercle{
+        width: 80px;
+        height: 80px;
+    }
+
+    .profil__stats__info{
+        flex-direction: column;
+        gap: 10px;
+    }
+    .profil__stats__info__cell{
+        width: 100%;
+        justify-content: space-between;
+        flex-direction: row;
+        gap: 10px;
+    }
+    .profil__ratio h6 {
+        display: none;
+    }
+    #progress {
+        stroke-width: 8px;
+      }
+    .profil__info{
+        flex: 4;
+    }
+    .profil__card{
+        flex: 1;
+    }
+    .title {
+        grid-row: 1;
+        grid-column: 1;
+    }
+    .left-div {
+        grid-column: 1;
+        grid-row: 2;
+    }
+    .right-div {
+        grid-column: 1;
+        grid-row: 4;
+    }
+    .left-content {
+        grid-column: 1;
+        grid-row: 3;
+    }
     .container {
+        grid-template-columns: 1fr;
+    }
+    .profil__ratio svg {
+        height: 90px;
+        width: 90px;
+        transform: rotate(-90deg);
+    
+      }
+      .profil .container {
+        grid-template-rows: 4% 30% 30% 30%;
+        gap: 20px;
         grid-template-columns: 1fr;
     }
     /* Styles specific to medium screens */
@@ -604,14 +662,14 @@ box-sizing: border-box;
   }
   
   /* Extra large screens (993px and above) */
-  @media (max-width: 1235px){
+  @media (min-width: 769px) and (max-width: 1235px){
     .profil .container {
         grid-template-rows: 4% 60% 30%;
         grid-template-columns: 1fr;
     }
     .title {
         grid-row: 1;
-        grid-column: 1;
+        grid-column: 1/span 2;
     }
     .left-div {
         grid-row: 2;
@@ -644,6 +702,19 @@ box-sizing: border-box;
     .history {
         flex-direction: row;
         height: 76%;
+    }
+  }
+
+  @media (max-height: 780px) and (max-width: 769px) {
+    /* Styles specific to small height */
+    .right-div{
+        max-height: 250px;
+    }
+    .left-div{
+        max-height: 250px;
+    }
+    .left-content{
+        max-height: 250px;
     }
   }
 
