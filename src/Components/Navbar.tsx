@@ -12,8 +12,14 @@ export default function Navbar() {
 
   return (
     <>
+    <input type="checkbox" id="menu-toggle"/>
+      <label htmlFor="menu-toggle" className="menu-icon">
+        <div className="bar"></div>
+        <div className="bar"></div>
+        <div className="bar"></div>
+      </label>
     <section className="Navbar">
-      <Logo></Logo>
+      <Logo name={"plogo"}></Logo>
         <div className="search_container">
         <input type="text" placeholder="Search" />
             <div className="search-icon">

@@ -2,6 +2,8 @@
 {
     background: linear-gradient(65.87deg, #173256 20.93%, #0F597B 92.75%);
     display: flex;
+box-sizing: border-box;
+
     flex-direction: column;
     text-align: center;
     justify-content: center;
@@ -11,15 +13,13 @@
     /* flex: 1; */
 }
 
-.logo
-{
-    flex : 1
-}
+
 
 .lll
 {
-    flex: 2;
+    flex: 4;
     display: flex;
+box-sizing: border-box;
     flex-direction: column;
     text-align: center;
     justify-content: start;
@@ -68,6 +68,7 @@ input {
   text-align: center;
   font-family: 'inter';
   font-style: normal;
+  color: white;
   font-size: 20px;
   cursor: pointer;
   width: 242px;

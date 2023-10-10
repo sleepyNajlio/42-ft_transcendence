@@ -2,21 +2,22 @@
 {
   background: linear-gradient(65.87deg, #173256 20.93%, #0F597B 92.75%);
   display: flex;
+  padding: 60px;
+box-sizing: border-box;
   flex-direction: column;
   
 }
 
-.main
+.cmain
 {
   background: rgba(15, 89, 123, 1);
-
-
 }
 .logo
 {
   width: 100%;
   flex : 1;
   display: flex;
+box-sizing: border-box;
   justify-content: center;
   align-items: center;
 
@@ -37,7 +38,7 @@
 
 .signin button
 {
-
+  color: white;
   background-color: rgba(15, 89, 123, 1);
   border: none;
   text-align: center;
@@ -51,8 +52,9 @@
 
 .signin
 {
-  flex : 2;
+  flex : 4;
   display: flex;
+box-sizing: border-box;
   flex-direction: column;
   text-align: center;
   justify-content: center;
@@ -68,6 +70,10 @@
 }
 
 
+.raketa {
+  height: 100%;
+}
+
 
 .raketa img
 {
@@ -77,3 +83,20 @@
   /* margin: 50px; */
   /* padding: 0; */ 
 }
+
+.container.one {
+  overflow: hidden;
+  grid-template-columns: 1fr 1fr;
+}
+
+@media screen and (max-width: 768px) {
+  .cmain
+  {
+    display: none;
+  }
+  .container.one {
+    grid-template-columns: 1fr;
+    grid-template-rows: none;
+  }
+}
+
