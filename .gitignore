@@ -1,2 +1,8 @@
 auth.txt
-node_modules/
+back-end/node_modules
+back-end/package-lock.json
+back-end/package.json
+
+front-end/node_modules
+front-end/package-lock.json
+front-end/package.json
