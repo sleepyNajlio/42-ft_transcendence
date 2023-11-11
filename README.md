@@ -1,2 +1,2 @@
-# React TypeScript ⚛️ + Nest.js ![Nest.js Logo](file:///home/leonidas/Downloads/nestjs(1).svg)
+# React TypeScript ⚛️ + Nest.js ![Nest.js Logo](https://upload.wikimedia.org/wikipedia/commons/a/a8/NestJS.svg)
 ### In Progress...
