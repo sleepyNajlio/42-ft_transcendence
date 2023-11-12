@@ -4,6 +4,7 @@ import MobProfilCard from './Components/MobProfilCard.tsx';
 import './styles/css/main.css';
 import { useMediaPredicate } from 'react-media-hook';
 import { user } from './Components/types.ts';
+<<<<<<< HEAD:front-end/src/Profile.tsx
 
 export function Profile() {
     
@@ -33,6 +34,37 @@ export function Profile() {
   } as user;
   
 
+=======
+
+export function Profil() {
+    
+  const checkIfMediumPlus = useMediaPredicate(
+    '(min-width: 769px)'
+  );
+
+  const user = {
+    id: "1",
+    name: "Buffalo",
+    image: "/bsk.png",
+    rank: 1,
+    user_stats: {
+      total_matches: 341,
+      wins: 203,
+      winsRat: 64,
+      achievement: 3,
+    },
+    achievement: [
+        {name: "First win", description: "Win your first game", progress: 1, max: 1},
+        {name: "Win 10 games", description: "Win 10 games", progress: 10, max: 10},
+        {name: "Win 100 games", description: "Win 100 games", progress: 99, max: 100},
+        {name: "default", description: "Win 100 games", progress: 0, max: 100},
+        {name: "default", description: "Win 100 games", progress: 0, max: 100},
+        {name: "default", description: "Win 100 games", progress: 0, max: 100},
+    ],
+  } as user;
+  
+
+>>>>>>> e4a6f36b1456a0a744b92f0e218a0bac8dd8ada7:src/Profil.tsx
   return (
     <>
       
