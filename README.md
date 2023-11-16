@@ -9,7 +9,6 @@
 
 ### User Account
 
-
     A user must log in using the OAuth system of 42 intranet
     A user must be able to choose a unique name that will be displayed on the website
     A user has several victories and losses and other stats (ladder level, achievements etc...)
@@ -19,7 +18,6 @@
     Each user has a match history (including duel, ladder) that can be consulted by anyone logged-in
 
 ### Chat
-
 
     Users must be able to create channels public/private or protected by a password
     Users must be able to send direct messages to other users
