@@ -22,10 +22,12 @@ function App()
         useEffect(() => {
         fetch('http://localhost:3000')
         .then((response) => response.text())
+        
       .then((data) => setData(data))
       .catch((error) => console.error('Error fetching data:', error));
         }, []);
-
+    
+    
     // building the app
     const getClassName = () => {
     const pathname = location.pathname;
