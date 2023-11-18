@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "@prisma/client": "^5.5.2",
+    "faker": "^5.5.3"
+  },
+  "devDependencies": {
+    "@types/faker": "^6.6.9"
+  }
+}
