@@ -11,7 +11,6 @@ export class MessagesService {
     this.messages.push(message); // TODO : improve this method
     return message;
   }
-
   findAll() {
     return this.messages; // TODO : add a query to select all from the messages table
   }
