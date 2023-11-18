@@ -1,11 +1,11 @@
+import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { MessagesModule } from './Chat/messages.module';
+import { LoginModule } from './login/login.module';
 
 @Module({
-  imports: [MessagesModule],
+  imports: [ConfigModule.forRoot(), LoginModule, HttpModule],
   controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule {}

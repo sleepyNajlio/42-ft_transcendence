@@ -5,11 +5,10 @@ import { Message } from './entities/message.entity';
 
 @Injectable()
 export class MessagesService {
-
-  messages : Message[] = [ {name : 'Fahid' , text : 'Wach Wach!'} ];
+  messages: Message[] = [{ name: 'Fahid', text: 'Wach Wach!' }];
   create(createMessageDto: CreateMessageDto) {
-    const message = {...createMessageDto}
-    this.messages.push(message); // TODO : improve this method  
+    const message = { ...createMessageDto };
+    this.messages.push(message); // TODO : improve this method
     return message;
   }
 
