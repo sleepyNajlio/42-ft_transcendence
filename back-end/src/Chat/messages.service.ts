@@ -7,9 +7,25 @@ import { Message } from './entities/message.entity';
 export class MessagesService {
 
   messages : Message[] = [ {name : 'Fahid' , text : 'Wach Wach!'} ];
-  create(createMessageDto: CreateMessageDto) {
-    const message = {...createMessageDto}
-    this.messages.push(message); // TODO : improve this method  
+  clients = {};
+
+  identify(user : string , clientId : string) {
+
+    this.clients[clientId] = user;
+    // console.log(this.clients);
+    return Object.values(this.clients);
+  }
+
+  getClientName(clientId : string){
+    return this.clients[clientId];
+  }
+  create(createMessageDto: CreateMessageDto, clientId : string) {
+    const message = {
+      name : this.clients[clientId] ,
+      text : createMessageDto.text ,
+    }
+    this.messages.push(message); // TODO : improve this method
+    // console.log(this.messages);
     return message;
   }
   findAll() {

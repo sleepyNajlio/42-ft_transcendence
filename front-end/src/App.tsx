@@ -12,9 +12,11 @@ import { Profile } from './Profile.tsx'
 import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useEffect } from 'react';
+import {io} from "socket.io-client";
 
 function App()
 {
+
 
     // catching response from nest server
     const [data, setData] = useState('');
@@ -26,6 +28,7 @@ function App()
       .then((data) => setData(data))
       .catch((error) => console.error('Error fetching data:', error));
         }, []);
+
     
     
     // building the app
@@ -44,7 +47,6 @@ function App()
 
     // Get the class name based on the current route
     const className = getClassName();
-    console.log(`daaataaa: ${data}`);
     return (
         <div className={`container ${className}`}>
         <Routes>
