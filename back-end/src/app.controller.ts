@@ -20,20 +20,17 @@ export class AppController {
   constructor(private readonly httpService: HttpService) {}
 
   @Get()
-  @Render('home')
   home(@User() user: Profile) {
     return { user };
   }
 
   @Get('login')
-  @Render('login')
   logIn() {
     return;
   }
 
   @Get('profile')
   @UseGuards(AuthenticatedGuard)
-  @Render('profile')
   profile(@User() user: Profile) {
     return { user };
   }
