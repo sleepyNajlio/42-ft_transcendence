@@ -13,6 +13,7 @@ import { UpdateMessageDto } from './dto/update-message.dto';
 import { Server , Socket } from 'socket.io';
 import { OnModuleInit } from '@nestjs/common';
 import { connect } from 'net';
+import { PrismaClient } from '@prisma/client';
 
 
 @WebSocketGateway({
@@ -21,6 +22,7 @@ import { connect } from 'net';
 })
 export class MessagesGateway implements OnGatewayConnection, OnGatewayDisconnect   {
 
+  PrismaClient = new PrismaClient();
 
   
   @WebSocketServer()  // decorator to get a reference to the socket.io server
@@ -38,12 +40,26 @@ export class MessagesGateway implements OnGatewayConnection, OnGatewayDisconnect
    async create(
     @MessageBody() createMessageDto: CreateMessageDto, 
     @ConnectedSocket() client : Socket) {
-    const message = this.messagesService.create(createMessageDto, client.id);
+      // const createdMessage = this.PrismaClient.chat.create({
+      //   data: {
+      //     name: this.messagesService.clients[client.id],
+      //   },
+      // });
+      const createdMessage = await this.PrismaClient.chat.create({
+        data: {
+          // your chat data here
+          messages: {
+            create: {
+              // your message data here
+            },
+          },
+        },
+      });
     
-    this.server.emit('message' , message); // emit events to all connected clients
+    this.server.emit('message' , createdMessage); // emit events to all connected clients
 
-    console.log(message);
-    return message;
+    console.log("created message : " , createdMessage);
+    return createdMessage;
   }
 
   @SubscribeMessage('findAllMessages') // to be able to see the old messages 
@@ -55,7 +71,7 @@ export class MessagesGateway implements OnGatewayConnection, OnGatewayDisconnect
     @MessageBody('user') user : string ,
     @ConnectedSocket() client : Socket ,
   ){
-    console.log(user);
+    // console.log(user);
     return this.messagesService.identify(user , client.id);
   }
 

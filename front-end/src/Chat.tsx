@@ -7,7 +7,7 @@ import { useRef } from 'react';
 import { useState } from 'react';
 import { Socket } from 'socket.io-client';
 
-export function Chat() {
+export function Chat() { // get values from data base
     const [joined, setJoined] = useState(false);
     const [name, setName] = useState('');
     const [messages, setMessages] = useState<any[]>([]);
@@ -17,7 +17,7 @@ export function Chat() {
     
     const [socket, setSocket] = useState<Socket | null>(null);
     
-    useEffect(() => {
+    useEffect(() => {     // main useeffect function
         if (!joined) return;
         const newSocket = io('http://localhost:3000/chat');
         newSocket.emit('join', { user: name }, () => {
@@ -43,10 +43,10 @@ export function Chat() {
         return () => {
             newSocket.disconnect();
         };
-    }, [joined]);
+    }, [joined]); // "if joined changes value : this func is recalled"
 
 
-    const sendMessage = () => {
+    const sendMessage = () => {      // la sift msg
         if (!socket) return;
         socket.emit('createMessage', {
             name: name,
@@ -56,31 +56,31 @@ export function Chat() {
     };
 
 
-    const changeName = (event : any) => {
+    const changeName = (event : any) => {  // set name fisrt time
         setName(event.target.value);
     };
 
-    const changeMessage = (event : any) => {
+    const changeMessage = (event : any) => {  // 
         typingEmit();
         setMessageText(event.target.value);
     };
 
-    const join = () => {
+    const join = () => {   //boolean that switch between joined or not
         setJoined(true);
         // console.log(name);
     };
 
     // ...
 
-    const typingEmit = () => {
+    const typingEmit = () => {   // 
         if (!socket) return;
-        socket.emit('typing', { isTyping: true });
+        socket.emit('typing', { isTyping: true }); // emit method send event to server if user is typing
         setTimeout(() => {
             socket.emit('typing', { isTyping: false });
         }, 2000);
     };
 
-    return (
+    return (    // front-end khdam !
         <>
             <div className="chat">
                 {!joined && (

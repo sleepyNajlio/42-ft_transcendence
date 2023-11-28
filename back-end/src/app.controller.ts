@@ -14,6 +14,7 @@ import { AuthenticatedGuard } from './login/guards/authenticated.guard';
 import { Request, Response } from 'express';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom, map } from 'rxjs';
+import { PrismaClient } from '@prisma/client';	
 
 @Controller()
 export class AppController {
@@ -27,6 +28,12 @@ export class AppController {
   @Get('login')
   logIn() {
     return;
+  }
+  @Get('chat')
+  async chat() {
+    const prisma = new PrismaClient();
+    const player = await prisma.player.findMany();
+    return player;
   }
 
   @Get('profile')
