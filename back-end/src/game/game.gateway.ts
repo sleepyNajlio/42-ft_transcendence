@@ -83,8 +83,11 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('moveBall')
-  handleMoveBall(client: any, data: { vx: number; vy: number }) {
-    client.broadcast.emit('ballVel', data);
+  handleMoveBall(
+    client: any,
+    data: { vx: number; vy: number; cx: number; cy: number },
+  ) {
+    this.server.emit('ballVel', data);
   }
   @SubscribeMessage('ping')
   handleMessage(client: any, data: any) {

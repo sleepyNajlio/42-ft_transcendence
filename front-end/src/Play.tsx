@@ -5,6 +5,7 @@ import {io, Socket} from "socket.io-client";
 import  './styles/css/main.css'
 import { useState } from 'react';
 import { SVG, on, Rect, Circle } from '@svgdotjs/svg.js';
+import { Number } from 'svg.js';
 // import {pod1} from './assets/g2.svg';
 // import {pod2} from './assets/g3.svg';
 
@@ -40,24 +41,37 @@ export function Play() {
 
     let end : any
 
-    var playerLeft = 0
-    var playerRight = 0
+    let playerLeft : number = 0
+    let playerRight : number = 0
 
     const game = (socket: Socket, players: Players = {}, bball: Ball) => {
       // define board size and create a svg board
+
       const width = 600,
         height = 600;
       const draw = SVG().addTo('#pong').size(width, height).attr({ fill: '#f06' });
       // draw the board
-      draw.rect(width, height).fill('#f06');
+      var board_gradient = draw.gradient('linear', function(add) {
+        add.stop(0, '#000046')
+        add.stop(1, '#1CB5E0')
+      })
+      var guest_gradient = draw.gradient('linear', function(add) {
+        add.stop(0, '#A1FFCE')
+        add.stop(1, '#FAFFD1')
+      })
+      var host_gradient = draw.gradient('linear', function(add) {
+        add.stop(0, '#606c88')
+        add.stop(1, '#3f4c6b')
+      })
+      draw.rect(width, height).fill(board_gradient);
       // define paddle size
       const paddleWidth = 20,
         paddleHeight = 100;
       ball = bball!;
       pHost = Object.values(players).find(player => player.host === true)!;
       pGuest = Object.values(players).find(player => player.host === false)!;
-      pHost.paddle = draw.rect(paddleWidth, paddleHeight).x(0).cy(height / 2).fill('#00ff99');
-      pGuest.paddle = draw.rect(paddleWidth, paddleHeight).x(width - paddleWidth).cy(height / 2).fill('#39ff14');
+      pHost.paddle = draw.rect(paddleWidth, paddleHeight).radius(12).x(0).cy(height / 2).fill(host_gradient);
+      pGuest.paddle = draw.rect(paddleWidth, paddleHeight).radius(12).x(width - paddleWidth).cy(height / 2).fill(guest_gradient);
 
       const ballSize = 20;
       ball.cercle = draw.circle(ballSize).center(width / 2, height / 2).fill('#ff69b4');
@@ -76,7 +90,7 @@ export function Play() {
 
         // create text for the score, set font properties
         var scoreLeft : any
-        scoreLeft = draw.text(playerLeft+'').font({
+        scoreLeft = draw.text("0").font({
         size: 32,
         family: 'Menlo, sans-serif',
         anchor: 'end',
@@ -90,55 +104,113 @@ export function Play() {
         // .x(width/2+10)
 
         var scoreRight : any
-        scoreRight = draw.text(playerRight+'').font({
+        scoreRight = draw.text("0").font({
         size: 32,
         family: 'Menlo, sans-serif',
         anchor: 'end',
         fill: '#fff'
         }).move(width/2+20, 10)
       }
+
+
+      draw.on('click', function() {
+          if (vx === 0 && vy === 0) {
+              vx = Math.random() * 500 - 250
+              vy = Math.random() * 500 - 250
+              while (Math.abs(vx) < 100) {
+                  vx = Math.random() * 500 - 250
+              }
+              while (Math.abs(vy) < 100) {
+                  vy = Math.random() * 500 - 250
+              }
+              socket.emit('moveBall', { vx: vx, vy: vy, cx: ball.cercle.cx(), cy: ball.cercle.cy() });
+            }
+      })
+      let chck = false;
+      socket.on('move', (data: { paddleDirection: number, id: string }) => {
+        chck = true;
+        if (pGuest && data.id == pGuest.s_id)
+          pGuest.paddleDirection = data.paddleDirection;
+        if (pHost && data.id == pHost.s_id)
+          pHost.paddleDirection = data.paddleDirection;
+      });
+
+      let isKeyDown = false;
+
+      on(document, 'keydown', function (e: any) {
+        if (!chck) {
+          if (e.keyCode == 40 || e.keyCode == 38) {
+            e.preventDefault();
+          }
+
+          if (!isKeyDown) {
+            isKeyDown = true;
+            socket.emit('keydown', { paddleDirection: e.keyCode == 40 ? 1 : e.keyCode == 38 ? -1 : 0, id: socket.id });
+          }
+        }
+      });
+
+      on(document, 'keyup', function (e: any) {
+        if (!chck) {
+          if (e.keyCode == 40 || e.keyCode == 38) {
+            e.preventDefault();
+            isKeyDown = false;
+            socket.emit('keyup', { paddleDirection: 0, id: socket.id });
+          }
+        }
+      });
+
+      socket.on('ballVel', (data) => {
+        console.log("move ", Date.now());
+        vx = data.vx;
+        vy = data.vy;
+        ball.cercle.cx(data.cx);
+        ball.cercle.cy(data.cy);
+      });
+      console.log("waaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa=====================================waaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
       // update is called on every animation step
       function update(dt: number) {
-        ball.cercle.dmove(vx*dt, vy*dt)
+        // check if a player missed the ball, score and reset
+        
+        // check if we hit top/bottom borders
+        // on the host side the ball reaches the "borders" and emits a move event
+        // on the guest side the move event is received and the ball is switched to the new velolcity but it lost some pixels
+        if (vx != 0 && vy != 0)
+          ball.cercle.dmove(vx*dt, vy*dt)
         var cx = ball.cercle.cx()
         , cy = ball.cercle.cy()
-        // check if we hit top/bottom borders
+        console.log("cx: ", cx, " cy: ", cy);
         if ((vy < 0 && cy <= 0) || (vy > 0 && cy >= height)) {
-          vy = -vy
-          socket.emit('moveBall', { vx: vx, vy: vy });
+            console.log("wall ", Date.now());
+            socket.emit('moveBall', { vx: vx, vy: -vy, cx, cy });
         }
-        
-        
-        // check if a player missed the ball, score and reset
-        var paddleRightY: number = 0;
-        if (pGuest && pGuest.paddle) {
-          paddleRightY = parseInt(pGuest.paddle.y().valueOf().toString());
-        }
-        var paddleLeftY: number = 0;
-        if (pHost && pHost.paddle) {
-          paddleLeftY = parseInt(pHost.paddle.y().valueOf().toString());
-        } 
         // check if we hit the paddle
-        if ((vx < 0 && cx <= paddleWidth && cy > paddleLeftY && cy < paddleLeftY + paddleHeight) ||
-        (vx > 0 && cx >= width - paddleWidth && cy > paddleRightY && cy < paddleRightY + paddleHeight)) {
-          // depending on where the ball hit we adjust y velocity
-          // for more realistic control we would need a bit more math here
-          // just keep it simple
-          vy = (cy - ((vx < 0 ? paddleLeftY : paddleRightY) + paddleHeight/2)) * 7 // magic factor
-          // make the ball faster on hit
-          vx = -vx * 1.05
-          socket.emit('moveBall', { vx: vx, vy: vy });
-        }
-        else if ((vx < 0 && cx <= 0) || (vx > 0 && cx >= width)) {
-          // when x-velocity is negative, its a point for player 2, else player 1
-          if (vx < 0) { ++playerRight }
-          else { ++playerLeft }
-        
-          scoreLeft.text(playerLeft)
-          scoreRight.text(scoreRight)
+        else {
+          var paddleRightY: number = 0;
+          if (pGuest && pGuest.paddle) {
+            paddleRightY = parseInt(pGuest.paddle.y().valueOf().toString());
+          }
+          var paddleLeftY: number = 0;
+          if (pHost && pHost.paddle) {
+            paddleLeftY = parseInt(pHost.paddle.y().valueOf().toString());
+          }
+          if ((vx < 0 && cx <= paddleWidth && cy > paddleLeftY && cy < paddleLeftY + paddleHeight) ||
+          (vx > 0 && cx >= width - paddleWidth && cy > paddleRightY && cy < paddleRightY + paddleHeight)) {
+              console.log("paddle ", Date.now());
 
-          reset()
+              socket.emit('moveBall', { vx: -vx * 1.05, vy: (cy - ((vx < 0 ? paddleLeftY : paddleRightY) + paddleHeight/2)) * 7 , cx, cy});
+          }
+          else if ((vx < 0 && cx <= 0) || (vx > 0 && cx >= width)) {
+            // when x-velocity is negative, its a point for player 2, else player 1
+            if (vx < 0) { ++playerRight }
+            else { ++playerLeft }
+            scoreLeft.text(playerRight)
+            scoreRight.text(playerLeft)
+  
+            reset()
+          }
         }
+        
         // game over
         if (playerRight === 10 || playerLeft === 10) {
             reset()
@@ -151,8 +223,6 @@ export function Play() {
             fill: '#fff'
             }).center(width/2, height/2)
         }
-
-        // check if we hit the paddle
 
         if (pGuest && pGuest.paddle && pGuest.paddleSpeed) {
           var playerPaddleY = pGuest.paddle.y();
@@ -178,6 +248,7 @@ export function Play() {
               }
             }
           }
+          chck = false;
         // move player paddle
       }
 
@@ -197,6 +268,7 @@ export function Play() {
       callback(300)
       // define paddle direction and speed
       function reset() {
+          console.log("reset", vx, " ", vy);
           // reset speed values
           vx = 0
           vy = 0
@@ -213,54 +285,6 @@ export function Play() {
           }
       }
 
-      draw.on('click', function() {
-          if (vx === 0 && vy === 0) {
-              vx = Math.random() * 500 - 250
-              vy = Math.random() * 500 - 250
-              while (Math.abs(vx) < 100) {
-                  vx = Math.random() * 500 - 250
-              }
-              while (Math.abs(vy) < 100) {
-                  vy = Math.random() * 500 - 250
-              }
-              socket.emit('moveBall', { vx: vx, vy: vy });
-            }
-      })
-    
-      socket.on('move', (data: { paddleDirection: number, id: string }) => {
-      if (pGuest && data.id == pGuest.s_id)
-        pGuest.paddleDirection = data.paddleDirection;
-      if (pHost && data.id == pHost.s_id)
-        pHost.paddleDirection = data.paddleDirection;
-      });
-
-      let isKeyDown = false;
-
-      on(document, 'keydown', function (e: any) {
-        if (e.keyCode == 40 || e.keyCode == 38) {
-          e.preventDefault();
-        }
-
-        if (!isKeyDown) {
-          isKeyDown = true;
-          socket.emit('keydown', { paddleDirection: e.keyCode == 40 ? 1 : e.keyCode == 38 ? -1 : 0, id: socket.id });
-        }
-      });
-
-      on(document, 'keyup', function (e: any) {
-        if (e.keyCode == 40 || e.keyCode == 38) {
-          e.preventDefault();
-          isKeyDown = false;
-          socket.emit('keyup', { paddleDirection: 0, id: socket.id });
-        }
-      });
-
-      socket.on('ballVel', (data) => {
-        vx = data.vx;
-        vy = data.vy;
-        callback(300);
-      });
-  
       const cleanup = () => {
         draw.clear();
         draw.remove();
@@ -274,7 +298,7 @@ export function Play() {
     const [socket, setSocket] = useState<Socket | null>(null);
 
     const handleMatchClick = async () => {
-        const socket = io("http://localhost:3000/events", {
+        const socket = io("http://10.14.5.8:3000/events", {
             transports: ['websocket'],
         });
         setSocket(socket);
@@ -284,10 +308,8 @@ export function Play() {
           socket.on('connect', () => {
             console.log('a user connected');
           });
-    
           socket.on('currentPlayers', (players: any, ball: any) => {
-            console.log(players);
-            // Ensure that 'setshowGame' is properly defined in your component's state
+            console.log("players: ", players);
             setShowSbox(false);
             setshowGame(true);
             game(socket, players, ball);
