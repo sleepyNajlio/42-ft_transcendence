@@ -27,3 +27,9 @@ export type cercle = {
   y: number,
   r:  number,
 }
+export interface User {
+  email: string;
+  username: string;
+  avatar: string;
+  isAuthenticated: boolean;
+}

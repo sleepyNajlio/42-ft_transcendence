@@ -60,7 +60,7 @@ export default function Navbar() {
         </div>
         <div className="logout">
             <div className="user">
-                <div className="cercle"></div>
+                <div className="cercle_profile"></div>
                 <span className="name">Richard</span>
             </div>
             <div>
