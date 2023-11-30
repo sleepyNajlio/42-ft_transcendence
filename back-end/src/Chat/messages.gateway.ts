@@ -9,10 +9,7 @@ import {
   } from '@nestjs/websockets';
 import { MessagesService } from './messages.service';
 import { CreateMessageDto } from './dto/create-message.dto';
-import { UpdateMessageDto } from './dto/update-message.dto';
 import { Server , Socket } from 'socket.io';
-import { OnModuleInit } from '@nestjs/common';
-import { connect } from 'net';
 
 
 @WebSocketGateway({
@@ -38,24 +35,22 @@ export class MessagesGateway implements OnGatewayConnection, OnGatewayDisconnect
    async create(
     @MessageBody() createMessageDto: CreateMessageDto, 
     @ConnectedSocket() client : Socket) {
-    const message = this.messagesService.create(createMessageDto, client.id);
+    const message = await this.messagesService.create(createMessageDto, client.id);
     
     this.server.emit('message' , message); // emit events to all connected clients
 
-    console.log(message);
     return message;
   }
 
   @SubscribeMessage('findAllMessages') // to be able to see the old messages 
-  findAll() {
-    return this.messagesService.findAll();
+  async findAll() {
+    return await this.messagesService.findAll();
   }
   @SubscribeMessage('join')
   joinRoom(
     @MessageBody('user') user : string ,
     @ConnectedSocket() client : Socket ,
   ){
-    console.log(user);
     return this.messagesService.identify(user , client.id);
   }
 

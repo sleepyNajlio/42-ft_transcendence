@@ -19,15 +19,15 @@ function App()
 
 
     // catching response from nest server
-    const [data, setData] = useState('');
+    // const [data, setData] = useState('');
 
-        useEffect(() => {
-        fetch('http://localhost:3000')
-        .then((response) => response.text())
+    //     useEffect(() => {
+    //     fetch('http://localhost:3000')
+    //     .then((response) => response.text())
         
-      .then((data) => setData(data))
-      .catch((error) => console.error('Error fetching data:', error));
-        }, []);
+    //   .then((data) => setData(data))
+    //   .catch((error) => console.error('Error fetching data:', error));
+    //     }, []);
 
     
     
@@ -36,7 +36,7 @@ function App()
     const pathname = location.pathname;
     const routeClassNames: { [key: string]: string } = {
     '/': 'one',
-    '/config': 'one',
+    '/Config': 'one',
     '/twofa': 'one',
     '/verify2fa': 'one',
         };

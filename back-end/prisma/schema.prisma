@@ -7,18 +7,21 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = "postgresql://administrator:Hanajay@localhost:5432/trandb?schema=public"
+  url      = env("DATABASE_URL")
 }
 
 model Player {
   id_player Int     @id @default(autoincrement())
   username  String  @unique
   avatar    String  @unique
+  email     String  @unique
+  hash      String  @unique
+  isAuthenticated Boolean ? @default(false)
   level     Int     @default(1)
   status    PlayerStatus @default(OFFLINE)
   wins      Int     @default(0)
   loses     Int     @default(0)
-  twofa?       Boolean @default(false)
+  twofa     Boolean ? @default(false)
 
   chats    ChatUser[]
   games    UserGame[]
@@ -84,7 +87,7 @@ model Chat {
 }
 
 model ChatMessage {
-  id_chat_message Int     @id @default(autoincrement())
+  id3_chat_message Int     @id @default(autoincrement())
   message         String
   userId          Int
   chatId          Int
