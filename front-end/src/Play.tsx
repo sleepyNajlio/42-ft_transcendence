@@ -264,6 +264,17 @@ export function Play() {
     const [socket, setSocket] = useState<Socket | null>(null);
     const [players, setPlayers] = useState<Players>({});
     let fball : Ball = {cx: 0, cy: 0, cercle: new Circle(), vx: 0, vy: 0};
+    const handleFriendClick = async (player_id: any) => {
+        const socket = io("http://localhost:3000/events", {
+            transports: ['websocket'],
+        });
+        socket.emit('invite', 
+        {
+          player_id: player_id,
+        });
+        setSocket(socket);
+        setIsLoading(true);
+    };
     const handleMatchClick = async () => {
         const socket = io("http://localhost:3000/events", {
             transports: ['websocket'],
@@ -281,6 +292,7 @@ export function Play() {
             setShowSbox(false);
             setshowGame(true);
             setPlayers(players);
+            console.log('start game');
             fball = ball;
           });
         }
@@ -301,7 +313,8 @@ export function Play() {
                     lb="Play with friend"
                     rb="Matchmaking"
                     isLoading = {isLoading} // Pass the loading state to the loading component
-                    onClick={handleMatchClick}
+                    handleMatchClick={handleMatchClick}
+                    handleFriendClick={handleFriendClick}
                 >
                 </Sbox>
             )}

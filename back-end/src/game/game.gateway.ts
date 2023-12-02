@@ -3,12 +3,11 @@ import {
   OnGatewayDisconnect,
   SubscribeMessage,
   WebSocketGateway,
-  WebSocketServer,
 } from '@nestjs/websockets';
 import { Logger } from '@nestjs/common';
 // import { Socket } from 'socket.io';
-import { Server } from 'socket.io';
 import { Circle } from '@svgdotjs/svg.js';
+import { SocketGateway } from 'src/socket/socket.gateway';
 
 @WebSocketGateway({
   namespace: 'events',
@@ -41,14 +40,9 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private queue: any[] = [];
   private games: { [id: string]: any } = {};
 
-  @WebSocketServer()
-  private server: Server;
+  constructor(private readonly socketGateway: SocketGateway) {}
 
-  onModuleInit() {
-    console.log('Initialization...', this.server);
-  }
-
-  handleConnection(client: any, ...args: any[]) {
+  async handleConnection(client: any, ...args: any[]) {
     this.logger.log(`Client ${client.id} is connect to game.`);
 
     // Add the player to the queue
@@ -84,9 +78,13 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       // Add the players to the game room
       player1.join(gameId);
       player2.join(gameId);
+      this.logger.log(`game ${gameId} is created.`);
 
       // Emit an event to the two players to start the game
-      this.server.to(gameId).emit('startGame', this.games[gameId]);
+      this.socketGateway
+        .getServer()
+        .of('/events')
+        .emit('startGame', this.games[gameId]);
     }
   }
 
@@ -103,7 +101,11 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         if (otherPlayerId) {
           // Emit the 'opponentDisconnected' event to the other player
           // Emit the 'opponentDisconnected' event to the other player
-          this.server.to(gameId).emit('opponentDisconnected', gameId);
+          this.socketGateway
+            .getServer()
+            .of('/events')
+            .to(gameId)
+            .emit('opponentDisconnected', gameId);
         }
         // Remove the player from the game room
         client.leave(gameId);
@@ -122,6 +124,18 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.logger.log(`Client ${client.id} disconnected from game.`);
   }
 
+  @SubscribeMessage('invite')
+  handelInvite(client: any, data: any) {
+    this.logger.log(`client ${client.id} invite ${data.player_id}`);
+    const socket = this.socketGateway.getClientSocket(data.player_id);
+    if (socket) {
+      console.log('Sending invite to:', data.player_id);
+      // socket.emit('Invited', data);
+    }
+    // Find the player socket in the main server
+    this.socketGateway.getServer().of('/').emit('inviter', data.player_id);
+  }
+
   @SubscribeMessage('keydown')
   handelKeyDown(client: any, data: any) {
     this.logger.log(`client ${client.id} moved to ${data.paddleDirection}`);
@@ -133,7 +147,11 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (gameId) {
       // Emit the 'move' event to the other player in the game
       console.log('gameId', gameId, 'move player');
-      this.server.to(gameId).emit('move', data);
+      this.socketGateway
+        .getServer()
+        .of('/events')
+        .to(gameId)
+        .emit('move', data);
     }
   }
   @SubscribeMessage('keyup')
@@ -145,7 +163,11 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     );
     if (gameId) {
       // Emit the 'move' event to the other player in the game
-      this.server.to(gameId).emit('move', data);
+      this.socketGateway
+        .getServer()
+        .of('/events')
+        .to(gameId)
+        .emit('move', data);
     }
   }
 
@@ -160,7 +182,11 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     );
     if (gameId) {
       // Emit the 'move' event to the other player in the game
-      this.server.to(gameId).emit('ballVel', data);
+      this.socketGateway
+        .getServer()
+        .of('/events')
+        .to(gameId)
+        .emit('ballVel', data);
     }
   }
   @SubscribeMessage('ping')
@@ -171,9 +197,13 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     );
     if (gameId) {
       // Emit the 'move' event to the other player in the game
-      this.server.to(gameId).emit('pong', data); // Emit message to all connected clients
+      this.socketGateway
+        .getServer()
+        .of('/events')
+        .to(gameId)
+        .emit('pong', data); // Emit message to all connected clients
     }
     this.logger.debug(`Payload: ${data}`);
-    this.server.emit('pong', data); // Emit message to all connected clients
+    this.socketGateway.getServer().of('/events').emit('pong', data); // Emit message to all connected clients
   }
 }

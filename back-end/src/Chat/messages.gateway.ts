@@ -1,66 +1,71 @@
-import { 
-  WebSocketGateway, 
-  SubscribeMessage, 
-  MessageBody, 
-  WebSocketServer,
+import {
+  WebSocketGateway,
+  SubscribeMessage,
+  MessageBody,
   ConnectedSocket,
   OnGatewayConnection,
   OnGatewayDisconnect,
-  } from '@nestjs/websockets';
+  OnGatewayInit,
+} from '@nestjs/websockets';
 import { MessagesService } from './messages.service';
 import { CreateMessageDto } from './dto/create-message.dto';
-import { Server , Socket } from 'socket.io';
-
+import { Server, Socket } from 'socket.io';
+import { SocketGateway } from 'src/socket/socket.gateway';
 
 @WebSocketGateway({
-  namespace : 'chat' , // to avoid conflicts with other gateways
-  cors : true , // to allow cross origin requests
+  namespace: 'chat',
+  cors: '*:*',
 })
-export class MessagesGateway implements OnGatewayConnection, OnGatewayDisconnect   {
+export class MessagesGateway
+  implements OnGatewayConnection, OnGatewayDisconnect
+{
+  private server: Server;
+  constructor(
+    private readonly messagesService: MessagesService,
+    private readonly socketGateway: SocketGateway,
+  ) {}
 
-
-  
-  @WebSocketServer()  // decorator to get a reference to the socket.io server
-  server : Server; // reference to the socket.io server under the hood
-
-  constructor(private readonly messagesService: MessagesService) {}
   handleDisconnect(client: any) {
-    delete this.messagesService.clients[client.id]
+    delete this.messagesService.clients[client.id];
   }
 
-  handleConnection(client: any, ...args: any[]) {
+  async handleConnection(client: any, ...args: any[]) {
+    console.log(`Client connected: ${client.id}`);
   }
 
   @SubscribeMessage('createMessage') // to be able to send new messages
-   async create(
-    @MessageBody() createMessageDto: CreateMessageDto, 
-    @ConnectedSocket() client : Socket) {
-    const message = await this.messagesService.create(createMessageDto, client.id);
-    
-    this.server.emit('message' , message); // emit events to all connected clients
+  async create(
+    @MessageBody() createMessageDto: CreateMessageDto,
+    @ConnectedSocket() client: Socket,
+  ) {
+    const message = await this.messagesService.create(
+      createMessageDto,
+      client.id,
+    );
+
+    this.socketGateway.getServer().of('/chat').emit('message', message); // emit events to all connected clients
 
     return message;
   }
 
-  @SubscribeMessage('findAllMessages') // to be able to see the old messages 
+  @SubscribeMessage('findAllMessages') // to be able to see the old messages
   async findAll() {
     return await this.messagesService.findAll();
   }
   @SubscribeMessage('join')
   joinRoom(
-    @MessageBody('user') user : string ,
-    @ConnectedSocket() client : Socket ,
-  ){
-    return this.messagesService.identify(user , client.id);
+    @MessageBody('user') user: string,
+    @ConnectedSocket() client: Socket,
+  ) {
+    return this.messagesService.identify(user, client.id);
   }
 
   @SubscribeMessage('typing')
   async typing(
-    @MessageBody('isTyping') isTyping : boolean ,
-    @ConnectedSocket() client : Socket ,
-  )
-  {
+    @MessageBody('isTyping') isTyping: boolean,
+    @ConnectedSocket() client: Socket,
+  ) {
     const user = this.messagesService.clients[client.id];
-    client.broadcast.emit('typing' , {user: user , isTyping: isTyping});
+    client.broadcast.emit('typing', { user: user, isTyping: isTyping });
   }
 }

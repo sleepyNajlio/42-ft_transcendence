@@ -15,4 +15,14 @@ export class ProfileController {
     const user = await this.profileService.getUserInfoFromToken(token);
     return { user: user };
   }
+
+  @Get('/all')
+  async getAllUsers(@Req() req: Request) {
+    const token = req.cookies['JWT_TOKEN']; // Get the JWT from cookies
+    if (!token) {
+      throw new Error('Access token not found');
+    }
+    const users = await this.profileService.getAllUsers(token);
+    return { users: users };
+  }
 }

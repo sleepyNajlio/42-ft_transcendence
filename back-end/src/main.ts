@@ -4,6 +4,7 @@ import { AppModule } from './app.module';
 import passport from 'passport';
 import cookieParser from 'cookie-parser';
 import { RequestMethod, ValidationPipe } from '@nestjs/common';
+import { NamespaceIoAdapter } from './nameSpace-IO.adapter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, new ExpressAdapter());
@@ -12,6 +13,7 @@ async function bootstrap() {
     credentials: true,
     methods: [RequestMethod.ALL.toString()],
   });
+  app.useWebSocketAdapter(new NamespaceIoAdapter(app));
   app.use(cookieParser());
   app.use(passport.initialize());
   app.useGlobalPipes(new ValidationPipe());

@@ -21,6 +21,7 @@ import { ConfigService } from '@nestjs/config';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { io } from 'socket.io-client';
 
 @Controller('auth')
 export class AuthController {
@@ -40,10 +41,17 @@ export class AuthController {
   @SetMetadata('isPublic', true)
   @Get('42-redirect')
   async auth42Redirect(@Req() req, @Res({ passthrough: true }) res) {
+    const socket = io('http://localhost:3000/', {
+      transports: ['websocket'],
+    });
+    socket.on('connect', () => {
+      socket.emit('logedIn', req.user);
+    });
     if (req.user.isAuthenticated) {
       const { accessToken } = await this.authService.signToken(
         req.user.id,
         req.user.username,
+        socket.id,
       );
       res.cookie('JWT_TOKEN', accessToken);
       res.redirect('http://localhost:5173/profile');
