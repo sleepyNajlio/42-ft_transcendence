@@ -138,7 +138,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('keydown')
   handelKeyDown(client: any, data: any) {
-    this.logger.log(`client ${client.id} moved to ${data.paddleDirection}`);
     // Find the game that the player is in
     const gameId = Object.keys(this.games).find(
       (id) => this.games[id].players[client.id],
@@ -146,7 +145,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     if (gameId) {
       // Emit the 'move' event to the other player in the game
-      console.log('gameId', gameId, 'move player');
       this.socketGateway
         .getServer()
         .of('/events')
@@ -156,7 +154,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
   @SubscribeMessage('keyup')
   handelKeyUp(client: any, data: any) {
-    this.logger.log(`client ${client.id} moved to ${data.paddleDirection}`);
     // Find the game that the player is in
     const gameId = Object.keys(this.games).find(
       (id) => this.games[id].players[client.id],
@@ -189,6 +186,34 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         .emit('ballVel', data);
     }
   }
+
+  @SubscribeMessage('documentVisible')
+  handleVisible(client: any, data: any) {
+    // Find the game that the player is in
+    const gameId = Object.keys(this.games).find(
+      (id) => this.games[id].players[client.id],
+    );
+    if (gameId) {
+      client.broadcast.to(gameId).emit('getPaddlePos', data);
+    }
+  }
+  @SubscribeMessage('paddlePos')
+  handlePaddlePos(client: any, data: any) {
+    // Find the game that the player is in
+
+    const gameId = Object.keys(this.games).find(
+      (id) => this.games[id].players[client.id],
+    );
+    if (gameId) {
+      // Emit the 'move' event to the other player in the game
+      this.socketGateway
+        .getServer()
+        .of('/events')
+        .to(gameId)
+        .emit('updatepaddlePos', data);
+    }
+  }
+
   @SubscribeMessage('ping')
   handleMessage(client: any, data: any) {
     // Find the game that the player is in
@@ -203,7 +228,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         .to(gameId)
         .emit('pong', data); // Emit message to all connected clients
     }
-    this.logger.debug(`Payload: ${data}`);
     this.socketGateway.getServer().of('/events').emit('pong', data); // Emit message to all connected clients
   }
 }
