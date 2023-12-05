@@ -5,6 +5,7 @@ import {io, Socket} from "socket.io-client";
 import  './styles/css/main.css'
 import { useState } from 'react';
 import { SVG, on, Rect, Circle, Text } from '@svgdotjs/svg.js';
+import { useDocumentVisible } from './useDocumentVisible'; // adjust the path according to your project structure
 
 export function Play() {
     // define a type of one plaer
@@ -92,23 +93,22 @@ export function Play() {
 
       }
 
-
       draw.on('click', function() {
-          if (vx === 0 && vy === 0) {
-              vx = Math.random() * 500 - 250
-              vy = Math.random() * 500 - 250
-              while (Math.abs(vx) < 100) {
-                  vx = Math.random() * 500 - 250
-              }
-              while (Math.abs(vy) < 100) {
-                  vy = Math.random() * 500 - 250
-              }
-              socket.emit('moveBall', { vx: vx, vy: vy, cx: ball.cercle.cx(), cy: ball.cercle.cy() });
-            }
+        if (vx === 0 && vy === 0) {
+          let tvx = Math.random() * 500 - 250
+          let tvy = Math.random() * 500 - 250
+          while (Math.abs(tvx) < 100) {
+            tvx = Math.random() * 500 - 250
+          }
+          while (Math.abs(tvy) < 100) {
+            tvy = Math.random() * 500 - 250
+          }
+          socket.emit('moveBall', { vx: tvx, vy: tvy, cx: ball.cercle.cx(), cy: ball.cercle.cy() });
+        }
       })
       let chck = false;
-      
       socket.on('opponentDisconnected', () => {
+        console.log("3");
         if (end) {
           end.remove();
         }
@@ -118,6 +118,7 @@ export function Play() {
       });
 
       socket.on('move', (data: { paddleDirection: number, id: string }) => {
+        console.log("4");
         chck = true;
         if (pGuest && data.id == pGuest.s_id)
           pGuest.paddleDirection = data.paddleDirection;
@@ -155,14 +156,18 @@ export function Play() {
         ball.cercle.cx(data.cx);
         ball.cercle.cy(data.cy);
       });
-
+      let next = false;
       function update(dt: number) {
+        if (next){
+          next = false;
+          return;
+        }
         if (vx != 0 && vy != 0)
           ball.cercle.dmove(vx*dt, vy*dt)
         var cx = ball.cercle.cx()
         , cy = ball.cercle.cy()
         if ((vy < 0 && cy <= 0) || (vy > 0 && cy >= height)) {
-            socket.emit('moveBall', { vx: vx, vy: -vy, cx, cy });
+          socket.emit('moveBall', { vx: vx, vy: -vy, cx, cy });
         } else {
           var paddleRightY: number = 0;
           if (pGuest && pGuest.paddle) {
@@ -174,19 +179,16 @@ export function Play() {
           }
           if ((vx < 0 && cx <= paddleWidth && cy > paddleLeftY && cy < paddleLeftY + paddleHeight) ||
           (vx > 0 && cx >= width - paddleWidth && cy > paddleRightY && cy < paddleRightY + paddleHeight)) {
-
-              socket.emit('moveBall', { vx: -vx * 1.05, vy: (cy - ((vx < 0 ? paddleLeftY : paddleRightY) + paddleHeight/2)) * 7 , cx, cy});
+            socket.emit('moveBall', { vx: -vx * 1.05, vy: (cy - ((vx < 0 ? paddleLeftY : paddleRightY) + paddleHeight/2)) * 7 , cx, cy});
           }
           else if ((vx < 0 && cx <= 0) || (vx > 0 && cx >= width)) {
             if (vx < 0) { ++playerRight }
             else { ++playerLeft }
-            scoreLeft.text(playerRight.toString())
-            scoreRight.text(playerLeft.toString())
-  
             reset()
           }
+          scoreLeft.text(playerRight.toString())
+          scoreRight.text(playerLeft.toString())
         }
-
         if (playerRight === 10 || playerLeft === 10) {
             reset()
             end = draw.text('Game over').font({
@@ -196,7 +198,6 @@ export function Play() {
             fill: '#fff'
             }).center(width/2, height/2)
         }
-
         if (pGuest && pGuest.paddle && pGuest.paddleSpeed) {
           var playerPaddleY = pGuest.paddle.y();
           if (typeof playerPaddleY === 'number') {
@@ -225,7 +226,6 @@ export function Play() {
       }
 
       var lastTime: number | undefined, animFrame;
-
       function callback(ms: number) {
           if (lastTime) {
               update((ms-lastTime)/1000)
@@ -233,23 +233,42 @@ export function Play() {
           lastTime = ms
           animFrame = requestAnimationFrame(callback)
       }
-
-      callback(300)
       
-      function reset() {
-          vx = 0
-          vy = 0
-          
-          ball.cercle.animate(300).center(width / 2, height / 2)
-          
-          if (pHost && pHost.paddle) {
-            pHost.paddle.animate(300).cy(height / 2)
-          }
-          if (pGuest && pGuest.paddle) {
-            pGuest.paddle.animate(300).cy(height / 2)
-          }
-      }
+      socket.on('getPaddlePos', (data) => {
+        if (pGuest && pGuest.paddle && data.id == pHost.s_id)
+          socket.emit('paddlePos', { id: socket.id, y: pGuest.paddle.cy(), cx: ball.cercle.cx(), cy: ball.cercle.cy(), vx: vx, vy: vy, playerLeft, playerRight});
+        if (pHost && pHost.paddle && data.id == pGuest.s_id)
+          socket.emit('paddlePos', { id: socket.id, y: pHost.paddle.cy(), cx: ball.cercle.cx(), cy: ball.cercle.cy(), vx: vx, vy: vy, playerLeft, playerRight});
+      });
 
+      socket.on('updatepaddlePos', (data) => {
+        if (pHost && pHost.paddle && data.id == pHost.s_id)
+        pHost.paddle.cy(data.y);
+        if (pGuest && pGuest.paddle && data.id == pGuest.s_id)
+          pGuest.paddle.cy(data.y);
+        vx = data.vx;
+        vy = data.vy;
+        ball.cercle.cx(data.cx);
+        ball.cercle.cy(data.cy);
+        playerLeft = data.playerLeft;
+        playerRight = data.playerRight;
+        next = true;
+      });
+      callback(300)
+      function reset() {
+        vx = 0
+        vy = 0
+        
+        ball.cercle.animate(300).center(width / 2, height / 2)
+        ball.cercle.cx(width / 2)
+        ball.cercle.cy(height / 2)
+        if (pHost && pHost.paddle) {
+          pHost.paddle.animate(300).cy(height / 2)
+        }
+        if (pGuest && pGuest.paddle) {
+          pGuest.paddle.animate(300).cy(height / 2)
+        }
+      }
       const cleanup = () => {
         draw.clear();
         draw.remove();
@@ -257,7 +276,7 @@ export function Play() {
   
       return cleanup;
     };
-    
+    const isDocumentVisible = useDocumentVisible();
     const [showSbox, setShowSbox] = useState(true);
     const [showGame, setshowGame] = useState(false);    
     const [isLoading, setIsLoading] = useState(false); // Add a new state variable for loading
@@ -276,32 +295,47 @@ export function Play() {
         setIsLoading(true);
     };
     const handleMatchClick = async () => {
-        const socket = io("http://localhost:3000/events", {
-            transports: ['websocket'],
-        });
-        setSocket(socket);
-        setIsLoading(true); // Set loading to true
+      const socket = io("http://localhost:3000/events", {
+        transports: ['websocket'],
+      });
+      setSocket(socket);
+      setIsLoading(true); // Set loading to true
     };
+
     useEffect(() => {
-        if (socket) {
-          socket.on('connect', () => {
-            console.log('a user connected');
-          });
-          socket.on('startGame', ({players, ball}) => {
-            setIsLoading(false); // Set loading to false when the game starts
-            setShowSbox(false);
-            setshowGame(true);
-            setPlayers(players);
-            console.log('start game');
-            fball = ball;
-          });
+      let isCancelled = false;
+      if (isDocumentVisible && !isCancelled) {
+        if (socket)
+        {
+          socket.emit('documentVisible', { id: socket.id });
         }
-      }, [socket]);
+      }
+      return () => {
+        isCancelled = true;
+      };
+    }, [isDocumentVisible]);
+
+    useEffect(() => {
+      if (socket) {
+        socket.on('connect', () => {
+          console.log('a user connected');
+        });
+        socket.on('startGame', ({players, ball}) => {
+          setIsLoading(false); // Set loading to false when the game starts
+          setShowSbox(false);
+          setshowGame(true);
+          setPlayers(players);
+          console.log('start game');
+          fball = ball;
+        });
+      }
+    }, [socket]);
     useEffect(() => {
       if (showGame && socket) {
         game(socket, players, fball);
       }
     } , [showGame]);
+
     return (
         <>
             <Navbar></Navbar>
