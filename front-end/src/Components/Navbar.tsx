@@ -6,10 +6,37 @@ import profile_icon from '../assets/profile_icon.svg';
 import ranking_icon from '../assets/chart_icon.svg';
 import play_icon from '../assets/playground_icon.svg';
 import settings from '../assets/settings_icon.svg';
+import { User } from './types.ts';
 import exit from '../assets/exit.svg';
+import { useEffect, useState } from 'react';
 
 export default function Navbar() {
-
+    async function getUserInfo() {
+        const response = await fetch("http://localhost:3000/profile", {
+          credentials: "include",
+          method: "GET",
+        });
+        if (response.ok) {
+          console.log(response);
+          const res = await response.json();
+          return res.user;
+        } else {
+          // alert("Failed to fetch user data");
+          console.log("Failed to fetch user data");
+          // console.log(response.message);
+        }
+      }
+    
+      const [user, setUser] = useState({} as User);
+    
+      useEffect(() => {
+        const fetchData = async () => {
+          const user: User = await getUserInfo();
+          setUser(user);
+        };
+        fetchData();
+      }, []);
+    
   return (
     <>
     <input type="checkbox" id="menu-toggle"/>
@@ -60,8 +87,8 @@ export default function Navbar() {
         </div>
         <div className="logout">
             <div className="user">
-                <div className="cercle_profile"></div>
-                <span className="name">Richard</span>
+                <div className="cercle_profile" style={{ backgroundImage: `url(${user.avatar})` }}></div>
+                <span className="name">{user.username}</span>
             </div>
             <div>
                 <img width="40" height="40" src={exit} alt="Search Icon"/>

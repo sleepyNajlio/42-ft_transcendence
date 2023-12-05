@@ -18,7 +18,10 @@ export function Chat() {
     
     useEffect(() => {
         if (!joined) return;
-        const newSocket = io('http://localhost:3000/chat');
+        console.log("here from front");
+        const newSocket = io('http://localhost:3000/chat', {
+            transports: ['websocket'],
+        });
         console.log("here from front");
         newSocket.emit('join', { user: name }, () => {
         });

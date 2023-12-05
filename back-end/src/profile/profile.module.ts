@@ -13,6 +13,6 @@ import { JwtModule } from '@nestjs/jwt';
     }),
   ],
   providers: [ProfileService],
-  controllers: [ProfileController]
+  controllers: [ProfileController],
 })
 export class ProfileModule {}

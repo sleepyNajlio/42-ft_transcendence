@@ -1,23 +1,70 @@
-import { Logger } from '@nestjs/common';
 import {
   WebSocketGateway,
+  OnGatewayInit,
   OnGatewayConnection,
-  WebSocketServer,
+  OnGatewayDisconnect,
+  SubscribeMessage,
 } from '@nestjs/websockets';
+import { Server, Socket } from 'socket.io';
+import { PrismaService } from 'src/prisma/prisma.service';
 
-import { Socket } from 'socket.io';
-import { SocketService } from './socket.service';
-import { Server } from 'socket.io';
+@WebSocketGateway()
+export class SocketGateway
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
+{
+  private server: Server;
+  private clients: Map<string, Socket> = new Map();
+  constructor(private prisma: PrismaService) {}
+  afterInit(server: Server) {
+    this.server = server;
+    console.log('Socket.IO server initialized');
+    setInterval(() => {
+      this.clients.forEach((socket, key) => {
+        console.log(`Client key: ${key}, Socket ID: ${socket.id}`);
+      });
+    }, 7000);
+  }
 
-@WebSocketGateway({
-  cors: '*:*',
-})
-export class SocketGateway {
-  private readonly logger = new Logger(WebSocketGateway.name);
-  @WebSocketServer() io: Server;
-  private server: Socket;
+  handleConnection(client: Socket) {
+    console.log(`Client connected: ${client.id}`);
+  }
 
-  constructor(private readonly socketService: SocketService) {}
+  handleDisconnect(client: Socket) {
+    this.clients.delete(client.id);
+    console.log(`oh noo Client disconnected: ${client.id}`);
+  }
 
-  // Implement other Socket.IO event handlers and message handlers
+  @SubscribeMessage('logedIn')
+  async handleMessageLogin(client: Socket, data: any) {
+    // Handle login message logic here
+    // console.log('Received login message:', data);
+    // Example: Send a response back to the client
+    this.clients.set(data.id_player, client);
+    try {
+      const updatedPlayer = await this.prisma.player.update({
+        where: {
+          username: data.username,
+        },
+        data: {
+          status: 'ONLINE',
+        },
+      });
+
+      if (!updatedPlayer) {
+        console.log(`No player found with username: ${data.username}`);
+      } else {
+        console.log('Player status updated:', updatedPlayer);
+      }
+    } catch (error) {
+      console.error('Error updating player status:', error);
+    }
+  }
+
+  getServer(): Server {
+    return this.server;
+  }
+  getClientSocket(playerId: string): Socket | undefined {
+    console.log('getClientSocket ', playerId);
+    return this.clients.get(playerId);
+  }
 }

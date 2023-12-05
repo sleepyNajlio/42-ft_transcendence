@@ -104,8 +104,9 @@ export class AuthService {
   async signToken(
     userID: number,
     username: string,
+    socketID?: string,
   ): Promise<{ accessToken: string }> {
-    const payload = { sub: userID, username };
+    const payload = { sub: userID, username, socketID };
     return {
       accessToken: await this.jwtService.signAsync(payload),
     };

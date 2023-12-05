@@ -1,17 +1,12 @@
-import { Module } from '@nestjs/common';
-import { SocketGateway } from './socket.gateway';
+import { Global, Module } from '@nestjs/common';
 import { SocketService } from './socket.service';
-import { GameGateway } from 'src/game/game.gateway';
-import { MessagesGateway } from 'src/Chat/messages.gateway';
-import { MessagesService } from 'src/Chat/messages.service';
+import { SocketGateway } from './socket.gateway';
+import { PrismaModule } from 'src/prisma/prisma.module';
 
+@Global()
 @Module({
-  providers: [
-    SocketGateway,
-    SocketService,
-    GameGateway,
-    MessagesGateway,
-    MessagesService,
-  ],
+  imports: [PrismaModule],
+  providers: [SocketService, SocketGateway],
+  exports: [SocketService, SocketGateway],
 })
 export class SocketModule {}

@@ -23,6 +23,7 @@ async function getUserInfo() {
       // console.log(response.message);
     }
   }
+  
 
 export function Profile() {
 
@@ -72,7 +73,7 @@ export function Profile() {
   return (
     <>
       
-      <Navbar ></Navbar>
+      <Navbar></Navbar>
 
       <main id='page-wrap' className="wrapper profil">
         <div className="profil container">
