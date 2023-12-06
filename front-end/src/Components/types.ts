@@ -15,9 +15,9 @@ export type achievement = {
 
 export type user = {
   id: string;
-  name: string;
+  username: string;
   rank: number;
-  image: string;
+  avatar: string;
   achievement: achievement[];
   user_stats: user_stats;
   // Add other properties as needed
@@ -29,6 +29,7 @@ export type cercle = {
   r:  number,
 }
 export interface User {
+  id_player: string;
   email: string;
   username: string;
   avatar: string;

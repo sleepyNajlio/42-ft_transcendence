@@ -16,7 +16,7 @@ interface Ball {
 }
 
 @WebSocketGateway({
-  namespace: 'events',
+  namespace: '/',
   cors: '*:*',
 })
 export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -36,12 +36,58 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       ball: Ball;
     };
   } = {};
-
+  private userSockets: { [userId: string]: any[] } = {};
   constructor(private readonly socketGateway: SocketGateway) {}
 
-  async handleConnection(client: any, ...args: any[]) {
-    this.logger.log(`Client ${client.id} is connect to game.`);
+  async handleConnection() {}
 
+  handleDisconnect() {
+    // this.logger.log(`Client ${client.id} disconnected from game.`);
+    // // If the player is in a game, end the game and notify the other player
+    // for (const gameId in this.games) {
+    //   const game = this.games[gameId];
+    //   if (game.players[client.id]) {
+    //     const otherPlayerId = Object.keys(game.players).find(
+    //       (id) => id !== client.id,
+    //     );
+    //     if (otherPlayerId) {
+    //       // Emit the 'opponentDisconnected' event to the other player
+    //       // Emit the 'opponentDisconnected' event to the other player
+    //       this.socketGateway
+    //         .getServer()
+    //         .of('/events')
+    //         .to(gameId)
+    //         .emit('opponentDisconnected', gameId);
+    //     }
+    //     // Remove the player from the game room
+    //     client.leave(gameId);
+    //     delete this.games[gameId];
+    //   }
+    // }
+    // // Remove the player from the queue
+    // const index = this.queue.indexOf(client);
+    // if (index !== -1) {
+    //   this.queue.splice(index, 1);
+    // }
+    // delete this.players[client.id];
+    // this.logger.log(`Client ${client.id} disconnected from game.`);
+  }
+
+  @SubscribeMessage('matchmaking')
+  handleJoinQueue(client: any) {
+    // Check if the user is already in the queue based on a unique identifier (e.g., user ID)
+    const userId = getUserIdFromClient(client);
+
+    // Check if the user is already in the queue
+    if (!(userId in this.userSockets)) {
+      // If not, create a new entry in the mapping
+      this.userSockets[userId] = [];
+    }
+
+    // Add the new socket to the array of sockets for this user
+    this.userSockets[userId].push(client);
+
+    // If the user is not already in the queue, add them
     // Add the player to the queue
     this.queue.push(client);
     // Initialize the player state
@@ -73,63 +119,39 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       this.games[gameId].players[player1.id].host = true;
       // Add the players to the game room
-      player1.join(gameId);
-      player2.join(gameId);
+      // Check if the userSockets entry for player1 is defined before calling forEach
+      if (this.userSockets[player1.id]) {
+        this.userSockets[player1.id].forEach((socket) => socket.join(gameId));
+      } else {
+        this.logger.log(`userSockets ${player1.id} is undefined.`);
+      }
+
+      // Check if the userSockets entry for player2 is defined before calling forEach
+      if (this.userSockets[player2.id]) {
+        this.userSockets[player2.id].forEach((socket) => socket.join(gameId));
+      } else {
+        this.logger.log(`userSockets ${player1.id} is undefined.`);
+      }
+
       this.logger.log(`game ${gameId} is created.`);
 
       // Emit an event to the two players to start the game
       console.log('ball', this.games[gameId].ball);
-      this.socketGateway.getServer().of('/events').emit('startGame', {
+      this.socketGateway.getServer().to(gameId).emit('startGame', {
         players: this.games[gameId].players,
         bball: this.games[gameId].ball,
       });
     }
   }
 
-  handleDisconnect(client: any) {
-    this.logger.log(`Client ${client.id} disconnected from game.`);
-
-    // If the player is in a game, end the game and notify the other player
-    for (const gameId in this.games) {
-      const game = this.games[gameId];
-      if (game.players[client.id]) {
-        const otherPlayerId = Object.keys(game.players).find(
-          (id) => id !== client.id,
-        );
-        if (otherPlayerId) {
-          // Emit the 'opponentDisconnected' event to the other player
-          // Emit the 'opponentDisconnected' event to the other player
-          this.socketGateway
-            .getServer()
-            .of('/events')
-            .to(gameId)
-            .emit('opponentDisconnected', gameId);
-        }
-        // Remove the player from the game room
-        client.leave(gameId);
-
-        delete this.games[gameId];
-      }
-    }
-    // Remove the player from the queue
-    const index = this.queue.indexOf(client);
-    if (index !== -1) {
-      this.queue.splice(index, 1);
-    }
-
-    delete this.players[client.id];
-
-    this.logger.log(`Client ${client.id} disconnected from game.`);
-  }
-
   @SubscribeMessage('invite')
   handelInvite(client: any, data: any) {
     this.logger.log(`client ${client.id} invite ${data.player_id}`);
-    const socket = this.socketGateway.getClientSocket(data.player_id);
-    if (socket) {
-      console.log('Sending invite to:', data.player_id);
-      // socket.emit('Invited', data);
-    }
+    // const socket = this.socketGateway.getClientSocket(data.player_id);
+    // if (socket) {
+    //   console.log('Sending invite to:', data.player_id);
+    // socket.emit('Invited', data);
+    // }
     // Find the player socket in the main server
     this.socketGateway.getServer().of('/').emit('inviter', data.player_id);
   }
@@ -148,7 +170,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       // Emit the 'move' event to the other player in the game
       this.socketGateway
         .getServer()
-        .of('/events')
+
         .to(gameId)
         .emit('move', data);
     }
@@ -167,7 +189,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       // Emit the 'move' event to the other player in the game
       this.socketGateway
         .getServer()
-        .of('/events')
+
         .to(gameId)
         .emit('move', data);
     }
@@ -198,7 +220,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
           ...{ cx: 300, cy: 300, vx: 0, vy: 0 },
         };
         // Emit the 'reset' event to players in the game to reset the game
-        this.socketGateway.getServer().of('/events').to(gameId).emit('reset', {
+        this.socketGateway.getServer().to(gameId).emit('reset', {
           ball: this.games[gameId].ball,
           playerLeft: data.playerLeft,
           playerRight: data.playerRight,
@@ -207,14 +229,14 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         // Emit the 'start' event to players in the game to start the game
         this.socketGateway
           .getServer()
-          .of('/events')
+
           .to(gameId)
           .emit('start', { ball: this.games[gameId].ball });
       } else {
         // Emit the 'ballVel' event to players in the game to update the ball
         this.socketGateway
           .getServer()
-          .of('/events')
+
           .to(gameId)
           .emit('ballVel', { ball: this.games[gameId].ball });
       }
@@ -228,9 +250,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       (id) => this.games[id].players[client.id],
     );
     if (gameId) {
-      this.logger.log(
-        `client ${client.id} visible Document  ${this.games[gameId].ball.cx} ${this.games[gameId].ball.cy}`,
-      );
       client.broadcast.emit('getFrame', data);
     }
   }
@@ -253,7 +272,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       // Emit the 'move' event to the other player in the game
       this.socketGateway
         .getServer()
-        .of('/events')
+
         .to(gameId)
         .emit('updateFrame', {
           ball: this.games[gameId].ball,
@@ -275,10 +294,18 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       // Emit the 'move' event to the other player in the game
       this.socketGateway
         .getServer()
-        .of('/events')
+
         .to(gameId)
         .emit('pong', data); // Emit message to all connected clients
     }
-    this.socketGateway.getServer().of('/events').emit('pong', data); // Emit message to all connected clients
+    this.socketGateway.getServer().emit('pong', data); // Emit message to all connected clients
   }
+}
+// Helper function to extract the user ID from the client
+function getUserIdFromClient(client: any): string | null {
+  // Assuming the user ID is passed as a query parameter during the socket connection
+  const userId = client.handshake.query.userId;
+
+  // Return the extracted user ID or null if not present
+  return userId || null;
 }
