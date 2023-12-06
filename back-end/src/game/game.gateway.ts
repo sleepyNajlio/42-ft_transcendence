@@ -6,8 +6,14 @@ import {
 } from '@nestjs/websockets';
 import { Logger } from '@nestjs/common';
 // import { Socket } from 'socket.io';
-import { Circle } from '@svgdotjs/svg.js';
 import { SocketGateway } from 'src/socket/socket.gateway';
+
+interface Ball {
+  cx: number;
+  cy: number;
+  vx: number;
+  vy: number;
+}
 
 @WebSocketGateway({
   namespace: 'events',
@@ -15,30 +21,21 @@ import { SocketGateway } from 'src/socket/socket.gateway';
 })
 export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private players: { [key: string]: any } = {}; // Define the type of players object
-  private Ball: {
-    cx: number;
-    cy: number;
-    cercle: Circle;
-    vx: number;
-    vy: number;
-  } = {
+  private ball: Ball = {
     cx: 300,
     cy: 300,
-    cercle: null,
     vx: 0,
     vy: 0,
   };
   private readonly logger = new Logger(GameGateway.name);
 
-  private initBall() {
-    this.Ball.cercle = null;
-    this.Ball.cx = 300;
-    this.Ball.cy = 300;
-    this.Ball.vx = 0;
-    this.Ball.vy = 0;
-  }
   private queue: any[] = [];
-  private games: { [id: string]: any } = {};
+  private games: {
+    [id: string]: {
+      players: { [key: string]: any };
+      ball: Ball;
+    };
+  } = {};
 
   constructor(private readonly socketGateway: SocketGateway) {}
 
@@ -71,7 +68,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
           [player1.id]: this.players[player1.id],
           [player2.id]: this.players[player2.id],
         },
-        ball: this.Ball,
+        ball: this.ball,
       };
 
       this.games[gameId].players[player1.id].host = true;
@@ -81,10 +78,11 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.logger.log(`game ${gameId} is created.`);
 
       // Emit an event to the two players to start the game
-      this.socketGateway
-        .getServer()
-        .of('/events')
-        .emit('startGame', this.games[gameId]);
+      console.log('ball', this.games[gameId].ball);
+      this.socketGateway.getServer().of('/events').emit('startGame', {
+        players: this.games[gameId].players,
+        bball: this.games[gameId].ball,
+      });
     }
   }
 
@@ -142,8 +140,11 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const gameId = Object.keys(this.games).find(
       (id) => this.games[id].players[client.id],
     );
-
     if (gameId) {
+      this.games[gameId].ball = {
+        ...this.games[gameId].ball,
+        ...data.ball,
+      };
       // Emit the 'move' event to the other player in the game
       this.socketGateway
         .getServer()
@@ -159,6 +160,10 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       (id) => this.games[id].players[client.id],
     );
     if (gameId) {
+      this.games[gameId].ball = {
+        ...this.games[gameId].ball,
+        ...data.ball,
+      };
       // Emit the 'move' event to the other player in the game
       this.socketGateway
         .getServer()
@@ -171,19 +176,48 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('moveBall')
   handleMoveBall(
     client: any,
-    data: { vx: number; vy: number; cx: number; cy: number },
+    data: {
+      ball: { vx: number; vy: number; cx: number; cy: number };
+      action: string;
+      playerLeft: number;
+      playerRight: number;
+    },
   ) {
     // Find the game that the player is in
     const gameId = Object.keys(this.games).find(
       (id) => this.games[id].players[client.id],
     );
     if (gameId) {
-      // Emit the 'move' event to the other player in the game
-      this.socketGateway
-        .getServer()
-        .of('/events')
-        .to(gameId)
-        .emit('ballVel', data);
+      this.games[gameId].ball = {
+        ...this.games[gameId].ball,
+        ...data.ball,
+      };
+      if (data.action === 'reset') {
+        this.games[gameId].ball = {
+          ...this.games[gameId].ball,
+          ...{ cx: 300, cy: 300, vx: 0, vy: 0 },
+        };
+        // Emit the 'reset' event to players in the game to reset the game
+        this.socketGateway.getServer().of('/events').to(gameId).emit('reset', {
+          ball: this.games[gameId].ball,
+          playerLeft: data.playerLeft,
+          playerRight: data.playerRight,
+        });
+      } else if (data.action === 'start') {
+        // Emit the 'start' event to players in the game to start the game
+        this.socketGateway
+          .getServer()
+          .of('/events')
+          .to(gameId)
+          .emit('start', { ball: this.games[gameId].ball });
+      } else {
+        // Emit the 'ballVel' event to players in the game to update the ball
+        this.socketGateway
+          .getServer()
+          .of('/events')
+          .to(gameId)
+          .emit('ballVel', { ball: this.games[gameId].ball });
+      }
     }
   }
 
@@ -194,23 +228,40 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       (id) => this.games[id].players[client.id],
     );
     if (gameId) {
-      client.broadcast.to(gameId).emit('getPaddlePos', data);
+      this.logger.log(
+        `client ${client.id} visible Document  ${this.games[gameId].ball.cx} ${this.games[gameId].ball.cy}`,
+      );
+      client.broadcast.emit('getFrame', data);
     }
   }
+
   @SubscribeMessage('paddlePos')
-  handlePaddlePos(client: any, data: any) {
+  handlePaddlePos(
+    client: any,
+    data: { y: number; playerLeft: number; playerRight: number; ball: Ball },
+  ) {
     // Find the game that the player is in
 
     const gameId = Object.keys(this.games).find(
       (id) => this.games[id].players[client.id],
     );
     if (gameId) {
+      this.games[gameId].ball = {
+        ...this.games[gameId].ball,
+        ...data.ball,
+      };
       // Emit the 'move' event to the other player in the game
       this.socketGateway
         .getServer()
         .of('/events')
         .to(gameId)
-        .emit('updatepaddlePos', data);
+        .emit('updateFrame', {
+          ball: this.games[gameId].ball,
+          y: data.y,
+          playerLeft: data.playerLeft,
+          playerRight: data.playerRight,
+          id: client.id,
+        });
     }
   }
 
