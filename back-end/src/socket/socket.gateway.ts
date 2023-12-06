@@ -3,7 +3,7 @@ import {
   OnGatewayInit,
   OnGatewayConnection,
   OnGatewayDisconnect,
-  SubscribeMessage,
+  // SubscribeMessage,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -13,58 +13,81 @@ export class SocketGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
   private server: Server;
-  private clients: Map<string, Socket> = new Map();
+  private userSockets: Map<string, Socket[]> = new Map();
   constructor(private prisma: PrismaService) {}
   afterInit(server: Server) {
     this.server = server;
     console.log('Socket.IO server initialized');
     setInterval(() => {
-      this.clients.forEach((socket, key) => {
-        console.log(`Client key: ${key}, Socket ID: ${socket.id}`);
-      });
+      console.log('userSockets', this.userSockets);
     }, 7000);
   }
 
   handleConnection(client: Socket) {
-    console.log(`Client connected: ${client.id}`);
+    console.log(
+      `Client ${client.id} connected. ${client.handshake.query.userId}}`,
+    );
+
+    // Extract user ID from query parameter
+    const userId = client.handshake.query.userId as string;
+
+    // Associate the user with this socket
+    if (!this.userSockets.has(userId)) {
+      this.userSockets.set(userId, []);
+    }
+    this.userSockets.get(userId).push(client);
   }
 
   handleDisconnect(client: Socket) {
-    this.clients.delete(client.id);
-    console.log(`oh noo Client disconnected: ${client.id}`);
-  }
+    console.log(`Client ${client.id} disconnected.`);
 
-  @SubscribeMessage('logedIn')
-  async handleMessageLogin(client: Socket, data: any) {
-    // Handle login message logic here
-    // console.log('Received login message:', data);
-    // Example: Send a response back to the client
-    this.clients.set(data.id_player, client);
-    try {
-      const updatedPlayer = await this.prisma.player.update({
-        where: {
-          username: data.username,
-        },
-        data: {
-          status: 'ONLINE',
-        },
-      });
+    // Remove the socket from the user's sockets
+    const userId = client.handshake.query.userId as string;
+    const userSockets = this.userSockets.get(userId);
+    if (userSockets) {
+      const index = userSockets.indexOf(client);
+      if (index !== -1) {
+        userSockets.splice(index, 1);
 
-      if (!updatedPlayer) {
-        console.log(`No player found with username: ${data.username}`);
-      } else {
-        console.log('Player status updated:', updatedPlayer);
+        // If no more sockets are associated with the user, remove the user entry
+        if (userSockets.length === 0) {
+          this.userSockets.delete(userId);
+        }
       }
-    } catch (error) {
-      console.error('Error updating player status:', error);
     }
   }
+
+  // @SubscribeMessage('logedIn')
+  // async handleMessageLogin(client: Socket, data: any) {
+  //   // Handle login message logic here
+  //   // console.log('Received login message:', data);
+  //   // Example: Send a response back to the client
+  //   this.clients.set(data.id_player, client);
+  //   try {
+  //     const updatedPlayer = await this.prisma.player.update({
+  //       where: {
+  //         username: data.username,
+  //       },
+  //       data: {
+  //         status: 'ONLINE',
+  //       },
+  //     });
+
+  //     if (!updatedPlayer) {
+  //       console.log(`No player found with username: ${data.username}`);
+  //     } else {
+  //       console.log('Player status updated:', updatedPlayer);
+  //     }
+  //   } catch (error) {
+  //     console.error('Error updating player status:', error);
+  //   }
+  // }
 
   getServer(): Server {
     return this.server;
   }
-  getClientSocket(playerId: string): Socket | undefined {
-    console.log('getClientSocket ', playerId);
-    return this.clients.get(playerId);
-  }
+  // getClientSocket(playerId: string): Socket | undefined {
+  //   console.log('getClientSocket ', playerId);
+  //   return this.clients.get(playerId);
+  // }
 }

@@ -5,32 +5,20 @@ import './styles/css/main.css';
 import { useMediaPredicate } from 'react-media-hook';
 import { User, user } from './Components/types.ts';
 import { useState, useEffect } from 'react';
-// import { useState } from 'react';
+import { getUser } from './player';
 
+export function Profile(props: { onLoaded: () => void; profileLoaded: boolean }) {
 
-async function getUserInfo() {
-    const response = await fetch("http://localhost:3000/profile", {
-      credentials: "include",
-      method: "GET",
-    });
-    if (response.ok) {
-      console.log(response);
-      const res = await response.json();
-      return res.user;
-    } else {
-      // alert("Failed to fetch user data");
-      console.log("Failed to fetch user data");
-      // console.log(response.message);
-    }
-  }
+  const { profileLoaded } = props;
   
-
-export function Profile() {
+  useEffect(() => {
+    props.onLoaded();
+  }, []);
 
   const [tempuser, setTempuser] = useState({
     id: "1",
-    name: "Buffalo",
-    image: "/bsk.png",
+    username: "Buffalo",
+    avatar: "/bsk.png",
     rank: 1,
     user_stats: {
       total_matches: 341,
@@ -51,24 +39,24 @@ export function Profile() {
   const [user, setUser] = useState({} as User);
 
   useEffect(() => {
-    const fetchData = async () => {
-      const user: User = await getUserInfo();
-      setUser(user);
-      setTempuser(prevUser => ({ ...prevUser, name: user.username }));
-      setTempuser(prevUser => ({ ...prevUser, image: user.avatar }));
-      
-    };
-    fetchData();
-  }, []);
-
-  
-  // const [user1, setUser] = useState<User | null>(null);
+    if (profileLoaded) {
+      getUser().then(user => {
+        setUser(user);
+        console.log("getting user: ",user);
+        setUser(user);
+        setTempuser({ ...tempuser, ...user });
+      }).catch(error => {
+        console.error("Failed to get user: ", error);
+      });
+    }
+  }, [profileLoaded]);
   const checkIfMediumPlus = useMediaPredicate(
     '(min-width: 769px)'
   );
-
-
-  
+  if (!profileLoaded) {
+    return <div>Loading...</div>;
+  }
+  // const [user1, setUser] = useState<User | null>(null);
   // console.log(user1);
   return (
     <>
