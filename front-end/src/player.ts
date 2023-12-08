@@ -9,7 +9,7 @@ async function getUserInfo(): Promise<User> {
     });
     if (response.ok) {
         const res = await response.json();
-        console.log("user: ", res);
+        // console.log("user: ", res);
         return res.user as User;
     } else {
         // alert("Failed to fetch user data");

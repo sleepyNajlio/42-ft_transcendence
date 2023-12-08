@@ -57,7 +57,11 @@ export class MessagesService {
     };
 
     const createdChatMessage = await this.prisma.chatMessage.create({
-      data: chatMessage,
+      data:  {
+        message: message.text,
+        chatId: chat.id_chat as number,
+        userId: id
+      }
     });
 
     console.log('message that just got created : ');

@@ -32,10 +32,11 @@ export function Chat() {
         }).catch(error => {
             console.error("Failed to get user: ", error);
         });
-        newSocket.emit('findAllMessages', {}, (response: any) => {
-            console.log("response got in front: ");
-            console.log(response);
+        newSocket.emit('findAllMessages', {}, (response: any[]) => {
+            // console.log("response got in find all: ");
+            // console.log(response);
             setMessages(response);
+            // console.log(messages);
         });
         setSocket(newSocket);
         
@@ -69,8 +70,13 @@ export function Chat() {
                     name: name,
                     text: messageText,
                     id: id
+                // }, (response: any[]) => {
+                //     console.log("response got in create message: ");
+                //     console.log(response);
+                //     setMessages(response);
+                //     // console.log(messages);
+                // });
                 });
-                setMessageText('');
             })
             .catch(error => {
                 console.error("Failed to get user: ", error);
@@ -117,7 +123,7 @@ export function Chat() {
                         <div className="Message_cnt">
                             {messages.map((message, index) => (
                                 <div key={index}>
-                                    [{message.name}]: {message.text}
+                                    [{message.id}]: {message.message}
                                 </div>
                             ))}
                         </div>
