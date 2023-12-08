@@ -12,6 +12,8 @@ import { Profile } from './Profile.tsx'
 import { useEffect, useState } from 'react';
 import { initializeSocket } from "./socket";
 import { initializeUser, getUser } from "./player";
+import { Testchat } from './Testchat.tsx';
+
   
 function App()
 {
@@ -19,7 +21,7 @@ function App()
     // const [data, setData] = useState('');
 
     //     useEffect(() => {
-    //     fetch('http://192.168.3.169:3000')
+    //     fetch('http://localhost:3000')
     //     .then((response) => response.text())
         
     //   .then((data) => setData(data))
@@ -75,6 +77,7 @@ function App()
             <Route path="/Chat" element={<Chat />} />
             <Route path="/Settings" element={<Settings />} />
             <Route path="/Leaderboard" element={<Leaderboard />} />
+            <Route path="/testchat" element={<Testchat />} />
             <Route path="/Profile" element={<Profile onLoaded={() => setisauthenticated(true)} profileLoaded={profileLoaded} />} />
         </Routes>
     </div>
