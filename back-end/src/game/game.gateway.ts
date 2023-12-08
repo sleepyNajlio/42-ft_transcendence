@@ -136,7 +136,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.logger.log(`game ${gameId} is created.`);
 
       // Emit an event to the two players to start the game
-      console.log('ball', this.games[gameId].ball);
       this.socketGateway.getServer().to(gameId).emit('startGame', {
         players: this.games[gameId].players,
         bball: this.games[gameId].ball,

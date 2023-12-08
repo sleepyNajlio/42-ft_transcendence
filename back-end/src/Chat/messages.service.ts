@@ -31,15 +31,15 @@ export class MessagesService {
     //     chatId : 1
     //   }
     // })
-    console.log(
-      await this.prisma.chatMessage.create({
-        data: {
-          message: createMessageDto.text,
-          userId: 7,
-          chatId: 33,
-        },
-      }),
-    );
+    // console.log(
+    //   await this.prisma.chatMessage.create({
+    //     data: {
+    //       message: createMessageDto.text,
+    //       userId: 7,
+    //       chatId: 33,
+    //     },
+    //   }),
+    // );
     return message;
   }
   async findAll() {

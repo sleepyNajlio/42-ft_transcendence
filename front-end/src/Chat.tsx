@@ -31,7 +31,7 @@ export function Chat() {
         setSocket(newSocket);
         
         newSocket.on('message', (message) => {
-            console.log(message);
+            console.log("from front " + message);
             setMessages((prevMessages) => [...prevMessages, message]);
         });
         

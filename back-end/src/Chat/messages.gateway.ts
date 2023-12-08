@@ -42,6 +42,7 @@ export class MessagesGateway
       createMessageDto,
       client.id,
     );
+    console.log("in gateway" + message);
 
     this.socketGateway.getServer().of('/chat').emit('message', message); // emit events to all connected clients
 

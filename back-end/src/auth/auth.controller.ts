@@ -89,7 +89,6 @@ export class AuthController {
   ) {
     const UserToken = req.cookies['USER'];
     const token = await this.authService.finish_signup(dto, UserToken);
-    console.log('token  ' + token.accessToken);
     res.cookie('JWT_TOKEN', token.accessToken);
     res.cookie('USER', '', { expires: new Date() });
     return { msg: 'Success' };
