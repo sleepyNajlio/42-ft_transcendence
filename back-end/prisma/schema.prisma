@@ -23,8 +23,8 @@ model Player {
   loses     Int     @default(0)
   twofa     Boolean ? @default(false)
 
-  chats    ChatUser[]
-  games    UserGame[]
+  chats    ChatUser[] // done
+  games    UserGame[] 
   messages ChatMessage[]
 
   friendshipAsked    FriendShip[] @relation(name: "requester")

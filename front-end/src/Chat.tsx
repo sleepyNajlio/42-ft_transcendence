@@ -5,6 +5,9 @@ import {io} from "socket.io-client";
 import { SetStateAction, useEffect } from 'react';
 import { useState } from 'react';
 import { Socket } from 'socket.io-client';
+import { Profile } from './Profile.tsx';
+import { getUser } from './player';
+import { get } from 'svg.js';
 
 export function Chat() {
     const [joined, setJoined] = useState(false);
@@ -18,20 +21,26 @@ export function Chat() {
     
     useEffect(() => {
         if (!joined) return;
-        console.log("here from front");
-        const newSocket = io('http://192.168.3.169:3000/chat', {
+        const newSocket = io('http://localhost:3000/chat', {
             transports: ['websocket'],
         });
-        console.log("here from front");
-        newSocket.emit('join', { user: name }, () => {
+        let id : number;
+        getUser().then(user => {
+            id = Number(user.id_player);
+            newSocket.emit('join', { id ,  name},  () => {
+            });
+        }).catch(error => {
+            console.error("Failed to get user: ", error);
         });
         newSocket.emit('findAllMessages', {}, (response: any) => {
+            console.log("response got in front: ");
+            console.log(response);
             setMessages(response);
         });
         setSocket(newSocket);
         
         newSocket.on('message', (message) => {
-            console.log("from front " + message);
+            // console.log("from front " + message);
             setMessages((prevMessages) => [...prevMessages, message]);
         });
         
@@ -50,12 +59,22 @@ export function Chat() {
 
 
     const sendMessage = () => {
-        if (!socket) return;
-        socket.emit('createMessage', {
-            name: name,
-            text: messageText,
-        });
-        setMessageText('');
+        let id: number;
+        getUser()
+            .then(user => {
+                id = Number(user.id_player);
+                console.log("sent from front: " + id);
+                if (!socket) return;
+                socket.emit('createMessage', {
+                    name: name,
+                    text: messageText,
+                    id: id
+                });
+                setMessageText('');
+            })
+            .catch(error => {
+                console.error("Failed to get user: ", error);
+            });
     };
 
 

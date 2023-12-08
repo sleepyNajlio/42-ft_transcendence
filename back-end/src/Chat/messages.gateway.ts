@@ -36,13 +36,16 @@ export class MessagesGateway
   @SubscribeMessage('createMessage') // to be able to send new messages
   async create(
     @MessageBody() createMessageDto: CreateMessageDto,
+    @MessageBody('id') id: number,
     @ConnectedSocket() client: Socket,
   ) {
+    console.log("in gateway: ");
+    console.log(id);
     const message = await this.messagesService.create(
       createMessageDto,
       client.id,
+      id,
     );
-    console.log("in gateway" + message);
 
     this.socketGateway.getServer().of('/chat').emit('message', message); // emit events to all connected clients
 
@@ -55,10 +58,13 @@ export class MessagesGateway
   }
   @SubscribeMessage('join')
   joinRoom(
-    @MessageBody('user') user: string,
+    @MessageBody('id') id: number,
+    @MessageBody('name') name: string,
     @ConnectedSocket() client: Socket,
   ) {
-    return this.messagesService.identify(user, client.id);
+    // console.log('user: ' + id);
+    // console.log('name: ' + name);
+    return this.messagesService.identify(id, name, client.id);
   }
 
   @SubscribeMessage('typing')

@@ -10,7 +10,7 @@ export default function Sbox(props: any) {
 
     const getPlayers = async () => {
         try {
-          const response = await fetch('http://192.168.3.169:3000/profile/all', {
+          const response = await fetch('http://localhost:3000/profile/all', {
             credentials: "include",
             method: "GET",
           });
