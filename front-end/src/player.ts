@@ -3,7 +3,7 @@ import { User } from './Components/types.ts';
 let player: User;
 
 async function getUserInfo(): Promise<User> {
-    const response = await fetch("http://localhost:3000/profile", {
+    const response = await fetch("http://192.168.3.169:3000/profile", {
         credentials: "include",
         method: "GET",
     });

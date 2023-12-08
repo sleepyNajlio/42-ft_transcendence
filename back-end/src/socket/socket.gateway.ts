@@ -18,9 +18,9 @@ export class SocketGateway
   afterInit(server: Server) {
     this.server = server;
     console.log('Socket.IO server initialized');
-    setInterval(() => {
-      console.log('userSockets', this.userSockets);
-    }, 7000);
+    // setInterval(() => {
+    //   console.log('userSockets', this.userSockets);
+    // }, 7000);
   }
 
   handleConnection(client: Socket) {
@@ -86,8 +86,8 @@ export class SocketGateway
   getServer(): Server {
     return this.server;
   }
-  // getClientSocket(playerId: string): Socket | undefined {
-  //   console.log('getClientSocket ', playerId);
-  //   return this.clients.get(playerId);
-  // }
+  getClientSocket(playerId: string): Socket[] | undefined {
+    const userSockets = this.userSockets.get(playerId);
+    return userSockets ? userSockets : undefined;
+  }
 }

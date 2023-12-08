@@ -15,7 +15,7 @@ async function finishSignup(
   // if (avatar) {
   //   const formData = new FormData();
   //   formData.append("avatar", avatar);
-  //   const response = await fetch("http://localhost:3000/auth/uploadAvatar", {
+  //   const response = await fetch("http://192.168.3.169:3000/auth/uploadAvatar", {
   //     credentials: "include",
   //     method: "POST",
   //     body: formData,
@@ -24,7 +24,7 @@ async function finishSignup(
   //     alert("File upload failed.");
   //   }
   //}
-  const response = await fetch("http://localhost:3000/auth/finish_signup", {
+  const response = await fetch("http://192.168.3.169:3000/auth/finish_signup", {
     credentials: "include",
     method: "POST",
     headers: {
@@ -47,7 +47,7 @@ async function finishSignup(
 
 async function getPreAuthData() {
   const cookie = Cookies.get(); // Get all cookies
-  const response = await fetch("http://localhost:3000/auth/preAuthData", {
+  const response = await fetch("http://192.168.3.169:3000/auth/preAuthData", {
     credentials: "include",
     method: "GET",
     headers: {
