@@ -46,14 +46,12 @@ export class AuthController {
         req.user.username,
       );
       res.cookie('JWT_TOKEN', accessToken);
-      res.redirect('http://192.168.3.169:5173/profile');
     } else {
       const userToken = await this.jwtService.signAsync({
         sub: -42,
         email: req.user.email,
       });
       res.cookie('USER', userToken);
-      res.redirect('http://192.168.3.169:5173/Config');
     }
   }
 

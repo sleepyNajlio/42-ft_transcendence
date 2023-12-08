@@ -9,7 +9,6 @@ import { NamespaceIoAdapter } from './nameSpace-IO.adapter';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, new ExpressAdapter());
   app.enableCors({
-    origin: 'http://192.168.3.169:5173',
     credentials: true,
     methods: [RequestMethod.ALL.toString()],
   });
