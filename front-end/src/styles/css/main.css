@@ -107,7 +107,7 @@ box-sizing: border-box;
 
 .sbox__cercle{
     display: flex;
-box-sizing: border-box;
+    box-sizing: border-box;
     justify-content: right;
     width: 70px;
     height: 70px;

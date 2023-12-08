@@ -2,8 +2,7 @@ import Navbar from './Components/Navbar.tsx';
 import Sbox from './Components/Sbox.tsx';
 import  './styles/css/main.css'
 import {io} from "socket.io-client";
-import { useEffect } from 'react';
-import { useRef } from 'react';
+import { SetStateAction, useEffect } from 'react';
 import { useState } from 'react';
 import { Socket } from 'socket.io-client';
 
@@ -19,10 +18,14 @@ export function Chat() { // get values from data base
     
     useEffect(() => {     // main useeffect function
         if (!joined) return;
-        const newSocket = io('http://localhost:3000/chat');
+        console.log("here from front");
+        const newSocket = io('http://localhost:3000/chat', {
+            transports: ['websocket'],
+        });
+        console.log("here from front");
         newSocket.emit('join', { user: name }, () => {
         });
-        newSocket.emit('findAllMessages', {}, (response) => {
+        newSocket.emit('findAllMessages', {}, (response: any) => {
             setMessages(response);
         });
         setSocket(newSocket);
@@ -82,6 +85,7 @@ export function Chat() { // get values from data base
 
     return (    // front-end khdam !
         <>
+            <Navbar/>
             <div className="chat">
                 {!joined && (
                     <div className="cin">

@@ -3,11 +3,6 @@ import ftlogo from '/ftlogo.png';
 import raketa from "/raketa.png";
 import Button from './Components/Button'
 import './styles/css/Login.css';
-import { useLocation } from 'react-router-dom';
-
-
-
-
 
 export function Login() {
 
@@ -17,9 +12,6 @@ export function Login() {
 
   // console.log(`cooode: ${code}`);
   // console.log(`state: ${state}`);
-
-
-  
 
   return (
     <>

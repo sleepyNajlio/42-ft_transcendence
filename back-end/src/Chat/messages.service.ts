@@ -1,55 +1,49 @@
 import { Injectable } from '@nestjs/common';
 import { CreateMessageDto } from './dto/create-message.dto';
-import { UpdateMessageDto } from './dto/update-message.dto';
-import { Message } from './entities/message.entity';
-import { PrismaClient } from '@prisma/client';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class MessagesService {
-  PrismaClient = new PrismaClient();
+  public clients = {};
 
-  // messages : Message[] = [ {name : 'Fahid' , text : 'Wach Wach!'} ];
-  clients = {};
+  constructor(private prisma: PrismaService) {}
 
-  identify(user : string , clientId : string) {
-
+  identify(user: string, clientId: string) {
     this.clients[clientId] = user;
     // console.log(this.clients);
     return Object.values(this.clients);
   }
 
-  getClientName(clientId : string){
+  getClientName(clientId: string) {
     return this.clients[clientId];
   }
-  create(createMessageDto: CreateMessageDto, clientId: string) {
+  async create(createMessageDto: CreateMessageDto, clientId: string) {
     const message = {
       name: this.clients[clientId],
       text: createMessageDto.text,
     };
-  //   const createdChat =  this.PrismaClient.chat.create({
-  // data: {
-  //   // your chat data here
-  //   messages: {
-  //     create: {
-  //       // your message data here
-  //     },
-    },
-  },
-});
-
-    // const createdMessage = this.PrismaClient.chat.create({
-    //   data: {
-    //     name: message.name,
-    //   },
-    // });
-    // console.log(createdMessage);
-
-
-    // console.log(createdMessage);
+    console.log('before push' + message);
+    // await this.prisma.chatMessage.create({
+    //   data :
+    //   {
+    //     message : createMessageDto.text,
+    //     userId : 1,
+    //     chatId : 1
+    //   }
+    // })
+    console.log(
+      await this.prisma.chatMessage.create({
+        data: {
+          message: createMessageDto.text,
+          userId: 1,
+          chatId: 3,
+        },
+      }),
+    );
     return message;
   }
-  findAll() {
-    return this.PrismaClient.message.findMany(); // Query to select all messages
+  async findAll() {
+    return await this.prisma.chatMessage.findMany(); // TODO : add a query to select all from the messages table
   }
 
 }

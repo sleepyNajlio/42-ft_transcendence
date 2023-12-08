@@ -6,10 +6,23 @@ import profile_icon from '../assets/profile_icon.svg';
 import ranking_icon from '../assets/chart_icon.svg';
 import play_icon from '../assets/playground_icon.svg';
 import settings from '../assets/settings_icon.svg';
+import { User } from './types.ts';
 import exit from '../assets/exit.svg';
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { getUser } from '../player';
 
 export default function Navbar() {
-
+      const [user, setUser] = useState({} as User);
+    
+      useEffect(() => {
+        getUser().then(user => {
+          setUser(user);
+        }).catch(error => {
+          console.error("Failed to get user: ", error);
+        });
+      }, []);
+    
   return (
     <>
     <input type="checkbox" id="menu-toggle"/>
@@ -27,25 +40,30 @@ export default function Navbar() {
             </div>
         </div>
         <div className="btn_container">
-            <button className="btn">Play</button>
+            <Link to="/play"><button className="btn">Play</button></Link>
+
+            
             <div className="icon">
-                <img src={play_icon} alt="Search Icon"/>
+                <img src={play_icon} alt="Play Icon"/>
             </div>
         </div>
         <div className="btn_container">
-            <button className="btn">Profile</button>
+            <Link to="/profile"><button className="btn">Profile</button></Link>
+
             <div className="icon">
-                <img src={profile_icon} alt="Search Icon"/>
+                <img src={profile_icon} alt="Profile Icon"/>
             </div>
         </div>
         <div className="btn_container">
-            <button className="btn">Messages</button>
+            <Link to="/chat"><button className="btn">Messages</button></Link>
+
             <div className="icon">
-                <img src={msg_icon} alt="Search Icon"/>
+                <img src={msg_icon} alt="Messages Icon"/>
             </div>
         </div>
         <div className="btn_container">
-            <button className="btn">Ranking</button>
+            <Link to="/leaderboard"><button className="btn">Ranking</button></Link>
+
             <div className="icon">
                 <img src={ranking_icon} alt="Search Icon"/>
             </div>
@@ -53,15 +71,15 @@ export default function Navbar() {
         <div className="line">
         </div>
         <div className="btn_container">
-            <button className="btn">Settings</button>
+            <Link to="/settings"><button className="btn">Settings</button></Link>
             <div className="icon">
-                <img src={settings} alt="Search Icon"/>
+                <img src={settings} alt="Settings Icon"/>
             </div>
         </div>
         <div className="logout">
             <div className="user">
-                <div className="cercle"></div>
-                <span className="name">Richard</span>
+                <div className="cercle_profile" style={{ backgroundImage: `url(${user.avatar})` }}></div>
+                <span className="name">{user.username}</span>
             </div>
             <div>
                 <img width="40" height="40" src={exit} alt="Search Icon"/>

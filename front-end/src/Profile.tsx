@@ -3,18 +3,22 @@ import PofilCard from './Components/PofilCard.tsx';
 import MobProfilCard from './Components/MobProfilCard.tsx';
 import './styles/css/main.css';
 import { useMediaPredicate } from 'react-media-hook';
-import { user } from './Components/types.ts';
+import { User, user } from './Components/types.ts';
+import { useState, useEffect } from 'react';
+import { getUser } from './player';
 
-export function Profile() {
-    
-  const checkIfMediumPlus = useMediaPredicate(
-    '(min-width: 769px)'
-  );
+export function Profile(props: { onLoaded: () => void; profileLoaded: boolean }) {
 
-  const user = {
+  const { profileLoaded } = props;
+  
+  useEffect(() => {
+    props.onLoaded();
+  }, []);
+
+  const [tempuser, setTempuser] = useState({
     id: "1",
-    name: "Buffalo",
-    image: "/bsk.png",
+    username: "Buffalo",
+    avatar: "/bsk.png",
     rank: 1,
     user_stats: {
       total_matches: 341,
@@ -30,13 +34,34 @@ export function Profile() {
         {name: "default", description: "Win 100 games", progress: 0, max: 100},
         {name: "default", description: "Win 100 games", progress: 0, max: 100},
     ],
-  } as user;
-  
+  } as user);
 
+  const [user, setUser] = useState({} as User);
+
+  useEffect(() => {
+    if (profileLoaded) {
+      getUser().then(user => {
+        setUser(user);
+        console.log("getting user: ",user);
+        setUser(user);
+        setTempuser({ ...tempuser, ...user });
+      }).catch(error => {
+        console.error("Failed to get user: ", error);
+      });
+    }
+  }, [profileLoaded]);
+  const checkIfMediumPlus = useMediaPredicate(
+    '(min-width: 769px)'
+  );
+  if (!profileLoaded) {
+    return <div>Loading...</div>;
+  }
+  // const [user1, setUser] = useState<User | null>(null);
+  // console.log(user1);
   return (
     <>
       
-      <Navbar ></Navbar>
+      <Navbar></Navbar>
 
       <main id='page-wrap' className="wrapper profil">
         <div className="profil container">
@@ -44,86 +69,14 @@ export function Profile() {
             <h1 className="ptitle">Profile</h1>
         </div>
         {checkIfMediumPlus ? (
-            <PofilCard user={user}></PofilCard>
+            <PofilCard user={tempuser}></PofilCard>
             ) : (
-            <MobProfilCard user={user}></MobProfilCard>
+            <MobProfilCard user={tempuser}></MobProfilCard>
         )}
         <div className="right-div">
               <h1 className="rank__title">History</h1>
               <div className="history">
                 <div className="rankbar">
-                    <div className="rank__user">
-                        <div className="rank__cercle"></div>
-                    </div>
-                    <div className="score">
-                        <span className="rankval">1</span>
-                        <span className="rankname">-</span>
-                        <span className="rankval">1</span>
-                    </div>
-                    <div className="rank__user">
-                        <div className="rank__cercle"></div>
-                    </div>
-                </div><div className="rankbar">
-                    <div className="rank__user">
-                        <div className="rank__cercle"></div>
-                    </div>
-                    <div className="score">
-                        <span className="rankval">1</span>
-                        <span className="rankname">-</span>
-                        <span className="rankval">1</span>
-                    </div>
-                    <div className="rank__user">
-                        <div className="rank__cercle"></div>
-                    </div>
-                </div><div className="rankbar">
-                    <div className="rank__user">
-                        <div className="rank__cercle"></div>
-                    </div>
-                    <div className="score">
-                        <span className="rankval">1</span>
-                        <span className="rankname">-</span>
-                        <span className="rankval">1</span>
-                    </div>
-                    <div className="rank__user">
-                        <div className="rank__cercle"></div>
-                    </div>
-                </div><div className="rankbar">
-                    <div className="rank__user">
-                        <div className="rank__cercle"></div>
-                    </div>
-                    <div className="score">
-                        <span className="rankval">1</span>
-                        <span className="rankname">-</span>
-                        <span className="rankval">1</span>
-                    </div>
-                    <div className="rank__user">
-                        <div className="rank__cercle"></div>
-                    </div>
-                </div><div className="rankbar">
-                    <div className="rank__user">
-                        <div className="rank__cercle"></div>
-                    </div>
-                    <div className="score">
-                        <span className="rankval">1</span>
-                        <span className="rankname">-</span>
-                        <span className="rankval">1</span>
-                    </div>
-                    <div className="rank__user">
-                        <div className="rank__cercle"></div>
-                    </div>
-                </div><div className="rankbar">
-                    <div className="rank__user">
-                        <div className="rank__cercle"></div>
-                    </div>
-                    <div className="score">
-                        <span className="rankval">1</span>
-                        <span className="rankname">-</span>
-                        <span className="rankval">1</span>
-                    </div>
-                    <div className="rank__user">
-                        <div className="rank__cercle"></div>
-                    </div>
-                </div><div className="rankbar">
                     <div className="rank__user">
                         <div className="rank__cercle"></div>
                     </div>
