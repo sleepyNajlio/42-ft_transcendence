@@ -4,7 +4,7 @@ let socket: Socket;
 
 export const initializeSocket = (userId: string) => {
     console.log("userId", userId);
-  socket = io("http://localhost:3000", {
+  socket = io("http://192.168.3.169:3000", {
     query: { userId },
   });
 };

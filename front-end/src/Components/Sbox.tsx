@@ -1,31 +1,33 @@
 import '../styles/css/main.css'
 import LoadingComponent from './LoadingComponent'; // Import the loading component
 import { useEffect, useState } from 'react';
+import { User } from './types';
 
 
 export default function Sbox(props: any) {
-    const [users, setUsers] = useState([]);
+    const [users, setUsers] = useState<User[]>([]);
     const [Players, setPlayers] = useState(false);
 
     const getPlayers = async () => {
         try {
-          const response = await fetch('http://localhost:3000/profile/all', {
+          const response = await fetch('http://192.168.3.169:3000/profile/all', {
             credentials: "include",
             method: "GET",
           });
           const data = await response.json(); // Parse the response as JSON
+          console.log("data: ", data);
           setUsers(data.users); // Set the parsed data to state
         } catch (error) {
           console.error(error);
         }
       };
     useEffect(() => {
-        console.log("users: ", users);
-        if (users.length > 0) {
-          console.log("showing users");
-          setPlayers(true);
-        }
-      }, [users]);
+      if (users.length > 0) {
+        console.log("users1: ", users);
+        console.log("showing users");
+        setPlayers(true);
+      }
+    }, [users]);
 
     return (
         <>

@@ -1,7 +1,6 @@
 import { useEffect, useRef } from 'react';
 import Navbar from './Components/Navbar.tsx';
 import Sbox from './Components/Sbox.tsx';
-import {io, Socket} from "socket.io-client";
 import  './styles/css/main.css'
 import { useState } from 'react';
 import { Circle } from '@svgdotjs/svg.js';
@@ -12,11 +11,13 @@ import { getSocket } from "./socket";
 
 export function Play() {
     const isDocumentVisible = useDocumentVisible();
+    const isMounted = useRef(true); // useRef to track whether the component is mounted
     const [showSbox, setShowSbox] = useState(true);
     const [showGame, setshowGame] = useState(false);    
     const [isLoading, setIsLoading] = useState(false); // Add a new state variable for loading
-    const [socket, setSocket] = useState<Socket>(getSocket());
     const [players, setPlayers] = useState<Players>({});
+    const socket = getSocket();
+    let iscanceled = false;
     const bballRef = useRef<Ball>({
       cercle: new Circle(),
       vx: 0,
@@ -29,51 +30,61 @@ export function Play() {
         {
           player_id: player_id,
         });
-        setSocket(socket);
         setIsLoading(true);
     };
     const handleMatchClick = async () => {
       socket.emit('matchmaking', { id: socket.id });
       setIsLoading(true);
     };
-
     useEffect(() => {
-      let isCancelled = false;
-      if (isDocumentVisible && !isCancelled) {
-        if (socket)
-        {
-          socket.emit('documentVisible', { id: socket.id });
-        }
+      if (isMounted.current) {
+        console.log('isMounted: ', isMounted.current);
+        // socket.emit('playOpen', { id: socket.id });
       }
-      return () => {
-        isCancelled = true;
-      };
-    }, [isDocumentVisible]);
-
-    useEffect(() => {
-      if (socket) {
-        socket.on('connect', () => {
-          console.log('a user connected');
-        });
+      else {
+        
         socket.on('startGame', ({players, bball}) => {
           setIsLoading(false); // Set loading to false when the game starts
           setShowSbox(false);
           setshowGame(true);
           setPlayers(players);
-          console.log('start game', bball, 'players: ', players);
+          console.log("game started");
           bballRef.current = bball;
         });
+        console.log('walla');
       }
-    });
-    useEffect(() => {
+      
+      return () => {
+        iscanceled = true;
+        // socket.off('startGame');
+        isMounted.current = false; // Set to false when the component is unmounted
+      };
+    }, [isMounted]);
 
-      if (showGame && socket) {
+    useEffect(() => {
+      if (isDocumentVisible) {
+        console.log('isDocumentVisible: ', isDocumentVisible);
+        socket.emit('documentVisible', { id: socket.id });
+      }
+      // else {
+      //   socket.emit('playClose', { id: socket.id });
+      // }
+      return () => {
+        iscanceled = true;
+      };
+    }, [isDocumentVisible]);
+
+    useEffect(() => {
+      if (showGame && socket && !iscanceled) {
         console.log('ball: ', bballRef.current);
         const cleanup = game(socket, players, bballRef.current);
         return () => {
           cleanup()
         };
       }
+      return () => {
+        iscanceled = true;
+      };
     } , [showGame]);
 
     return (
