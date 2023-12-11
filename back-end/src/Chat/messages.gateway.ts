@@ -53,8 +53,12 @@ export class MessagesGateway
   }
 
   @SubscribeMessage('findAllMessages') // to be able to see the old messages
-  async findAll() {
-    return await this.messagesService.findAll();
+  async findAll(
+    @MessageBody('name') name: string,
+    @ConnectedSocket() client: Socket,
+  ) { 
+    console.log('in gateway: ' + name);
+    return await this.messagesService.findAll(name);
   }
   @SubscribeMessage('join')
   joinRoom(
@@ -70,9 +74,10 @@ export class MessagesGateway
   @SubscribeMessage('typing')
   async typing(
     @MessageBody('isTyping') isTyping: boolean,
+    @MessageBody('username') username: string,
     @ConnectedSocket() client: Socket,
   ) {
-    const user = this.messagesService.clients[client.id];
-    client.broadcast.emit('typing', { user: user, isTyping: isTyping });
+    console.log('user in gatewayyy: ' + username);
+    client.broadcast.emit('typing', { username:username, isTyping: isTyping });
   }
 }

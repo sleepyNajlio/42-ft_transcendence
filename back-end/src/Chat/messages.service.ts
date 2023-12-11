@@ -4,6 +4,8 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 
 type ChatMessageUncheckedCreateInput = Prisma.ChatMessageUncheckedCreateInput;
+type ChatWhereInput = Prisma.ChatWhereInput;
+
 
 @Injectable()
 export class MessagesService {
@@ -11,19 +13,42 @@ export class MessagesService {
 
   constructor(private prisma: PrismaService) {}
 
-  async identify(id: number, name : string , clientId: string) {
+  async identify(id: number, name: string, clientId: string) {
     console.log('id: ' + id + ' user: ' + name + ' just joined the chat');
+
+    const existingChat = await this.prisma.chat.findFirst({
+      where: {
+        users: {
+          some: {
+            userId: id,
+          },
+        },
+        name :
+        {
+          equals: name,
+        }
+      } as ChatWhereInput,
+    });
+
+    if (existingChat) {
+      console.log('User with ID ' + id + ' has already created a chat.');
+      return;
+    }
+
+
     const chat = await this.prisma.chat.create({
       data: {
         name: name,
       },
     });
+
     const chatusers = await this.prisma.chatUser.create({
       data: {
         chatId: chat.id_chat,
         userId: id,
       },
     });
+
     console.log(chat);
     console.log('-------------------');
     console.log(chatusers);
@@ -35,14 +60,12 @@ export class MessagesService {
   }
   async create(createMessageDto: CreateMessageDto, clientId: string, id: number) {
     
-    console.log('in service :');
-    console.log(id);
+    // console.log(createMessageDto.);
+
     const message = {
-      name: this.clients[clientId],
+      name: createMessageDto.name,
       text: createMessageDto.text,
-    };
-    console.log('message name that create the message: ');
-    console.log(message.name);
+    }
 
     const chat = await this.prisma.chat.findFirst({
       where: {
@@ -50,28 +73,45 @@ export class MessagesService {
       },
     });
 
-    const chatMessage: ChatMessageUncheckedCreateInput = {
-      message: message.text,
-      chatId: chat.id_chat as number,
-      userId: id
-    };
-
+    
     const createdChatMessage = await this.prisma.chatMessage.create({
-      data:  {
+      data: {
         message: message.text,
         chatId: chat.id_chat as number,
-        userId: id
-      }
+        userId: id as number,
+      },
+      include: {
+        user: {
+          select: {
+            username: true,
+          },
+        },
+      },
     });
-
     console.log('message that just got created : ');
     console.log(createdChatMessage);
 
-    return message;
+    return createdChatMessage;
   }
-  async findAll() {
-    console.log('in find all : ');
-    console.log(await this.prisma.chatMessage.findMany());
-    return await this.prisma.chatMessage.findMany(); // TODO : add a query to select all from the messages table
+  async findAll(name: string) {
+    console.log('name: ');
+    console.log(name);
+
+    const messages = await this.prisma.chatMessage.findMany({
+
+      where: {
+        chat: {
+          name: name,
+        },
+      },
+      include: {
+        user: {
+          select: {
+            username: true,
+          },
+        },
+      },
+    });
+    return messages;
   }
 }

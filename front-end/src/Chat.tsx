@@ -32,7 +32,7 @@ export function Chat() {
         }).catch(error => {
             console.error("Failed to get user: ", error);
         });
-        newSocket.emit('findAllMessages', {}, (response: any[]) => {
+        newSocket.emit('findAllMessages', {name}, (response: any[]) => {
             // console.log("response got in find all: ");
             // console.log(response);
             setMessages(response);
@@ -45,13 +45,20 @@ export function Chat() {
             setMessages((prevMessages) => [...prevMessages, message]);
         });
         
-        newSocket.on('typing', ({ user: name, isTyping: isTyping }) => {
-        console.log(name, isTyping);
-        if (isTyping) {
-            setTypingDisplay(`${name} is typing...`);
-        } else {
-            setTypingDisplay('');
-        }
+        let username : string;
+        getUser().then(user => {
+            username = user.username;
+            console.log("username in frontttt: " + username);
+            newSocket.on('typing', ({ username: username, isTyping: isTyping }) => {
+            console.log(username, isTyping);
+            if (isTyping) {
+                setTypingDisplay(`${username} is typing...`);
+            } else {
+                setTypingDisplay('');
+            }
+            });
+        }).catch(error => {
+            console.error("Failed to get user: ", error);
         });
         return () => {
             newSocket.disconnect();
@@ -99,13 +106,19 @@ export function Chat() {
     };
 
     // ...
-
     const typingEmit = () => {
         if (!socket) return;
-        socket.emit('typing', { isTyping: true });
-        setTimeout(() => {
-            socket.emit('typing', { isTyping: false });
-        }, 2000);
+        let username : string;
+        getUser().then(user => {
+            username = user.username;
+            // console.log("username in frontttt: " + username);
+            socket.emit('typing', { username: username,isTyping: true });
+            setTimeout(() => {
+                socket.emit('typing', { username: username,isTyping: false });
+            }, 2000);
+        }).catch(error => {
+            console.error("Failed to get user: ", error);
+        });
     };
 
     return (
@@ -123,7 +136,7 @@ export function Chat() {
                         <div className="Message_cnt">
                             {messages.map((message, index) => (
                                 <div key={index}>
-                                    [{message.id}]: {message.message}
+                                    [{message.user.username}]: {message.message}
                                 </div>
                             ))}
                         </div>
