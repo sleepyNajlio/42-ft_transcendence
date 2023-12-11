@@ -34,6 +34,17 @@ export class MessagesGateway
     console.log(`Client connected: ${client.id}`);
   }
 
+  @SubscribeMessage('DisplayRoom')
+  async displayRoom(
+    @MessageBody('id') id: number,
+    @ConnectedSocket() client: Socket,
+  ) {
+      console.log('hahahahaha');
+       const rooms = await this.messagesService.getRooms();
+       this.socketGateway.getServer().of('/chat').to(client.id).emit('rooms', rooms);
+      return rooms;
+  }
+
   @SubscribeMessage('createMessage') // to be able to send new messages
   async create(
     @MessageBody() createMessageDto: CreateMessageDto,
@@ -72,25 +83,36 @@ export class MessagesGateway
     return await this.messagesService.findAll(name);
   }
   @SubscribeMessage('join')
-  joinRoom(
+  async joinRoom(
     @MessageBody('id') id: number,
     @MessageBody('name') name: string,
     @ConnectedSocket() client: Socket,
   ) {
-    this.messagesService.identify(id, name, client.id).then((room) => {
-      if (room) {
-        client.join("chat_"+ room.id_chat);
-        console.log('user: ' + id + ' joined the chat');
-        return room;
-      }
-      else
-      {
 
-        console.log(' room does not exist in gateway ');
-        return null;
-      }
-    });
-    console.log(' kkkkkkkkkkk ');
+    const room = await this.messagesService.identify(id, name, client.id);
+    console.log('room in gateway : ');
+    console.log(room);
+    if (room) {
+      client.join("chat_"+ room.id_chat);
+      console.log('user: ' + id + ' joined the chat');
+      return room;
+    }
+    else
+    {
+      return false;
+    }
+
+    // this.messagesService.identify(id, name, client.id).then((room) => {
+    //   if (room) {
+    //     client.join("chat_"+ room.id_chat);
+    //     console.log('user: ' + id + ' joined the chat');
+    //     return room;
+    //   }
+    //   else
+    //   {
+    //     return null;
+    //   }
+    // });
     // console.log('user: ' + id);
     // console.log('name: ' + name);
   }

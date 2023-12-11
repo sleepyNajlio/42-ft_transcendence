@@ -1,6 +1,6 @@
 import Navbar from './Components/Navbar.tsx';
 import Sbox from './Components/Sbox.tsx';
-import  './styles/css/main.css'
+import  './styles/css/chat.css'
 import {io} from "socket.io-client";
 import { SetStateAction, useEffect } from 'react';
 import { useState } from 'react';
@@ -16,6 +16,7 @@ export function Chat() {
     const [messageText, setMessageText] = useState('');
     const [typingDisplay, setTypingDisplay] = useState('');
     const [created, setCreated] = useState(0);
+    const [Rooms, setRooms] = useState<any[]>([]);
 
     
     const [socket, setSocket] = useState<Socket | null>(null);
@@ -28,14 +29,14 @@ export function Chat() {
         let id : number;
         getUser().then(user => {
             id = Number(user.id_player);
-            newSocket.emit('join', { id ,  name},  (response: any[]) => {
-                console.log("emit got in join: ");
-                
-                console.log(response);
-                if (response == null)
+            newSocket.emit('join', { id ,  name},  (response : any[]) => {
+                if (!response)
+                {
                     alert("room does not exist");
-            
+                    setJoined(false);
+                }
             });
+
 
         }).catch(error => {
             console.error("Failed to get user: ", error);
@@ -46,17 +47,21 @@ export function Chat() {
             setMessages(response);
             // console.log(messages);
         });
+
         setSocket(newSocket);
         
         newSocket.on('message', (message) => {
-            // console.log("from front " + message);
+            console.log("from front message " + message);
             setMessages((prevMessages) => [...prevMessages, message]);
         });
-        
+        // newSocket.on('rooms', (room) => {
+        //     console.log("from front rooms: " + room);
+        //     setRooms((prevRooms) => [...prevRooms, room]);
+        // });
+
         let username : string;
         getUser().then(user => {
             username = user.username;
-            console.log("username in frontttt: " + username);
             newSocket.on('typing', ({ name:name, username: username, isTyping: isTyping }) => {
             if (isTyping) {
                 setTypingDisplay(`${username} is typing...`);
@@ -80,8 +85,6 @@ export function Chat() {
         const newSocket = io('http://localhost:3000/chat', {
         transports: ['websocket'],
         });
-        console.log("created: " + created);
-        // setSocket(newSocket);
         let id1 : number;
         getUser().then(user => {
             id1 = Number(user.id_player);
@@ -94,6 +97,7 @@ export function Chat() {
         }).catch(error => {
             console.error("Failed to get user: ", error);
         });
+        // setSocket(newSocket);
         setCreated(0);
     },[created]);
 
@@ -153,11 +157,24 @@ export function Chat() {
         <>
             <Navbar/>
             <div className="chat">
+                <div className="chat_header">
+
+                    <h1>Rooms</h1>
+                    <> room 1</>
+                    <> room 2</>
+                    <> room 3</>
+                    
+                    {/* {Rooms.map((room, index) => (
+                    <button key={index} onClick={join}>{room.name}</button>
+                    ))} */}
+
+                
+                </div>
                 {!joined && (
                     <div className="cin">
-                        <input type="text" placeholder='Name' name="name" id="name" value={name} onChange={changeName} />
-                        <button onClick={join}>Join</button> 
-                        <button onClick={create}>create</button>
+                    <input type="text" placeholder='Name' name="name" id="name" value={name} onChange={changeName} />
+                    <button onClick={() => join()}>Join</button>
+                    <button onClick={() => create()}>create</button>
                     </div>
 
                 )}
@@ -184,3 +201,4 @@ export function Chat() {
         </>
     );
 }
+

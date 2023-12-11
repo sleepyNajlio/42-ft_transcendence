@@ -45,7 +45,7 @@ export class MessagesService {
     }
     else{
       console.log('id: ' + id + ' user: ' + name + ' cant join the chat');
-      return null;
+      return false;
     }
 
     console.log('id: ' + id + ' user: ' + name + ' joined the chat');
@@ -163,5 +163,27 @@ export class MessagesService {
     });
 
     return chat;
+  }
+  async getRooms() {
+
+    // let id : number = 0;
+    // getUser().then((user) => {
+    //   console.log('user in getRooms: ');
+    //   console.log(user);
+    //   id = Number(user.id_player);
+    // }).catch((err) => {
+    //   console.log(err);
+    // });
+
+    // const rooms = await this.prisma.chat.findMany({
+    //   where: {
+    //     users: {
+    //       some: {
+    //         userId: id,
+    //       },
+    //     },
+    //   },
+    // });
+    // return ;
   }
 }
