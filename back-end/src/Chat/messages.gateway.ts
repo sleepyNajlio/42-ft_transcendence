@@ -11,6 +11,7 @@ import { MessagesService } from './messages.service';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { Server, Socket } from 'socket.io';
 import { SocketGateway } from 'src/socket/socket.gateway';
+import { subscribe } from 'diagnostics_channel';
 
 @WebSocketGateway({
   namespace: 'chat',
@@ -39,19 +40,29 @@ export class MessagesGateway
     @MessageBody('id') id: number,
     @ConnectedSocket() client: Socket,
   ) {
-    console.log("in gateway: ");
-    console.log(id);
     const message = await this.messagesService.create(
       createMessageDto,
       client.id,
       id,
     );
-
-    this.socketGateway.getServer().of('/chat').emit('message', message); // emit events to all connected clients
-
+    const room = "chat_" + message.chatId;
+    
+    
+    this.socketGateway.getServer().of('/chat').to(room).emit('message', message); // emit events to all connected clients
+    
     return message;
   }
-
+  
+  @SubscribeMessage('createRoom')
+  async creatRoom(
+    @MessageBody('id1') id1: number,
+    @MessageBody('name') name: string,
+    @ConnectedSocket() client: Socket,
+  )
+  {
+    // console.log('in gateway -- id: ' + id1 + ' user: ' + name + ' just created the chat');
+    return await this.messagesService.createChannel(id1, name, client.id);
+  }
   @SubscribeMessage('findAllMessages') // to be able to see the old messages
   async findAll(
     @MessageBody('name') name: string,
@@ -66,18 +77,35 @@ export class MessagesGateway
     @MessageBody('name') name: string,
     @ConnectedSocket() client: Socket,
   ) {
+    this.messagesService.identify(id, name, client.id).then((room) => {
+      if (room) {
+        client.join("chat_"+ room.id_chat);
+        console.log('user: ' + id + ' joined the chat');
+        return room;
+      }
+      else
+      {
+
+        console.log(' room does not exist in gateway ');
+        return null;
+      }
+    });
+    console.log(' kkkkkkkkkkk ');
     // console.log('user: ' + id);
     // console.log('name: ' + name);
-    return this.messagesService.identify(id, name, client.id);
   }
 
   @SubscribeMessage('typing')
   async typing(
+    @MessageBody('name') name: string,
     @MessageBody('isTyping') isTyping: boolean,
     @MessageBody('username') username: string,
     @ConnectedSocket() client: Socket,
   ) {
-    console.log('user in gatewayyy: ' + username);
-    client.broadcast.emit('typing', { username:username, isTyping: isTyping });
+    const chat = await this.messagesService.findRoom(name);
+
+    const room = "chat_" + chat.id_chat;
+    client.broadcast.to(room).emit('typing', { username:username, isTyping: isTyping });
+
   }
 }

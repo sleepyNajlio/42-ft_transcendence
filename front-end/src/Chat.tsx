@@ -15,6 +15,7 @@ export function Chat() {
     const [messages, setMessages] = useState<any[]>([]);
     const [messageText, setMessageText] = useState('');
     const [typingDisplay, setTypingDisplay] = useState('');
+    const [created, setCreated] = useState(0);
 
     
     const [socket, setSocket] = useState<Socket | null>(null);
@@ -27,8 +28,15 @@ export function Chat() {
         let id : number;
         getUser().then(user => {
             id = Number(user.id_player);
-            newSocket.emit('join', { id ,  name},  () => {
+            newSocket.emit('join', { id ,  name},  (response: any[]) => {
+                console.log("emit got in join: ");
+                
+                console.log(response);
+                if (response == null)
+                    alert("room does not exist");
+            
             });
+
         }).catch(error => {
             console.error("Failed to get user: ", error);
         });
@@ -49,8 +57,7 @@ export function Chat() {
         getUser().then(user => {
             username = user.username;
             console.log("username in frontttt: " + username);
-            newSocket.on('typing', ({ username: username, isTyping: isTyping }) => {
-            console.log(username, isTyping);
+            newSocket.on('typing', ({ name:name, username: username, isTyping: isTyping }) => {
             if (isTyping) {
                 setTypingDisplay(`${username} is typing...`);
             } else {
@@ -65,6 +72,30 @@ export function Chat() {
         };
     }, [joined]);
 
+    useEffect(() => {
+        if (!created)
+        {
+            return;            
+        }
+        const newSocket = io('http://localhost:3000/chat', {
+        transports: ['websocket'],
+        });
+        console.log("created: " + created);
+        // setSocket(newSocket);
+        let id1 : number;
+        getUser().then(user => {
+            id1 = Number(user.id_player);
+            // if (!socket) return;
+            // console.log("id1 in front: " + id1);
+            newSocket.emit('createRoom', { id1 ,  name},  (response : any[]) => {
+                if (!response)
+                    alert("room already exist");
+            });
+        }).catch(error => {
+            console.error("Failed to get user: ", error);
+        });
+        setCreated(0);
+    },[created]);
 
     const sendMessage = () => {
         let id: number;
@@ -76,13 +107,7 @@ export function Chat() {
                 socket.emit('createMessage', {
                     name: name,
                     text: messageText,
-                    id: id
-                // }, (response: any[]) => {
-                //     console.log("response got in create message: ");
-                //     console.log(response);
-                //     setMessages(response);
-                //     // console.log(messages);
-                // });
+                    id: id,
                 });
             })
             .catch(error => {
@@ -104,6 +129,10 @@ export function Chat() {
         setJoined(true);
         // console.log(name);
     };
+    const create = () => {
+        setCreated(1);
+        // console.log(name);
+    };
 
     // ...
     const typingEmit = () => {
@@ -111,10 +140,9 @@ export function Chat() {
         let username : string;
         getUser().then(user => {
             username = user.username;
-            // console.log("username in frontttt: " + username);
-            socket.emit('typing', { username: username,isTyping: true });
+            socket.emit('typing', { name:name, username: username,isTyping: true });
             setTimeout(() => {
-                socket.emit('typing', { username: username,isTyping: false });
+                socket.emit('typing', { name:name, username: username,isTyping: false });
             }, 2000);
         }).catch(error => {
             console.error("Failed to get user: ", error);
@@ -128,8 +156,10 @@ export function Chat() {
                 {!joined && (
                     <div className="cin">
                         <input type="text" placeholder='Name' name="name" id="name" value={name} onChange={changeName} />
-                        <button onClick={join}>Join</button>
+                        <button onClick={join}>Join</button> 
+                        <button onClick={create}>create</button>
                     </div>
+
                 )}
                 {joined && (
                     <div className="chat_container">

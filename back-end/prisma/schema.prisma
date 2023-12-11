@@ -23,7 +23,7 @@ model Player {
   loses     Int     @default(0)
   twofa     Boolean ? @default(false)
 
-  chats    ChatUser[] // done
+  chats    ChatUser[]
   games    UserGame[] 
   messages ChatMessage[]
 

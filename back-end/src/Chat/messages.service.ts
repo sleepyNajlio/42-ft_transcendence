@@ -13,46 +13,84 @@ export class MessagesService {
 
   constructor(private prisma: PrismaService) {}
 
-  async identify(id: number, name: string, clientId: string) {
-    console.log('id: ' + id + ' user: ' + name + ' just joined the chat');
+  
 
+  async identify(id: number, name: string, clientId: string) {
+    let chatUSers : any = null;
+    
     const existingChat = await this.prisma.chat.findFirst({
       where: {
-        users: {
-          some: {
+        name: {
+          equals: name,
+        },
+      } as ChatWhereInput,
+    });
+    
+    if (existingChat) {
+      chatUSers = await this.prisma.chatUser.findFirst({
+        where: {
+          chatId: existingChat.id_chat,
+          userId: id,
+        },
+      });
+  
+      if (!chatUSers) {
+         chatUSers = await this.prisma.chatUser.create({
+           data: {
+            chatId: existingChat.id_chat,
             userId: id,
           },
-        },
-        name :
-        {
+        });
+      }
+    }
+    else{
+      console.log('id: ' + id + ' user: ' + name + ' cant join the chat');
+      return null;
+    }
+
+    console.log('id: ' + id + ' user: ' + name + ' joined the chat');
+    
+    console.log(existingChat);
+    console.log('-------------------');
+    console.log(chatUSers);
+    return existingChat;
+  }
+  async createChannel(id: number, name: string, clientId: string) {
+    console.log('id: ' + id + ' user: ' + name + ' just careated a channel');
+    const existingChat = await this.prisma.chat.findFirst({
+      where: {
+        name: {
           equals: name,
-        }
+        },
       } as ChatWhereInput,
     });
 
     if (existingChat) {
-      console.log('User with ID ' + id + ' has already created a chat.');
-      return;
+      return false;
     }
 
-
-    const chat = await this.prisma.chat.create({
+    const newChat = await this.prisma.chat.create({
       data: {
         name: name,
       },
     });
 
-    const chatusers = await this.prisma.chatUser.create({
+    const chatUSers = await this.prisma.chatUser.create({
       data: {
-        chatId: chat.id_chat,
+        chatId: newChat.id_chat,
         userId: id,
+        role: 'ADMIN',
       },
     });
 
-    console.log(chat);
+    console.log(newChat);
     console.log('-------------------');
-    console.log(chatusers);
+    console.log(chatUSers);
     // return Object.values(this.clients);
+    
+
+  
+  
   }
 
   getClientName(clientId: string) {
@@ -91,6 +129,8 @@ export class MessagesService {
     console.log('message that just got created : ');
     console.log(createdChatMessage);
 
+
+
     return createdChatMessage;
   }
   async findAll(name: string) {
@@ -113,5 +153,15 @@ export class MessagesService {
       },
     });
     return messages;
+  }
+  async findRoom(name: string) {
+   
+    const chat = await this.prisma.chat.findFirst({
+      where: {
+        name: name,
+      },
+    });
+
+    return chat;
   }
 }
