@@ -3,10 +3,11 @@ import Navbar from './Components/Navbar.tsx';
 // import UserInfo from './Components/UserInfo.tsx';
 // import InboxBox from './Components/InboxBox.tsx';
 // import Switchgrpdm from './Components/Switchgrpdm.tsx';
-// import Simpleco from './Components/Simpleco.tsx';
+import Messageco from './Components/Messageco.tsx';
 import pic from './assets/messi.jpg'
-import ChatHeaderComponent from './Components/ChatHeaderComponent.tsx';
+// import ChatHeaderComponent from './Components/ChatHeaderComponent.tsx';
 import './styles/css/ChatHeaderComponent.css';
+// import Sendmessage from './Components/Sendmessage.tsx'
 
 
 
@@ -24,9 +25,26 @@ export function Testchat() {
   return (
     <>
         <Navbar></Navbar>
-    <div className="app">
-      <ChatHeaderComponent friendName="fahid" profileImageUrl={pic}/>
+      <div>
+      Your own message
+      <Messageco
+        text="This is your message."
+        profileImageUrl={pic}
+        isOwnMessage={true}
+      />
+
+      Friend's message
+      <Messageco
+        text="This is your friend's message."
+        profileImageUrl={pic}
+        isOwnMessage={false}
+      />
     </div>
+        {/* <div> */}
+      {/* Other components and messages */}
+      {/* <Sendmessage onSendMessage={Sendmessage} /> */}
+    {/* </div> */}
+
     </>
   )
 }

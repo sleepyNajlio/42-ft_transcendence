@@ -1,5 +1,6 @@
 .chat-header-container {
     display: flex;
+    flex-direction: row;
     align-items: center;
     padding: 10px;
     background-color: green; /* Blue background color, you can adjust as needed */
@@ -12,19 +13,32 @@
     border-radius: 50%; /* Make it circular */
     margin-right: 16px; /* Add some spacing between the image and the friend info */
   }
-  
-  .friend-info {
-    display: flex;
-    flex-direction: column;
-  }
-  
+
   .friend-name {
     font-size: 18px;
     font-weight: bold;
   }
-  
-  .options-icons
+  .icons-container
   {
+    padding: inherit;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    margin-left: auto;
+  }
+  .game
+  {
+    cursor: pointer;
+  }
+
+  .block
+  {
+    cursor: pointer;
+  }
+  .profil
+  {
+    cursor: pointer;
+  }
+  .blank
+  {
+    width: 15px;
   }
