@@ -12,9 +12,10 @@ import { CreateMessageDto } from './dto/create-message.dto';
 import { Server, Socket } from 'socket.io';
 import { SocketGateway } from 'src/socket/socket.gateway';
 import { subscribe } from 'diagnostics_channel';
+import { Client } from 'socket.io/dist/client';
 
 @WebSocketGateway({
-  namespace: 'chat',
+  // namespace: 'chat',
   cors: '*:*',
 })
 export class MessagesGateway
@@ -34,14 +35,24 @@ export class MessagesGateway
     console.log(`Client connected: ${client.id}`);
   }
 
+  @SubscribeMessage('Friends')
+  async DisplayFriends(
+    @MessageBody('id') id:number,
+    @ConnectedSocket() Client: Socket, 
+  )
+  {
+    const Users = await this.messagesService.getUsers(id);
+    return Users;
+  }
+
   @SubscribeMessage('DisplayRoom')
   async displayRoom(
     @MessageBody('id') id: number,
     @ConnectedSocket() client: Socket,
   ) {
       console.log('hahahahaha');
-       const rooms = await this.messagesService.getRooms();
-       this.socketGateway.getServer().of('/chat').to(client.id).emit('rooms', rooms);
+       const rooms = await this.messagesService.getRooms(id);
+      //  this.socketGateway.getServer().to(client.id).emit('rooms', rooms);
       return rooms;
   }
 
@@ -59,7 +70,7 @@ export class MessagesGateway
     const room = "chat_" + message.chatId;
     
     
-    this.socketGateway.getServer().of('/chat').to(room).emit('message', message); // emit events to all connected clients
+    this.socketGateway.getServer().to(room).emit('message', message); // emit events to all connected clients
     
     return message;
   }

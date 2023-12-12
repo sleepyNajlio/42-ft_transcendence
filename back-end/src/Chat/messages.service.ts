@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
+// import { getUser } from 'src/player';
 
 type ChatMessageUncheckedCreateInput = Prisma.ChatMessageUncheckedCreateInput;
 type ChatWhereInput = Prisma.ChatWhereInput;
@@ -164,26 +165,25 @@ export class MessagesService {
 
     return chat;
   }
-  async getRooms() {
 
-    // let id : number = 0;
-    // getUser().then((user) => {
-    //   console.log('user in getRooms: ');
-    //   console.log(user);
-    //   id = Number(user.id_player);
-    // }).catch((err) => {
-    //   console.log(err);
-    // });
+  async getUsers(id: number) {
+    const users = await this.prisma.player.findMany();
+    return users;
+  }
 
-    // const rooms = await this.prisma.chat.findMany({
-    //   where: {
-    //     users: {
-    //       some: {
-    //         userId: id,
-    //       },
-    //     },
-    //   },
-    // });
-    // return ;
+  async getRooms(id : number) {
+
+
+
+    const rooms = await this.prisma.chat.findMany({
+      where: {
+        users: {
+          some: {
+            userId: id,
+          },
+        },
+      },
+    });
+    return rooms;
   }
 }

@@ -42,8 +42,7 @@ export function Profile(props: { onLoaded: () => void; profileLoaded: boolean })
     if (profileLoaded) {
       getUser().then(user => {
         setUser(user);
-        console.log("getting user: ",user);
-        setUser(user);
+        // setUser(user);
         setTempuser({ ...tempuser, ...user });
       }).catch(error => {
         console.error("Failed to get user: ", error);

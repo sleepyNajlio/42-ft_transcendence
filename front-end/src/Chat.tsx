@@ -8,6 +8,8 @@ import { Socket } from 'socket.io-client';
 import { Profile } from './Profile.tsx';
 import { getUser } from './player';
 import { get } from 'svg.js';
+import { KeyboardEvent } from 'react';
+import { getSocket } from './socket.ts';
 
 export function Chat() {
     const [joined, setJoined] = useState(false);
@@ -17,19 +19,21 @@ export function Chat() {
     const [typingDisplay, setTypingDisplay] = useState('');
     const [created, setCreated] = useState(0);
     const [Rooms, setRooms] = useState<any[]>([]);
+    const [Freinds, setFriends] = useState<any[]>([])
 
     
-    const [socket, setSocket] = useState<Socket | null>(null);
+    const [socket, setSocket] = useState(getSocket());
+
+    // setSocket(getSocket());
+    // console.log('sokita: ')
+    // console.log(socket);
     
     useEffect(() => {
         if (!joined) return;
-        const newSocket = io('http://localhost:3000/chat', {
-            transports: ['websocket'],
-        });
         let id : number;
         getUser().then(user => {
             id = Number(user.id_player);
-            newSocket.emit('join', { id ,  name},  (response : any[]) => {
+            socket.emit('join', { id ,  name},  (response : any[]) => {
                 if (!response)
                 {
                     alert("room does not exist");
@@ -41,28 +45,29 @@ export function Chat() {
         }).catch(error => {
             console.error("Failed to get user: ", error);
         });
-        newSocket.emit('findAllMessages', {name}, (response: any[]) => {
+        socket.emit('findAllMessages', {name}, (response: any[]) => {
             // console.log("response got in find all: ");
             // console.log(response);
             setMessages(response);
             // console.log(messages);
         });
 
-        setSocket(newSocket);
+        setSocket(socket);
         
-        newSocket.on('message', (message) => {
+        socket.on('message', (message) => {
             console.log("from front message " + message);
             setMessages((prevMessages) => [...prevMessages, message]);
         });
-        // newSocket.on('rooms', (room) => {
-        //     console.log("from front rooms: " + room);
-        //     setRooms((prevRooms) => [...prevRooms, room]);
-        // });
+        
+        socket.on('rooms', (room) => {
+            console.log("from front rooms: " + room);
+            setRooms((prevRooms) => [...prevRooms, ...room]);
+        });
 
         let username : string;
         getUser().then(user => {
             username = user.username;
-            newSocket.on('typing', ({ name:name, username: username, isTyping: isTyping }) => {
+            socket.on('typing', ({ name:name, username: username, isTyping: isTyping }) => {
             if (isTyping) {
                 setTypingDisplay(`${username} is typing...`);
             } else {
@@ -73,7 +78,7 @@ export function Chat() {
             console.error("Failed to get user: ", error);
         });
         return () => {
-            newSocket.disconnect();
+            socket.disconnect();
         };
     }, [joined]);
 
@@ -82,24 +87,49 @@ export function Chat() {
         {
             return;            
         }
-        const newSocket = io('http://localhost:3000/chat', {
-        transports: ['websocket'],
-        });
+
         let id1 : number;
         getUser().then(user => {
             id1 = Number(user.id_player);
             // if (!socket) return;
             // console.log("id1 in front: " + id1);
-            newSocket.emit('createRoom', { id1 ,  name},  (response : any[]) => {
+            socket.emit('createRoom', { id1 ,  name},  (response : any[]) => {
                 if (!response)
                     alert("room already exist");
             });
         }).catch(error => {
             console.error("Failed to get user: ", error);
         });
-        // setSocket(newSocket);
+        // setSocket(socket);
         setCreated(0);
     },[created]);
+
+    
+    useEffect(() => {
+        // Code to run when the component is mounted
+        getUser().then(user => {
+            let id = Number(user.id_player);
+            // console.log('dkhel hna');
+            socket.emit('DisplayRoom', { id },  (response : any[]) => {
+                setRooms(response);
+            });
+        }).catch(err => {
+            console.error("Failed to get rooms from user: ", err);
+        });
+    return () => {
+    };
+    }, []);
+
+    useEffect(() => {
+            console.log('dkhel hna');
+            socket.emit('Friends', (response : any[]) => {
+                console.log('users got in front: ')
+                console.log(response);
+                setFriends(response);
+            });
+        return () => {
+        };
+    }, []);
 
     const sendMessage = () => {
         let id: number;
@@ -124,12 +154,19 @@ export function Chat() {
         setName(event.target.value);
     };
 
+    const enter = (event : any) => {
+        if (event.key === 'Enter') {
+            sendMessage();
+        }
+    }
     const changeMessage = (event : any) => {
         typingEmit();
         setMessageText(event.target.value);
     };
 
-    const join = () => {
+    const join = (event: React.MouseEvent<HTMLButtonElement>) => {
+        const buttonName = event.currentTarget.name;
+        setName(buttonName);
         setJoined(true);
         // console.log(name);
     };
@@ -160,20 +197,21 @@ export function Chat() {
                 <div className="chat_header">
 
                     <h1>Rooms</h1>
-                    <> room 1</>
-                    <> room 2</>
-                    <> room 3</>
                     
-                    {/* {Rooms.map((room, index) => (
-                    <button key={index} onClick={join}>{room.name}</button>
-                    ))} */}
-
-                
+                    {Rooms.map((room, index) => (
+                    <button key={index} name={room.name} onClick={join}>{room.name}</button>
+                    ))}
+                     <h1>Friends</h1>
+                    
+                    {Freinds.map((friend, index) => (
+                    <button key={index} name={friend.username} onClick={join}>{friend.username}</button>
+                    ))}
+                    
                 </div>
                 {!joined && (
                     <div className="cin">
                     <input type="text" placeholder='Name' name="name" id="name" value={name} onChange={changeName} />
-                    <button onClick={() => join()}>Join</button>
+                    <button name={name} onClick={join}>Join</button>
                     <button onClick={() => create()}>create</button>
                     </div>
 
@@ -188,7 +226,7 @@ export function Chat() {
                             ))}
                         </div>
                         <div className="cin">
-                            <input type="text" name="messageText" id="messageText" placeholder='message' value={messageText} onChange={changeMessage} /> 
+                            <input type="text" name="messageText" id="messageText" placeholder='message' value={messageText} onChange={changeMessage} onKeyDown={enter} /> 
                             <button onClick={sendMessage}>Send</button>
                         </div>
                         <div className="typing">
