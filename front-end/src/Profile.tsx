@@ -8,6 +8,8 @@ import { UserContext } from './UserProvider.tsx';
 
 export function Profile(props: {  }) {
   const { user } = useContext(UserContext);
+  console.log("user: ");
+  console.log(user);
 
   const [tempuser, setTempuser] = useState({
     id: "1",
@@ -30,18 +32,20 @@ export function Profile(props: {  }) {
     ],
   } as user);
   useEffect(() => {
-    if (profileLoaded) {
-      getUser().then(user => {
-        setUser(user);
-        // setUser(user);
-        setTempuser({ ...tempuser, ...user });
-      }).catch(error => {
-        console.error("Failed to get user: ", error);
-      });
+    if (user) {
+      setTempuser(prevTempuser => ({
+        ...prevTempuser,
+        id: user.id_player,
+        username: user.username,
+        avatar: user.avatar,
+      }));
     }
+    // console.log("user: ");
+    // console.log(user);
+    // console.log("tempuser: ");
+    // console.log(tempuser);
   }, [user]);
   // use user to fill tempuser
-  setTempuser
   const checkIfMediumPlus = useMediaPredicate(
     '(min-width: 769px)'
   );

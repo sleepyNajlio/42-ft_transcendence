@@ -41,6 +41,7 @@ export function Play() {
     const handleMatchClick = async () => {
       let resp: {id: string | null} = {id: null};
       let userId: string | null = null;
+      console.log('user in play : ', user);
       if (user) {
         userId = user.id_player;
       }

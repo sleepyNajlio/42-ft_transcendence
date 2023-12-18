@@ -22,11 +22,10 @@ const initialize: () => Promise<User | null> = async () => {
     try {
         user = await getUser();
         if (user) {
-        
             initializeSocket(user.id_player, getSessionCookies());
         }
     } catch (error) {
-        console.error("Failed to get user: ", error);
+        console.error("user Provider: Failed to get user: ", error);
     }
     return user;
 }
@@ -43,13 +42,12 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
       initialize().then(res => {
         if (res) {
           setUser(res);
-          console.log("initied: ", res);
           setSocket(getSocket());
         } else {
-          console.error("Failed to initialize: ", res);
+          console.error("user Provider: Failed to initialize: ", res);
         }
       }).catch(error => {
-        console.error("Failed to initialize: ", error);
+        console.error("user Provider: Failed to initialize: ", error);
       });
       hasInitialized.current = true;
     }

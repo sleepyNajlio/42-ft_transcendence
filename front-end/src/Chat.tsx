@@ -2,12 +2,14 @@ import Navbar from './Components/Navbar.tsx';
 // import Sbox from './Components/Sbox.tsx';
 import  './styles/css/chat.css'
 // import {io} from "socket.io-client";
-import { useState, useEffect, SetStateAction } from 'react';
+import { useState, useEffect, useContext, SetStateAction } from 'react';
 // import { Socket } from 'socket.io-client';
 import { getUser } from './player';
 import { getSocket } from './socket.ts';
 import camera from './assets/camera.svg'
 import { get } from 'svg.js';
+import { UserContext } from './UserProvider.tsx';
+
 
 interface Room {
     id: number;
@@ -20,6 +22,7 @@ interface Room {
 
 export function Chat() {
     const [joined, setJoined] = useState(false);
+    const { user, socket } = useContext(UserContext);
     const [name, setName] = useState('');
     const [messages, setMessages] = useState<any[]>([]);
     const [messageText, setMessageText] = useState('');
@@ -29,11 +32,12 @@ export function Chat() {
     const [roomPassword, setRoomPassword] = useState("");
     const [Rooms, setRooms] = useState<any[]>([]);
     const [Friends, setFriends] = useState<any[]>([])
-    const [socket, setSocket] = useState(getSocket());
+    // const [socket, setSocket] = useState(getSocket());
     const [creating, setCreating] = useState(false);
     const [selectedPswd, setSelectedPswd] = useState("");
     const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
     const [joinfriend, setJoinfriend] = useState(false);
+    const [ShowDm, setShowDm] = useState(false);
 
     // setSocket(getSocket());
     // console.log('sokita: ')
@@ -42,10 +46,10 @@ export function Chat() {
     useEffect(() => {
         if (!joined) return;
         let id : number;
-        getUser().then(user => {
-            id = Number(user.id_player);
+            id = Number(user?.id_player);
             if (selectedRoom)
             {
+                if (!socket) return;
                 socket.emit('join', { id ,  name: selectedRoom.name, type: selectedRoom.type ,selectedPswd},  (response : any[]) => {
                     
                     // console.log("response got in join: ");
@@ -57,13 +61,10 @@ export function Chat() {
                     }
                 });
             }
-
-
-        }).catch(error => {
-            console.error("Failed to get user: ", error);
-        });
         if (selectedRoom)
         {
+            if (!socket) return;
+
             socket.emit('findAllMessages', {name: selectedRoom.name, id: 0, username: null}, (response: any[]) => {
                 // console.log("response got in find all: ");
                 // console.log(response);
@@ -72,8 +73,7 @@ export function Chat() {
             });
         }
 
-        setSocket(socket);
-        
+        if (!socket) return;    
         socket.on('message', (message) => {
             // console.log("from front message " + message);
             setMessages((prevMessages) => [...prevMessages, message]);
@@ -83,6 +83,8 @@ export function Chat() {
             console.log("from front rooms: " + room);
             setRooms((prevRooms) => [...prevRooms, ...room]);
         });
+        // setJoined(false);
+        // setSelectedRoom(null);
 
         // let username : string;
         // getUser().then(user => {
@@ -97,49 +99,52 @@ export function Chat() {
         // }).catch(error => {
         //     console.error("Failed to get user: ", error);
         // });
-        return () => {
-            socket.disconnect();
-        };
+        // return () => {
+        //     socket.disconnect();
+        // };
     }, [joined]);
     
+
     useEffect(() => {
         if (!joinfriend) return;
+        console.log("use effect called in join friend");
         let id : number;
-        let username : string;
-        getUser().then(user => {
-            id = Number(user.id_player);
-            username = user.username;
-            if (name){
-                socket.emit('joinDm', { id ,  name: name, username:username},  (response : any[]) => {
-                    
-                    // console.log("response got in join: ");
-                    // console.log(response);
-                });
-            }
-            socket.emit('findAllMessages', {name: name, id, username: username}, (response: any[]) => {
-                // console.log("response got in find all: ");
-                // console.log(response);
-                setMessages(response);
-                // console.log(messages);
-            });
-
-        }).catch(error => {
-            console.error("Failed to get user: ", error);
+        let username : string | undefined;
+        id = Number(user?.id_player);
+        username = user?.username;
+        if (!socket) return;
+        console.log("use effect called in join friendininini");
+        socket.emit('joinDm', { id ,  name: name, username:username},  (response : any[]) => {
+            
+            console.log("response got in joinDM: ");
+            console.log(response);
         });
+        if (!socket) return;
+        socket.emit('findAllMessages', {name: name, id, username: username}, (response: any[]) => {
+            console.log("response got in find all: ");
+            console.log(response);
+            setMessages(response);
+            // console.log(messages);
+        });
+        if (!socket) return;
         socket.on('message', (message) => {
-            // console.log("from front message " + message);
+            console.log("from front message " + message);
             setMessages((prevMessages) => [...prevMessages, message]);
         });
-        return () => {
-            socket.disconnect();
-        };
+        setJoinfriend(false);
+        setShowDm(true);
+        // return () => {
+            //     socket.disconnect();
+            // };
+            
+        }, [joinfriend]);
         
-    }, [joinfriend]);
-
     
     const joinDm = (event: React.MouseEvent<HTMLButtonElement>) => {
+        socket?.off('message');
         const buttonName = event.currentTarget.name;
         setName(buttonName);
+        setShowDm(false);
         setJoinfriend(true);
         // console.log(name);
     }
@@ -152,17 +157,15 @@ export function Chat() {
         }
 
         let id1 : number;
-        getUser().then(user => {
-            id1 = Number(user.id_player);
+        id1 = Number(user?.id_player);
+
             // if (!socket) return;
             // console.log("id1 in front: " + id1);
+            if (!socket) return;
             socket.emit('createRoom', { id1 ,  name, roomType, roomPassword},  (response : any[]) => {
                 if (!response)
                     alert("room already exist");
             });
-        }).catch(error => {
-            console.error("Failed to get user: ", error);
-        });
         // setSocket(socket);
         // setCreated(0);
     },[created]);
@@ -170,83 +173,63 @@ export function Chat() {
     
     useEffect(() => {
         // Code to run when the component is mounted
-        getUser().then(user => {
-            let id = Number(user.id_player);
+        console.log('useEffect called');
+        console.log(user);
+        let id : number;
+                id = Number(user?.id_player);
             // console.log('dkhel hna');
+            if (!socket) return;
             socket.emit('DisplayRoom', { id },  (response : any[]) => {
                 setRooms(response);
                 // console.log('rooms got in front: ')
                 // console.log(response);
             });
-        }).catch(err => {
-            console.error("Failed to get rooms from user: ", err);
-        });
     return () => {
     };
-    }, []);
+    }, [user]);
 
     useEffect(() => {
-        getUser().then(user => {
-                let id = Number(user.id_player);
-                socket.emit('Friends', { id },  (response : any[]) => {
-                    // console.log('users got in front: ')
-                    // console.log(response);
-                    setFriends(response);
-                });
-            }
-            ).catch(err => {
-            console.error("Failed to get friends from user: ", err);
-        });
+        let id : number;
+            id = Number(user?.id_player);
+            if (!socket) return;
+            socket.emit('Friends', { id },  (response : any[]) => {
+                // console.log('users got in front: ')
+                // console.log(response);
+                setFriends(response);
+            });
         return () => {
         };
-    }, []);
+    }, [user]);
 
     const sendMessage = () => {
         let id: number;
         console.log('send message called ')
-        if (joinfriend) {
-            sendMessageDm();
-            return;
-        }
-        getUser()
-        .then(user => {
-            id = Number(user.id_player);
-            if (!socket) return;
-            socket.emit('createMessage', {
-                name: selectedRoom ? selectedRoom.name : name,
-                text: messageText,
-                id: id,
-                username: null,
-            });
-        })
-        .catch(error => {
-            console.error("Failed to get user: ", error);
+        id = Number(user?.id_player);
+        if (!socket) return;
+        socket.emit('createMessage', {
+            name: selectedRoom ? selectedRoom.name : name,
+            text: messageText,
+            id: id,
+            username: null,
         });
-    };
+        }
     
     const sendMessageDm = () => {
 
         let id: number;
-        let username : string;
+        let username : string | undefined;
         console.log('message dm called ')
         console.log("name in front: " + name);
 
-
-        getUser()
-        .then(user => {
-            id = Number(user.id_player);
-            username = user.username;
-            if (!socket) return;
-            socket.emit('createMessage', {
+        id = Number(user?.id_player);
+        username = user?.username;
+        if (!socket) return;
+        socket.emit('createMessage', {
                 name: name,
                 text: messageText,
                 id: id,
                 username: username,
-            }, (response : any[]) => {
-            });
-        })
-        .catch(error => {
-            console.error("Failed to get user: ", error);
+        }, (response : any[]) => {
         });
     }
     
@@ -256,7 +239,10 @@ export function Chat() {
 
     const enter = (event : any) => {
         if (event.key === 'Enter') {
-            sendMessage();
+            if (ShowDm)
+                sendMessageDm();
+            else
+                sendMessage();
         }
     }
     const changeMessage = (event : any) => {
@@ -388,7 +374,7 @@ export function Chat() {
                             </button>
                         </div>
                     )}
-                {(joined && !joinfriend) && (
+                {(joined) && (
                     <div className="chat_container">
                         <div className="Message_cnt">
                             {messages.map((message, index) => (
@@ -398,7 +384,7 @@ export function Chat() {
                             ))}
                         </div>
                         <div className="cin">
-                            <input type="text" name="messageText" id="messageText" placeholder='message' value={messageText} onChange={changeMessage} onKeyDown={enter} /> 
+                            <input type="text" name="messagechText" id="messageText" placeholder='message' value={messageText} onChange={changeMessage} onKeyDown={enter} /> 
                             <button onClick={sendMessage}>Send</button>
                         </div>
                         {/* <div className="typing">
@@ -406,7 +392,7 @@ export function Chat() {
                         </div> */}
                     </div>
                 )}
-                {(joinfriend && !joined) && (
+                {(ShowDm) && (
                     <div className="chat_container">
                         <div className="Message_cnt">
                             {messages.map((message, index) => (
@@ -416,7 +402,7 @@ export function Chat() {
                             ))}
                         </div>
                         <div className="cin">
-                            <input type="text" name="messageText" id="messageText" placeholder='message' value={messageText} onChange={changeMessage} onKeyDown={enter} /> 
+                            <input type="text" name="messagedmText" id="messageText" placeholder='message' value={messageText} onChange={changeMessage} onKeyDown={enter} /> 
                             <button onClick={sendMessageDm}>Send</button>
                         </div>
                         {/* <div className="typing">

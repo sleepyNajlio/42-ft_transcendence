@@ -2,14 +2,14 @@ import { User } from './Components/types.ts';
 
 let player: User | null;
 
-async function getUserInfo(): Promise<User> {
+async function getUserInfo(): Promise<User | null> {
     const response = await fetch("http://localhost:3000/profile", {
         credentials: "include",
         method: "GET",
     });
     if (response.ok) {
         const res = await response.json();
-        // console.log("user: ", res);
+        console.log("user: ", res);
         return res.user as User;
     } else {
         // alert("Failed to fetch user data");
@@ -35,6 +35,7 @@ export async function initializeUser() : Promise<Boolean>  {
 
 export async function getUser() {
     if (player) {
+        console.log("returning playerfrom get user: ", player);
         return player;
     } else {
         return null;
