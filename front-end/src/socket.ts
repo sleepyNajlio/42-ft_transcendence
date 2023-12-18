@@ -4,11 +4,7 @@ let socket: Socket;
 
 export const initializeSocket = (userId: string, sessionCookies: string) => {
     console.log("userId", userId);
-    console.log("sessionCookies", sessionCookies);
   socket = io("http://localhost:3000", {
-    auth: {
-      sessionCookies,
-    },
     query: { userId },
   });
 };

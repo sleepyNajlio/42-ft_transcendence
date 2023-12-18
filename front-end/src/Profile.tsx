@@ -30,13 +30,14 @@ export function Profile(props: {  }) {
     ],
   } as user);
   useEffect(() => {
-    if (user) {
-      setTempuser(prevTempuser => ({
-        ...prevTempuser,
-        id: user.id_player,
-        username: user.username,
-        avatar: user.avatar,
-      }));
+    if (profileLoaded) {
+      getUser().then(user => {
+        setUser(user);
+        // setUser(user);
+        setTempuser({ ...tempuser, ...user });
+      }).catch(error => {
+        console.error("Failed to get user: ", error);
+      });
     }
   }, [user]);
   // use user to fill tempuser

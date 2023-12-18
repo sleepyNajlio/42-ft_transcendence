@@ -25,9 +25,16 @@ import { useMediaPredicate } from 'react-media-hook';
 
 function App()
 {
-    const checkIfMediumPlus = useMediaPredicate(
-        '(min-width: 769px)'
-      );
+    // catching response from nest server
+    // const [data, setData] = useState('');
+
+    //     useEffect(() => {
+    //     fetch('http://localhost3000')
+    //     .then((response) => response.text())
+        
+    //   .then((data) => setData(data))
+    //   .catch((error) => console.error('Error fetching data:', error));
+    //     }, []);
     
     return (
         <div className={`container ` + (checkIfMediumPlus ? "default" : "one")}>

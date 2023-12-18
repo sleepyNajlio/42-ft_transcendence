@@ -15,7 +15,7 @@ async function finishSignup(
   // if (avatar) {
   //   const formData = new FormData();
   //   formData.append("avatar", avatar);
-  //   const response = await fetch("http://localhost:3000/auth/uploadAvatar", {
+  //   const response = await fetch("http://localhost3000/auth/uploadAvatar", {
   //     credentials: "include",
   //     method: "POST",
   //     body: formData,
@@ -103,7 +103,7 @@ export function Config() {
                 setUsername(e.target.value);
               }}
             ></input>
-            <button type="submit"> Done </button>
+            <button type="submit" onClick={() => { window.location.href = "http://localhost:5173/Profile"; }}> Done </button>
           </form>
         </div>
         <Button msg="Enable 2FA" />
