@@ -5,7 +5,6 @@ import camera from './assets/camera.svg'
 export function Settings() {
     return (
         <>
-            <Navbar></Navbar>
             <main className="wrapper">
                 <div className="sbox ">
                     <div className="sbox__title">

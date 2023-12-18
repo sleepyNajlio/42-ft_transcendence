@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate, Link } from 'react-router-dom';
 import { Login } from "./Login.tsx";
 import { Config } from "./Config.tsx";
 import './styles/css/App.css';
@@ -9,77 +9,59 @@ import { Chat } from './Chat.tsx';
 import { Settings } from './Settings.tsx'
 import { Leaderboard } from './Leaderboard.tsx'
 import { Profile } from './Profile.tsx'
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { initializeSocket } from "./socket";
 import { initializeUser, getUser } from "./player";
-import { Testchat } from './Testchat.tsx';
+import axios from 'axios';
+import AuthRoutes from './routes/AuthRoutes.tsx';
+import UnAuthRoutes from './routes/UnAuthRoutes.tsx';
+import Navbar from './Components/Navbar.tsx';
+import { UserProvider } from './UserProvider.tsx';
+import AuthGuard from './guards/AuthGuard.tsx';
+import UnAuthGuard from './guards/UnAuthGuard.tsx';
+import { useMediaPredicate } from 'react-media-hook';
 
-  
+
+
 function App()
 {
-    // catching response from nest server
-    // const [data, setData] = useState('');
-
-    //     useEffect(() => {
-    //     fetch('http://localhost:3000')
-    //     .then((response) => response.text())
-        
-    //   .then((data) => setData(data))
-    //   .catch((error) => console.error('Error fetching data:', error));
-    //     }, []);
+    const checkIfMediumPlus = useMediaPredicate(
+        '(min-width: 769px)'
+      );
     
-    // building the app
-    const getClassName = () => {
-    const pathname = location.pathname;
-    const routeClassNames: { [key: string]: string } = {
-    '/': 'one',
-    '/Config': 'one',
-    '/twofa': 'one',
-    '/verify2fa': 'one',
-        };
-          
-        // Get the class name based on the route, or use a default class name
-        return routeClassNames[pathname] || 'default';
-    };
-
-    // Get the class name based on the current route
-    const className = getClassName();
-
-    const [profileLoaded, setProfileLoaded] = useState(false);
-    const [isauthenticated, setisauthenticated] = useState(false);
-    useEffect(() => {
-        let profileInit = false;
-        if (isauthenticated && !profileInit) {
-            console.log("initializing user and socket");
-            const initialize = async () => {
-                await initializeUser();
-                getUser().then(user => {
-                    initializeSocket(user.id_player);
-                    setProfileLoaded(true);
-                }).catch(error => {
-                    console.error("Failed to get user: ", error);
-                });
-            }
-            initialize();
-            profileInit = true;
-        }
-    }, [isauthenticated]);
-
     return (
-        <div className={`container ${className}`}>
+        <div className={`container ` + (checkIfMediumPlus ? "default" : "one")}>
         <Routes>
-            <Route path="/" element={<Login />} />
-            {/* <Route path="/Config" element={isauthenticated ? <Config /> : <Navigate to="/" />} /> */}
-            <Route path="/Config" element={<Config />} />
-            <Route path="/TwoFA" element={<TwoFA />} />
-            <Route path="/Verify2FA" element={<Verify2FA />} />
-            <Route path="/Play" element={<Play />} />
-            <Route path="/Chat" element={<Chat />} />
-            <Route path="/Settings" element={<Settings />} />
-            <Route path="/Leaderboard" element={<Leaderboard />} />
-            <Route path="/testchat" element={<Testchat />} />
-            <Route path="/Profile" element={<Profile onLoaded={() => setisauthenticated(true)} profileLoaded={profileLoaded} />} />
-        </Routes>
+            <Route key='Login' path='/' element={<UnAuthGuard component={<Login />}  />}>
+                {' '}
+            </Route>
+            <Route
+            key='AuthRoutes'
+            path='/*'
+            element={
+                <UserProvider>
+                <AuthGuard
+                    component={
+                    <>
+                        <Navbar />
+                        <Routes>
+                        <Route key='Config' path='/Config' caseSensitive={false} element={<Config />} />
+                        <Route key='TwoFA' path='/TwoFA' caseSensitive={false} element={<TwoFA />} />
+                        <Route key='Verify2FA' path='/Verify2FA' caseSensitive={false} element={<Verify2FA />} />
+                        <Route key='Profile' path='/Profile' caseSensitive={false} element={<Profile />} />
+                        <Route key='Play' path='/Play' caseSensitive={false} element={<Play />} />
+                        <Route key='Chat' path='/Chat' caseSensitive={false} element={<Chat />} />
+                        <Route key='Settings' path='/Settings' caseSensitive={false} element={<Settings />} />
+                        <Route key='Leaderboard' path='/Leaderboard' caseSensitive={false} element={<Leaderboard />} />
+                        <Route path='*' element={<Navigate to='/' />} />
+                        </Routes>
+                    </>
+                    }
+                />
+                </UserProvider>
+            }
+            />
+      </Routes>
     </div>
     );
 }

@@ -46,15 +46,16 @@ export class AuthController {
         req.user.username,
       );
       res.cookie('JWT_TOKEN', accessToken);
+      res.redirect('http://localhost:5173/profile');
     } else {
       const userToken = await this.jwtService.signAsync({
         sub: -42,
         email: req.user.email,
       });
       res.cookie('USER', userToken);
+      res.redirect('http://localhost:5173/Config');
     }
   }
-
   @SetMetadata('isPublic', true)
   @Get('preAuthData')
   async getPreAuthData(@Req() req) {
@@ -74,6 +75,25 @@ export class AuthController {
       };
       return { user };
     } catch {
+      throw 'test';
+    }
+  }
+  @SetMetadata('isPublic', true)
+  @Get('postAuthData')
+  async getPostAuthData(@Req() req) {
+    let token = req.cookies['JWT_TOKEN'];
+    if (!token) {
+      token = req.cookies['USER'];
+      if (!token) throw new UnauthorizedException('Invalid Request');
+    }
+    try {
+      const payload = await this.jwtService.verifyAsync(token, {
+        secret: this.config.get('JWT_SECRET'),
+      });
+      console.log('success');
+      return { payload };
+    } catch {
+      console.log('fail');
       throw 'test';
     }
   }

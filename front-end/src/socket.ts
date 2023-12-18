@@ -2,7 +2,7 @@ import { Socket, io } from "socket.io-client";
 
 let socket: Socket;
 
-export const initializeSocket = (userId: string) => {
+export const initializeSocket = (userId: string, sessionCookies: string) => {
     console.log("userId", userId);
   socket = io("http://localhost:3000", {
     query: { userId },
