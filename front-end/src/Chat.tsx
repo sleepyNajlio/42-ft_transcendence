@@ -48,8 +48,8 @@ export function Chat() {
             {
                 socket.emit('join', { id ,  name: selectedRoom.name, type: selectedRoom.type ,selectedPswd},  (response : any[]) => {
                     
-                    console.log("response got in join: ");
-                    console.log(response);
+                    // console.log("response got in join: ");
+                    // console.log(response);
                     if (!response)
                     {
                         alert("wrong password");
@@ -64,7 +64,7 @@ export function Chat() {
         });
         if (selectedRoom)
         {
-            socket.emit('findAllMessages', {name: selectedRoom.name}, (response: any[]) => {
+            socket.emit('findAllMessages', {name: selectedRoom.name, id: 0, username: null}, (response: any[]) => {
                 // console.log("response got in find all: ");
                 // console.log(response);
                 setMessages(response);
@@ -75,7 +75,7 @@ export function Chat() {
         setSocket(socket);
         
         socket.on('message', (message) => {
-            console.log("from front message " + message);
+            // console.log("from front message " + message);
             setMessages((prevMessages) => [...prevMessages, message]);
         });
         
@@ -84,24 +84,24 @@ export function Chat() {
             setRooms((prevRooms) => [...prevRooms, ...room]);
         });
 
-        let username : string;
-        getUser().then(user => {
-            username = user.username;
-            socket.on('typing', ({ name:name , username: username, isTyping: isTyping }) => {
-            if (isTyping) {
-                setTypingDisplay(`${username} is typing...`);
-            } else {
-                setTypingDisplay('');
-            }
-            });
-        }).catch(error => {
-            console.error("Failed to get user: ", error);
-        });
+        // let username : string;
+        // getUser().then(user => {
+        //     username = user.username;
+        //     socket.on('typing', ({ name:name , username: username, isTyping: isTyping }) => {
+        //     if (isTyping) {
+        //         setTypingDisplay(`${username} is typing...`);
+        //     } else {
+        //         setTypingDisplay('');
+        //     }
+        //     });
+        // }).catch(error => {
+        //     console.error("Failed to get user: ", error);
+        // });
         return () => {
             socket.disconnect();
         };
     }, [joined]);
-
+    
     useEffect(() => {
         if (!joinfriend) return;
         let id : number;
@@ -112,26 +112,31 @@ export function Chat() {
             if (name){
                 socket.emit('joinDm', { id ,  name: name, username:username},  (response : any[]) => {
                     
-                    console.log("response got in join: ");
-                    console.log(response);
-                    // if (!response)
-                    // {
-                    //     alert("wrong password");
-                    //     setJoined(false);
-                    // }
+                    // console.log("response got in join: ");
+                    // console.log(response);
                 });
             }
-
+            socket.emit('findAllMessages', {name: name, id, username: username}, (response: any[]) => {
+                // console.log("response got in find all: ");
+                // console.log(response);
+                setMessages(response);
+                // console.log(messages);
+            });
 
         }).catch(error => {
             console.error("Failed to get user: ", error);
         });
-
-
-
-
+        socket.on('message', (message) => {
+            // console.log("from front message " + message);
+            setMessages((prevMessages) => [...prevMessages, message]);
+        });
+        return () => {
+            socket.disconnect();
+        };
+        
     }, [joinfriend]);
 
+    
     const joinDm = (event: React.MouseEvent<HTMLButtonElement>) => {
         const buttonName = event.currentTarget.name;
         setName(buttonName);
@@ -161,7 +166,7 @@ export function Chat() {
         // setSocket(socket);
         // setCreated(0);
     },[created]);
-
+    
     
     useEffect(() => {
         // Code to run when the component is mounted
@@ -170,8 +175,8 @@ export function Chat() {
             // console.log('dkhel hna');
             socket.emit('DisplayRoom', { id },  (response : any[]) => {
                 setRooms(response);
-                console.log('rooms got in front: ')
-                console.log(response);
+                // console.log('rooms got in front: ')
+                // console.log(response);
             });
         }).catch(err => {
             console.error("Failed to get rooms from user: ", err);
@@ -181,15 +186,15 @@ export function Chat() {
     }, []);
 
     useEffect(() => {
-            getUser().then(user => {
+        getUser().then(user => {
                 let id = Number(user.id_player);
                 socket.emit('Friends', { id },  (response : any[]) => {
-                    console.log('users got in front: ')
+                    // console.log('users got in front: ')
                     // console.log(response);
                     setFriends(response);
                 });
             }
-        ).catch(err => {
+            ).catch(err => {
             console.error("Failed to get friends from user: ", err);
         });
         return () => {
@@ -198,23 +203,53 @@ export function Chat() {
 
     const sendMessage = () => {
         let id: number;
+        console.log('send message called ')
+        if (joinfriend) {
+            sendMessageDm();
+            return;
+        }
         getUser()
-            .then(user => {
-                id = Number(user.id_player);
-                console.log("sent from front: " + id);
-                if (!socket) return;
-                socket.emit('createMessage', {
-                    name: selectedRoom ? selectedRoom.name : name,
-                    text: messageText,
-                    id: id,
-                });
-            })
-            .catch(error => {
-                console.error("Failed to get user: ", error);
+        .then(user => {
+            id = Number(user.id_player);
+            if (!socket) return;
+            socket.emit('createMessage', {
+                name: selectedRoom ? selectedRoom.name : name,
+                text: messageText,
+                id: id,
+                username: null,
             });
+        })
+        .catch(error => {
+            console.error("Failed to get user: ", error);
+        });
     };
+    
+    const sendMessageDm = () => {
+
+        let id: number;
+        let username : string;
+        console.log('message dm called ')
+        console.log("name in front: " + name);
 
 
+        getUser()
+        .then(user => {
+            id = Number(user.id_player);
+            username = user.username;
+            if (!socket) return;
+            socket.emit('createMessage', {
+                name: name,
+                text: messageText,
+                id: id,
+                username: username,
+            }, (response : any[]) => {
+            });
+        })
+        .catch(error => {
+            console.error("Failed to get user: ", error);
+        });
+    }
+    
     const changeName = (event : any) => {
         setName(event.target.value);
     };
@@ -225,7 +260,7 @@ export function Chat() {
         }
     }
     const changeMessage = (event : any) => {
-        typingEmit();
+        // typingEmit();
         setMessageText(event.target.value);
     };
 
@@ -256,13 +291,13 @@ export function Chat() {
         if (room.type === 'PROTECTED') {
           setSelectedRoom(room);
         } else {
-          setJoined(true); // Join directly for public rooms
-          setSelectedRoom(room);
+            setSelectedRoom(room);
+            setJoined(true); // Join directly for public rooms
         }
       };
     const handleSelectedPassword = (event: React.ChangeEvent<HTMLInputElement>) => {
         setSelectedPswd(event.target.value);
-        console.log('selectedPswd in front :' + event.target.value);
+        // console.log('selectedPswd in front :' + event.target.value);
         // join();
     }
 
@@ -273,19 +308,19 @@ export function Chat() {
     };
 
 
-    const typingEmit = () => {
-        if (!socket) return;
-        let username : string;
-        getUser().then(user => {
-            username = user.username;
-            socket.emit('typing', { name: name , username: username,isTyping: true });
-            setTimeout(() => {
-                socket.emit('typing', {  name: name , username: username,isTyping: false });
-            }, 2000);
-        }).catch(error => {
-            console.error("Failed to get user: ", error);
-        });
-    };
+    // const typingEmit = () => {
+    //     if (!socket) return;
+    //     let username : string;
+    //     getUser().then(user => {
+    //         username = user.username;
+    //         socket.emit('typing', { name: name , username: username,isTyping: true });
+    //         setTimeout(() => {
+    //             socket.emit('typing', {  name: name , username: username,isTyping: false });
+    //         }, 2000);
+    //     }).catch(error => {
+    //         console.error("Failed to get user: ", error);
+    //     });
+    // };
 
     return (
         <>
@@ -328,22 +363,6 @@ export function Chat() {
                     
                 </div>
 
-                    {/* {!joined &&!creating && (
-                        <div className="cin">
-                            <input
-                                type="text"
-                                placeholder="Name"
-                                name="name"
-                                id="name"
-                                value={name}
-                                onChange={changeName}
-                            />
-                            <button name={name} onClick={join}>
-                                Join
-                            </button>
-                        </div>
-                    )} */}
-
                     {creating && (
                         <div className="sbox">
                         <div className="sbox__input">
@@ -370,7 +389,7 @@ export function Chat() {
                             </button>
                         </div>
                     )}
-                {joined && (
+                {(joined && !joinfriend) && (
                     <div className="chat_container">
                         <div className="Message_cnt">
                             {messages.map((message, index) => (
@@ -383,11 +402,30 @@ export function Chat() {
                             <input type="text" name="messageText" id="messageText" placeholder='message' value={messageText} onChange={changeMessage} onKeyDown={enter} /> 
                             <button onClick={sendMessage}>Send</button>
                         </div>
-                        <div className="typing">
+                        {/* <div className="typing">
                             {typingDisplay && (<p>{typingDisplay}</p>)}
-                        </div>
+                        </div> */}
                     </div>
                 )}
+                {(joinfriend && !joined) && (
+                    <div className="chat_container">
+                        <div className="Message_cnt">
+                            {messages.map((message, index) => (
+                                <div key={index}>
+                                    [{message.user.username}]: {message.message}
+                                </div>
+                            ))}
+                        </div>
+                        <div className="cin">
+                            <input type="text" name="messageText" id="messageText" placeholder='message' value={messageText} onChange={changeMessage} onKeyDown={enter} /> 
+                            <button onClick={sendMessageDm}>Send</button>
+                        </div>
+                        {/* <div className="typing">
+                            {typingDisplay && (<p>{typingDisplay}</p>)}
+                        </div> */}
+                    </div>
+                )}
+
                 
             </div>
         </>

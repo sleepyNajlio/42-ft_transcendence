@@ -97,9 +97,15 @@ export class MessagesService {
 
     let existingChat = await this.prisma.chat.findFirst({
       where: {
-        name: {
-          equals: name,
-        },
+        AND: [
+          { type: 'PRIVATE' },
+          {
+            users: { some: { userId: id } }
+          },
+          {
+            users: { some: { userId: usertojoin.id_player } }
+          }
+        ]
       } as ChatWhereInput,
     });
     // console.log('id: ' + id + ' user: ' + username + ' is trying to join the chat');
@@ -108,12 +114,14 @@ export class MessagesService {
       return existingChat;
     }
     else{
-      const newChat = await this.prisma.chat.create({
-        data: {
-          name: name,
-          type: 'PRIVATE',
+      const newChat = await this.prisma.chat.create(
+        {
+          data: {
+            type: 'PRIVATE',
+            // name: name,
+          },
         },
-      });
+      );
       const chatUSers = await this.prisma.chatUser.create({
         data: {
           chatId: newChat.id_chat,
@@ -196,69 +204,149 @@ export class MessagesService {
   getClientName(clientId: string) {
     return this.clients[clientId];
   }
-  async create(createMessageDto: CreateMessageDto, clientId: string, id: number) {
+  async create(createMessageDto: CreateMessageDto, clientId: string, id: number, username: string | null) {
     
     // console.log(createMessageDto.);
 
     const message = {
       name: createMessageDto.name,
       text: createMessageDto.text,
-    }
-    console.log('chat name in create: ')
-    console.log(message.name);
-    console.log('text in create: ')
-    console.log(message.text);
+    };
+    let createdChatMessage = null;
+    if (username === null) {
+      console.log('username is null so its a channel');
+      const chat = await this.prisma.chat.findFirst({
+        where: {
+          name: message.name,
+        },
+      });
+      // console.log('chat that user want to send msg in : ');
+      // console.log(chat);
 
-    const chat = await this.prisma.chat.findFirst({
-      where: {
-        name: message.name,
-      },
-    });
-    console.log('chat that user want to send msg in : ');
-    console.log(chat);
-    
-    const createdChatMessage = await this.prisma.chatMessage.create({
-      data: {
-        message: message.text,
-        chatId: chat.id_chat as number,
-        userId: id as number,
-      },
-      include: {
-        user: {
-          select: {
-            username: true,
+      createdChatMessage = await this.prisma.chatMessage.create({
+        data: {
+          message: message.text,
+          chatId: chat.id_chat as number,
+          userId: id as number,
+        },
+        include: {
+          user: {
+            select: {
+              username: true,
+            },
           },
         },
-      },
-    });
-    console.log('message that just got created : ');
-    console.log(createdChatMessage);
+      });
+      console.log('message that just got created : ');
+      console.log(createdChatMessage);
+    }
+    else {
+      console.log('username ' + username + ' want to send msg to ' + message.name + '')
+      
+      const user = await this.prisma.player.findFirst({
+        where: {
+          username: message.name,
+        },
+      });
+      const chat = await this.prisma.chat.findFirst({
+        where: {
+          AND: [
+            { type: 'PRIVATE' },
+            {
+              users: { some: { userId: id } }
+            },
+            {
+              users: { some: { userId: user.id_player } }
+            }
+          ]
+        } as ChatWhereInput
+      });
+
+      createdChatMessage = await this.prisma.chatMessage.create({
+        data: {
+          message: message.text,
+          chatId: chat.id_chat as number,
+          userId: id as number,
+        },
+        include: {
+          user: {
+            select: {
+              username: true,
+            },
+          },
+        },
+      }) as { user: { username: string }, id3_chat_message: number, message: string, userId: number, chatId: number, sentAt: Date };
+        
+      console.log('message that just got created : ');
+      console.log(createdChatMessage);
+    }
+      
 
 
 
     return createdChatMessage;
   }
-  async findAll(name: string) {
-    console.log('name: ');
-    console.log(name);
+  async findAll(name: string, id: number, username: string) {
+    // console.log('name: ');
+    // console.log(name);
+    let messages = null;
+    if (username === null && id === 0) {
 
-    const messages = await this.prisma.chatMessage.findMany({
+      messages = await this.prisma.chatMessage.findMany({
 
-      where: {
-        chat: {
-          name: name,
-        },
-      },
-      include: {
-        user: {
-          select: {
-            username: true,
+        where: {
+          chat: {
+            name: name,
           },
         },
-      },
-    });
-    return messages;
+        include: {
+          user: {
+            select: {
+              username: true,
+            },
+          },
+        },
+      });
+    }
+    else {
+      const user = await this.prisma.player.findFirst({
+        where: {
+          username: name,
+        },
+      });
+      const chat = await this.prisma.chat.findFirst({
+        where: {
+          AND: [
+            { type: 'PRIVATE' },
+            {
+              users: { some: { userId: id } }
+            },
+            {
+              users: { some: { userId: user.id_player } }
+            }
+          ]
+        } as ChatWhereInput,
+      });
+      if (chat)
+      {
+        messages = await this.prisma.chatMessage.findMany({
+          where: {
+            chatId: chat.id_chat,
+          },
+          include: {
+            user: {
+              select: {
+                username: true,
+              },
+            },
+          },
+        });
+      }
   }
+  console.log('messages: ');
+  console.log(messages);
+  return messages;
+}
   async findRoom(name: string) {
    
     const chat = await this.prisma.chat.findFirst({
@@ -291,7 +379,8 @@ export class MessagesService {
           { type: { not: 'PRIVATE' } },
           {
             type: 'PRIVATE',
-            users: { some: { userId: id } }
+            users: { some: { userId: id } },
+            name: { not: null },
           }
         ]
       }

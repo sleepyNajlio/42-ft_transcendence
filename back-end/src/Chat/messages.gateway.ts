@@ -63,11 +63,13 @@ export class MessagesGateway
     @MessageBody() createMessageDto: CreateMessageDto,
     @MessageBody('id') id: number,
     @ConnectedSocket() client: Socket,
+    @MessageBody('username') username: string | null,
   ) {
     const message = await this.messagesService.create(
       createMessageDto,
       client.id,
       id,
+      username,
     );
     const room = "chat_" + message.chatId;
     
@@ -93,9 +95,11 @@ export class MessagesGateway
   @SubscribeMessage('findAllMessages') // to be able to see the old messages
   async findAll(
     @MessageBody('name') name: string,
+    @MessageBody('id') id: number,
+    @MessageBody('username') username: string | null,
     @ConnectedSocket() client: Socket,
   ) { 
-    return await this.messagesService.findAll(name);
+    return await this.messagesService.findAll(name, id, username);
   }
   @SubscribeMessage('join')
   async joinRoom(
@@ -140,19 +144,19 @@ export class MessagesGateway
    return false;
   }
 
-  @SubscribeMessage('typing')
-  async typing(
-    @MessageBody('name') name: string,
-    @MessageBody('isTyping') isTyping: boolean,
-    @MessageBody('username') username: string,
-    @ConnectedSocket() client: Socket,
-  ) {
-    console.log('typing called');
-    console.log(name);
-    const chat = await this.messagesService.findRoom(name);
+  // @SubscribeMessage('typing')
+  // async typing(
+  //   @MessageBody('name') name: string,
+  //   @MessageBody('isTyping') isTyping: boolean,
+  //   @MessageBody('username') username: string,
+  //   @ConnectedSocket() client: Socket,
+  // ) {
+  //   console.log('typing called');
+  //   console.log(name);
+  //   const chat = await this.messagesService.findRoom(name);
 
-    const room = "chat_" + chat.id_chat;
-    client.broadcast.to(room).emit('typing', { username:username, isTyping: isTyping });
-
-  }
+  //   const room = "chat_" + chat.id_chat;
+  //   client.broadcast.to(room).emit('typing', { username:username, isTyping: isTyping });
+    
+  // }
 }
