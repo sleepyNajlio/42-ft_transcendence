@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import '../styles/css/Sendmessage.css';
+import send from '../assets/SendIcon.png'
 
 interface MessageInputProps {
   onSendMessage: (message: string) => void;
@@ -28,7 +29,9 @@ const MessageInput: React.FC<MessageInputProps> = ({ onSendMessage }) => {
         value={message}
         onChange={handleMessageChange}
       />
-      <button onClick={handleSendClick}>Send</button>
+      <button onClick={handleSendClick}>
+        <img src={send} alt="Icon2" />
+      </button>
     </div>
     </div>
   );

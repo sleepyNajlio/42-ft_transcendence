@@ -1,6 +1,9 @@
 // ChatHeaderComponent.tsx
 import React from 'react';
-import game from '../assets/game_2_fill.png'
+import game from '../assets/PlayIcon.png'
+import block from '../assets/BlockIcon.png'
+import profil from '../assets/ProfilIcon.png'
+
 // import block from '../assets/blockchat.png'
 // import './ChatHeaderComponent.css'; // You can create a CSS file for styling
 
@@ -23,12 +26,12 @@ const ChatHeaderComponent: React.FC<ChatHeaderComponentProps> = ({ friendName, p
     <div className='blank'>
     </div>
     <div className='block'>
-      <img src={game} alt="Icon2" />
+      <img src={block} alt="Icon2" />
     </div>
     <div className='blank'>
     </div>
     <div className='profil'>
-      <img src={game} alt="Icon2" />
+      <img src={profil} alt="Icon2" />
     </div>
   </div>
 </div>
