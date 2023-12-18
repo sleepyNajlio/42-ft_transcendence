@@ -1,26 +1,33 @@
-.message-input-container {
-    display: flex;
-    margin-top: 10px;
-  }
+.message-input-container
+{
+  align-self: flex-end;
+  margin-top: auto;
+}
   
   .inputfield {
-    flex-grow: 1;
+    display: flex;
+    width: 54vw;
+    /* flex-grow: 1; */
     padding: 8px;
     border: 1px solid #ccc;
     border-radius: 4px 0 0 4px;
   }
   
   button {
-    padding: 8px 12px;
-    background-color: #007bff;
-    color: #fff;
-    border: 1px solid #007bff;
-    border-radius: 0 4px 4px 0;
+    padding: 8px 3px;
+    background-color: white;
+    color: #0F597B;
+    border: none;
+    border-radius: 32px;
     cursor: pointer;
   }
   
   button:hover {
-    background-color: #0056b3;
-    border: 1px solid #0056b3;
+    background-color: #F2F4F6;
   }
-  
+
+  .inputsend
+  {
+    margin-right: 8px;
+    width: 90%;
+  }

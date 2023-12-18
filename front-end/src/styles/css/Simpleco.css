@@ -7,11 +7,11 @@
   }
   
   .chat-text {
+    color: black;
     font-size: 24px;
     font-weight: bold;
     padding: 10px;
     border: 2px;
     border-radius: 8px;
-    background-color: green;
   }
   

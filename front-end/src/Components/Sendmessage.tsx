@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import '../styles/css/Sendmessage.css';
 
 interface MessageInputProps {
   onSendMessage: (message: string) => void;
@@ -20,8 +21,8 @@ const MessageInput: React.FC<MessageInputProps> = ({ onSendMessage }) => {
 
   return (
     <div className="message-input-container">
-    <div className='inputfield'>
-    <input
+    <div className="inputfield">
+    <input className="inputsend"
         type="text"
         placeholder="Type your message..."
         value={message}
