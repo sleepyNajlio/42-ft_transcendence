@@ -42,6 +42,7 @@ export class AuthService {
   }
 
   async signin(dto: signinDTO): Promise<{ accessToken: string }> {
+    console.log('helllooooo');
     const player = await await this.prisma.player.findFirst({
       where: {
         username: dto.username,

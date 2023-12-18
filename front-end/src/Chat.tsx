@@ -1,15 +1,22 @@
 import Navbar from './Components/Navbar.tsx';
-import Sbox from './Components/Sbox.tsx';
+// import Sbox from './Components/Sbox.tsx';
 import  './styles/css/chat.css'
-import {io} from "socket.io-client";
-import { SetStateAction, useEffect } from 'react';
-import { useState } from 'react';
-import { Socket } from 'socket.io-client';
-import { Profile } from './Profile.tsx';
+// import {io} from "socket.io-client";
+import { useState, useEffect, SetStateAction } from 'react';
+// import { Socket } from 'socket.io-client';
 import { getUser } from './player';
-import { get } from 'svg.js';
-import { KeyboardEvent } from 'react';
 import { getSocket } from './socket.ts';
+import camera from './assets/camera.svg'
+import { get } from 'svg.js';
+
+interface Room {
+    id: number;
+    name: string;
+    type: string;
+    password: string;
+}
+
+
 
 export function Chat() {
     const [joined, setJoined] = useState(false);
@@ -18,11 +25,15 @@ export function Chat() {
     const [messageText, setMessageText] = useState('');
     const [typingDisplay, setTypingDisplay] = useState('');
     const [created, setCreated] = useState(0);
+    const [roomType, setRoomType] = useState("");
+    const [roomPassword, setRoomPassword] = useState("");
     const [Rooms, setRooms] = useState<any[]>([]);
-    const [Freinds, setFriends] = useState<any[]>([])
-
-    
+    const [Friends, setFriends] = useState<any[]>([])
     const [socket, setSocket] = useState(getSocket());
+    const [creating, setCreating] = useState(false);
+    const [selectedPswd, setSelectedPswd] = useState("");
+    const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
+    const [joinfriend, setJoinfriend] = useState(false);
 
     // setSocket(getSocket());
     // console.log('sokita: ')
@@ -33,24 +44,33 @@ export function Chat() {
         let id : number;
         getUser().then(user => {
             id = Number(user.id_player);
-            socket.emit('join', { id ,  name},  (response : any[]) => {
-                if (!response)
-                {
-                    alert("room does not exist");
-                    setJoined(false);
-                }
-            });
+            if (selectedRoom)
+            {
+                socket.emit('join', { id ,  name: selectedRoom.name, type: selectedRoom.type ,selectedPswd},  (response : any[]) => {
+                    
+                    console.log("response got in join: ");
+                    console.log(response);
+                    if (!response)
+                    {
+                        alert("wrong password");
+                        setJoined(false);
+                    }
+                });
+            }
 
 
         }).catch(error => {
             console.error("Failed to get user: ", error);
         });
-        socket.emit('findAllMessages', {name}, (response: any[]) => {
-            // console.log("response got in find all: ");
-            // console.log(response);
-            setMessages(response);
-            // console.log(messages);
-        });
+        if (selectedRoom)
+        {
+            socket.emit('findAllMessages', {name: selectedRoom.name}, (response: any[]) => {
+                // console.log("response got in find all: ");
+                // console.log(response);
+                setMessages(response);
+                // console.log(messages);
+            });
+        }
 
         setSocket(socket);
         
@@ -67,7 +87,7 @@ export function Chat() {
         let username : string;
         getUser().then(user => {
             username = user.username;
-            socket.on('typing', ({ name:name, username: username, isTyping: isTyping }) => {
+            socket.on('typing', ({ name:name , username: username, isTyping: isTyping }) => {
             if (isTyping) {
                 setTypingDisplay(`${username} is typing...`);
             } else {
@@ -83,6 +103,44 @@ export function Chat() {
     }, [joined]);
 
     useEffect(() => {
+        if (!joinfriend) return;
+        let id : number;
+        let username : string;
+        getUser().then(user => {
+            id = Number(user.id_player);
+            username = user.username;
+            if (name){
+                socket.emit('joinDm', { id ,  name: name, username:username},  (response : any[]) => {
+                    
+                    console.log("response got in join: ");
+                    console.log(response);
+                    // if (!response)
+                    // {
+                    //     alert("wrong password");
+                    //     setJoined(false);
+                    // }
+                });
+            }
+
+
+        }).catch(error => {
+            console.error("Failed to get user: ", error);
+        });
+
+
+
+
+    }, [joinfriend]);
+
+    const joinDm = (event: React.MouseEvent<HTMLButtonElement>) => {
+        const buttonName = event.currentTarget.name;
+        setName(buttonName);
+        setJoinfriend(true);
+        // console.log(name);
+    }
+
+
+    useEffect(() => {
         if (!created)
         {
             return;            
@@ -93,7 +151,7 @@ export function Chat() {
             id1 = Number(user.id_player);
             // if (!socket) return;
             // console.log("id1 in front: " + id1);
-            socket.emit('createRoom', { id1 ,  name},  (response : any[]) => {
+            socket.emit('createRoom', { id1 ,  name, roomType, roomPassword},  (response : any[]) => {
                 if (!response)
                     alert("room already exist");
             });
@@ -101,7 +159,7 @@ export function Chat() {
             console.error("Failed to get user: ", error);
         });
         // setSocket(socket);
-        setCreated(0);
+        // setCreated(0);
     },[created]);
 
     
@@ -112,6 +170,8 @@ export function Chat() {
             // console.log('dkhel hna');
             socket.emit('DisplayRoom', { id },  (response : any[]) => {
                 setRooms(response);
+                console.log('rooms got in front: ')
+                console.log(response);
             });
         }).catch(err => {
             console.error("Failed to get rooms from user: ", err);
@@ -121,12 +181,17 @@ export function Chat() {
     }, []);
 
     useEffect(() => {
-            console.log('dkhel hna');
-            socket.emit('Friends', (response : any[]) => {
-                console.log('users got in front: ')
-                console.log(response);
-                setFriends(response);
-            });
+            getUser().then(user => {
+                let id = Number(user.id_player);
+                socket.emit('Friends', { id },  (response : any[]) => {
+                    console.log('users got in front: ')
+                    // console.log(response);
+                    setFriends(response);
+                });
+            }
+        ).catch(err => {
+            console.error("Failed to get friends from user: ", err);
+        });
         return () => {
         };
     }, []);
@@ -139,7 +204,7 @@ export function Chat() {
                 console.log("sent from front: " + id);
                 if (!socket) return;
                 socket.emit('createMessage', {
-                    name: name,
+                    name: selectedRoom ? selectedRoom.name : name,
                     text: messageText,
                     id: id,
                 });
@@ -175,15 +240,47 @@ export function Chat() {
         // console.log(name);
     };
 
-    // ...
+    // const handleCreateRoom = () => {
+    //     setCreated(1);
+    // };
+    // for creating room
+    const handleRoomType = (type: string) => {
+        setRoomType(type);
+    };
+
+    const handleRoomPassword = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setRoomPassword(event.target.value);
+    };
+    // for joining room
+    const handleRoomClick = (room: Room) => {
+        if (room.type === 'PROTECTED') {
+          setSelectedRoom(room);
+        } else {
+          setJoined(true); // Join directly for public rooms
+          setSelectedRoom(room);
+        }
+      };
+    const handleSelectedPassword = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setSelectedPswd(event.target.value);
+        console.log('selectedPswd in front :' + event.target.value);
+        // join();
+    }
+
+    const handleJoinWithPassword = () => {
+        if (selectedRoom) {
+          setJoined(true);
+        }
+    };
+
+
     const typingEmit = () => {
         if (!socket) return;
         let username : string;
         getUser().then(user => {
             username = user.username;
-            socket.emit('typing', { name:name, username: username,isTyping: true });
+            socket.emit('typing', { name: name , username: username,isTyping: true });
             setTimeout(() => {
-                socket.emit('typing', { name:name, username: username,isTyping: false });
+                socket.emit('typing', {  name: name , username: username,isTyping: false });
             }, 2000);
         }).catch(error => {
             console.error("Failed to get user: ", error);
@@ -196,26 +293,83 @@ export function Chat() {
             <div className="chat">
                 <div className="chat_header">
 
+                    <button className="filled bt" onClick={()=>setCreating(true)}>Create</button>
                     <h1>Rooms</h1>
                     
                     {Rooms.map((room, index) => (
-                    <button key={index} name={room.name} onClick={join}>{room.name}</button>
+                    <div key={index}>
+                      {room.type === 'PROTECTED' ? (
+                        <div>
+                          <button onClick={() => handleRoomClick(room)}>{room.name}</button>
+                          {selectedRoom && selectedRoom.name === room.name && (
+                            <div>
+                              <input
+                                type="text"
+                                placeholder="Enter password"
+                                name={`${room.name}`}
+                                id={`${room.name}`}
+                                value={selectedPswd}
+                                onChange={handleSelectedPassword}
+                              />
+                              <button name={room.name} onClick={handleJoinWithPassword}>Join</button>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <button onClick={() => handleRoomClick(room)}>{room.name}</button>
+                      )}
+                    </div>
                     ))}
                      <h1>Friends</h1>
                     
-                    {Freinds.map((friend, index) => (
-                    <button key={index} name={friend.username} onClick={join}>{friend.username}</button>
+                    {Friends.map((friend, index) => (
+                    <button key={index} name={friend.username} onClick={joinDm}>{friend.username}</button>
                     ))}
                     
                 </div>
-                {!joined && (
-                    <div className="cin">
-                    <input type="text" placeholder='Name' name="name" id="name" value={name} onChange={changeName} />
-                    <button name={name} onClick={join}>Join</button>
-                    <button onClick={() => create()}>create</button>
-                    </div>
 
-                )}
+                    {/* {!joined &&!creating && (
+                        <div className="cin">
+                            <input
+                                type="text"
+                                placeholder="Name"
+                                name="name"
+                                id="name"
+                                value={name}
+                                onChange={changeName}
+                            />
+                            <button name={name} onClick={join}>
+                                Join
+                            </button>
+                        </div>
+                    )} */}
+
+                    {creating && (
+                        <div className="sbox">
+                        <div className="sbox__input">
+                            <label htmlFor="input"> channel name *</label>
+                            <input type="text" id="name" name={name} onChange={changeName} placeholder='ex: manini manini'/>
+                        </div>
+                        <select value={roomType} onChange={(e) => handleRoomType(e.target.value)}>
+                            <option disabled value="">Room Type</option>
+                             <option value="PUBLIC">Public</option>
+                             <option value="PRIVATE">Private</option>
+                             <option value="PROTECTED">Protected</option>
+                        </select>
+                            {(roomType === "PROTECTED") && (
+                                <input
+                                    type="text"
+                                    placeholder="Password"
+                                    value={roomPassword}
+                                    onChange={handleRoomPassword}
+                                />
+                                
+                            )}
+                            <button onClick={create} disabled={!name || (roomType !== "PUBLIC" && roomType !== "PRIVATE" && !roomPassword)}>
+                                Create
+                            </button>
+                        </div>
+                    )}
                 {joined && (
                     <div className="chat_container">
                         <div className="Message_cnt">

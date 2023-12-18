@@ -103,7 +103,7 @@ export function Config() {
                 setUsername(e.target.value);
               }}
             ></input>
-            <button type="submit"> Done </button>
+            <button type="submit" onClick={() => { window.location.href = "http://localhost:5173/Profile"; }}> Done </button>
           </form>
         </div>
         <Button msg="Enable 2FA" />

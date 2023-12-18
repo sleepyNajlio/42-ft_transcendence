@@ -75,7 +75,7 @@ model ChatUser {
 
 model Chat {
   id_chat    Int     @id @default(autoincrement())
-  type       ChatType @default(GLOBAL)
+  type       ChatType @default(PUBLIC)
   name       String?
   password   String?
 
@@ -104,8 +104,9 @@ enum ChatRole {
 }
 
 enum ChatType {
-  GLOBAL
+  PUBLIC
   PRIVATE
+  PROTECTED
 }
 
 enum GameStatus {

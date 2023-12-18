@@ -13,6 +13,7 @@ import { Server, Socket } from 'socket.io';
 import { SocketGateway } from 'src/socket/socket.gateway';
 import { subscribe } from 'diagnostics_channel';
 import { Client } from 'socket.io/dist/client';
+import { ChatType } from '@prisma/client';
 
 @WebSocketGateway({
   // namespace: 'chat',
@@ -50,9 +51,10 @@ export class MessagesGateway
     @MessageBody('id') id: number,
     @ConnectedSocket() client: Socket,
   ) {
-      console.log('hahahahaha');
        const rooms = await this.messagesService.getRooms(id);
       //  this.socketGateway.getServer().to(client.id).emit('rooms', rooms);
+      console.log('rooms in gateway : ');
+      console.log(rooms);
       return rooms;
   }
 
@@ -79,53 +81,63 @@ export class MessagesGateway
   async creatRoom(
     @MessageBody('id1') id1: number,
     @MessageBody('name') name: string,
+    @MessageBody('roomType') roomType: ChatType,
+    @MessageBody('roomPassword') roomPassword: string,
     @ConnectedSocket() client: Socket,
   )
   {
+    console.log('create called');
     // console.log('in gateway -- id: ' + id1 + ' user: ' + name + ' just created the chat');
-    return await this.messagesService.createChannel(id1, name, client.id);
+    return await this.messagesService.createChannel(id1, name,roomType,roomPassword, client.id);
   }
   @SubscribeMessage('findAllMessages') // to be able to see the old messages
   async findAll(
     @MessageBody('name') name: string,
     @ConnectedSocket() client: Socket,
   ) { 
-    console.log('in gateway: ' + name);
     return await this.messagesService.findAll(name);
   }
   @SubscribeMessage('join')
   async joinRoom(
     @MessageBody('id') id: number,
     @MessageBody('name') name: string,
+    @MessageBody('type') selectedType: string,
+    @MessageBody('selectedPswd') selectedPswd: string,
     @ConnectedSocket() client: Socket,
   ) {
-
-    const room = await this.messagesService.identify(id, name, client.id);
-    console.log('room in gateway : ');
-    console.log(room);
+    // console.log('selcted pswd in gateway : ');
+    // console.log(selectedPswd)
+    // console.log('room name in gateway : ');
+    // console.log(name);
+    // console.log('room type in gateway : ');
+    // console.log(selectedType);
+    const room = await this.messagesService.identify(id, name,selectedType,selectedPswd,client.id);
+    // console.log('room in gateway : ');
+    // console.log(room);
     if (room) {
       client.join("chat_"+ room.id_chat);
       console.log('user: ' + id + ' joined the chat');
       return room;
     }
-    else
-    {
-      return false;
-    }
+   return false;
+  }
+  @SubscribeMessage('joinDm')
+  async joinDm(
+    @MessageBody('id') id: number,
+    @MessageBody('name') name: string,
+    @MessageBody('username') username: string,
+    @ConnectedSocket() client: Socket,
+  ) {
 
-    // this.messagesService.identify(id, name, client.id).then((room) => {
-    //   if (room) {
-    //     client.join("chat_"+ room.id_chat);
-    //     console.log('user: ' + id + ' joined the chat');
-    //     return room;
-    //   }
-    //   else
-    //   {
-    //     return null;
-    //   }
-    // });
-    // console.log('user: ' + id);
-    // console.log('name: ' + name);
+    console.log('the user with id ' + id +' and name  ' + username + ' wants to join the dm with ' + name);
+
+    const room = await this.messagesService.identifyDm(id, name,username,client.id);
+    if (room) {
+      client.join("chat_"+ room.id_chat);
+      console.log('user: ' + username + ' joined the chat with ' + name);
+      return room;
+    }
+   return false;
   }
 
   @SubscribeMessage('typing')
@@ -135,6 +147,8 @@ export class MessagesGateway
     @MessageBody('username') username: string,
     @ConnectedSocket() client: Socket,
   ) {
+    console.log('typing called');
+    console.log(name);
     const chat = await this.messagesService.findRoom(name);
 
     const room = "chat_" + chat.id_chat;
