@@ -1,9 +1,9 @@
 import { User } from './Components/types.ts';
 
-let player: User;
+let player: User | null;
 
-async function getUserInfo(): Promise<User> {
-    const response = await fetch("http://192.168.3.169:3000/profile", {
+async function getUserInfo(): Promise<User | null> {
+    const response = await fetch("http://localhost:3000/profile", {
         credentials: "include",
         method: "GET",
     });
@@ -14,21 +14,29 @@ async function getUserInfo(): Promise<User> {
     } else {
         // alert("Failed to fetch user data");
         console.log("Failed to fetch user data");
-        return {} as User;
+        return null;
         // console.log(response.message);
     }
 }
 
-export async function initializeUser() {
-    player = await getUserInfo();
+export async function initializeUser() : Promise<Boolean>  {
+    await getUserInfo().then((res) => {
+        console.log("got user : ", res);
+        player = res;
+        return true;
+    }).catch((err) => {
+        console.log(err);
+        return false;
+    }).finally(() => {
+        console.log("finally");
+    });
+    return true;
 }
 
-export function getUser(): Promise<User> {
-    return new Promise((resolve, reject) => {
-        if (player) {
-            resolve(player);
-        } else {
-            reject("User not found");
-        }
-    });
+export async function getUser() {
+    if (player) {
+        return player;
+    } else {
+        return null;
+    }
 }

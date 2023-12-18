@@ -39,6 +39,7 @@ export interface User {
   // define a type of one plaer
 export interface Player {
   s_id: string;
+  user_id: string,
   host: boolean;
   x: number;
   y: number;

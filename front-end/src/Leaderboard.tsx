@@ -4,7 +4,6 @@ import  './styles/css/main.css'
 export function Leaderboard() {
     return (
         <>
-            <Navbar></Navbar>
             <main className="wrapper leader">
                 <h1 className="rank__title">Leaderboard</h1>
                 <div className="rankbar">

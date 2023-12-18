@@ -3,6 +3,7 @@ import ftlogo from '/ftlogo.png';
 import raketa from "/raketa.png";
 import Button from './Components/Button'
 import './styles/css/Login.css';
+import { useEffect } from 'react';
 
 export function Login() {
 
@@ -12,6 +13,11 @@ export function Login() {
 
   // console.log(`cooode: ${code}`);
   // console.log(`state: ${state}`);
+  useEffect(() => {
+    return () => {
+      console.log('unmounting...');
+    }
+  } , []);
 
   return (
     <>

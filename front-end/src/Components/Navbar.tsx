@@ -6,23 +6,16 @@ import profile_icon from '../assets/profile_icon.svg';
 import ranking_icon from '../assets/chart_icon.svg';
 import play_icon from '../assets/playground_icon.svg';
 import settings from '../assets/settings_icon.svg';
-import { User } from './types.ts';
 import exit from '../assets/exit.svg';
-import { useEffect, useState } from 'react';
+import { useContext } from 'react';
 import { Link } from 'react-router-dom';
-import { getUser } from '../player';
+import { UserContext } from '../UserProvider.tsx';
+
+
 
 export default function Navbar() {
-      const [user, setUser] = useState({} as User);
-    
-      useEffect(() => {
-        getUser().then(user => {
-          setUser(user);
-        }).catch(error => {
-          console.error("Failed to get user: ", error);
-        });
-      }, []);
-    
+    const { user } = useContext(UserContext);
+
   return (
     <>
     <input type="checkbox" id="menu-toggle"/>
@@ -78,8 +71,8 @@ export default function Navbar() {
         </div>
         <div className="logout">
             <div className="user">
-                <div className="cercle_profile" style={{ backgroundImage: `url(${user.avatar})` }}></div>
-                <span className="name">{user.username}</span>
+                <div className="cercle_profile" style={{ backgroundImage: `url(${user && user.avatar})` }}></div>
+                <span className="name">{user && user.username}</span>
             </div>
             <div>
                 <img width="40" height="40" src={exit} alt="Search Icon"/>

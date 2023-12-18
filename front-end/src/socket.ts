@@ -2,9 +2,13 @@ import { Socket, io } from "socket.io-client";
 
 let socket: Socket;
 
-export const initializeSocket = (userId: string) => {
+export const initializeSocket = (userId: string, sessionCookies: string) => {
     console.log("userId", userId);
-  socket = io("http://192.168.3.169:3000", {
+    console.log("sessionCookies", sessionCookies);
+  socket = io("http://localhost:3000", {
+    auth: {
+      sessionCookies,
+    },
     query: { userId },
   });
 };

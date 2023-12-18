@@ -1,4 +1,4 @@
-import { Player, Players, Ball } from './types';
+import { Player, Players, Ball, User } from './types';
 import { Socket } from "socket.io-client";
 import { SVG, on, Text } from '@svgdotjs/svg.js';
 
@@ -9,7 +9,7 @@ let end : Text
 let playerLeft : number = 0
 let playerRight : number = 0
 
-export default function game(socket: Socket, players: Players = {}, ball: Ball) {
+export default function game(socket: Socket, players: Players = {}, ball: Ball, user: User) {
     // define board size and create a svg board
     const width = 600,
       height = 600;
@@ -27,6 +27,12 @@ export default function game(socket: Socket, players: Players = {}, ball: Ball) 
       add.stop(0, '#606c88')
       add.stop(1, '#3f4c6b')
     })
+    end = draw.text(``).font({
+      size: 32,
+      family: 'Menlo, sans-serif',
+      anchor: 'end',
+      fill: '#fff'
+    }).center(width/2, height/2).hide();
     draw.rect(width, height).fill(board_gradient);
     const paddleWidth = 20,
       paddleHeight = 100;
@@ -67,6 +73,7 @@ export default function game(socket: Socket, players: Players = {}, ball: Ball) 
       click.front();
       
     rect.click(function() {
+      console.log("clicked")
       if (ball.vx === 0 && ball.vy === 0) {
         let tvx = Math.random() * 500 - 250
         let tvy = Math.random() * 500 - 250
@@ -76,7 +83,7 @@ export default function game(socket: Socket, players: Players = {}, ball: Ball) 
         while (Math.abs(tvy) < 100) {
           tvy = Math.random() * 500 - 250
         }
-        socket.emit('moveBall', { ball: {vx: tvx, vy: tvy, cx: ball.cx, cy: ball.cy}, action: "start" });
+        socket.emit('moveBall', { ball: {vx: tvx, vy: tvy, cx: ball.cx, cy: ball.cy}, action: "start", userId: pHost.user_id });
       }
     })
     let chck = false;
@@ -88,13 +95,40 @@ export default function game(socket: Socket, players: Players = {}, ball: Ball) 
       rect.show();
       click.show();
     });
+    socket.on('winByAbort', () => {
+      reset(playerRight, playerLeft)
+      click.hide();
+      end.show();
+      end.front();
 
-    socket.on('move', (data: {ball: Ball, paddleDirection: number, id: string }) => {
+      let counter = 2;
+      const intervalId = setInterval(() => {
+        end.text(`Game Aborts in ${counter}`);
+        
+        counter--;
+        if (counter < 0) {
+          clearInterval(intervalId);
+          end.text('Game Aborted');
+
+        }
+      }, 1000);
+      
+      console.log("game aborted");
+    });
+
+    socket.on('move', (data) => {
       chck = true;
-      if (pGuest && data.id == pGuest.s_id)
+      console.log(`move ${data.userId} ${pGuest.user_id} ${pHost.user_id}`);
+      if (pGuest && data.userId == pGuest.user_id)
+      {
         pGuest.paddleDirection = data.paddleDirection;
-      if (pHost && data.id == pHost.s_id)
+        console.log("player"+data.userId);
+      }
+      if (pHost && data.userId == pHost.user_id)
+      {
         pHost.paddleDirection = data.paddleDirection;
+        console.log("player"+data.userId);
+      }
         ball = {
           ...ball,
           ...data.ball,
@@ -103,17 +137,15 @@ export default function game(socket: Socket, players: Players = {}, ball: Ball) 
 
     let isKeyDown = false;
     socket.on('getFrame', (data) => {
-      if (pGuest && pGuest.paddle && data.id == pHost.s_id)
-        socket.emit('paddlePos', { y: pGuest.paddle.cy(), playerLeft, playerRight, ball: {cx: ball.cx, cy: ball.cy, vx: ball.vx, vy: ball.vy}});
-      if (pHost && pHost.paddle && data.id == pGuest.s_id)
-        socket.emit('paddlePos', { y: pHost.paddle.cy(), playerLeft, playerRight, ball: {cx: ball.cx, cy: ball.cy, vx: ball.vx, vy: ball.vy}});
+      if (pGuest && pGuest.paddle && pHost && pHost.paddle)
+        socket.emit('paddlePos', { y1: pGuest.paddle.cy(), y2: pHost.paddle.cy(),  playerLeft, playerRight, ball: {cx: ball.cx, cy: ball.cy, vx: ball.vx, vy: ball.vy}, userId: pGuest.user_id});
     });
     
-    socket.on('updateFrame', (data: {ball: {cx : number, cy: number, vx: number, vy: number}, y: number, playerLeft: number, playerRight: number, id: string }) => {
-      if (pHost && pHost.paddle && data.id == pHost.s_id)
-        pHost.paddle.cy(data.y);
-      if (pGuest && pGuest.paddle && data.id == pGuest.s_id)
-        pGuest.paddle.cy(data.y);
+    socket.on('updateFrame', (data: {ball: {cx : number, cy: number, vx: number, vy: number}, y1: number, y2: number, playerLeft: number, playerRight: number, id: string }) => {
+      if (pHost && pHost.paddle)
+        pHost.paddle.cy(data.y2);
+      if (pGuest && pGuest.paddle)
+        pGuest.paddle.cy(data.y1);
       ball = {
         ...ball,
         ...data.ball,
@@ -131,7 +163,7 @@ export default function game(socket: Socket, players: Players = {}, ball: Ball) 
           e.preventDefault();
           if (!isKeyDown) {
             isKeyDown = true;
-            socket.emit('keydown', { ball: ballWithoutCercle, paddleDirection: e.keyCode == 40 ? 1 : e.keyCode == 38 ? -1 : 0, id: socket.id });
+            socket.emit('keydown', { ball: ballWithoutCercle, paddleDirection: e.keyCode == 40 ? 1 : e.keyCode == 38 ? -1 : 0, userId: user.id_player });
           }
         }
       }
@@ -143,7 +175,7 @@ export default function game(socket: Socket, players: Players = {}, ball: Ball) 
         if (e.keyCode == 40 || e.keyCode == 38) {
           e.preventDefault();
           isKeyDown = false;
-          socket.emit('keyup', { ball: ballWithoutCercle, paddleDirection: 0, id: socket.id });
+          socket.emit('keyup', { ball: ballWithoutCercle, paddleDirection: 0, userId: user.id_player  });
         }
       }
     });
@@ -190,7 +222,7 @@ export default function game(socket: Socket, players: Players = {}, ball: Ball) 
       ball.cx = ball.cercle.cx()
       , ball.cy = ball.cercle.cy()
       if ((ball.vy < 0 && ball.cy <= 0) || (ball.vy > 0 && ball.cy >= height)) {
-        socket.emit('moveBall', { ball: { vx: ball.vx, vy: -ball.vy, cx: ball.cx, cy: ball.cy}, action: "up" });
+        socket.emit('moveBall', { ball: { vx: ball.vx, vy: -ball.vy, cx: ball.cx, cy: ball.cy}, action: "up", userId: pHost.user_id });
       } else {
         var paddleRightY: number = 0;
         if (pGuest && pGuest.paddle) {
@@ -202,7 +234,7 @@ export default function game(socket: Socket, players: Players = {}, ball: Ball) 
         }
         if ((ball.vx < 0 && ball.cx <= paddleWidth && ball.cy > paddleLeftY && ball.cy < paddleLeftY + paddleHeight) ||
         (ball.vx > 0 && ball.cx >= width - paddleWidth && ball.cy > paddleRightY && ball.cy < paddleRightY + paddleHeight)) {
-          socket.emit('moveBall', { ball: { vx: -ball.vx * 1.05, vy: (ball.cy - ((ball.vx < 0 ? paddleLeftY : paddleRightY) + paddleHeight/2)) * 7 , cx: ball.cx, cy: ball.cy}, action: "left -right"});
+          socket.emit('moveBall', { ball: { vx: -ball.vx * 1.05, vy: (ball.cy - ((ball.vx < 0 ? paddleLeftY : paddleRightY) + paddleHeight/2)) * 7 , cx: ball.cx, cy: ball.cy}, action: "left -right", userId: pHost.user_id});
         }
         else if ((ball.vx < 0 && ball.cx <= 0) || (ball.vx > 0 && ball.cx >= width)) {
           if (ball.vx < 0) { reset(playerRight+1, playerLeft) }
@@ -211,7 +243,7 @@ export default function game(socket: Socket, players: Players = {}, ball: Ball) 
       }
       if (playerRight === 10 || playerLeft === 10) {
           reset(playerRight, playerLeft)
-          end = draw.text('Game over').font({
+          end.text('Game over').font({
           size: 32,
           family: 'Menlo, sans-serif',
           anchor: 'end',
@@ -256,13 +288,23 @@ export default function game(socket: Socket, players: Players = {}, ball: Ball) 
     }
     callback(100)
     function reset(playerRight: number = 0, playerLeft: number = 0) {
-      socket.emit('moveBall', { ball: { vx: 0, vy: 0, cx: width / 2, cy: height / 2 , reset: true}, action: "reset", playerLeft, playerRight });
+      socket.emit('moveBall', { ball: { vx: 0, vy: 0, cx: width / 2, cy: height / 2 , reset: true}, action: "reset", playerLeft, playerRight, userId: pHost.user_id });
       rect.show();
       click.show();
     }
     const cleanup = () => {
         draw.clear();
         draw.remove();
+        socket.off('move');
+        socket.off('start');
+        socket.off('reset');
+        socket.off('ballVel');
+        socket.off('opponentDisconnected');
+        socket.off('updateFrame');
+        socket.off('getFrame');
+        socket.off('keydown');
+        socket.off('keyup');
+        cancelAnimationFrame(animFrame);
       }
       
       return cleanup;

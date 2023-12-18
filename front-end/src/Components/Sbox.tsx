@@ -10,7 +10,7 @@ export default function Sbox(props: any) {
 
     const getPlayers = async () => {
         try {
-          const response = await fetch('http://192.168.3.169:3000/profile/all', {
+          const response = await fetch('http://localhost:3000/profile/all', {
             credentials: "include",
             method: "GET",
           });
@@ -33,7 +33,14 @@ export default function Sbox(props: any) {
         <>
             <main className="wrapper">
                 {props.isLoading && <LoadingComponent />} {/* Render the loading component when isLoading is true */}
-                {!props.isLoading && (
+                {props.inGame && (
+                    <div className="game">
+                        <h1 className="btitle">ALREADY IN GAME</h1>
+                        <h3 className="stitle">check your tabs or devices</h3>
+                    </div>
+                )  
+                }
+                {!props.isLoading && !props.inGame && (
                     <div className="sbox">
                         {Players && (
                           <div className="players">

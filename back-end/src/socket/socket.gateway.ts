@@ -40,7 +40,7 @@ export class SocketGateway
 
   handleDisconnect(client: Socket) {
     console.log(`Client ${client.id} disconnected.`);
-
+    // client.emit('disconnectGame');
     // Remove the socket from the user's sockets
     const userId = client.handshake.query.userId as string;
     const userSockets = this.userSockets.get(userId);
@@ -48,7 +48,6 @@ export class SocketGateway
       const index = userSockets.indexOf(client);
       if (index !== -1) {
         userSockets.splice(index, 1);
-
         // If no more sockets are associated with the user, remove the user entry
         if (userSockets.length === 0) {
           this.userSockets.delete(userId);
