@@ -45,10 +45,10 @@ import './styles/css/ChatHeaderComponent.css';
 //     console.log('Modify Profile clicked!');
 //   };
 
-export function Testchat() {
+export function TestChat() {
   return (
     <>
-        <Navbar></Navbar>
+        {/* <Navbar></Navbar> */}
         <div className="conteneur">
       <div className="gauche">
         <Leftchat />
