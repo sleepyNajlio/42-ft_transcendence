@@ -1,7 +1,7 @@
 import '../styles/css/main.css'
 import LoadingComponent from './LoadingComponent'; // Import the loading component
 import { useEffect, useState } from 'react';
-import { User } from './types';
+import { User, inviteStatus } from './types';
 
 
 export default function Sbox(props: any) {
@@ -53,18 +53,37 @@ export default function Sbox(props: any) {
                             ))}
                           </div>
                         )}
-                        {!Players && (
+                        {props.invite === inviteStatus.NONE && !Players && (
                           <div className="sbox__title">
                               <h1 className="btitle">{props.btitle}</h1>
                               <h3 className="stitle">{props.stitle}</h3>
                           </div>
                         )}
+                        {props.invite === inviteStatus.NONE && (
                           <div className="sbox__btn">
                               <button className="trans bt" onClick={()=> props.handleMatchClick()}>
                                   {props.rb}
                               </button>
                               <button className="filled bt" onClick={getPlayers}>{props.lb}</button>
                           </div>
+                        )}
+                        {props.invite === inviteStatus.INVITED && (
+                          <div className="sbox__title">
+                              <h1 className="btitle">Invite from {props.inviter.username}</h1>
+                          </div>
+                        )}
+                        {props.invite === inviteStatus.ABORTED && (
+                          <div className="sbox__title">
+                              <h1 className="btitle">{props.inviter.username} Aborted invitation</h1>
+                          </div>
+                        )}
+                        {props.invite === inviteStatus.INVITED && (
+                          <div className="sbox__btn">
+                            <button className="trans bt" onClick={()=> props.inviteResp(true, props.inviter)}>Accept</button>
+                            <button className="filled bt" onClick={()=> props.inviteResp(false, null)}>decline</button>
+                          </div>
+                        )}
+                          
                     </div>
                 )}
             </main>

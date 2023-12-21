@@ -25,6 +25,7 @@ export class ProfileService {
       throw new Error('Invalid token'); // Handle token verification errors
     }
   }
+
   async getAllUsers(token: string) {
     try {
       const decoded = this.jwtService.verify(token);
@@ -42,5 +43,14 @@ export class ProfileService {
     } catch (error) {
       throw new Error('Invalid token'); // Handle token verification errors
     }
+  }
+
+  async getUserById(id: number) {
+    const user = await this.prisma.player.findUnique({
+      where: {
+        id_player: id,
+      },
+    });
+    return user;
   }
 }

@@ -3,15 +3,11 @@ import Button from './Components/Button';
 import './styles/css/Config.css';
 import Cookies from 'js-cookie';
 import { User } from './Components/types';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { UserContext } from './UserProvider';
 
-
-async function finishSignup(
-  email: string,
-  username: string,
-  avatar: string,
-) 
-  {
+async function finishSignup(email: string, username: string, avatar: string): Promise<any> {
   // if (avatar) {
   //   const formData = new FormData();
   //   formData.append("avatar", avatar);
@@ -24,26 +20,33 @@ async function finishSignup(
   //     alert("File upload failed.");
   //   }
   //}
-  const response = await fetch("http://localhost:3000/auth/finish_signup", {
-    credentials: "include",
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-    },
-    body: JSON.stringify({
-      email: email,
-      username: username,
-      avatar: avatar,
-    }),
-  });
-  if (response.ok) {
-    const res = await response.json();
-    console.log("res:", res);
-  } else alert("Failed to Finish Signup");
+  try {
+    const response = await fetch("http://localhost:3000/auth/finish_signup", {
+      credentials: "include",
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({
+        email: email,
+        username: username,
+        avatar: avatar,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error:", username, email, avatar);
+    console.error("Error:", error);
+    throw error; // Rethrow the error to be caught by the calling code
+  }
 }
-
-
 
 async function getPreAuthData() {
   const cookie = Cookies.get(); // Get all cookies
@@ -62,51 +65,71 @@ async function getPreAuthData() {
     const res = await response.json();
     return res.user;
   } else {
-    alert("Failed to fetch user data");
+    alert("Failed to get pre-auth data");
   }
 }
 
 export function Config() {
-  const [user, setUser] = useState({} as User);
-  const [newUsername, setUsername] = useState<string>(user.username);
+  const { user, initialize } = useContext(UserContext);
 
+  const [userpre, setUserpre] = useState<{email: string, username: string, avatar: string}>({email: "", username: "", avatar: ""});
+  const navigate = useNavigate();
+  const [newUsername, setUsername] = useState<string>("kkkk");
+  
   useEffect(() => {
     const fetchData = async () => {
-      const user: User = await getPreAuthData();
-      setUser(user);
-      setUsername(user.username);
+      await getPreAuthData().then(res => {
+        if (res) {
+          console.log("username set to: ", res.username);
+          setUserpre ({email: res.email, username: res.username, avatar: res.avatar});
+          setUsername(res.username);
+        }
+      }
+      ).catch(error => {
+        console.error("Failed to get user: ", error);
+        return false;
+      });
     };
-
     fetchData();
-    
   }, []);
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    finishSignup(user.email ,newUsername , user.avatar);
-    
+
+  const submitForm = async (path: string) => {
+    console.log('form userpre:', userpre);
+    try {
+      const res = await finishSignup(userpre.email, newUsername || "", userpre.avatar);
+      console.log("sign up", res);
+      initialize();
+      navigate(path);
+    } catch (error) {
+      console.error("Failed to finish signup: ", error);
+      // Handle the error or return false if needed
+    }
   };
   
-  return (
+
+
+return (
     <>
       <section className="Config">
         <Logo name={''}></Logo>
         <div className="lll">
-          <div className="cercle" style={{ backgroundImage: `url(${user.avatar})` }}>
+          <div className="cercle" style={{ backgroundImage: `url(${userpre.avatar})` }}>
           </div>
-          <form onSubmit={handleSubmit}>
-          <input
-              required
-              type="text"
-              placeholder="Username"
-              defaultValue={newUsername}
-              onChange={(e) => {
-                setUsername(e.target.value);
-              }}
+          <form onSubmit={(e) => e.preventDefault()} style={{display: 'flex', flexDirection: 'column', gap: '30px', alignItems: 'center'}}>
+            <input
+                required
+                type="text"
+                placeholder="Username"
+                defaultValue={userpre.username}
+                onChange={(e) => {
+                  setUsername(e.target.value);
+                }}
             ></input>
-            <button type="submit" onClick={() => { window.location.href = "http://localhost:5173/Profile"; }}> Done </button>
+            <button value="/profile" type="submit" onClick={() => submitForm('/profile')}> Done </button>
+            <Button value="/TwoFA" link="#" msg="Enable 2FA" onClick={() => submitForm('/TwoFA')}/>
           </form>
+        
         </div>
-        <Button msg="Enable 2FA" />
       </section>
     </>
   )

@@ -5,14 +5,14 @@ import  './styles/css/main.css'
 import { useState } from 'react';
 import { Circle } from '@svgdotjs/svg.js';
 import { useDocumentVisible } from './useDocumentVisible'; // adjust the path according to your project structure
-import { Players, Ball } from './Components/types';
+import { Players, Ball, Player, inviteStatus } from './Components/types';
 import game from './Components/gameLogic';
 import axios from 'axios';
 import { UserContext } from './UserProvider.tsx';
 
-export function Play() {
+export function Play(props: {setInPlay: any, setInviter: any, inviter: any, setInvite: any, invite: inviteStatus}) {
   const { user, socket } = useContext(UserContext);
-
+  const {setInPlay, setInviter, inviter, setInvite, invite} = props;
     const isDocumentVisible = useDocumentVisible();
     const isMounted = useRef(true); // useRef to track whether the component is mounted
     const [showSbox, setShowSbox] = useState(true);
@@ -29,15 +29,61 @@ export function Play() {
       cy: 0,
     });
     
-    const handleFriendClick = async (player_id: any) => {
+    const handleFriendClick = async (player_id: number) => {
       if (socket)
+      {
+        const gameResponse = await axios.get('http://localhost:3000/game/creategame',  { withCredentials: true });
+        const gameId = gameResponse.data.id_game;
+        await axios.post(`http://localhost:3000/game/${gameId}/joinGame`, {userId: user?.id_player},  { withCredentials: true });
         socket.emit('invite', 
         {
-          player_id: player_id,
+          adv_id: player_id.toString(),
+          userId: user?.id_player.toString(),
+          username: user?.username,
         });
         setIsLoading(true);
+      }
     };
     
+    const inviteResp = async (resp: Boolean, inviter: any) => {
+      if (socket)
+      {
+        socket.emit('inviteResp', {
+          accepted: resp,
+          userId: inviter.id_player.toString(),
+          adv_id: user?.id_player.toString(),
+          username: user?.username,
+        }, async (response: any) => {
+          console.log('Received acknowledgement from server:', response);
+          if (!response) {
+            console.log('error');
+            setInvite(inviteStatus.ABORTED);
+            // setInviter(null);
+            return;
+          }
+          setInvite(inviteStatus.ACCEPTED);
+          let gameId = await axios.get(`http://localhost:3000/game/${inviter.id_player}/getgame/SEARCHING`, { withCredentials: true });
+          console.log('gameId: ', gameId);
+          gameId = gameId.data.id_game;
+          console.log('gameId: ', gameId);
+          await axios.post(`http://localhost:3000/game/${gameId}/joinGame`, {userId: user?.id_player},  { withCredentials: true });
+          await axios.post(`http://localhost:3000/game/${gameId}/updateGame`, {status: 'PLAYING'},  { withCredentials: true });
+        });
+      }
+    };
+
+    useEffect(() => {
+      console.log('effect invite: ', invite);
+      
+      if (invite === inviteStatus.ACCEPTED) {
+        inviteResp(true, inviter);
+      }
+      if (invite === inviteStatus.DECLINED) {
+        inviteResp(false, inviter);
+      }
+    }, [invite]);
+
+
     const handleMatchClick = async () => {
       let resp: {id: string | null} = {id: null};
       let userId: string | null = null;
@@ -109,6 +155,24 @@ export function Play() {
         return {inGame: true};
         // axios.delete(`http://localhost:3000/game/${user?.id_player}/deletegame/SEARCHING`, { withCredentials: true }).then
       });
+
+      socket.on('invited', (data: any) => {
+        axios.get(`http://localhost:3000/profile/${data}`, { withCredentials: true }).then
+        ((res) => {
+          console.log("invited by ", data);
+          setInviter(res.data);
+          setInvite(inviteStatus.INVITED);
+        }).catch((err) => {
+          console.log('err: ', err);
+        });
+      });
+
+      socket.on('rejected', () => {
+        console.log("rejected");
+        // setInvite(inviteStatus.DECLINED);
+        inita();
+      });
+
       socket.on('InitializeGame', () => {
         setIsLoading(false); // Set loading to false when the game starts
         setShowSbox(true);
@@ -119,8 +183,10 @@ export function Play() {
         console.log('disconnectGame');
       } );
       console.log('walla');
+      setInPlay(true);
       return () => {
         iscanceled = true;
+        setInPlay(false);
         // socket.off('startGame');
         isMounted.current = false; // Set to false when the component is unmounted
       };
@@ -145,16 +211,23 @@ export function Play() {
       };
     }, [isDocumentVisible]);
 
+
+    const inita = async () => {
+      setIsLoading(false); // Set loading to false when the game starts
+      setShowSbox(true);
+      setshowGame(false);
+      console.log("game aborted");
+    };
+
     useEffect(() => {
       if (!socket)
         return;
       if (showGame && socket && !iscanceled) {
         console.log('ball: ', bballRef.current);
         if (user){
-          const cleanup = game(socket, players, bballRef.current, user);
-          console.log('cleanup: ', cleanup);
+          const cleanup = game(socket, players, bballRef.current, user, inita);
           return () => {
-            cleanup()
+            cleanup();
           };
         }
       }
@@ -173,8 +246,11 @@ export function Play() {
                     rb="Matchmaking"
                     isLoading = {isLoading} // Pass the loading state to the loading component
                     inGame = {inGame}
+                    invite = {invite}
+                    inviter = {inviter}
                     handleMatchClick={handleMatchClick}
                     handleFriendClick={handleFriendClick}
+                    inviteResp={inviteResp}
                 >
                 </Sbox>
             )}

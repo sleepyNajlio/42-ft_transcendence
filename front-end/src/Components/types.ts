@@ -1,4 +1,4 @@
-import { Rect, Circle } from '@svgdotjs/svg.js';
+import { Rect, Circle, Image } from '@svgdotjs/svg.js';
 export type user_stats = {
   winsRat: number;
   wins: number;
@@ -62,3 +62,10 @@ export interface Ball {
   vy: number;
 }
 
+export enum inviteStatus {
+  NONE,
+  INVITED,
+  ACCEPTED,
+  DECLINED,
+  ABORTED,
+}

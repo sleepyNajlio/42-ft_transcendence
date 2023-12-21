@@ -8,12 +8,18 @@ import { Logger } from '@nestjs/common';
 import { Socket } from 'socket.io';
 import { SocketGateway } from 'src/socket/socket.gateway';
 import axios from 'axios';
+import { Player } from '@prisma/client';
 
 interface Ball {
   cx: number;
   cy: number;
   vx: number;
   vy: number;
+}
+enum PlayerState {
+  PLAYING = 'PLAYING',
+  SEARCHING = 'SEARCHING',
+  INVITING = 'INVITING',
 }
 
 @WebSocketGateway({
@@ -37,6 +43,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       ball: Ball;
     };
   } = {};
+  private notifs: { [key: string]: Player[] } = {};
 
   constructor(private readonly socketGateway: SocketGateway) {}
 
@@ -46,10 +53,14 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.logger.log(`Client disconnected from game`);
 
     const userId = getUserIdFromClient('disconnect', client);
+    if (!userId || !this.players[userId]) {
+      return;
+    }
     // Check if the socket is in the queue
-    const queue = this.queue.find((c) => c.userId === userId);
+    const playerState = this.players[userId].state;
     const cookies = client.handshake.auth.sessionCookies;
-    if (queue) {
+    if (playerState === PlayerState.SEARCHING) {
+      const queue = this.queue.find((c) => c.userId === userId);
       console.log('abort in queue');
       // Socket is in the queue
       // Remove the socket from the queue
@@ -71,12 +82,33 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.socketGateway.getClientSocket(userId)?.map((socketa) => {
         if (socketa.id !== client.id) socketa.emit('InitializeGame');
       });
-    } else {
+      // delete this.players[userId];
+      delete this.players[userId];
+    } else if (playerState === PlayerState.INVITING) {
+      console.log('abort in invite');
+      axios
+        .delete(`http://localhost:3000/game/${userId}/deletegame/SEARCHING`, {
+          headers: {
+            Cookie: cookies,
+          },
+        })
+        .then(() => {
+          console.log('deleted');
+        })
+        .catch((err) => {
+          console.log('err: ', err);
+        });
+      this.socketGateway.getClientSocket(userId)?.map((socketa) => {
+        if (socketa.id !== client.id) socketa.emit('InitializeGame');
+      });
+      delete this.players[userId];
+    } else if (playerState === PlayerState.PLAYING) {
       console.log('abort in game');
       // Socket is not in the queue, check if it is in a game
-      let gameId = Object.keys(this.games).find(
+      const gameId = Object.keys(this.games).find(
         (id) => this.games[id].players[userId],
       );
+
       if (gameId) {
         //   // Socket is in a game
         const game = this.games[gameId];
@@ -90,10 +122,10 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
             },
           })
           .then((res) => {
-            gameId = res.data.id_game;
+            const dbgameId = res.data.id_game;
             axios
               .post(
-                `http://localhost:3000/game/${gameId}/updateGame`,
+                `http://localhost:3000/game/${dbgameId}/updateGame`,
                 {
                   status: 'ABORTED',
                 },
@@ -114,7 +146,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
             );
             axios
               .post(
-                `http://localhost:3000/game/${gameId}/${userId}/updateUserGame`,
+                `http://localhost:3000/game/${dbgameId}/${userId}/updateUserGame`,
                 {
                   win: 0,
                 },
@@ -132,7 +164,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
               });
             axios
               .post(
-                `http://localhost:3000/game/${gameId}/${opponentId}/updateUserGame`,
+                `http://localhost:3000/game/${dbgameId}/${opponentId}/updateUserGame`,
                 {
                   win: 1,
                 },
@@ -150,25 +182,25 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
               });
             // Warn all the players sockets in the game
             this.socketGateway.getClientSocket(userId)?.map((socketa) => {
-              if (socketa.id !== client.id) socketa.emit('InitializeGame');
+              if (socketa.id !== client.id) {
+                socketa.emit('InitializeGame');
+                socketa.leave(gameId);
+              }
             });
             this.socketGateway.getClientSocket(opponentId)?.map((socketa) => {
-              if (socketa.id !== client.id) socketa.emit('winByAbort');
+              if (socketa.id !== client.id) {
+                socketa.emit('winByAbort');
+                socketa.leave(gameId);
+              }
             });
+            delete this.players[userId];
+            delete this.players[opponentId];
           })
           .catch((err) => {
             console.log('err: ', err);
           });
         // remove the game from this.games
         delete this.games[gameId];
-        //   if (player) {
-        //     // Socket is a single socket
-        //     // Update the game in the database
-        //     // Update the usergame in the database
-        //   } else {
-        //     // Socket is a multisocket
-        //     // Remove the socket from the gameroom
-        //   }
       }
     }
   }
@@ -196,6 +228,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         paddleDirection: 0,
         paddle: null,
         paddleSpeed: 5,
+        state: PlayerState.SEARCHING,
       };
       this.socketGateway.getClientSocket(userId)?.map((socketa) => {
         if (socketa.id !== client.id) socketa.emit('alreadyInQueue');
@@ -208,6 +241,8 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       // Create a unique game ID
       const gameId = `${player1.socket.id}-${player2.socket.id}`;
       console.log('gameId', gameId);
+      this.players[player1.userId].state = PlayerState.PLAYING;
+      this.players[player2.userId].state = PlayerState.PLAYING;
       // Initialize the game state
       this.games[gameId] = {
         players: {
@@ -237,14 +272,87 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('invite')
   handelInvite(client: Socket, data: any) {
-    this.logger.log(`client ${client.id} invite ${data.player_id}`);
-    // const socket = this.socketGateway.getClientSocket(data.player_id);
-    // if (socket) {
-    //   console.log('Sending invite to:', data.player_id);
-    // socket.emit('Invited', data);
-    // }
-    // Find the player socket in the main server
-    this.socketGateway.getServer().of('/').emit('inviter', data.player_id);
+    console.log('invite to ', data.adv_id, ' by ', data.userId);
+    this.players[data.userId] = {
+      s_id: client.id,
+      user_id: data.userId,
+      username: data.username,
+      host: false,
+      x: 0,
+      y: 0,
+      paddleDirection: 0,
+      paddle: null,
+      paddleSpeed: 5,
+      state: PlayerState.INVITING,
+    };
+    if (!this.notifs[data.adv_id]) {
+      this.notifs[data.adv_id] = [];
+    }
+    this.notifs[data.adv_id] = [
+      ...this.notifs[data.adv_id],
+      this.players[data.userId],
+    ];
+    this.logger.log(`emiting invite`);
+    this.logger.log(this.notifs);
+    this.socketGateway.getClientSocket(data.adv_id).map((socketa) => {
+      socketa.emit('invited', this.players[data.userId]);
+    });
+  }
+
+  @SubscribeMessage('inviteResp')
+  handelInviteResp(client: Socket, data: any) {
+    if (data.accepted) {
+      if (!this.players[data.userId]) {
+        this.socketGateway.getClientSocket(data.adv_id).map((socketa) => {
+          socketa.emit('rejected', data.adv_id);
+        });
+        return false;
+      }
+      this.players[data.adv_id] = {
+        s_id: client.id,
+        user_id: data.adv_id,
+        username: data.username,
+        host: false,
+        x: 0,
+        y: 0,
+        paddleDirection: 0,
+        paddle: null,
+        paddleSpeed: 5,
+        state: PlayerState.PLAYING,
+      };
+      this.players[data.userId].state = PlayerState.PLAYING;
+      const gameId = `${this.players[data.userId].s_id}-${
+        this.players[data.adv_id].s_id
+      }`;
+      // Initialize the game state
+      this.games[gameId] = {
+        players: {
+          [data.userId]: this.players[data.userId],
+          [data.adv_id]: this.players[data.adv_id],
+        },
+        ball: this.ball,
+      };
+      this.games[gameId].players[data.adv_id].host = true;
+      // Add the players to the game room
+      this.socketGateway.getClientSocket(data.userId).map((socketa) => {
+        socketa.join(gameId);
+      });
+      this.socketGateway.getClientSocket(data.adv_id).map((socketa) => {
+        socketa.join(gameId);
+      });
+      this.logger.log(`game ${gameId} is created.`);
+
+      this.socketGateway.getServer().to(gameId).emit('startGame', {
+        players: this.games[gameId].players,
+        bball: this.games[gameId].ball,
+      });
+      return true;
+    } else {
+      this.socketGateway.getClientSocket(data.adv_id).map((socketa) => {
+        socketa.emit('rejected', data.adv_id);
+      });
+      return false;
+    }
   }
 
   @SubscribeMessage('keydown')
@@ -264,6 +372,33 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.socketGateway.getServer().to(gameId).emit('move', data);
     }
   }
+
+  @SubscribeMessage('getNotifs')
+  getNotifs(client: Socket) {
+    this.logger.log(`getNotifs ${client.id}---- `);
+    this.logger.log(this.notifs);
+
+    const userId = getUserIdFromClient('getNotifs', client);
+    if (userId) {
+      const notifs = this.notifs[userId];
+      return notifs ? notifs : [];
+    }
+    return null;
+  }
+
+  // a player receives multiple notifs invites
+  // he sees them, but when he refreshes call getNotifs again and he sees them again
+  // but if we delete them from notifs, he will not see them again
+  // so we need to delete them from notifs when he accepts or rejects them
+  @SubscribeMessage('deleteNotifs')
+  deleteNotifs(client: Socket) {
+    this.logger.log(`deleteNotifs ${client.id}`);
+    const userId = getUserIdFromClient('deleteNotifs', client);
+    if (userId) {
+      delete this.notifs[userId];
+    }
+  }
+
   @SubscribeMessage('keyup')
   handelKeyUp(client: Socket, data: any) {
     const gameId = Object.keys(this.games).find(
