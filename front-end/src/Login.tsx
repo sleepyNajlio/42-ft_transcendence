@@ -27,7 +27,7 @@ export function Login() {
         <div className="ftlogo">
           <img src={ftlogo} alt="ftlogo" />
         </div>
-          <Button msg= "Sign in with intra"/>
+          <Button link="http://localhost:3000/auth/42" msg= "Sign in with intra"/>
       </div>
     </section>
     <main className="cmain">

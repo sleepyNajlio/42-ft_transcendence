@@ -1,24 +1,25 @@
 import { Player, Players, Ball, User } from './types';
 import { Socket } from "socket.io-client";
 import { SVG, on, Text } from '@svgdotjs/svg.js';
+import logo  from '../assets/game/Logotype.svg'
+import Playsvg from '../assets/game/Button/Play.svg'
+import Background from '../assets/game/Background/Pattern.svg'
+import Hole from '../assets/game/Props/Hole.svg'
 
 let pHost: Player;
 let pGuest: Player;
-let end : Text
 
 let playerLeft : number = 0
 let playerRight : number = 0
 
-export default function game(socket: Socket, players: Players = {}, ball: Ball, user: User) {
+export default function game(socket: Socket, players: Players = {}, ball: Ball, user: User, initia: () => void): () => void {
     // define board size and create a svg board
     const width = 600,
       height = 600;
     const draw = SVG().addTo('#pong').size(width, height).attr({ fill: '#f06' });
     // draw the board
-    var board_gradient = draw.gradient('linear', function(add) {
-      add.stop(0, '#000046')
-      add.stop(1, '#1CB5E0')
-    })
+    var pattern = draw.image(Background);
+    
     var guest_gradient = draw.gradient('linear', function(add) {
       add.stop(0, '#A1FFCE')
       add.stop(1, '#FAFFD1')
@@ -27,52 +28,63 @@ export default function game(socket: Socket, players: Players = {}, ball: Ball, 
       add.stop(0, '#606c88')
       add.stop(1, '#3f4c6b')
     })
-    end = draw.text(``).font({
-      size: 32,
-      family: 'Menlo, sans-serif',
-      anchor: 'end',
-      fill: '#fff'
-    }).center(width/2, height/2).hide();
-    draw.rect(width, height).fill(board_gradient);
+    draw.image(Hole).size(30, 30).move(width/2 -15, height/2 - 15).back();
+    draw.rect(width, height).fill(pattern).back();
     const paddleWidth = 20,
       paddleHeight = 100;
     pHost = Object.values(players).find(player => player.host === true)!;
     pGuest = Object.values(players).find(player => player.host === false)!;
-    pHost.paddle = draw.rect(paddleWidth, paddleHeight).radius(12).x(0).cy(height / 2).fill(host_gradient);
-    pGuest.paddle = draw.rect(paddleWidth, paddleHeight).radius(12).x(width - paddleWidth).cy(height / 2).fill(guest_gradient);
+    pHost.paddle = draw.rect(paddleWidth, paddleHeight).radius(12).x(0).cy(height / 2).fill(host_gradient).hide();
+    pGuest.paddle = draw.rect(paddleWidth, paddleHeight).radius(12).x(width - paddleWidth).cy(height / 2).fill(guest_gradient).hide();
 
     const ballSize = 20;
-    ball.cercle = draw.circle(ballSize).center(width / 2, height / 2).fill('#ff69b4');
+    ball.cercle = draw.circle(ballSize).center(width / 2, height / 2).fill('#50E3C2');
 
     ball.vx = 0;
     ball.vy = 0;
     ball.cx = ball.cercle.cx();
     ball.cy = ball.cercle.cy();
-    
-    {
-      var scoreLeft : Text
-      scoreLeft = draw.text("0").font({
-      size: 32,
-      family: 'Menlo, sans-serif',
-      anchor: 'end',
-      fill: '#fff'
-      }).move(width/2-10, 10) 
-      var scoreRight = scoreLeft.clone().x(width/2+20).addTo(draw);
-    }
-    var click = draw.text('Click to start').font({
-      size: 32,
-      family: 'Menlo, sans-serif',
-      anchor: 'end',
-      fill: '#fff'
-      }).center(width/2, height/2);
+  
+    var scoreLeft : Text
+    scoreLeft = draw.text("0").font({
+      family: 'Josefin Sans',
+      size: 60,
+      weight: 700,
+      letterSpacing: '0px',
+      whitespace: 'pre',
+    })
+    .fill('#50E3C2').move(width/4, 10).hide();
+    var scoreRight = scoreLeft.clone().x(3*width/4).addTo(draw).hide();
 
-      var rectWidth = click.length() + 20;
-      var rectHeight = 100;
+    var nested = draw.nested()
+    const text = draw.text('Game Aborted')
+    .font({
+      family: 'Josefin Sans',
+      size: 65,
+      weight: 500,
+      letterSpacing: '0px',
+      whitespace: 'pre',
+    })
+    .fill('#50E3C2')
+    .cx(width/2).cy(height/2).hide();
+    // const text2 = draw.text('Go Back to Lobby')
+    // .font({
+    //   family: 'Josefin Sans',
+    //   size: 80,
+    //   weight: 500,
+    //   letterSpacing: '0px',
+    //   whitespace: 'pre',
+    // })
+    // .fill('#50E3C2')
+    // .cx(width/2).cy(height/2 + 70).hide();
 
-      var rect = draw.rect(rectWidth, rectHeight).radius(10).center(width/2, height/2).fill('#000').opacity(0.5);
-      click.front();
-      
-    rect.click(function() {
+
+    nested.image(logo).size(200, 100).move(width/2 - 100, 70);
+    nested.image(Playsvg).size(200, 200).move(width/2 - 100, height/2 - 70);
+    nested.add(text);
+    // nested.add(text2);
+
+    nested.click(function() {
       console.log("clicked")
       if (ball.vx === 0 && ball.vy === 0) {
         let tvx = Math.random() * 500 - 250
@@ -88,32 +100,39 @@ export default function game(socket: Socket, players: Players = {}, ball: Ball, 
     })
     let chck = false;
     socket.on('opponentDisconnected', () => {
-      if (end) {
-        end.remove();
-      }
       reset(playerRight, playerLeft);
-      rect.show();
-      click.show();
+      nested.children()[1].show();
     });
+    const animateText = (child: Text, text: string, index: number) => {
+      if (index <= text.length) {
+        // Set the text content with the characters up to the current index
+        child.text(text.substring(0, index)).cx(width/2);
+        // Schedule the next animation after a delay of 0.3 seconds
+        setTimeout(() => {
+          animateText(child, text, index + 1);
+        }, 300);
+      }
+    };
+    
     socket.on('winByAbort', () => {
       reset(playerRight, playerLeft)
-      click.hide();
-      end.show();
-      end.front();
-
-      let counter = 2;
-      const intervalId = setInterval(() => {
-        end.text(`Game Aborts in ${counter}`);
-        
-        counter--;
-        if (counter < 0) {
-          clearInterval(intervalId);
-          end.text('Game Aborted');
-
-        }
+      pHost.paddle?.hide();
+      pGuest.paddle?.hide();
+      nested.children()[0].show();
+      nested.children()[1].hide();
+      nested.children()[2].show();
+      setTimeout(() => {
+        animateText(nested.children()[2] as Text, "Go Back to Lobby", 0)
+        setTimeout(() => {
+          nested.children()[1].show().scale(-1, 1).animate(3000).cy(height - 120);
+        }, 3000);
       }, 1000);
-      
       console.log("game aborted");
+      nested.children()[1].click(function() {
+        console.log("clicked")
+        cleanup();
+        initia();
+      });
     });
 
     socket.on('move', (data) => {
@@ -181,12 +200,17 @@ export default function game(socket: Socket, players: Players = {}, ball: Ball, 
     });
 
     socket.on('start', (data: {ball: Ball }) => {
+      scoreRight.show();
+      scoreLeft.show();
       ball = {
         ...ball,
         ...data.ball,
       }
-      rect.hide();
-      click.hide();
+      nested.children()[0].hide();
+      nested.children()[1].hide();
+      pHost.paddle?.show();
+      pGuest.paddle?.show();
+      ball.cercle.show();
     });
 
     socket.on('reset', (data: {ball: Ball, playerRight: number, playerLeft: number }) => {
@@ -200,13 +224,22 @@ export default function game(socket: Socket, players: Players = {}, ball: Ball, 
         ...ball,
         ...data.ball,
       }
-      ball.cercle.animate(20).center(ball.cx, ball.cy)
+      ball.cercle.animate(20).center(width/2, height/2)
       playerLeft = data.playerLeft;
       playerRight = data.playerRight;
       scoreLeft.text(playerRight.toString())
       scoreRight.text(playerLeft.toString())
-      rect.show();
-      click.show();
+      if (ball.vx === 0 && ball.vy === 0) {
+        let tvx = Math.random() * 500 - 250
+        let tvy = Math.random() * 500 - 250
+        while (Math.abs(tvx) < 100) {
+          tvx = Math.random() * 500 - 250
+        }
+        while (Math.abs(tvy) < 100) {
+          tvy = Math.random() * 500 - 250
+        }
+        socket.emit('moveBall', { ball: {vx: tvx, vy: tvy, cx: ball.cx, cy: ball.cy}, action: "start", userId: pHost.user_id });
+      }
     });
 
     socket.on('ballVel', (data:{reset: Boolean, ball: Ball}) => {
@@ -243,12 +276,6 @@ export default function game(socket: Socket, players: Players = {}, ball: Ball, 
       }
       if (playerRight === 10 || playerLeft === 10) {
           reset(playerRight, playerLeft)
-          end.text('Game over').font({
-          size: 32,
-          family: 'Menlo, sans-serif',
-          anchor: 'end',
-          fill: '#fff'
-          }).center(width/2, height/2)
       }
       if (pGuest && pGuest.paddle && pGuest.paddleSpeed) {
         var playerPaddleY = pGuest.paddle.y();
@@ -289,8 +316,6 @@ export default function game(socket: Socket, players: Players = {}, ball: Ball, 
     callback(100)
     function reset(playerRight: number = 0, playerLeft: number = 0) {
       socket.emit('moveBall', { ball: { vx: 0, vy: 0, cx: width / 2, cy: height / 2 , reset: true}, action: "reset", playerLeft, playerRight, userId: pHost.user_id });
-      rect.show();
-      click.show();
     }
     const cleanup = () => {
         draw.clear();

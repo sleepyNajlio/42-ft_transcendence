@@ -20,23 +20,21 @@ async function getUserInfo(): Promise<User | null> {
 }
 
 export async function initializeUser() : Promise<Boolean>  {
-    await getUserInfo().then((res) => {
+    try {
+        const res = await getUserInfo();
         console.log("got user : ", res);
         player = res;
         return true;
-    }).catch((err) => {
+    } catch (err) {
         console.log(err);
         return false;
-    }).finally(() => {
-        console.log("finally");
-    });
-    return true;
+    }
 }
 
-export async function getUser() {
+export async function getUser() : Promise<User> {
     if (player) {
         return player;
-    } else {
-        return null;
     }
+    else
+        throw new Error("User not initialized");
 }
