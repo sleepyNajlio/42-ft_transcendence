@@ -107,6 +107,7 @@ enum ChatRole {
 enum ChatType {
   GLOBAL
   PRIVATE
+  PROTECTED
 }
 
 enum GameStatus {
