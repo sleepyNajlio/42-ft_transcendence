@@ -1,0 +1,46 @@
+.message-container {
+  display: flex;
+  align-items: center;
+  color: #fff;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+  max-width: 70%;
+  width: fit-content;
+  }
+  
+  .sender-image {
+    width: 27px;
+    height: 27px;
+    border-radius: 50%;
+    margin-right: 6px;
+  }
+  
+  .message-text {
+    padding: 6px;
+    border-radius: 18px;
+    font-size: 16px;
+  }
+.message-container.friend-message {
+
+  flex-direction: row; /* Reverse the direction for friend messages */
+}
+.message-container.own-message
+{
+  align-self: self-end;
+  flex-direction: row-reverse;
+}
+
+.message-container.own-message .message-text {
+  font-family: initial;
+  height: 22px;
+  background-color: #0F597B
+}
+
+/* Styles for friend messages */
+.message-container.friend-message .message-text {
+  font-family: initial;
+    height: 22px;
+    color: black;
+    background-color: #FFBCB6; /* Change color as needed */
+}

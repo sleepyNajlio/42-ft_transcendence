@@ -16,6 +16,7 @@ import AuthGuard from './guards/AuthGuard.tsx';
 import UnAuthGuard from './guards/UnAuthGuard.tsx';
 import { useMediaPredicate } from 'react-media-hook';
 import {inviteStatus} from './Components/types.ts'
+import { TestChat } from './Testchat.tsx';
 
 
 function App()
@@ -93,6 +94,7 @@ function App()
                         <Routes>
                         <Route key='Config' path='/Config' caseSensitive={false} element={<Config />} />
                         <Route key='TwoFA' path='/TwoFA' caseSensitive={false} element={<TwoFA />} />
+                        <Route key='testchat' path='/Testchat' caseSensitive={false} element={<TestChat />} />
                         <Route key='Verify2FA' path='/Verify2FA' caseSensitive={false} element={<Verify2FA />} />
                         <Route key='Profile' path='/Profile' caseSensitive={false} element={<Profile />} />
                         <Route key='Play' path='/Play' caseSensitive={false} element={<Play setInPlay={setInPlay} setInviter={setInviters} inviter={inviters} setInvite={setInvite} invite={invite} />} />

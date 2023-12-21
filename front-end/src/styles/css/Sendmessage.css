@@ -1,0 +1,33 @@
+.message-input-container
+{
+  align-self: flex-end;
+  margin-top: auto;
+}
+  
+  .inputfield {
+    display: flex;
+    width: 54vw;
+    /* flex-grow: 1; */
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px 0 0 4px;
+  }
+  
+  button {
+    padding: 8px 3px;
+    background-color: white;
+    color: #0F597B;
+    border: none;
+    border-radius: 32px;
+    cursor: pointer;
+  }
+  
+  button:hover {
+    background-color: #F2F4F6;
+  }
+
+  .inputsend
+  {
+    margin-right: 8px;
+    width: 90%;
+  }

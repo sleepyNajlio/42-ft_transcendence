@@ -1,8 +1,8 @@
 .container
 {
-  height: 100%;
+  height: 100vh;
   display: grid;
-  grid-template-columns: 438px 1fr;
+  grid-template-columns: 20% 1fr;
 }
 
 ::-webkit-scrollbar {

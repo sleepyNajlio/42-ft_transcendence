@@ -230,7 +230,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         paddleSpeed: 5,
         state: PlayerState.SEARCHING,
       };
-      this.socketGateway.getClientSocket(userId).map((socketa) => {
+      this.socketGateway.getClientSocket(userId)?.map((socketa) => {
         if (socketa.id !== client.id) socketa.emit('alreadyInQueue');
       });
     }
@@ -254,10 +254,10 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       this.games[gameId].players[player1.userId].host = true;
       // Add the players to the game room
-      this.socketGateway.getClientSocket(player1.userId).map((socketa) => {
+      this.socketGateway.getClientSocket(player1.userId)?.map((socketa) => {
         socketa.join(gameId);
       });
-      this.socketGateway.getClientSocket(player2.userId).map((socketa) => {
+      this.socketGateway.getClientSocket(player2.userId)?.map((socketa) => {
         socketa.join(gameId);
       });
       this.logger.log(`game ${gameId} is created.`);

@@ -8,6 +8,8 @@ import { UserContext } from './UserProvider.tsx';
 
 export function Profile(props: {  }) {
   const { user } = useContext(UserContext);
+  console.log("user: ");
+  console.log(user);
 
   const [tempuser, setTempuser] = useState({
     id: "1",
@@ -38,9 +40,12 @@ export function Profile(props: {  }) {
         avatar: user.avatar,
       }));
     }
+    // console.log("user: ");
+    // console.log(user);
+    // console.log("tempuser: ");
+    // console.log(tempuser);
   }, [user]);
   // use user to fill tempuser
-  setTempuser
   const checkIfMediumPlus = useMediaPredicate(
     '(min-width: 769px)'
   );

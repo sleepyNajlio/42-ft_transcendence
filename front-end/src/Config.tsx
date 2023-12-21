@@ -11,7 +11,7 @@ async function finishSignup(email: string, username: string, avatar: string): Pr
   // if (avatar) {
   //   const formData = new FormData();
   //   formData.append("avatar", avatar);
-  //   const response = await fetch("http://localhost:3000/auth/uploadAvatar", {
+  //   const response = await fetch("http://localhost3000/auth/uploadAvatar", {
   //     credentials: "include",
   //     method: "POST",
   //     body: formData,

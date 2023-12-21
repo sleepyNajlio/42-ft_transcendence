@@ -7,7 +7,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url      = "postgresql://administrator:Hanajay@localhost:5432/trandb?schema=public"
 }
 
 model Player {
@@ -21,10 +21,10 @@ model Player {
   status    PlayerStatus @default(OFFLINE)
   wins      Int     @default(0)
   loses     Int     @default(0)
-  twofa     Boolean ? @default(false)
+  twofa     Boolean? @default(false)
 
   chats    ChatUser[]
-  games    UserGame[]
+  games    UserGame[] 
   messages ChatMessage[]
 
   friendshipAsked    FriendShip[] @relation(name: "requester")
@@ -76,7 +76,7 @@ model ChatUser {
 
 model Chat {
   id_chat    Int     @id @default(autoincrement())
-  type       ChatType @default(GLOBAL)
+  type       ChatType @default(PUBLIC)
   name       String?
   password   String?
 
@@ -105,8 +105,9 @@ enum ChatRole {
 }
 
 enum ChatType {
-  GLOBAL
+  PUBLIC
   PRIVATE
+  PROTECTED
 }
 
 enum GameStatus {

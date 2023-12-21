@@ -1,19 +1,25 @@
 .simple-component {
     border-radius: 10px;
-    background-color: green;
+    background-color: white;
     margin: 10px;
     display: flex;
     align-items: center;
-    width: 30%;
+    width: inherit;
     height: fit-content;
     margin: 10px;
     padding-left: 5px;
+    cursor: pointer;
   }
-  
+
+  .simple-component:hover {
+    background-color: #F2F4F6;
+  }
+
   .profile-picture {
-    width: 20%;
     overflow: hidden;
     border-radius: 50%;
+    width : 50px;
+    height: 50px;
   }
   
   .profile-picture img {
@@ -23,6 +29,7 @@
   }
   
   .text-container {
+    color: black;
     width: 80%;
     padding: 10px;
     box-sizing: border-box;

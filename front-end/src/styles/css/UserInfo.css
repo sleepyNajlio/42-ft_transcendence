@@ -1,19 +1,21 @@
 /* Add or modify in the styles.css file */
 .search-component {
+    margin-bottom: 6px;
     display: flex;
     align-items: center;
   }
   
   .search-bar {
+    margin: auto;
+    background-color: #F2F4F6;
     display: flex;
     align-items: center;
-    background-color: #fff;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    padding: 4px;
+    border-radius: 32px;
   }
   
   input {
+    background-color: #F2F4F6;
     padding: 8px;
     border: none;
     outline: none;
