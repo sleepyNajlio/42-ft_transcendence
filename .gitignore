@@ -1,6 +1,3 @@
 auth.txt
 back-end/node_modules
-back-end/src/Chat/
 front-end/node_modules
-
-node_modules

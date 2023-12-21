@@ -11,41 +11,25 @@ import Rightchat from './Components/Rightchat.tsx';
 // import pic from './assets/messi.jpg'
 // import ChatHeaderComponent from './Components/ChatHeaderComponent.tsx';
 import './styles/css/ChatHeaderComponent.css';
+import { useState, useEffect } from 'react';
+
 // import Sendmessage from './Components/Sendmessage.tsx'
 
 
-
-
-
-// import './styles/css/chat.css';
-// import './styles/css/Simpleco.css';
-
-// const App: React.FC = () => {
-//   const handleModifyProfileClick = () => {
-//     // Add logic to handle the "Modify Profile" button click
-//   <div>
-//   Your own message
-//   <Messageco
-//     text="This is your message."
-//     profileImageUrl={pic}
-//     isOwnMessage={true}
-//   />
-
-//   Friend's message
-//   <Messageco
-//     text="This is your friend's message."
-//     profileImageUrl={pic}
-//     isOwnMessage={false}
-//   />
-// </div>
-    {/* <div> */}
-  {/* Other components and messages */}
-  {/* <Sendmessage onSendMessage={Sendmessage} /> */}
-{/* </div> */}
-//     console.log('Modify Profile clicked!');
-//   };
+interface Room {
+  id: number;
+  name: string;
+  type: string;
+  password: string;
+}
 
 export function TestChat() {
+
+  const [Rooms, setRooms] = useState<any[]>([]);
+  const [Friends, setFriends] = useState<any[]>([]);
+
+
+
   return (
     <>
         {/* <Navbar></Navbar> */}
