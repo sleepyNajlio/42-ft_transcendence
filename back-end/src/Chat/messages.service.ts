@@ -30,15 +30,19 @@ export class MessagesService {
         },
       } as ChatWhereInput,
     });
+    
     console.log('id: ' + id + ' user: ' + name + ' is trying to join the chat');
-    if (existingChat.type === 'PRIVATE' || existingChat.type === 'PROTECTED') {
-      if (existingChat.password === selectedPswd) {
+    if (existingChat.type === 'PROTECTED') {
         chatUSers = await this.prisma.chatUser.findFirst({
           where: {
             chatId: existingChat.id_chat,
             userId: id,
           },
         });
+        if (selectedPswd !== existingChat.password && chatUSers === null) {
+          console.log('id: ' + id + ' user: ' + name + ' cant join the chat because of wrong password');
+          return false;
+        }
         if (chatUSers) {
           console.log('id: ' + id + ' user: ' + name + ' already joined the chat');
           return existingChat;
@@ -51,11 +55,6 @@ export class MessagesService {
             },
           });
         }
-      }
-      else{
-        console.log('id: ' + id + ' user: ' + name + ' cant join the chat because of wrong password');
-        return false;
-      }
     }
     else{
       chatUSers = await this.prisma.chatUser.findFirst({
@@ -88,6 +87,7 @@ export class MessagesService {
   // joining a dm
 
   async identifyDm(id: number, name: string, username: string, clientId: string) {
+
 
     const usertojoin = await this.prisma.player.findFirst({
       where: {
@@ -233,6 +233,12 @@ export class MessagesService {
           user: {
             select: {
               username: true,
+              avatar: true,
+            },
+          },
+          chat: {
+            select: {
+              name: true,
             },
           },
         },
@@ -272,6 +278,12 @@ export class MessagesService {
           user: {
             select: {
               username: true,
+              avatar: true,
+            },
+          },
+          chat: {
+            select: {
+              name: true,
             },
           },
         },
@@ -303,6 +315,12 @@ export class MessagesService {
           user: {
             select: {
               username: true,
+              avatar: true,
+            },
+          },
+          chat: {
+            select: {
+              name: true,
             },
           },
         },
@@ -337,14 +355,15 @@ export class MessagesService {
             user: {
               select: {
                 username: true,
+                avatar: true,
               },
             },
           },
+          
         });
       }
+      
   }
-  console.log('messages: ');
-  console.log(messages);
   return messages;
 }
   async findRoom(name: string) {
@@ -370,9 +389,6 @@ export class MessagesService {
   }
 
   async getRooms(id: number) {
-    console.log('id in getRooms: ');
-    console.log(id);
-
     const rooms = await this.prisma.chat.findMany({
       where: {
         OR: [
@@ -383,9 +399,20 @@ export class MessagesService {
             name: { not: null },
           }
         ]
+      },
+    });
+
+    const chatUsers = await this.prisma.chatUser.findMany({
+      where: {
+        chatId: { in: rooms.map(room => room.id_chat) }
       }
     });
-    return rooms;
-  }
-
+    return rooms.map(room => {
+      const chatUser = chatUsers.find(chatUser => chatUser.chatId === room.id_chat && chatUser.userId === id);
+      return {
+        ...room,
+        chatUser: chatUser
+      }
+    });
+}
 }

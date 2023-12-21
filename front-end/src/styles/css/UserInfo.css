@@ -12,6 +12,8 @@
     align-items: center;
     padding: 4px;
     border-radius: 32px;
+    width: 95%;
+    margin: auto;
   }
   
   input {

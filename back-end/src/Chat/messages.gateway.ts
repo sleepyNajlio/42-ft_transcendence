@@ -52,7 +52,7 @@ export class MessagesGateway
     @ConnectedSocket() client: Socket,
   ) {
        const rooms = await this.messagesService.getRooms(id);
-      //  this.socketGateway.getServer().to(client.id).emit('rooms', rooms);
+       this.socketGateway.getServer().to(client.id).emit('rooms', rooms);
       console.log('rooms in gateway : ');
       console.log(rooms);
       return rooms;
@@ -72,8 +72,6 @@ export class MessagesGateway
       username,
     );
     const room = "chat_" + message.chatId;
-    
-    
     this.socketGateway.getServer().to(room).emit('message', message); // emit events to all connected clients
     
     return message;
@@ -109,12 +107,12 @@ export class MessagesGateway
     @MessageBody('selectedPswd') selectedPswd: string,
     @ConnectedSocket() client: Socket,
   ) {
-    // console.log('selcted pswd in gateway : ');
-    // console.log(selectedPswd)
-    // console.log('room name in gateway : ');
-    // console.log(name);
-    // console.log('room type in gateway : ');
-    // console.log(selectedType);
+    console.log('selcted pswd in gateway : ');
+    console.log(selectedPswd)
+    console.log('room name in gateway : ');
+    console.log(name);
+    console.log('room type in gateway : ');
+    console.log(selectedType);
     const room = await this.messagesService.identify(id, name,selectedType,selectedPswd,client.id);
     // console.log('room in gateway : ');
     // console.log(room);

@@ -19,6 +19,11 @@ const MessageInput: React.FC<MessageInputProps> = ({ onSendMessage }) => {
       setMessage('');
     }
   };
+  const enter = (e: any) => {
+    if (e.key === 'Enter') {
+      handleSendClick();
+    }
+  }
 
   return (
     <div className="message-input-container">
@@ -28,6 +33,7 @@ const MessageInput: React.FC<MessageInputProps> = ({ onSendMessage }) => {
         placeholder="Type your message..."
         value={message}
         onChange={handleMessageChange}
+        onKeyDown={enter}
       />
       <button onClick={handleSendClick}>
         <img src={send} alt="Icon2" />
