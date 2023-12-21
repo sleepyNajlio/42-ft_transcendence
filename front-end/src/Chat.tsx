@@ -177,6 +177,8 @@ export function Chat() { // get values from data base
             if (!response)
                 alert("room already exist");
         });
+        setShowRoom(true);
+        setDisplayRoom(true);
     },[created]);
     
     
