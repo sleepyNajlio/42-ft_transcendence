@@ -122,7 +122,7 @@ export function Play(props: {setInPlay: any, setInviter: any, inviter: any, setI
         console.log('isMounted: ', isMounted.current);
         // socket.emit('playOpen', { id: socket.id });
       }
-      console.log('user: ', user?.id_player);
+      // console.log('user: ', user?.id_player);
       axios.get(`http://localhost:3000/game/${user?.id_player}/getgame/PLAYING`, { withCredentials: true }).then
       ((res) => {
         if (res.data.id_game) {

@@ -37,16 +37,16 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   };
   const initialize = async () => {
     await initializeUser().then(res => {
-      console.log("User: initialize", res);
+      // console.log("User: initialize", res);
       if (res) {
         getUser().then(res => {
           if (res) {
             setUser(res);
-            console.log("User: set", res);
+            // console.log("User: set", res);
           }
           initializeSocket(res.id_player, getSessionCookies()).then(res => {
             if (res) {
-              console.log("Socket: set", res);
+              // console.log("Socket: set", res);
               setSocket(res);
             } else {
               console.error("Failed to initialize socket: ", res);
