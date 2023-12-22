@@ -9,7 +9,7 @@ async function getUserInfo(): Promise<User | null> {
     });
     if (response.ok) {
         const res = await response.json();
-        console.log("user: ", res);
+        // console.log("user: ", res);
         return res.user as User;
     } else {
         // alert("Failed to fetch user data");
@@ -22,7 +22,7 @@ async function getUserInfo(): Promise<User | null> {
 export async function initializeUser() : Promise<Boolean>  {
     try {
         const res = await getUserInfo();
-        console.log("got user : ", res);
+        // console.log("got user : ", res);
         player = res;
         return true;
     } catch (err) {
