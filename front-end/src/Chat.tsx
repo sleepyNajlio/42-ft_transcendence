@@ -1,23 +1,8 @@
-import Navbar from './Components/Navbar.tsx';
-// import Sbox from './Components/Sbox.tsx';
 import  './styles/css/chat.css'
-// import {io} from "socket.io-client";
-import { useState, useEffect, useContext, SetStateAction } from 'react';
-// import { Socket } from 'socket.io-client';
-import { getUser } from './player';
-import { getSocket } from './socket.ts';
-import camera from './assets/camera.svg'
-import { get } from 'svg.js';
+import { useState, useEffect, useContext} from 'react';
 import { UserContext } from './UserProvider.tsx';
-
-import TestChat from './Testchat.tsx';
 import Leftchat from './Components/Leftchat.tsx';
 import Rightchat from './Components/Rightchat.tsx';
-// import '../styles/css/chatui.css';
-import UserInfo from './Components/UserInfo.tsx';
-import InboxBox from './Components/InboxBox.tsx';
-import Simpleco from './Components/Simpleco.tsx'
-import Switchgrpdm from './Components/Switchgrpdm.tsx';
 import './styles/css/UserInfo.css';
 import './styles/css/inboxBox.css';
 import './styles/css/Simpleco.css';
@@ -38,9 +23,6 @@ interface Room {
     password: string;
     users: userChat;
 }
-
-
-
 
 export function Chat() { // get values from data base
     const [joined, setJoined] = useState(false);
