@@ -108,7 +108,6 @@ enum ChatType {
   PUBLIC
   PROTECTED
   PRIVATE
-  PROTECTED
 }
 
 enum GameStatus {
