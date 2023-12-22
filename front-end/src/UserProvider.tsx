@@ -43,27 +43,22 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
           if (res) {
             setUser(res);
             console.log("User: set", res);
-            
           }
+          initializeSocket(res.id_player, getSessionCookies()).then(res => {
+            if (res) {
+              console.log("Socket: set", res);
+              setSocket(res);
+            } else {
+              console.error("Failed to initialize socket: ", res);
+            }
+          } ).catch(error => {
+            console.error("Failed to initialize socket: ", error);
+            return false;
+          } );
         } ).catch(error => {
           console.error("Failed to get user: ", error);
           return false;
         });
-        if (!user) {
-          console.error("Failed to get user: ", user);
-          return false;
-        }
-        initializeSocket(user.id_player, getSessionCookies()).then(res => {
-          if (res) {
-            console.log("Socket: set", res);
-            setSocket(res);
-          } else {
-            console.error("Failed to initialize socket: ", res);
-          }
-        } ).catch(error => {
-          console.error("Failed to initialize socket: ", error);
-          return false;
-        } );
         hasInitialized.current = true;
         return true;
       }
