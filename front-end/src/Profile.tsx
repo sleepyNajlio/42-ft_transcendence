@@ -3,13 +3,12 @@ import MobProfilCard from './Components/MobProfilCard.tsx';
 import './styles/css/main.css';
 import { useMediaPredicate } from 'react-media-hook';
 import { user } from './Components/types.ts';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { UserContext } from './UserProvider.tsx';
 
 export function Profile(props: {  }) {
   const { user } = useContext(UserContext);
-  console.log("user: ");
-  console.log(user);
+  
 
   const [tempuser, setTempuser] = useState({
     id: "1",

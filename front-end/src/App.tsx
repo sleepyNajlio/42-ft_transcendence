@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate, Link, useNavigate } from 'react-router-dom';
+import { Routes, Route, Navigate, Link, useNavigate, useLocation } from 'react-router-dom';
 import { Login } from "./Login.tsx";
 import { Config } from "./Config.tsx";
 import './styles/css/App.css';
@@ -9,7 +9,7 @@ import { Chat } from './Chat.tsx';
 import { Settings } from './Settings.tsx'
 import { Leaderboard } from './Leaderboard.tsx'
 import { Profile } from './Profile.tsx'
-import { useContext, useEffect, useMemo, useState } from 'react';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import Navbar from './Components/Navbar.tsx';
 import { UserContext } from './UserProvider.tsx';
 import AuthGuard from './guards/AuthGuard.tsx';
@@ -21,41 +21,59 @@ import { TestChat } from './Testchat.tsx';
 
 function App()
 {
-    const { user, socket } = useContext(UserContext);
-    const checkIfMediumPlus = useMediaPredicate(
-        '(min-width: 769px)'
-      );
-
-    const navigate = useNavigate();
-
-    const [invite, setInvite] = useState<inviteStatus>(inviteStatus.NONE);
-    const [inviters, setInviters] = useState<{id: string, username: string}[]>([]);
-    const [isnotified, setisnotified] = useState(true);
-    const [inPlay, setInPlay] = useState(false);
-
-    useEffect(() => {
-        const handleInvited = (data: any) => {
-            console.log("invited by ", data);
-            setInviters([...inviters, {id: data.user_id, username: data.username}]);
-            setInvite(inviteStatus.INVITED);
-            console.log(inviters);
-            setTimeout(() => {
-                setisnotified(false);
-            } , 200000);
-        };
-        // Listen for 'invited' event
-        if (socket)
-        {
-            console.log('listening socket: invited');
-            socket?.on('invited', (data: any) => handleInvited(data));
-        }
-        else
-            console.log('no socket');
-        // Clean up the event listener on unmount
-        return () => {
-            socket?.off('invited', handleInvited);
-        };
-    }, [socket]);
+    const location = useLocation();
+    
+        const navigate = useNavigate();
+    
+        const [invite, setInvite] = useState<inviteStatus>(inviteStatus.NONE);
+        const [inviters, setInviters] = useState<{id: string, username: string}[]>([]);
+        const [isnotified, setisnotified] = useState(true);
+        const [inPlay, setInPlay] = useState(false);
+        const { user, initialize,  socket } = useContext(UserContext);
+        
+            const checkIfMediumPlus = useMediaPredicate(
+                '(min-width: 769px)'
+              );
+    if (location.pathname != '/')
+    {
+        
+    
+        const isMounted = useRef(true); // useRef to track whether the component is mounted
+        useEffect(() => {
+            if (isMounted.current) {
+            initialize();
+            console.log('isMounted: ', isMounted.current);
+            // socket.emit('playOpen', { id: socket.id });
+            }
+            return () => {
+            isMounted.current = false;
+            };
+        } , []);
+    
+        useEffect(() => {
+            const handleInvited = (data: any) => {
+                console.log("invited by ", data);
+                setInviters([...inviters, {id: data.user_id, username: data.username}]);
+                setInvite(inviteStatus.INVITED);
+                console.log(inviters);
+                setTimeout(() => {
+                    setisnotified(false);
+                } , 200000);
+            };
+            // Listen for 'invited' event
+            if (socket)
+            {
+                console.log('listening socket: invited');
+                socket?.on('invited', (data: any) => handleInvited(data));
+            }
+            else
+                console.log('no socket');
+            // Clean up the event listener on unmount
+            return () => {
+                socket?.off('invited', handleInvited);
+            };
+        }, [socket]);
+    }
 
     return (
         <div className={`container ` + (checkIfMediumPlus ? "default" : "one")}>
