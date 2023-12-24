@@ -17,6 +17,7 @@ import UnAuthGuard from './guards/UnAuthGuard.tsx';
 import { useMediaPredicate } from 'react-media-hook';
 import {inviteStatus} from './Components/types.ts'
 import { TestChat } from './Testchat.tsx';
+import axios from 'axios';
 
 
 function App()
@@ -24,9 +25,8 @@ function App()
     const location = useLocation();
     
         const navigate = useNavigate();
-    
         const [invite, setInvite] = useState<inviteStatus>(inviteStatus.NONE);
-        const [inviters, setInviters] = useState<{id: string, username: string}[]>([]);
+        const [inviters, setInviters] = useState<{user_id: string, username: string}[]>([]);
         const [isnotified, setisnotified] = useState(true);
         const [inPlay, setInPlay] = useState(false);
         const { user, initialize,  socket } = useContext(UserContext);
@@ -34,10 +34,34 @@ function App()
             const checkIfMediumPlus = useMediaPredicate(
                 '(min-width: 769px)'
               );
+        const inviteResp = async (resp: Boolean, inviter: any) => {
+            if (socket)
+            {
+                socket.emit('inviteResp', {
+                accepted: resp,
+                userId: inviter?.user_id.toString(),
+                adv_id: user?.id_player.toString(),
+                username: user?.username,
+                }, async (response: any) => {
+                console.log('Received acknowledgement from server:', response);
+                if (!response) {
+                    console.log('error');
+                    // setInvite(inviteStatus.ABORTED);
+                    // setInviter(null);
+                    return;
+                }
+                setInvite(inviteStatus.ACCEPTED);
+                let gameId = await axios.get(`http://localhost:3000/game/${inviter.user_id}/getgame/SEARCHING`, { withCredentials: true });
+                console.log('gameId: ', gameId);
+                gameId = gameId.data.id_game;
+                console.log('gameId: ', gameId);
+                await axios.post(`http://localhost:3000/game/${gameId}/joinGame`, {userId: user?.id_player},  { withCredentials: true });
+                await axios.post(`http://localhost:3000/game/${gameId}/updateGame`, {status: 'PLAYING'},  { withCredentials: true });
+                });
+            }
+        };
     if (location.pathname != '/')
     {
-        
-    
         const isMounted = useRef(true); // useRef to track whether the component is mounted
         useEffect(() => {
             if (isMounted.current) {
@@ -49,28 +73,44 @@ function App()
             isMounted.current = false;
             };
         } , []);
-    
+        
+        const handleInvited = (data: any) => {
+            if (inPlay)
+                return;
+            console.log("invited by ", data);
+            setisnotified(true);
+            setInviters(prevInviters => [...prevInviters, {user_id: data.user_id, username: data.username}]);
+            setInvite(inviteStatus.INVITED);
+        };
+        const handleRmInvite = (data: any) => {
+            setInviters(prevInviters => prevInviters.filter((inviter) => inviter.user_id !== data));
+            console.log("invite removed ", data);
+        };
         useEffect(() => {
-            const handleInvited = (data: any) => {
-                console.log("invited by ", data);
-                setInviters([...inviters, {id: data.user_id, username: data.username}]);
-                setInvite(inviteStatus.INVITED);
-                console.log(inviters);
-                setTimeout(() => {
-                    setisnotified(false);
-                } , 200000);
-            };
             // Listen for 'invited' event
             if (socket)
             {
                 console.log('listening socket: invited');
-                socket?.on('invited', (data: any) => handleInvited(data));
+                socket.emit('getNotifs', {userId: user?.id_player.toString()}, (response: any) => {
+                    console.log('Received acknowledgement from server:', response);
+                    if (response.length > 0) {
+                        // use user_id and username from response to setInviters
+                        setInviters(response);
+                        setInvite(inviteStatus.INVITED);
+                        setisnotified(true);
+                    }
+                    else
+                        setisnotified(false);
+                });
+                socket.on('invited', (data: any) => handleInvited(data));
+                socket.on('rminvite', (data: any) => handleRmInvite(data));
             }
             else
                 console.log('no socket');
             // Clean up the event listener on unmount
             return () => {
                 socket?.off('invited', handleInvited);
+                socket?.off('rminvite', handleRmInvite);
             };
         }, [socket]);
     }
@@ -81,6 +121,9 @@ function App()
             <Route key='Login' path='/' element={<UnAuthGuard component={<Login />}  />}>
                 {' '}
             </Route>
+            {/* <Route key='Login' path='*' element={<UnAuthGuard component={<Navigate to='/' />}  />}>
+                {' '}
+            </Route> */}
             <Route
             key='AuthRoutes'
             path='/*'
@@ -89,37 +132,31 @@ function App()
                     component={
                     <>
                         <Navbar />
-                        {!inPlay && isnotified && invite === inviteStatus.INVITED && (
-                            <div className="invite sbox">
-                                {inviters.map((inviter) => (
-                                        <div>
-                                            <div className="sbox__title">
-                                                <h1 className="btitle">{inviter.username}</h1>
-                                                <h3 className="stitle">invited you to play</h3>
-                                            </div>
-                                            <div className="sbox__btn">
-                                                <button className="trans bt" onClick={() => {
-                                                    setInvite(inviteStatus.ACCEPTED);
-                                                    navigate('/Play')
-                                                }}>Accept</button>
-                                                <button className="filled bt" onClick={() => setInvite(inviteStatus.DECLINED)}>decline</button>
-                                            </div>
-                                        </div>
-                                ))}
+                        <div className="invite sbox">
+                        {isnotified && invite === inviteStatus.INVITED && inviters.map((inviter) => ( (
+                            <div key={inviter.user_id} className="invite">
+                                <div className="sbox__title">
+                                    <h1 className="btitle">{inviter.username} {inviter.user_id}</h1>
+                                    <h3 className="stitle">invited you to play</h3>
+                                </div>
+                                <div className="sbox__btn">
+                                    <button className="trans bt" onClick={()=> {inviteResp(true, inviter); navigate('/Play')}}>Accept</button>
+                                    <button className="filled bt" onClick={()=> inviteResp(false, inviter)}>decline</button>
+                                </div>
                             </div>
-                        )  
-                        }
+                                )))}
+                        </div>
                         <Routes>
-                        <Route key='Config' path='/Config' caseSensitive={false} element={<Config />} />
-                        <Route key='TwoFA' path='/TwoFA' caseSensitive={false} element={<TwoFA />} />
-                        <Route key='testchat' path='/Testchat' caseSensitive={false} element={<TestChat />} />
-                        <Route key='Verify2FA' path='/Verify2FA' caseSensitive={false} element={<Verify2FA />} />
-                        <Route key='Profile' path='/Profile' caseSensitive={false} element={<Profile />} />
-                        <Route key='Play' path='/Play' caseSensitive={false} element={<Play setInPlay={setInPlay} setInviter={setInviters} inviter={inviters} setInvite={setInvite} invite={invite} />} />
-                        <Route key='Chat' path='/Chat' caseSensitive={false} element={<Chat />} />
-                        <Route key='Settings' path='/Settings' caseSensitive={false} element={<Settings />} />
-                        <Route key='Leaderboard' path='/Leaderboard' caseSensitive={false} element={<Leaderboard />} />
-                        <Route path='*' element={<Navigate to='/' />} />
+                        <Route key='Config' path='/Config' caseSensitive={true} element={<Config />} />
+                        <Route key='TwoFA' path='/TwoFA' caseSensitive={true} element={<TwoFA />} />
+                        <Route key='testchat' path='/Testchat' caseSensitive={true} element={<TestChat />} />
+                        <Route key='Verify2FA' path='/Verify2FA' caseSensitive={true} element={<Verify2FA />} />
+                        <Route key='Profile' path='/Profile' caseSensitive={true} element={<Profile />} />
+                        <Route key='Play' path='/Play' caseSensitive={true} element={<Play setInPlay={setInPlay} inviter={inviters} />} />
+                        <Route key='Chat' path='/Chat' caseSensitive={true} element={<Chat />} />
+                        <Route key='Settings' path='/Settings' caseSensitive={true} element={<Settings />} />
+                        <Route key='Leaderboard' path='/Leaderboard' caseSensitive={true} element={<Leaderboard />} />
+                        <Route path='*' element={<Navigate to='/Profile' />} />
                         </Routes>
                     </>
                     }

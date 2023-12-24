@@ -10,17 +10,18 @@ import game from './Components/gameLogic';
 import axios from 'axios';
 import { UserContext } from './UserProvider.tsx';
 
-export function Play(props: {setInPlay: any, setInviter: any, inviter: any, setInvite: any, invite: inviteStatus}) {
+export function Play(props: {setInPlay: any, inviter: any}) {
   const { user, socket } = useContext(UserContext);
-  const {setInPlay, setInviter, inviter, setInvite, invite} = props;
+  const {setInPlay, inviter} = props;
     const isDocumentVisible = useDocumentVisible();
-    const isMounted = useRef(true); // useRef to track whether the component is mounted
+    const isMounted = useRef<boolean>(false);; // useRef to track whether the component is mounted
     const [showSbox, setShowSbox] = useState(true);
     const [showGame, setshowGame] = useState(false);    
     const [inGame, setInGame] = useState(false);
     const [isLoading, setIsLoading] = useState(false); // Add a new state variable for loading
     const [players, setPlayers] = useState<Players>({});
-    let iscanceled = false;
+    const [iscanceled, setIscanceled] = useState(false);
+    const [error, setError] = useState(false);
     const bballRef = useRef<Ball>({
       cercle: new Circle(),
       vx: 0,
@@ -32,56 +33,63 @@ export function Play(props: {setInPlay: any, setInviter: any, inviter: any, setI
     const handleFriendClick = async (player_id: number) => {
       if (socket)
       {
-        const gameResponse = await axios.get('http://localhost:3000/game/creategame',  { withCredentials: true });
-        const gameId = gameResponse.data.id_game;
-        await axios.post(`http://localhost:3000/game/${gameId}/joinGame`, {userId: user?.id_player},  { withCredentials: true });
         socket.emit('invite', 
         {
           adv_id: player_id.toString(),
           userId: user?.id_player.toString(),
           username: user?.username,
-        });
-        setIsLoading(true);
-      }
-    };
-    
-    const inviteResp = async (resp: Boolean, inviter: any) => {
-      if (socket)
-      {
-        socket.emit('inviteResp', {
-          accepted: resp,
-          userId: inviter.id_player.toString(),
-          adv_id: user?.id_player.toString(),
-          username: user?.username,
         }, async (response: any) => {
           console.log('Received acknowledgement from server:', response);
           if (!response) {
+            setError(true);
             console.log('error');
-            setInvite(inviteStatus.ABORTED);
-            // setInviter(null);
             return;
           }
-          setInvite(inviteStatus.ACCEPTED);
-          let gameId = await axios.get(`http://localhost:3000/game/${inviter.id_player}/getgame/SEARCHING`, { withCredentials: true });
-          console.log('gameId: ', gameId);
-          gameId = gameId.data.id_game;
-          console.log('gameId: ', gameId);
+          const gameResponse = await axios.get('http://localhost:3000/game/creategame',  { withCredentials: true });
+          const gameId = gameResponse.data.id_game;
           await axios.post(`http://localhost:3000/game/${gameId}/joinGame`, {userId: user?.id_player},  { withCredentials: true });
-          await axios.post(`http://localhost:3000/game/${gameId}/updateGame`, {status: 'PLAYING'},  { withCredentials: true });
+          setIsLoading(true);
         });
       }
     };
+    
+    // const inviteResp = async (resp: Boolean, inviter: any) => {
+    //   if (socket)
+    //   {
+    //     socket.emit('inviteResp', {
+    //       accepted: resp,
+    //       userId: inviter.id_player.toString(),
+    //       adv_id: user?.id_player.toString(),
+    //       username: user?.username,
+    //     }, async (response: any) => {
+    //       console.log('Received acknowledgement from server:', response);
+    //       if (!response) {
+    //         console.log('error');
+    //         // setInvite(inviteStatus.ABORTED);
+    //         // setInviter(null);
+    //         return;
+    //       }
+    //       // setInvite(inviteStatus.ACCEPTED);
+    //       let gameId = await axios.get(`http://localhost:3000/game/${inviter.id_player}/getgame/SEARCHING`, { withCredentials: true });
+    //       console.log('gameId: ', gameId);
+    //       gameId = gameId.data.id_game;
+    //       console.log('gameId: ', gameId);
+    //       await axios.post(`http://localhost:3000/game/${gameId}/joinGame`, {userId: user?.id_player},  { withCredentials: true });
+    //       await axios.post(`http://localhost:3000/game/${gameId}/updateGame`, {status: 'PLAYING'},  { withCredentials: true });
+    //     });
+    //   }
+    // };
 
-    useEffect(() => {
-      console.log('effect invite: ', invite);
+    // useEffect(() => {
+    //   console.log('effect invite: ', invite);
       
-      if (invite === inviteStatus.ACCEPTED) {
-        inviteResp(true, inviter);
-      }
-      if (invite === inviteStatus.DECLINED) {
-        inviteResp(false, inviter);
-      }
-    }, [invite]);
+    //   if (invite === inviteStatus.ACCEPTED) {
+    //     inviteResp(true, inviter);
+    //   }
+    //   if (invite === inviteStatus.DECLINED) {
+    //     inviteResp(false, inviter);
+    //   }
+    // }, [invite]);
 
 
     const handleMatchClick = async () => {
@@ -115,15 +123,11 @@ export function Play(props: {setInPlay: any, setInviter: any, inviter: any, setI
       });
       
     };
+    
     useEffect(() => {
-      if (!socket)
+      if (!socket || !isMounted.current || !user)
         return;
-      if (isMounted.current) {
-        console.log('isMounted: ', isMounted.current);
-        // socket.emit('playOpen', { id: socket.id });
-      }
-      // console.log('user: ', user?.id_player);
-      axios.get(`http://localhost:3000/game/${user?.id_player}/getgame/PLAYING`, { withCredentials: true }).then
+      axios.get(`http://localhost:3000/game/${user.id_player}/getgame/PLAYING`, { withCredentials: true }).then
       ((res) => {
         if (res.data.id_game) {
           setInGame(true);
@@ -132,7 +136,7 @@ export function Play(props: {setInPlay: any, setInviter: any, inviter: any, setI
       }).catch((err) => {
         console.log('err: ', err);
       });
-      axios.get(`http://localhost:3000/game/${user?.id_player}/getgame/SEARCHING`, { withCredentials: true }).then
+      axios.get(`http://localhost:3000/game/${user.id_player}/getgame/SEARCHING`, { withCredentials: true }).then
       ((res) => {
         if (res.data.id_game) {
           setInGame(true);
@@ -151,21 +155,21 @@ export function Play(props: {setInPlay: any, setInviter: any, inviter: any, setI
       });
       socket.on('alreadyInQueue', () => {
         setIsLoading(true); // Set loading to false when the game starts
-        console.log("game started");
+        console.log("game alreadyInQueue");
         return {inGame: true};
         // axios.delete(`http://localhost:3000/game/${user?.id_player}/deletegame/SEARCHING`, { withCredentials: true }).then
       });
 
-      socket.on('invited', (data: any) => {
-        axios.get(`http://localhost:3000/profile/${data}`, { withCredentials: true }).then
-        ((res) => {
-          console.log("invited by ", data);
-          setInviter(res.data);
-          setInvite(inviteStatus.INVITED);
-        }).catch((err) => {
-          console.log('err: ', err);
-        });
-      });
+      // socket.on('invited', (data: any) => {
+      //   axios.get(`http://localhost:3000/profile/${data}`, { withCredentials: true }).then
+      //   ((res) => {
+      //     console.log("invited by ", data);
+      //     setInviter(res.data);
+      //     setInvite(inviteStatus.INVITED);
+      //   }).catch((err) => {
+      //     console.log('err: ', err);
+      //   });
+      // });
 
       socket.on('rejected', () => {
         console.log("rejected");
@@ -185,10 +189,10 @@ export function Play(props: {setInPlay: any, setInviter: any, inviter: any, setI
       console.log('walla');
       setInPlay(true);
       return () => {
-        iscanceled = true;
+        setIscanceled(true);
         setInPlay(false);
         // socket.off('startGame');
-        isMounted.current = false; // Set to false when the component is unmounted
+        // isMounted.current = false; // Set to false when the component is unmounted
       };
     }, [isMounted, socket, user]);
 
@@ -197,7 +201,7 @@ export function Play(props: {setInPlay: any, setInviter: any, inviter: any, setI
     // }, [players]);
 
     useEffect(() => {
-      if (!socket)
+      if (!isMounted.current || !socket)
         return;
       if (isDocumentVisible) {
         console.log('isDocumentVisible: ', isDocumentVisible);
@@ -207,7 +211,7 @@ export function Play(props: {setInPlay: any, setInviter: any, inviter: any, setI
       //   socket.emit('playClose', { id: socket.id });
       // }
       return () => {
-        iscanceled = true;
+        setIscanceled(true);
       };
     }, [isDocumentVisible]);
 
@@ -220,9 +224,11 @@ export function Play(props: {setInPlay: any, setInviter: any, inviter: any, setI
     };
 
     useEffect(() => {
-      if (!socket)
+      if (!isMounted.current || !socket)
+      {
         return;
-      if (showGame && socket && !iscanceled) {
+      }
+      if (showGame) {
         console.log('ball: ', bballRef.current);
         if (user){
           const cleanup = game(socket, players, bballRef.current, user, inita);
@@ -231,10 +237,13 @@ export function Play(props: {setInPlay: any, setInviter: any, inviter: any, setI
           };
         }
       }
-      return () => {
-        iscanceled = true;
-      };
     } , [showGame]);
+
+    useEffect(() => {
+      return () => {
+        isMounted.current = true; // Set to false when the component is unmounted
+      };
+    } , []);
 
     return (
         <>
@@ -246,11 +255,12 @@ export function Play(props: {setInPlay: any, setInviter: any, inviter: any, setI
                     rb="Matchmaking"
                     isLoading = {isLoading} // Pass the loading state to the loading component
                     inGame = {inGame}
-                    invite = {invite}
+                    // invite = {invite}
+                    error = {error}
                     inviter = {inviter}
                     handleMatchClick={handleMatchClick}
                     handleFriendClick={handleFriendClick}
-                    inviteResp={inviteResp}
+                    // inviteResp={inviteResp}
                 >
                 </Sbox>
             )}

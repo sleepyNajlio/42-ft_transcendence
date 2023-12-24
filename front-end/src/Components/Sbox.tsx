@@ -42,32 +42,35 @@ export default function Sbox(props: any) {
                 }
                 {!props.isLoading && !props.inGame && (
                     <div className="sbox">
+                        {props.error && (
+                            <div className="sbox__title">
+                                <h1 className="btitle" style={{color: "red"}}>Error</h1>
+                            </div>
+                        )}
                         {Players && (
                           <div className="players">
                             {users.map((user) => (
                                 <div key={user.id_player} className="player">
                                 <img src={user.avatar} alt="player" className="player__img" />
                                 <h3 className="player__name">{user.username}</h3>
-                                <button onClick={()=> props.handleFriendClick(user.id_player)} className="player__button">Button Text</button>
+                                <button onClick={()=> props.handleFriendClick(user.id_player)} className="player__button" >Invite</button>
                                 </div>
                             ))}
                           </div>
                         )}
-                        {props.invite === inviteStatus.NONE && !Players && (
+                        {!Players && (
                           <div className="sbox__title">
                               <h1 className="btitle">{props.btitle}</h1>
                               <h3 className="stitle">{props.stitle}</h3>
                           </div>
                         )}
-                        {props.invite === inviteStatus.NONE && (
-                          <div className="sbox__btn">
-                              <button className="trans bt" onClick={()=> props.handleMatchClick()}>
-                                  {props.rb}
-                              </button>
-                              <button className="filled bt" onClick={getPlayers}>{props.lb}</button>
-                          </div>
-                        )}
-                        {props.invite === inviteStatus.INVITED && (
+                        <div className="sbox__btn">
+                            <button className="trans bt" onClick={()=> props.handleMatchClick()}>
+                                {props.rb}
+                            </button>
+                            <button className="filled bt" onClick={getPlayers}>{props.lb}</button>
+                        </div>
+                        {/* {props.invite === inviteStatus.INVITED && (
                           <div className="sbox__title">
                               <h1 className="btitle">Invite from {props.inviter.username}</h1>
                           </div>
@@ -76,14 +79,14 @@ export default function Sbox(props: any) {
                           <div className="sbox__title">
                               <h1 className="btitle">{props.inviter.username} Aborted invitation</h1>
                           </div>
-                        )}
-                        {props.invite === inviteStatus.INVITED && (
+                        )} */}
+                        {/* {props.invite === inviteStatus.INVITED && (
                           <div className="sbox__btn">
                             <button className="trans bt" onClick={()=> props.inviteResp(true, props.inviter)}>Accept</button>
                             <button className="filled bt" onClick={()=> props.inviteResp(false, null)}>decline</button>
                           </div>
                         )}
-                          
+                           */}
                     </div>
                 )}
             </main>

@@ -8,7 +8,6 @@ import { Logger } from '@nestjs/common';
 import { Socket } from 'socket.io';
 import { SocketGateway } from 'src/socket/socket.gateway';
 import axios from 'axios';
-import { Player } from '@prisma/client';
 
 interface Ball {
   cx: number;
@@ -43,7 +42,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       ball: Ball;
     };
   } = {};
-  private notifs: { [key: string]: Player[] } = {};
+  private notifs: { [key: string]: any[] } = {};
 
   constructor(private readonly socketGateway: SocketGateway) {}
 
@@ -102,6 +101,30 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         if (socketa.id !== client.id) socketa.emit('InitializeGame');
       });
       delete this.players[userId];
+      // Iterate over all keys in this.notifs
+      for (const key in this.notifs) {
+        // get the key that the player is inviting
+        const player = this.notifs[key].find(
+          (player) => player.user_id === userId,
+        );
+        if (!player) {
+          continue;
+        } else {
+          // get the socket of the player from the key
+          this.socketGateway.getClientSocket(key)?.map((socketa) => {
+            this.logger.log('emiting rminvite', key, socketa.id);
+            if (socketa.id !== client.id) socketa.emit('rminvite', userId);
+          });
+          // Filter out the deleted player
+          this.notifs[key] = this.notifs[key].filter(
+            (player) => player.user_id !== userId,
+          );
+          // If there are no more invites for this player, delete the key
+          if (this.notifs[key].length === 0) {
+            delete this.notifs[key];
+          }
+        }
+      }
     } else if (playerState === PlayerState.PLAYING) {
       console.log('abort in game');
       // Socket is not in the queue, check if it is in a game
@@ -261,7 +284,113 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         socketa.join(gameId);
       });
       this.logger.log(`game ${gameId} is created.`);
+      const cookies = client.handshake.auth.sessionCookies;
+      this.notifs[player1.userId]?.map((player) => {
+        this.socketGateway.getClientSocket(player.user_id)?.map((socketa) => {
+          socketa.emit('rminvite', player2.userId);
+          socketa.emit('rejected', player1.userId);
+        });
+        this.socketGateway.getClientSocket(player1.userId)?.map((socketa) => {
+          socketa.emit('rminvite', player.user_id);
+        });
+        axios
+          .delete(
+            `http://localhost:3000/game/${player.user_id}/deletegame/SEARCHING`,
+            {
+              headers: {
+                Cookie: cookies,
+              },
+            },
+          )
+          .then(() => {
+            console.log('deleted');
+          })
+          .catch((err) => {
+            console.log('err: ', err);
+          });
+      });
+      delete this.notifs[player1.userId];
+      axios
+        .delete(
+          `http://localhost:3000/game/${player2.userId}/deletegame/SEARCHING`,
+          {
+            headers: {
+              Cookie: cookies,
+            },
+          },
+        )
+        .then(() => {
+          console.log('deleted');
+        })
+        .catch((err) => {
+          console.log('err: ', err);
+        });
+      this.notifs[player2.userId]?.map((player) => {
+        if (player.user_id !== player1.userId) {
+          this.socketGateway.getClientSocket(player.user_id)?.map((socketa) => {
+            socketa.emit('rejected', player2.userId);
+          });
+          this.socketGateway.getClientSocket(player2.userId)?.map((socketa) => {
+            socketa.emit('rminvite', player.user_id);
+          });
+        } else {
+          this.socketGateway.getClientSocket(player.user_id)?.map((socketa) => {
+            socketa.emit('rminvite', player1.userId);
+          });
+        }
+      });
+      delete this.notifs[player2.userId];
 
+      for (const key in this.notifs) {
+        // get the key that the player is inviting
+        const player = this.notifs[key].find(
+          (player) => player.user_id === player1.userId,
+        );
+        if (!player) {
+          continue;
+        } else {
+          // get the socket of the player from the key
+          this.socketGateway.getClientSocket(key)?.map((socketa) => {
+            this.logger.log('emiting rminvite', key, socketa.id);
+            socketa.emit('rminvite', player.user_id);
+            if (player.user_id !== player2.userId)
+              socketa.emit('rejected', player.user_id);
+          });
+          // Filter out the deleted player
+          this.notifs[key] = this.notifs[key].filter(
+            (player) => player.user_id !== player1.userId,
+          );
+          // If there are no more invites for this player, delete the key
+          if (this.notifs[key].length === 0) {
+            delete this.notifs[key];
+          }
+        }
+      }
+      for (const key in this.notifs) {
+        // get the key that the player is inviting
+        const player = this.notifs[key].find(
+          (player) => player.user_id === player2.userId,
+        );
+        if (!player) {
+          continue;
+        } else {
+          // get the socket of the player from the key
+          this.socketGateway.getClientSocket(key)?.map((socketa) => {
+            this.logger.log('emiting rminvite', key, socketa.id);
+            socketa.emit('rminvite', player.user_id);
+            if (player.user_id !== player1.userId)
+              socketa.emit('rejected', player.user_id);
+          });
+          // Filter out the deleted player
+          this.notifs[key] = this.notifs[key].filter(
+            (player) => player.user_id !== player2.userId,
+          );
+          // If there are no more invites for this player, delete the key
+          if (this.notifs[key].length === 0) {
+            delete this.notifs[key];
+          }
+        }
+      }
       this.socketGateway.getServer().to(gameId).emit('startGame', {
         players: this.games[gameId].players,
         bball: this.games[gameId].ball,
@@ -273,6 +402,17 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('invite')
   handelInvite(client: Socket, data: any) {
     console.log('invite to ', data.adv_id, ' by ', data.userId);
+    if (this.notifs[data.userId]) {
+      const player = this.notifs[data.userId].find(
+        (player) => player.user_id === data.adv_id,
+      );
+      if (player) {
+        return false;
+      }
+    }
+    if (this.players[data.adv_id]?.state === PlayerState.PLAYING) {
+      return false;
+    }
     this.players[data.userId] = {
       s_id: client.id,
       user_id: data.userId,
@@ -297,6 +437,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.socketGateway.getClientSocket(data.adv_id).map((socketa) => {
       socketa.emit('invited', this.players[data.userId]);
     });
+    return true;
   }
 
   @SubscribeMessage('inviteResp')
@@ -307,6 +448,26 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
           socketa.emit('rejected', data.adv_id);
         });
         return false;
+      }
+      const cookies = client.handshake.auth.sessionCookies;
+      const isUserInQueue = this.queue.find((c) => c.userId === data.adv_id);
+      if (isUserInQueue) {
+        this.queue.splice(this.queue.indexOf(isUserInQueue), 1);
+        axios
+          .delete(
+            `http://localhost:3000/game/${data.adv_id}/deletegame/SEARCHING`,
+            {
+              headers: {
+                Cookie: cookies,
+              },
+            },
+          )
+          .then(() => {
+            console.log('deleted');
+          })
+          .catch((err) => {
+            console.log('err: ', err);
+          });
       }
       this.players[data.adv_id] = {
         s_id: client.id,
@@ -346,9 +507,156 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         players: this.games[gameId].players,
         bball: this.games[gameId].ball,
       });
+      this.notifs[data.userId]?.map((player) => {
+        this.socketGateway.getClientSocket(player.user_id)?.map((socketa) => {
+          socketa.emit('rminvite', data.adv_id);
+          socketa.emit('rejected', data.userId);
+        });
+        this.socketGateway.getClientSocket(data.userId)?.map((socketa) => {
+          socketa.emit('rminvite', player.user_id);
+        });
+        axios
+          .delete(
+            `http://localhost:3000/game/${player.user_id}/deletegame/SEARCHING`,
+            {
+              headers: {
+                Cookie: cookies,
+              },
+            },
+          )
+          .then(() => {
+            console.log('deleted');
+          })
+          .catch((err) => {
+            console.log('err: ', err);
+          });
+      });
+      delete this.notifs[data.userId];
+      axios
+        .delete(
+          `http://localhost:3000/game/${data.adv_id}/deletegame/SEARCHING`,
+          {
+            headers: {
+              Cookie: cookies,
+            },
+          },
+        )
+        .then(() => {
+          console.log('deleted');
+        })
+        .catch((err) => {
+          console.log('err: ', err);
+        });
+      this.notifs[data.adv_id]?.map((player) => {
+        if (player.user_id !== data.userId) {
+          this.socketGateway.getClientSocket(player.user_id)?.map((socketa) => {
+            socketa.emit('rejected', data.adv_id);
+          });
+          this.socketGateway.getClientSocket(player.user_id)?.map((socketa) => {
+            socketa.emit('rminvite', data.userId);
+          });
+        } else {
+          this.socketGateway.getClientSocket(player.user_id)?.map((socketa) => {
+            socketa.emit('rminvite', data.userId);
+          });
+        }
+      });
+      delete this.notifs[data.adv_id];
+
+      for (const key in this.notifs) {
+        // get the key that the player is inviting
+        const player = this.notifs[key].find(
+          (player) => player.user_id === data.userId,
+        );
+        if (!player) {
+          continue;
+        } else {
+          // get the socket of the player from the key
+          this.socketGateway.getClientSocket(key)?.map((socketa) => {
+            this.logger.log('emiting rminvite', key, socketa.id);
+            socketa.emit('rminvite', player.user_id);
+            if (player.user_id !== data.adv_id)
+              socketa.emit('rejected', player.user_id);
+          });
+          // Filter out the deleted player
+          this.notifs[key] = this.notifs[key].filter(
+            (player) => player.user_id !== data.userId,
+          );
+          // If there are no more invites for this player, delete the key
+          if (this.notifs[key].length === 0) {
+            delete this.notifs[key];
+          }
+        }
+      }
+      for (const key in this.notifs) {
+        // get the key that the player is inviting
+        const player = this.notifs[key].find(
+          (player) => player.user_id === data.adv_id,
+        );
+        if (!player) {
+          continue;
+        } else {
+          // get the socket of the player from the key
+          this.socketGateway.getClientSocket(key)?.map((socketa) => {
+            this.logger.log('emiting rminvite', key, socketa.id);
+            socketa.emit('rminvite', player.user_id);
+            if (player.user_id !== data.userId)
+              socketa.emit('rejected', player.user_id);
+          });
+          // Filter out the deleted player
+          this.notifs[key] = this.notifs[key].filter(
+            (player) => player.user_id !== data.adv_id,
+          );
+          // If there are no more invites for this player, delete the key
+          if (this.notifs[key].length === 0) {
+            delete this.notifs[key];
+          }
+        }
+      }
       return true;
     } else {
-      this.socketGateway.getClientSocket(data.adv_id).map((socketa) => {
+      this.logger.log('inivite rejected', data.userId);
+      for (const key in this.notifs) {
+        // get the key that the player is inviting
+        const player = this.notifs[key].find(
+          (player) => player.user_id === data.userId,
+        );
+        if (!player) {
+          continue;
+        } else {
+          // get the socket of the player from the key
+          this.socketGateway.getClientSocket(key)?.map((socketa) => {
+            this.logger.log('emiting rminvite', key, socketa.id);
+            socketa.emit('rminvite', data.userId);
+          });
+          // Filter out the deleted player
+          this.notifs[key] = this.notifs[key].filter(
+            (player) => player.user_id !== data.userId,
+          );
+          // If there are no more invites for this player, delete the key
+          if (this.notifs[key].length === 0) {
+            delete this.notifs[key];
+          }
+        }
+      }
+      const cookies = client.handshake.auth.sessionCookies;
+
+      axios
+        .delete(
+          `http://localhost:3000/game/${data.userId}/deletegame/SEARCHING`,
+          {
+            headers: {
+              Cookie: cookies,
+            },
+          },
+        )
+        .then(() => {
+          console.log('deleted');
+        })
+        .catch((err) => {
+          console.log('err: ', err);
+        });
+      this.socketGateway.getClientSocket(data.userId).map((socketa) => {
         socketa.emit('rejected', data.adv_id);
       });
       return false;
@@ -374,16 +682,15 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('getNotifs')
-  getNotifs(client: Socket) {
+  getNotifs(client: Socket, data: any) {
     this.logger.log(`getNotifs ${client.id}---- `);
     this.logger.log(this.notifs);
 
-    const userId = getUserIdFromClient('getNotifs', client);
-    if (userId) {
-      const notifs = this.notifs[userId];
+    if (data.userId) {
+      const notifs = this.notifs[data.userId];
       return notifs ? notifs : [];
     }
-    return null;
+    return [];
   }
 
   // a player receives multiple notifs invites
@@ -404,14 +711,14 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const gameId = Object.keys(this.games).find(
       (id) => this.games[id].players[data.userId],
     );
-    this.logger.log(`emiting move ${gameId} ${data.userId}`);
-
     if (gameId) {
       this.games[gameId].ball = {
         ...this.games[gameId].ball,
         ...data.ball,
       };
-      this.logger.log(`emiting move again ${gameId} ${data.userId}`);
+      this.logger.log(
+        `emiting move again ${gameId} ${data.userId} H: ${data.pH} G: ${data.pG}`,
+      );
       // Emit the 'move' event to the other player in the gam
       this.socketGateway.getServer().to(gameId).emit('move', data);
     }
@@ -447,6 +754,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
           ball: this.games[gameId].ball,
           playerLeft: data.playerLeft,
           playerRight: data.playerRight,
+          userId: data.userId,
         });
       } else if (data.action === 'start') {
         // Emit the 'start' event to players in the game to start the game
@@ -458,7 +766,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         // Emit the 'ballVel' event to players in the game to update the ball
         this.socketGateway
           .getServer()
-
           .to(gameId)
           .emit('ballVel', { ball: this.games[gameId].ball });
       }

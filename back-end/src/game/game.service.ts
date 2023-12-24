@@ -50,6 +50,9 @@ export class GameService {
           },
         },
       });
+      if (!game || game === undefined) {
+        return null;
+      }
       await this.prisma.userGame.deleteMany({
         where: {
           gameId: game.id_game,

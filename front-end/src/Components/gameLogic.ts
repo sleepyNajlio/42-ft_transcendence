@@ -148,10 +148,14 @@ export default function game(socket: Socket, players: Players = {}, ball: Ball, 
         pHost.paddleDirection = data.paddleDirection;
         console.log("player"+data.userId);
       }
-        ball = {
-          ...ball,
-          ...data.ball,
-        }
+      ball = {
+        ...ball,
+        ...data.ball,
+      }
+      if (data.pH)
+        pHost.paddle?.animate(100).cy(data.pH);
+      if (data.pG)
+        pGuest.paddle?.animate(100).cy(data.pG);
     });
 
     let isKeyDown = false;
@@ -161,6 +165,7 @@ export default function game(socket: Socket, players: Players = {}, ball: Ball, 
     });
     
     socket.on('updateFrame', (data: {ball: {cx : number, cy: number, vx: number, vy: number}, y1: number, y2: number, playerLeft: number, playerRight: number, id: string }) => {
+      
       if (pHost && pHost.paddle)
         pHost.paddle.cy(data.y2);
       if (pGuest && pGuest.paddle)
@@ -194,7 +199,7 @@ export default function game(socket: Socket, players: Players = {}, ball: Ball, 
         if (e.keyCode == 40 || e.keyCode == 38) {
           e.preventDefault();
           isKeyDown = false;
-          socket.emit('keyup', { ball: ballWithoutCercle, paddleDirection: 0, userId: user.id_player  });
+          socket.emit('keyup', { ball: ballWithoutCercle, paddleDirection: 0, userId: user.id_player, pG: pGuest.paddle?.cy(), pH: pHost.paddle?.cy() });
         }
       }
     });
@@ -229,17 +234,20 @@ export default function game(socket: Socket, players: Players = {}, ball: Ball, 
       playerRight = data.playerRight;
       scoreLeft.text(playerRight.toString())
       scoreRight.text(playerLeft.toString())
-      if (ball.vx === 0 && ball.vy === 0) {
-        let tvx = Math.random() * 500 - 250
-        let tvy = Math.random() * 500 - 250
-        while (Math.abs(tvx) < 100) {
-          tvx = Math.random() * 500 - 250
+      setTimeout(() => {
+        if (ball.vx === 0 && ball.vy === 0) {
+          let tvx = Math.random() * 500 - 250
+          let tvy = Math.random() * 500 - 250
+          while (Math.abs(tvx) < 100) {
+            tvx = Math.random() * 500 - 250
+          }
+          while (Math.abs(tvy) < 100) {
+            tvy = Math.random() * 500 - 250
+          }
+          socket.emit('moveBall', { ball: {vx: tvx, vy: tvy, cx: ball.cx, cy: ball.cy}, action: "start", userId: pHost.user_id });
         }
-        while (Math.abs(tvy) < 100) {
-          tvy = Math.random() * 500 - 250
-        }
-        socket.emit('moveBall', { ball: {vx: tvx, vy: tvy, cx: ball.cx, cy: ball.cy}, action: "start", userId: pHost.user_id });
-      }
+      }, 1000);
+      
     });
 
     socket.on('ballVel', (data:{reset: Boolean, ball: Ball}) => {
@@ -270,8 +278,12 @@ export default function game(socket: Socket, players: Players = {}, ball: Ball, 
           socket.emit('moveBall', { ball: { vx: -ball.vx * 1.05, vy: (ball.cy - ((ball.vx < 0 ? paddleLeftY : paddleRightY) + paddleHeight/2)) * 7 , cx: ball.cx, cy: ball.cy}, action: "left -right", userId: pHost.user_id});
         }
         else if ((ball.vx < 0 && ball.cx <= 0) || (ball.vx > 0 && ball.cx >= width)) {
-          if (ball.vx < 0) { reset(playerRight+1, playerLeft) }
-          else { reset(playerRight, playerLeft+1) }
+          if (ball.vx < 0) { 
+            console.log("right player scored")
+            reset(playerRight+1, playerLeft) }
+          else { 
+            console.log("left player scored")
+            reset(playerRight, playerLeft+1) }
         }
       }
       if (playerRight === 10 || playerLeft === 10) {
