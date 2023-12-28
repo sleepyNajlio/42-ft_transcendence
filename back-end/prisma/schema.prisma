@@ -7,7 +7,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = "postgresql://administrator:Hanajay@localhost:5432/trandb?schema=public"
+  url      = env("DATABASE_URL")
 }
 
 model Player {
@@ -15,7 +15,6 @@ model Player {
   username  String  @unique
   avatar    String  @unique
   email     String  @unique
-  hash      String  @unique
   isAuthenticated Boolean ? @default(false)
   level     Int     @default(1)
   status    PlayerStatus @default(OFFLINE)

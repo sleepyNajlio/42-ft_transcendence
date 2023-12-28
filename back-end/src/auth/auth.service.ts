@@ -19,13 +19,12 @@ export class AuthService {
   ) {}
 
   async signup(dto: authDTO) {
-    const hash = await argon.hash(dto.password);
+    console.log(dto);
     try {
       await this.prisma.player.create({
         data: {
           email: dto.email,
           username: dto.username,
-          hash: hash,
           avatar: dto.avatar,
           isAuthenticated: false,
         },
@@ -43,7 +42,7 @@ export class AuthService {
 
   async signin(dto: signinDTO): Promise<{ accessToken: string }> {
     console.log('helllooooo');
-    const player = await await this.prisma.player.findFirst({
+    const player = await this.prisma.player.findFirst({
       where: {
         username: dto.username,
       },
@@ -51,9 +50,9 @@ export class AuthService {
     if (!player) throw new ForbiddenException('username or password incorrect');
     if (!player.isAuthenticated)
       throw new ForbiddenException('Unauthenticated User');
-    const pwMatch = await argon.verify(player.hash, dto.password);
-    if (!pwMatch)
-      throw new ForbiddenException('username or password incorrect');
+    // const pwMatch = await argon.verify(player.hash, dto.password);
+    // if (!pwMatch)
+    //   throw new ForbiddenException('username or password incorrect');
     return this.signToken(player.id_player, player.username);
   }
 
