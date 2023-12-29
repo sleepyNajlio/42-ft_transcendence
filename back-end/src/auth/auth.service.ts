@@ -19,7 +19,7 @@ export class AuthService {
   ) {}
 
   async signup(dto: authDTO) {
-    console.log(dto);
+    // console.log(dto);
     try {
       await this.prisma.player.create({
         data: {

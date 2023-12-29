@@ -38,10 +38,9 @@ export class MessagesGateway
 
   @SubscribeMessage('Friends')
   async DisplayFriends(
-    @MessageBody('id') id:number,
-    @ConnectedSocket() Client: Socket, 
-  )
-  {
+    @MessageBody('id') id: number,
+    @ConnectedSocket() Client: Socket,
+  ) {
     const Users = await this.messagesService.getUsers(id);
     return Users;
   }
@@ -51,11 +50,11 @@ export class MessagesGateway
     @MessageBody('id') id: number,
     @ConnectedSocket() client: Socket,
   ) {
-       const rooms = await this.messagesService.getRooms(id);
-      //  this.socketGateway.getServer().to(client.id).emit('rooms', rooms);
-      console.log('rooms in gateway : ');
-      console.log(rooms);
-      return rooms;
+    const rooms = await this.messagesService.getRooms(id);
+    //  this.socketGateway.getServer().to(client.id).emit('rooms', rooms);
+    console.log('rooms in gateway : ');
+    console.log(rooms);
+    return rooms;
   }
 
   @SubscribeMessage('createMessage') // to be able to send new messages
@@ -71,14 +70,13 @@ export class MessagesGateway
       id,
       username,
     );
-    const room = "chat_" + message.chatId;
-    
-    
+    const room = 'chat_' + message.chatId;
+
     this.socketGateway.getServer().to(room).emit('message', message); // emit events to all connected clients
-    
+
     return message;
   }
-  
+
   @SubscribeMessage('createRoom')
   async creatRoom(
     @MessageBody('id1') id1: number,
@@ -86,11 +84,16 @@ export class MessagesGateway
     @MessageBody('roomType') roomType: ChatType,
     @MessageBody('roomPassword') roomPassword: string,
     @ConnectedSocket() client: Socket,
-  )
-  {
+  ) {
     console.log('create called');
     // console.log('in gateway -- id: ' + id1 + ' user: ' + name + ' just created the chat');
-    return await this.messagesService.createChannel(id1, name,roomType,roomPassword, client.id);
+    return await this.messagesService.createChannel(
+      id1,
+      name,
+      roomType,
+      roomPassword,
+      client.id,
+    );
   }
   @SubscribeMessage('findAllMessages') // to be able to see the old messages
   async findAll(
@@ -98,7 +101,7 @@ export class MessagesGateway
     @MessageBody('id') id: number,
     @MessageBody('username') username: string | null,
     @ConnectedSocket() client: Socket,
-  ) { 
+  ) {
     return await this.messagesService.findAll(name, id, username);
   }
   @SubscribeMessage('join')
@@ -115,15 +118,21 @@ export class MessagesGateway
     // console.log(name);
     // console.log('room type in gateway : ');
     // console.log(selectedType);
-    const room = await this.messagesService.identify(id, name,selectedType,selectedPswd,client.id);
+    const room = await this.messagesService.identify(
+      id,
+      name,
+      selectedType,
+      selectedPswd,
+      client.id,
+    );
     // console.log('room in gateway : ');
     // console.log(room);
     if (room) {
-      client.join("chat_"+ room.id_chat);
+      client.join('chat_' + room.id_chat);
       console.log('user: ' + id + ' joined the chat');
       return room;
     }
-   return false;
+    return false;
   }
   @SubscribeMessage('joinDm')
   async joinDm(
@@ -132,16 +141,27 @@ export class MessagesGateway
     @MessageBody('username') username: string,
     @ConnectedSocket() client: Socket,
   ) {
+    console.log(
+      'the user with id ' +
+        id +
+        ' and name  ' +
+        username +
+        ' wants to join the dm with ' +
+        name,
+    );
 
-    console.log('the user with id ' + id +' and name  ' + username + ' wants to join the dm with ' + name);
-
-    const room = await this.messagesService.identifyDm(id, name,username,client.id);
+    const room = await this.messagesService.identifyDm(
+      id,
+      name,
+      username,
+      client.id,
+    );
     if (room) {
-      client.join("chat_"+ room.id_chat);
+      client.join('chat_' + room.id_chat);
       console.log('user: ' + username + ' joined the chat with ' + name);
       return room;
     }
-   return false;
+    return false;
   }
 
   // @SubscribeMessage('typing')
@@ -157,6 +177,6 @@ export class MessagesGateway
 
   //   const room = "chat_" + chat.id_chat;
   //   client.broadcast.to(room).emit('typing', { username:username, isTyping: isTyping });
-    
+
   // }
 }

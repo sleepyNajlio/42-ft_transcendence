@@ -26,7 +26,7 @@ export class GameController {
     @Param() { userId }: { userId: string },
     @Param() { status }: { status: GameStatus },
   ) {
-    console.log('user ' + userId + ' delete game ' + status + '');
+    // console.log('user ' + userId + ' delete game ' + status + '');
     const game = await this.gameService.deleteGameByUserId(
       Number(userId),
       status,
@@ -39,7 +39,7 @@ export class GameController {
     @Param() { gameId }: { gameId: string },
     @Body() { userId }: { userId: string },
   ) {
-    console.log('user ' + userId + ' join game ' + gameId + '');
+    // console.log('user ' + userId + ' join game ' + gameId + '');
     const game = await this.gameService.joinGame(
       Number(gameId),
       Number(userId),
@@ -52,7 +52,7 @@ export class GameController {
     @Param() { gameId }: { gameId: string },
     @Body() { status }: { status: GameStatus },
   ) {
-    console.log(' game ' + gameId + 'status ' + status + '');
+    // console.log(' game ' + gameId + 'status ' + status + '');
     const game = await this.gameService.updateGame(Number(gameId), status);
     return game;
   }

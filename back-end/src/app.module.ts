@@ -8,6 +8,7 @@ import { GameModule } from './game/game.module';
 import { PassportModule } from '@nestjs/passport';
 import { AuthModule } from './auth/auth.module';
 import { ProfileModule } from './profile/profile.module';
+import { TwofaModule } from './twofa/twofa.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { ProfileModule } from './profile/profile.module';
     SocketModule,
     GameModule,
     ProfileModule,
+    TwofaModule,
   ],
   controllers: [AppController],
   providers: [],

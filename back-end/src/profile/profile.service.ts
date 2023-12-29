@@ -28,19 +28,24 @@ export class ProfileService {
   async getAllUsers(token: string) {
     try {
       const decoded = this.jwtService.verify(token);
-      // Here, you can fetch user data based on the decoded JWT token payload
+      // Here, you can fetch users data based on the decoded JWT token payload
       // Example: Fetch user data from the database using `decoded.sub` or `decoded.username`
       // console.log(decoded);
-      const user = await this.prisma.player.findMany({
-        where: {
-          NOT: {
-            username: decoded.username,
-          },
-        },
-      });
-      return user;
+      const users = await this.prisma.player.findMany();
+      return users;
     } catch (error) {
       throw new Error('Invalid token'); // Handle token verification errors
     }
+  }
+
+  async setTwoFaSecret(secret: string, mail: string){
+    await this.prisma.player.update({
+      where: {
+        email: mail,
+      },
+      data: {
+        twoFASecret: secret,
+      },
+    });
   }
 }

@@ -11,9 +11,6 @@ export class authDTO {
 
   @IsString()
   @IsNotEmpty()
-
-  @IsString()
-  @IsNotEmpty()
   avatar: string;
 }
 
@@ -39,4 +36,10 @@ export class signupDTO {
   @IsString()
   @IsNotEmpty()
   username: string;
+}
+
+export class twoFaDTO {
+  @IsString()
+  @IsNotEmpty()
+  token: string;
 }

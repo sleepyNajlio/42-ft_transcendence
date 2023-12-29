@@ -40,20 +40,22 @@ export class AuthController {
   @SetMetadata('isPublic', true)
   @Get('42-redirect')
   async auth42Redirect(@Req() req, @Res({ passthrough: true }) res) {
+    // console.log(req.user);
+    console.log("42-redirect");
     if (req.user.isAuthenticated) {
       const { accessToken } = await this.authService.signToken(
         req.user.id,
         req.user.username,
       );
       res.cookie('JWT_TOKEN', accessToken);
-      res.redirect('http://localhost:5173/profile');
+      res.redirect('http://localhost:3000/2fa/qr-code');
     } else {
       const userToken = await this.jwtService.signAsync({
         sub: -42,
         email: req.user.email,
       });
       res.cookie('USER', userToken);
-      res.redirect('http://localhost:5173/Config');
+      res.redirect('http://localhost:3000/2fa/qr-code');
     }
   }
   @SetMetadata('isPublic', true)
