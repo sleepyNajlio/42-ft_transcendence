@@ -116,7 +116,7 @@ box-sizing: border-box;
 {
     height: 2px;
     background-color: #f2f4f6;
-    width: 270px;
+    width: 80%;
 }
 
 .btn:hover
@@ -141,7 +141,7 @@ box-sizing: border-box;
 }
 
 .user .name{
-    width: 110px;
+    /* width: 110px; */
     text-align: left;
 }
 
@@ -203,7 +203,7 @@ box-sizing: border-box;
   }
   
 
-@media (max-width: 768px) {
+@media (max-width: 994px) {
     .menu-icon
     {
         display: block;
@@ -219,7 +219,6 @@ box-sizing: border-box;
     }
 }
 @media (max-width: 1200px) {
-
     .container
     {
         grid-template-columns: 225px 1fr;

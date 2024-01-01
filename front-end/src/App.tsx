@@ -24,25 +24,26 @@ function App()
 {
     const location = useLocation();
     
-        const navigate = useNavigate();
-        const [invite, setInvite] = useState<inviteStatus>(inviteStatus.NONE);
-        const [inviters, setInviters] = useState<{user_id: string, username: string}[]>([]);
-        const [isnotified, setisnotified] = useState(true);
-        const [inPlay, setInPlay] = useState(false);
-        const { user, initialize,  socket } = useContext(UserContext);
-        
-            const checkIfMediumPlus = useMediaPredicate(
-                '(min-width: 769px)'
-              );
-        const inviteResp = async (resp: Boolean, inviter: any) => {
-            if (socket)
-            {
-                socket.emit('inviteResp', {
+    const navigate = useNavigate();
+    const [invite, setInvite] = useState<inviteStatus>(inviteStatus.NONE);
+    const [inviters, setInviters] = useState<{user_id: string, username: string}[]>([]);
+    const [isnotified, setisnotified] = useState(true);
+    const [inPlay, setInPlay] = useState(false);
+    const { user, initialize,  socket } = useContext(UserContext);
+    
+        const checkIfMediumPlus = useMediaPredicate(
+            '(min-width: 994px)'
+            );
+    const inviteResp = async (resp: Boolean, inviter: any) => {
+        if (socket)
+        {
+            socket.emit('inviteResp', {
                 accepted: resp,
                 userId: inviter?.user_id.toString(),
                 adv_id: user?.id_player.toString(),
                 username: user?.username,
-                }, async (response: any) => {
+            }, async (response: any) => {
+                // got players ratio
                 console.log('Received acknowledgement from server:', response);
                 if (!response) {
                     console.log('error');
@@ -57,63 +58,60 @@ function App()
                 console.log('gameId: ', gameId);
                 await axios.post(`http://localhost:3000/game/${gameId}/joinGame`, {userId: user?.id_player},  { withCredentials: true });
                 await axios.post(`http://localhost:3000/game/${gameId}/updateGame`, {status: 'PLAYING'},  { withCredentials: true });
-                });
-            }
+            });
+        }
+    };
+    
+    const isMounted = useRef(true); // useRef to track whether the component is mounted
+    useEffect(() => {
+        if (isMounted.current) {
+        initialize();
+        console.log('isMounted: ', isMounted.current);
+        // socket.emit('playOpen', { id: socket.id });
+        }
+        return () => {
+        isMounted.current = false;
         };
-    if (location.pathname != '/')
-    {
-        const isMounted = useRef(true); // useRef to track whether the component is mounted
-        useEffect(() => {
-            if (isMounted.current) {
-            initialize();
-            console.log('isMounted: ', isMounted.current);
-            // socket.emit('playOpen', { id: socket.id });
-            }
-            return () => {
-            isMounted.current = false;
-            };
-        } , []);
-        
-        const handleInvited = (data: any) => {
-            if (inPlay)
-                return;
-            console.log("invited by ", data);
-            setisnotified(true);
-            setInviters(prevInviters => [...prevInviters, {user_id: data.user_id, username: data.username}]);
-            setInvite(inviteStatus.INVITED);
+    } , []);
+    useEffect(() => {
+        // Listen for 'invited' event
+        if (socket)
+        {
+            console.log('listening socket: invited');
+            socket.emit('getNotifs', {userId: user?.id_player.toString()}, (response: any) => {
+                console.log('Received acknowledgement from server:', response);
+                if (response.length > 0) {
+                    // use user_id and username from response to setInviters
+                    setInviters(response);
+                    setInvite(inviteStatus.INVITED);
+                    setisnotified(true);
+                }
+                else
+                    setisnotified(false);
+            });
+            socket.on('invited', (data: any) => handleInvited(data));
+            socket.on('rminvite', (data: any) => handleRmInvite(data));
+        }
+        else
+            console.log('no socket');
+        // Clean up the event listener on unmount
+        return () => {
+            socket?.off('invited', handleInvited);
+            socket?.off('rminvite', handleRmInvite);
         };
-        const handleRmInvite = (data: any) => {
-            setInviters(prevInviters => prevInviters.filter((inviter) => inviter.user_id !== data));
-            console.log("invite removed ", data);
-        };
-        useEffect(() => {
-            // Listen for 'invited' event
-            if (socket)
-            {
-                console.log('listening socket: invited');
-                socket.emit('getNotifs', {userId: user?.id_player.toString()}, (response: any) => {
-                    console.log('Received acknowledgement from server:', response);
-                    if (response.length > 0) {
-                        // use user_id and username from response to setInviters
-                        setInviters(response);
-                        setInvite(inviteStatus.INVITED);
-                        setisnotified(true);
-                    }
-                    else
-                        setisnotified(false);
-                });
-                socket.on('invited', (data: any) => handleInvited(data));
-                socket.on('rminvite', (data: any) => handleRmInvite(data));
-            }
-            else
-                console.log('no socket');
-            // Clean up the event listener on unmount
-            return () => {
-                socket?.off('invited', handleInvited);
-                socket?.off('rminvite', handleRmInvite);
-            };
-        }, [socket]);
-    }
+    }, [socket]);
+    const handleInvited = (data: any) => {
+        if (inPlay)
+            return;
+        console.log("invited by ", data);
+        setisnotified(true);
+        setInviters(prevInviters => [...prevInviters, {user_id: data.user_id, username: data.username}]);
+        setInvite(inviteStatus.INVITED);
+    };
+    const handleRmInvite = (data: any) => {
+        setInviters(prevInviters => prevInviters.filter((inviter) => inviter.user_id !== data));
+        console.log("invite removed ", data);
+    };
 
     return (
         <div className={`container ` + (checkIfMediumPlus ? "default" : "one")}>
@@ -131,7 +129,7 @@ function App()
                 <AuthGuard
                     component={
                     <>
-                        <Navbar />
+                        {location.pathname != "/" && location.pathname != "/Config" && location.pathname != "/TwoFA" && location.pathname != "/Verify2FA" && (<Navbar />)}
                         <div className="invite sbox">
                         {isnotified && invite === inviteStatus.INVITED && inviters.map((inviter) => ( (
                             <div key={inviter.user_id} className="invite">

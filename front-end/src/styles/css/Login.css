@@ -89,7 +89,7 @@ box-sizing: border-box;
   grid-template-columns: 1fr 1fr;
 }
 
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 994px) {
   .cmain
   {
     display: none;

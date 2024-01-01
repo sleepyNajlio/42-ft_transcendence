@@ -3,9 +3,9 @@ import { useContext, useEffect, useRef } from 'react';
 import Sbox from './Components/Sbox.tsx';
 import  './styles/css/main.css'
 import { useState } from 'react';
-import { Circle } from '@svgdotjs/svg.js';
+import { G } from '@svgdotjs/svg.js';
 import { useDocumentVisible } from './useDocumentVisible'; // adjust the path according to your project structure
-import { Players, Ball, Player, inviteStatus } from './Components/types';
+import { Players, Ball } from './Components/types';
 import game from './Components/gameLogic';
 import axios from 'axios';
 import { UserContext } from './UserProvider.tsx';
@@ -20,10 +20,9 @@ export function Play(props: {setInPlay: any, inviter: any}) {
     const [inGame, setInGame] = useState(false);
     const [isLoading, setIsLoading] = useState(false); // Add a new state variable for loading
     const [players, setPlayers] = useState<Players>({});
-    const [iscanceled, setIscanceled] = useState(false);
     const [error, setError] = useState(false);
     const bballRef = useRef<Ball>({
-      cercle: new Circle(),
+      cercle: new G(),
       vx: 0,
       vy: 0,
       cx: 0,
@@ -99,8 +98,8 @@ export function Play(props: {setInPlay: any, inviter: any}) {
       if (user) {
         userId = user.id_player;
       }
-      if (socket)
-      socket.emit('matchmaking', { id: socket.id }, async (response: any) => {
+      if (socket && componentRef.current)
+      socket.emit('matchmaking', { id: socket.id, width: componentRef.current.offsetWidth }, async (response: any) => {
         console.log('Received acknowledgement from server:', response);
         resp = response;
         if (!resp) {
@@ -113,6 +112,7 @@ export function Play(props: {setInPlay: any, inviter: any}) {
           setIsLoading(true);
         }
         else {
+          // got the players ratio
           let gameId = await axios.get(`http://localhost:3000/game/${resp.id}/getgame/SEARCHING`, { withCredentials: true });
           console.log('gameId: ', gameId);
           gameId = gameId.data.id_game;
@@ -121,7 +121,6 @@ export function Play(props: {setInPlay: any, inviter: any}) {
           await axios.post(`http://localhost:3000/game/${gameId}/updateGame`, {status: 'PLAYING'},  { withCredentials: true });
         }
       });
-      
     };
     
     useEffect(() => {
@@ -189,7 +188,6 @@ export function Play(props: {setInPlay: any, inviter: any}) {
       console.log('walla');
       setInPlay(true);
       return () => {
-        setIscanceled(true);
         setInPlay(false);
         // socket.off('startGame');
         // isMounted.current = false; // Set to false when the component is unmounted
@@ -210,11 +208,21 @@ export function Play(props: {setInPlay: any, inviter: any}) {
       // else {
       //   socket.emit('playClose', { id: socket.id });
       // }
-      return () => {
-        setIscanceled(true);
-      };
     }, [isDocumentVisible]);
-
+    const componentRef = useRef<HTMLDivElement>(null);
+    const [componentWidth, setComponentWidth] = useState<number | null>(null);
+  
+    useEffect(() => {
+      if (!isMounted.current || !socket)
+      {
+        return;
+      }
+      if (componentRef.current) {
+        const width = componentRef.current.offsetWidth;
+        setComponentWidth(width);
+        console.log('componentWidth: ', componentWidth);
+      }
+    }, []);
 
     const inita = async () => {
       setIsLoading(false); // Set loading to false when the game starts
@@ -228,10 +236,12 @@ export function Play(props: {setInPlay: any, inviter: any}) {
       {
         return;
       }
-      if (showGame) {
+      
+      if (showGame && componentRef.current) {
+        const width = componentRef.current.offsetWidth;
         console.log('ball: ', bballRef.current);
         if (user){
-          const cleanup = game(socket, players, bballRef.current, user, inita);
+          const cleanup = game(socket, players, bballRef.current, width, user, players[user.id_player].ratio, players[user.id_player].vxratio, inita);
           return () => {
             cleanup();
           };
@@ -241,36 +251,37 @@ export function Play(props: {setInPlay: any, inviter: any}) {
 
     useEffect(() => {
       return () => {
-        isMounted.current = true; // Set to false when the component is unmounted
+        isMounted.current = true;
       };
     } , []);
 
     return (
-        <>
-            {showSbox && (
-                <Sbox
-                    btitle="Play"
-                    stitle="Goat pong"
-                    lb="Play with friend"
-                    rb="Matchmaking"
-                    isLoading = {isLoading} // Pass the loading state to the loading component
-                    inGame = {inGame}
-                    // invite = {invite}
-                    error = {error}
-                    inviter = {inviter}
-                    handleMatchClick={handleMatchClick}
-                    handleFriendClick={handleFriendClick}
-                    // inviteResp={inviteResp}
-                >
-                </Sbox>
-            )}
-            {showGame &&
-                <div className="game_container" id="game_container">
-                    <div className="pong" id="pong">
-                    </div>
-                </div>
-            }
-        </>
+      <>
+        <div ref={componentRef}
+        className="game_container" id="game_container">
+          {showSbox && (
+              <Sbox
+                  btitle="Play"
+                  stitle="Goat pong"
+                  lb="Play with friend"
+                  rb="Matchmaking"
+                  isLoading = {isLoading} // Pass the loading state to the loading component
+                  inGame = {inGame}
+                  // invite = {invite}
+                  error = {error}
+                  inviter = {inviter}
+                  handleMatchClick={handleMatchClick}
+                  handleFriendClick={handleFriendClick}
+                  // inviteResp={inviteResp}
+              >
+              </Sbox>
+          )}
+          {showGame &&
+                  <div className="pong" id="pong">
+                  </div>
+          }
+        </div>
+      </>
     );
 };
 

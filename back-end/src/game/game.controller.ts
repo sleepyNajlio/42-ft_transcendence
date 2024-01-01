@@ -61,11 +61,13 @@ export class GameController {
     @Param() { gameId }: { gameId: string },
     @Param() { userId }: { userId: string },
     @Body() { win }: { win: number },
+    @Body() { score }: { score: number },
   ) {
     const game = await this.gameService.updateUserGame(
       Number(userId),
       Number(gameId),
       win,
+      score,
     );
     return game;
   }

@@ -17,9 +17,13 @@ const AuthGuard = ({ component }: { component: ReactNode }) => {
 	
 	const checkToken = async () => {
 		try {
-			await axios.get('http://localhost:3000/auth/postAuthData', { withCredentials: true });
+			const payload = await axios.get('http://localhost:3000/auth/postAuthData', { withCredentials: true });
 			console.log('AuthGuard');
 			setStatus(true);
+			if (payload.data.sub === -42)
+			{
+				navigate('/Config');
+			}
 		} catch (error) {
 			console.error(error);
 			navigate('/');

@@ -1,4 +1,4 @@
-import { Rect, Circle, Image } from '@svgdotjs/svg.js';
+import { Rect, Circle, Image, G } from '@svgdotjs/svg.js';
 export type user_stats = {
   winsRat: number;
   wins: number;
@@ -40,12 +40,17 @@ export interface User {
 export interface Player {
   s_id: string;
   user_id: string,
-  host: boolean;
+  host: boolean,
+  width: string,
+  ratio: number,
+  vxratio: number,
   x: number;
   y: number;
   paddleDirection: number;
+  score: number;
   paddle? : Rect;
   paddleSpeed : number;
+  state: string;
 }
 
 // define a type of all players
@@ -57,7 +62,7 @@ export interface Players {
 export interface Ball {
   cx: number;
   cy: number;
-  cercle : Circle;
+  cercle : G;
   vx: number;
   vy: number;
 }
