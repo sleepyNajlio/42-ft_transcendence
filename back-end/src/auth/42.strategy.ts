@@ -1,6 +1,11 @@
 // src/auth/fortytwo.strategy.ts
 
-import { Injectable, HttpException, HttpStatus, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  HttpException,
+  HttpStatus,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { default as Strategy } from 'passport-42';
 import { ConfigService } from '@nestjs/config';
@@ -14,8 +19,8 @@ interface profile extends Profile {
   username: string;
   displayName: string;
   name: {
-      familyName: string;
-      givenName: string;
+    familyName: string;
+    givenName: string;
   };
   profileUrl: string;
   phoneNumbers: string;
@@ -24,22 +29,28 @@ interface profile extends Profile {
   _json: any;
 }
 
-
 @Injectable()
 export class FTStrategy extends PassportStrategy(Strategy, '42') {
-  constructor(private readonly configService: ConfigService, 
+  constructor(
+    private readonly configService: ConfigService,
     private readonly authService: AuthService,
-    private readonly usersService: UsersService) {
+    private readonly usersService: UsersService,
+  ) {
     super({
       clientID: configService.get<string>('42_UID'),
       clientSecret: configService.get<string>('42_SECRET'),
-      callbackURL: configService.get<string>("42_CALLBACK_URI"),
+      callbackURL: configService.get<string>('42_CALLBACK_URI'),
     });
   }
 
-  async validate(accessToken: string, refreshToken: string, profile: profile, cb: any): Promise<any> {
+  async validate(
+    accessToken: string,
+    refreshToken: string,
+    profile: profile,
+    cb: any,
+  ): Promise<any> {
     // Add your logic to validate or create a user based on the profile data
-    console.log("FTStrategy validate begin");
+    console.log('FTStrategy validate begin');
     const user = await this.authService.validateUser({
       username: profile.username,
       email: profile.emails[0].value,
@@ -47,6 +58,5 @@ export class FTStrategy extends PassportStrategy(Strategy, '42') {
     });
     if (user) cb(null, user);
     else cb(null, false);
-
   }
 }

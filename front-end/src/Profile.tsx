@@ -8,8 +8,8 @@ import { UserContext } from './UserProvider.tsx';
 
 export function Profile(props: {  }) {
   const { user } = useContext(UserContext);
-  console.log("user: ");
-  console.log(user);
+  // console.log("user: ");
+  // console.log(user);
 
   const [tempuser, setTempuser] = useState({
     id: "1",

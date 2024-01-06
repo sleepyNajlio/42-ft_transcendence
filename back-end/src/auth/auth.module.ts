@@ -8,13 +8,17 @@ import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './guards/jwt.guard';
 
 @Module({
-  imports: [UsersModule,
+  imports: [
+    UsersModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '24h' },
-    }),],
+      global: true,
+    }),
+  ],
   controllers: [AuthController],
-  providers: [AuthService, 
+  providers: [
+    AuthService,
     FTStrategy,
     {
       provide: APP_GUARD,

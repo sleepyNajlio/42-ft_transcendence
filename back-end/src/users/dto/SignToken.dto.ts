@@ -5,10 +5,3 @@ export class TokenDTO {
   @IsNotEmpty()
   id: number;
 }
-
-
-
-
-
-
-

@@ -5,7 +5,7 @@ import { PrismaModule } from './prisma.module';
 
 @Injectable()
 export class PrismaService extends PrismaClient {
-    async onModuleInit() {
-        await this.$connect();
-    }
+  async onModuleInit() {
+    await this.$connect();
+  }
 }

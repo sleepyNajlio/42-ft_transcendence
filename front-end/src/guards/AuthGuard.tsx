@@ -16,15 +16,29 @@ const AuthGuard = ({ component }: { component: ReactNode }) => {
 	
 	
 	const checkToken = async () => {
-		try {
-			await axios.get('http://localhost:3000/auth/postAuthData', { withCredentials: true });
+		await axios.get('http://localhost:3000/profile', { withCredentials: true })
+		.then(res => {
+			if (res.data.isAuthenticated == false) {
+				setStatus(true);
+				navigate('/Config');
+			}
+			else
+				setStatus(true);
 			console.log('AuthGuard');
-			setStatus(true);
-		} catch (error) {
-			console.error(error);
-			navigate('/');
+		}).catch(error => {
+			console.error(error.response.data.message);
 			setStatus(false);
-		}
+			navigate('/');
+		});
+		// try {
+		// 	await axios.get('http://localhost:3000/profile', { withCredentials: true });
+		// 	console.log('AuthGuard');
+		// 	setStatus(true);
+		// } catch (error) {
+		// 	console.error(error);
+		// 	navigate('/');
+		// 	setStatus(false);
+		// }
 	};
 
 	return status ? <React.Fragment>{component}</React.Fragment> : <React.Fragment></React.Fragment>;
