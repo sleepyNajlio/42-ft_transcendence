@@ -1,153 +1,65 @@
-import {
-  Body,
-  Controller,
-  Get,
-  HttpCode,
-  Post,
-  Req,
-  Res,
-  SetMetadata,
-  UnauthorizedException,
-  UploadedFile,
-  UseGuards,
-  UseInterceptors,
-} from '@nestjs/common';
+import { Controller, Post, Get, UseGuards, Req, Res, SetMetadata, Body, HttpException, HttpStatus } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { signinDTO, signupDTO } from 'src/dto';
-import { FTAuthGuard } from 'src/guards/auth.42.guard';
 import { Request, Response } from 'express';
+import { FTAuthGuard } from './guards/42.auth.guard';
 import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { SignUpDTO } from 'src/users/dto/SignUp.dto';
+import { Sign } from 'crypto';
 
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private readonly authService: AuthService,
-    private config: ConfigService,
-    private jwtService: JwtService,
-    private prisma: PrismaService,
-  ) {}
+  constructor(private readonly authService: AuthService) {}
 
-  @UseGuards(FTAuthGuard)
   @SetMetadata('isPublic', true)
+  @UseGuards(FTAuthGuard)
   @Get('42')
-  auth42() {}
+  FTAUth() {
+    return "Authentication 42";
+  }
 
+  @SetMetadata('isPublic', true)
   @UseGuards(FTAuthGuard)
-  @SetMetadata('isPublic', true)
   @Get('42-redirect')
-  async auth42Redirect(@Req() req, @Res({ passthrough: true }) res) {
+  async FTCallback(@Req() req, @Res( {passthrough: true}) res: Response) {
+    // console.log("FTCallback begin");
     // console.log(req.user);
-    console.log("42-redirect");
-    if (req.user.isAuthenticated) {
-      const { accessToken } = await this.authService.signToken(
-        req.user.id,
-        req.user.username,
-      );
-      res.cookie('JWT_TOKEN', accessToken);
-      res.redirect('http://localhost:3000/2fa/qr-code');
-    } else {
-      const userToken = await this.jwtService.signAsync({
-        sub: -42,
-        email: req.user.email,
-      });
-      res.cookie('USER', userToken);
-      res.redirect('http://localhost:3000/2fa/qr-code');
+    const cookie = await this.authService.signToken(req.user["email"]);
+    if (req.user["isAuthenticated"]) {
+      console.log("mwellef");
+      res.cookie('JWT_TOKEN', cookie, { httpOnly: true });
+      return "mwellef";
+      // res.redirect("http://localhost:3000/");
     }
-  }
-  @SetMetadata('isPublic', true)
-  @Get('preAuthData')
-  async getPreAuthData(@Req() req) {
-    const token = req.cookies['USER'];
-    if (!token) throw new UnauthorizedException('Invalid Request');
-    try {
-      const payload = await this.jwtService.verifyAsync(token, {
-        secret: this.config.get('JWT_SECRET'),
-      });
-      const { email, username, avatar } = await this.authService.findUser(
-        payload.email,
-      );
-      const user = {
-        email,
-        username,
-        avatar,
-      };
-      return { user };
-    } catch {
-      throw 'test';
+    else {
+      console.log("first time");
+      res.cookie('USER', cookie, { httpOnly: true });
+      // return "first time";
+      return cookie;
+      res.redirect("http://localhost:3000/auth/finish-signup");
     }
-  }
-  @SetMetadata('isPublic', true)
-  @Get('postAuthData')
-  async getPostAuthData(@Req() req) {
-    let token = req.cookies['JWT_TOKEN'];
-    if (!token) {
-      token = req.cookies['USER'];
-      if (!token) throw new UnauthorizedException('Invalid Request');
-    }
-    try {
-      const payload = await this.jwtService.verifyAsync(token, {
-        secret: this.config.get('JWT_SECRET'),
-      });
-      console.log('success');
-      return { payload };
-    } catch {
-      console.log('fail');
-      throw 'test';
-    }
+    // console.log(req.user);
+    // return "Authentication 42 callback";
+    // return this.authService.login();
   }
 
   @SetMetadata('isPublic', true)
-  @Post('finish_signup')
+  @Post('finish-signup')
   async finish_signup(
-    @Body() dto: signupDTO,
-    @Req() req: Request,
+    @Body() dto: SignUpDTO,
+    @Req() req,
     @Res({ passthrough: true }) res: Response,
   ) {
+
+    if (req.cookies) {
+      if (!req.cookies["USER"])
+      throw new HttpException('Invalid Request', HttpStatus.BAD_REQUEST);   
+    }
+    else throw new HttpException('Invalid Request', HttpStatus.BAD_REQUEST);
+    console.log("finish_signup controller");
     const UserToken = req.cookies['USER'];
     const token = await this.authService.finish_signup(dto, UserToken);
-    res.cookie('JWT_TOKEN', token.accessToken);
+    res.cookie('JWT_TOKEN', token);
     res.cookie('USER', '', { expires: new Date() });
-    return { msg: 'Success' };
   }
 
-  @SetMetadata('isPublic', true)
-  @Post('uploadAvatar')
-  @UseInterceptors(
-    FileInterceptor('avatar', {
-      storage: diskStorage({
-        destination: './uploads',
-        filename: (req, file, cb) => {
-          const uniqueSuffix = Math.round(Math.random() * 1e9);
-          cb(null, `${uniqueSuffix}_${file.originalname}`);
-        },
-      }),
-    }),
-  )
-  async uploadAvatar(@Req() req, @UploadedFile() file) {
-    const UserToken = req.cookies['USER'];
-    this.authService.saveAvatar(UserToken, file);
-    return { msg: 'success' };
-  }
-
-  @HttpCode(200)
-  @SetMetadata('isPublic', true)
-  @Post('signin')
-  async signin(
-    @Body() dto: signinDTO,
-    @Res({ passthrough: true }) res: Response,
-  ) {
-    const token = await this.authService.signin(dto);
-    res.cookie('JWT_TOKEN', token.accessToken);
-    return { token: token };
-  }
-
-  @Get('signout')
-  logout(@Res({ passthrough: true }) res: Response) {
-    res.cookie('JWT_TOKEN', '', { expires: new Date() });
-    return { msg: 'Success' };
-  }
 }

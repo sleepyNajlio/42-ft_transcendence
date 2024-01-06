@@ -10,119 +10,23 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Player {
+model User {
   id_player       Int          @id @default(autoincrement())
   username        String       @unique
   avatar          String       @unique
   email           String       @unique
   isAuthenticated Boolean?     @default(false)
   level           Int          @default(1)
-  status          PlayerStatus @default(OFFLINE)
+  status          UserStatus   @default(OFFLINE)
   wins            Int          @default(0)
   loses           Int          @default(0)
   twofa           Boolean?     @default(false)
   twoFASecret     String?
-
-  chats    ChatUser[]
-  games    UserGame[]
-  messages ChatMessage[]
-
-  friendshipAsked    FriendShip[] @relation(name: "requester")
-  friendshipReceived FriendShip[] @relation(name: "receiver")
 }
 
-model FriendShip {
-  status   RelationStatus @default(PENDING)
-  userId   Int
-  friendId Int
-  user     Player         @relation("receiver", fields: [userId], references: [id_player])
-  friend   Player         @relation("requester", fields: [friendId], references: [id_player])
-
-  @@unique([userId, friendId])
-}
-
-model UserGame {
-  id_user_game Int    @id @default(autoincrement())
-  score        Int    @default(0)
-  win          Int    @default(0)
-  userId       Int
-  gameId       Int
-  user         Player @relation(fields: [userId], references: [id_player])
-  game         Game   @relation(fields: [gameId], references: [id_game])
-
-  @@unique([userId, gameId])
-}
-
-model Game {
-  id_game Int        @id @default(autoincrement())
-  status  GameStatus @default(SEARCHING)
-  users   UserGame[]
-
-  createdAt DateTime @default(now())
-}
-
-model ChatUser {
-  id_chat_user Int      @id @default(autoincrement())
-  role         ChatRole @default(MEMBER)
-  userId       Int
-  chatId       Int
-  user         Player   @relation(fields: [userId], references: [id_player])
-  chat         Chat     @relation(fields: [chatId], references: [id_chat])
-
-  joinedAt DateTime @default(now())
-
-  @@unique([userId, chatId])
-}
-
-model Chat {
-  id_chat  Int      @id @default(autoincrement())
-  type     ChatType @default(PUBLIC)
-  name     String?
-  password String?
-
-  messages ChatMessage[]
-  users    ChatUser[]
-
-  createdAt DateTime @default(now())
-  UpdatedAt DateTime @updatedAt
-}
-
-model ChatMessage {
-  id3_chat_message Int    @id @default(autoincrement())
-  message          String
-  userId           Int
-  chatId           Int
-  user             Player @relation(fields: [userId], references: [id_player])
-  chat             Chat   @relation(fields: [chatId], references: [id_chat])
-
-  sentAt DateTime @default(now())
-}
-
-enum ChatRole {
-  MEMBER
-  ADMIN
-}
-
-enum ChatType {
-  PUBLIC
-  PRIVATE
-  PROTECTED
-}
-
-enum GameStatus {
-  SEARCHING
-  PLAYING
-  FINISHED
-  ABORTED
-}
-
-enum PlayerStatus {
+enum UserStatus {
   ONLINE
   OFFLINE
 }
 
-enum RelationStatus {
-  PENDING
-  ACCEPTED
-  DECLINED
-}
+
