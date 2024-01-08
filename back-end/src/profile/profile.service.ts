@@ -53,4 +53,16 @@ export class ProfileService {
     });
     return user;
   }
+
+  // async getUsersRank() {
+  //   const players = await this.prisma.player.findMany({
+  //     include: {
+  //       games: true,
+  //     },
+  //   });
+  //   return players;
+  // }
+  // getUsersRankId(arg0: number) {
+  //   throw new Error('Method not implemented.');
+  // }
 }

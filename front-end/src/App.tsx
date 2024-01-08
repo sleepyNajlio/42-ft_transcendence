@@ -14,7 +14,7 @@ import Navbar from './Components/Navbar.tsx';
 import { UserContext } from './UserProvider.tsx';
 import AuthGuard from './guards/AuthGuard.tsx';
 import UnAuthGuard from './guards/UnAuthGuard.tsx';
-import { useMediaPredicate } from 'react-media-hook';
+import { useMediaPredicate, useMedia } from 'react-media-hook';
 import {inviteStatus} from './Components/types.ts'
 import { TestChat } from './Testchat.tsx';
 import axios from 'axios';
@@ -30,11 +30,26 @@ function App()
     const [isnotified, setisnotified] = useState(true);
     const [inPlay, setInPlay] = useState(false);
     const { user, initialize,  socket } = useContext(UserContext);
+
+    const checkIfMediumPlus = useMediaPredicate(
+        '(min-width: 994px)'
+        );
+        // navbar sizes
+        // ```
+        // 1200 ==>  20%
+        // 994 - 1200 ==> 225px
+        // 0 - 994 ==> 0px
+        // ```
+        
+    const [isMediumPlus, isMedium, isSmall] = [useMediaPredicate('(min-width: 1200px)'), useMediaPredicate('(min-width: 994px)'), useMediaPredicate('(min-width: 0px)')]
     
-        const checkIfMediumPlus = useMediaPredicate(
-            '(min-width: 994px)'
-            );
     const inviteResp = async (resp: Boolean, inviter: any) => {
+        // if (componentRef)
+        // {
+            console.log('componentRef: ', width);
+            // console.log('componentRef.current: ', componentRef.current);
+            // componentRef.current?.scrollIntoView({ behavior: 'smooth' });
+        // }
         if (socket)
         {
             socket.emit('inviteResp', {
@@ -63,6 +78,24 @@ function App()
     };
     
     const isMounted = useRef(true); // useRef to track whether the component is mounted
+    const width = useMemo(() => {
+        if (!isMounted.current) {
+            console.log('isMediumPlus: ', isMediumPlus, ' isMedium: ', isMedium, ' isSmall: ', isSmall);
+            if (isMediumPlus){
+                console.log('kbira document.body.clientWidth: ', document.body.offsetWidth);
+                return document.body.offsetWidth * 0.8;
+            }
+            else if (isMedium)
+                return document.body.offsetWidth - 225;
+            else if (isSmall)
+            {
+                console.log('sghir document.body.clientWidth: ', document.body.offsetWidth);
+                return document.body.offsetWidth;
+            }
+            else
+                return '0px';
+        }
+    } , [isMediumPlus, isMedium, isSmall] );
     useEffect(() => {
         if (isMounted.current) {
         initialize();
@@ -112,6 +145,8 @@ function App()
         setInviters(prevInviters => prevInviters.filter((inviter) => inviter.user_id !== data));
         console.log("invite removed ", data);
     };
+    const componentRef = useRef<HTMLDivElement>(null);
+    const [boardWidth, setboardWidth] = useState<number | null>(null);
 
     return (
         <div className={`container ` + (checkIfMediumPlus ? "default" : "one")}>
@@ -150,7 +185,7 @@ function App()
                         <Route key='testchat' path='/Testchat' caseSensitive={true} element={<TestChat />} />
                         <Route key='Verify2FA' path='/Verify2FA' caseSensitive={true} element={<Verify2FA />} />
                         <Route key='Profile' path='/Profile' caseSensitive={true} element={<Profile />} />
-                        <Route key='Play' path='/Play' caseSensitive={true} element={<Play setInPlay={setInPlay} inviter={inviters} />} />
+                        <Route key='Play' path='/Play' caseSensitive={true} element={<Play setInPlay={setInPlay} inviter={inviters} setboardWidth={setboardWidth} />} />
                         <Route key='Chat' path='/Chat' caseSensitive={true} element={<Chat />} />
                         <Route key='Settings' path='/Settings' caseSensitive={true} element={<Settings />} />
                         <Route key='Leaderboard' path='/Leaderboard' caseSensitive={true} element={<Leaderboard />} />

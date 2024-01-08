@@ -10,9 +10,10 @@ import game from './Components/gameLogic';
 import axios from 'axios';
 import { UserContext } from './UserProvider.tsx';
 
-export function Play(props: {setInPlay: any, inviter: any}) {
+
+export function Play({ setInPlay, inviter, setboardWidth }: { setInPlay: any, inviter: any, setboardWidth: React.Dispatch<React.SetStateAction<number | null>> }){
   const { user, socket } = useContext(UserContext);
-  const {setInPlay, inviter} = props;
+  // const {setInPlay, inviter} = props;
     const isDocumentVisible = useDocumentVisible();
     const isMounted = useRef<boolean>(false);; // useRef to track whether the component is mounted
     const [showSbox, setShowSbox] = useState(true);
@@ -21,6 +22,8 @@ export function Play(props: {setInPlay: any, inviter: any}) {
     const [isLoading, setIsLoading] = useState(false); // Add a new state variable for loading
     const [players, setPlayers] = useState<Players>({});
     const [error, setError] = useState(false);
+    const [currentPad, setCurrentPad] = useState(1);
+    const [currentBoard, setCurrentBoard] = useState(1);
     const bballRef = useRef<Ball>({
       cercle: new G(),
       vx: 0,
@@ -30,13 +33,15 @@ export function Play(props: {setInPlay: any, inviter: any}) {
     });
     
     const handleFriendClick = async (player_id: number) => {
-      if (socket)
+      if (socket && componentRef.current?.offsetWidth)
       {
         socket.emit('invite', 
         {
           adv_id: player_id.toString(),
           userId: user?.id_player.toString(),
           username: user?.username,
+          width: componentRef.current?.offsetWidth,
+          difficulty: 3,
         }, async (response: any) => {
           console.log('Received acknowledgement from server:', response);
           if (!response) {
@@ -98,8 +103,9 @@ export function Play(props: {setInPlay: any, inviter: any}) {
       if (user) {
         userId = user.id_player;
       }
+      console.log('currentPad: ', currentPad);
       if (socket && componentRef.current)
-      socket.emit('matchmaking', { id: socket.id, width: componentRef.current.offsetWidth }, async (response: any) => {
+      socket.emit('matchmaking', { id: socket.id, width: componentRef.current?.offsetWidth, difficulty: 3, padl: currentPad }, async (response: any) => {
         console.log('Received acknowledgement from server:', response);
         resp = response;
         if (!resp) {
@@ -210,7 +216,6 @@ export function Play(props: {setInPlay: any, inviter: any}) {
       // }
     }, [isDocumentVisible]);
     const componentRef = useRef<HTMLDivElement>(null);
-    const [componentWidth, setComponentWidth] = useState<number | null>(null);
   
     useEffect(() => {
       if (!isMounted.current || !socket)
@@ -219,11 +224,10 @@ export function Play(props: {setInPlay: any, inviter: any}) {
       }
       if (componentRef.current) {
         const width = componentRef.current.offsetWidth;
-        setComponentWidth(width);
-        console.log('componentWidth: ', componentWidth);
+        setboardWidth(width);
       }
     }, []);
-
+    
     const inita = async () => {
       setIsLoading(false); // Set loading to false when the game starts
       setShowSbox(true);
@@ -241,7 +245,7 @@ export function Play(props: {setInPlay: any, inviter: any}) {
         const width = componentRef.current.offsetWidth;
         console.log('ball: ', bballRef.current);
         if (user){
-          const cleanup = game(socket, players, bballRef.current, width, user, players[user.id_player].ratio, players[user.id_player].vxratio, inita);
+          const cleanup = game(socket, 3, currentBoard, players, bballRef.current, width, user, players[user.id_player].ratio, players[user.id_player].vxratio, inita);
           return () => {
             cleanup();
           };
@@ -272,6 +276,10 @@ export function Play(props: {setInPlay: any, inviter: any}) {
                   inviter = {inviter}
                   handleMatchClick={handleMatchClick}
                   handleFriendClick={handleFriendClick}
+                  setCurrentPad={setCurrentPad}
+                  setCurrentBoard={setCurrentBoard}
+                  currentPad={currentPad}
+                  currentBoard={currentBoard}
                   // inviteResp={inviteResp}
               >
               </Sbox>

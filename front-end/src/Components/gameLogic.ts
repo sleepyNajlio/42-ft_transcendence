@@ -8,6 +8,8 @@ import Background1 from '../assets/game/khezi.svg'
 import Background2 from '../assets/game/sor.svg'
 import Hole from '../assets/game/Props/Hole.svg'
 import Ballsvg from '../assets/game/pokeball.svg'
+import { padlPattern1, padlPattern2, padlPattern3, boardPattern1, boardPattern2, boardPattern3 } from './patterns';
+
 
 const animateText = (child: Text, text: string, index: number, width: number = 600) => {
   if (index <= text.length) {
@@ -19,7 +21,6 @@ const animateText = (child: Text, text: string, index: number, width: number = 6
     }, 300);
   }
 };
-
 
 function boardData(ball: Ball, pHost: Player, pGuest: Player, scoreLeft: Text, scoreRight: Text, data: {ball: Ball, playerLeft: number, playerRight: number}, ratio: number){
   data.ball.cx = data.ball.cx * ratio;
@@ -37,15 +38,15 @@ function boardData(ball: Ball, pHost: Player, pGuest: Player, scoreLeft: Text, s
   scoreRight.text(pGuest.score.toString())
 }
 
-function launchBall(socket: Socket, ball: Ball, pHost: Player, ratio: number) {
+function launchBall(socket: Socket, ball: Ball, pHost: Player, ratio: number, dificulty: number = 3) {
   if (ball.vx === 0 && ball.vy === 0) {
-    let tvx = Math.random() * 500 - 250
-    let tvy = Math.random() * 500 - 250
-    while (Math.abs(tvx) < 100) {
-      tvx = Math.random() * 500 - 250
+    let tvx = Math.random() * dificulty * 64;
+    let tvy = Math.random() * dificulty * 64;
+    while (30 * dificulty > Math.abs(tvx)) {
+      tvx = Math.random() * dificulty * 64;
     }
-    while (Math.abs(tvy) < 100) {
-      tvy = Math.random() * 500 - 250
+    while (30 * dificulty > Math.abs(tvy)) {
+      tvy = Math.random() * dificulty * 64;
     }
     console.log(`tvx: ${tvx}, tvy: ${tvy}, cx: ${ball.cx}, cy: ${ball.cy}` );
     socket.emit('moveBall', { ball: {vx: tvx, vy: tvy , cx: ball.cx / ratio, cy: ball.cy}, action: "start", userId: pHost.user_id });
@@ -72,7 +73,7 @@ function endGame(width: number, height: number, message: string, nested: any, in
   });
 }
 
-const reset = async (playerRight: number = 0, playerLeft: number = 0, width: number = 600, height: number = 600, socket: Socket, pHost: Player, pGuest: Player) => {
+const reset = async (playerRight: number = 0, playerLeft: number = 0, width: number = 600, height: number, socket: Socket, pHost: Player, pGuest: Player) => {
   if (playerLeft === 10 || playerRight === 10)
     socket.emit('moveBall', { ball: { vx: 0, vy: 0, cx: width / 2, cy: height / 2 , reset: true}, action: "done", playerLeft, playerRight, userId: pHost.user_id });
   else
@@ -80,7 +81,7 @@ const reset = async (playerRight: number = 0, playerLeft: number = 0, width: num
 }
 
 
-export default function game(socket: Socket, players: Players = {}, ball: Ball, width: number, user: User, ratio: number, vxratio: number, initia: () => void): () => void {
+export default function game(socket: Socket, dificulty: number = 10, Board: number, players: Players = {}, ball: Ball, width: number, user: User, ratio: number, vxratio: number, initia: () => void): () => void {
     // define board size and create a svg board
     // console.log("game ratio ", ratio);
     let pHost: Player;
@@ -92,7 +93,7 @@ export default function game(socket: Socket, players: Players = {}, ball: Ball, 
     paddleHeight = 100;
     const ballSize = 20 ;
     {
-      var pattern = draw.image(Background2);
+      // var pattern = draw.image(Background2);
       var guest_gradient = draw.gradient('linear', function(add) {
         add.stop(0, '#A1FFCE')
         add.stop(1, '#FAFFD1')
@@ -102,11 +103,29 @@ export default function game(socket: Socket, players: Players = {}, ball: Ball, 
         add.stop(1, '#3f4c6b')
       })
       draw.image(Hole).size(30 , 30 ).move(width/2 -(15 ), height/2 - (15 )).back();
-      draw.rect(width, height).fill(pattern).back();
+      if (Board === 1)
+        draw.rect(width, height).fill(boardPattern1(draw)).back();
+      else if (Board === 2)
+        draw.rect(width, height).fill(boardPattern2(draw)).back();
+      else if (Board === 3)
+        draw.rect(width, height).fill(boardPattern3(draw)).back();
+      
       pHost = Object.values(players).find(player => player.host === true)!;
       pGuest = Object.values(players).find(player => player.host === false)!;
-      pHost.paddle = draw.rect(paddleWidth, paddleHeight).radius(12 ).x(0).cy(height / 2).fill(host_gradient).hide();
-      pGuest.paddle = draw.rect(paddleWidth, paddleHeight).radius(12 ).x(width - paddleWidth).cy(height / 2).fill(guest_gradient).hide();
+      if (pHost.padl === 1)
+        pHost.paddle = draw.rect(paddleWidth, paddleHeight).radius(12 ).x(0).cy(height / 2).fill(padlPattern1(draw));
+      else if (pHost.padl === 2)
+        pHost.paddle = draw.rect(paddleWidth, paddleHeight).radius(12 ).x(0).cy(height / 2).fill(padlPattern2(draw));
+      else if (pHost.padl === 3)
+        pHost.paddle = draw.rect(paddleWidth, paddleHeight).radius(12 ).x(0).cy(height / 2).fill(padlPattern3(draw));
+      if (pGuest.padl === 1)
+        pGuest.paddle = draw.rect(paddleWidth, paddleHeight).radius(12 ).x(width - paddleWidth).cy(height / 2).fill(padlPattern1(draw));
+      else if (pGuest.padl === 2)
+        pGuest.paddle = draw.rect(paddleWidth, paddleHeight).radius(12 ).x(width - paddleWidth).cy(height / 2).fill(padlPattern2(draw));
+      else if (pGuest.padl === 3)
+        pGuest.paddle = draw.rect(paddleWidth, paddleHeight).radius(12 ).x(width - paddleWidth).cy(height / 2).fill(padlPattern3(draw));
+      // pHost.paddle = draw.rect(paddleWidth, paddleHeight).radius(12 ).x(0).cy(height / 2).fill(host_gradient).hide();
+      // pGuest.paddle = draw.rect(paddleWidth, paddleHeight).radius(12 ).x(width - paddleWidth).cy(height / 2).fill(guest_gradient).hide();
 
       // ball.cercle = draw.circle(ballSize).center(width / 2, height / 2);
 
@@ -153,7 +172,7 @@ export default function game(socket: Socket, players: Players = {}, ball: Ball, 
       }).id('pokeBallGradient');
   
       // Draw a small white circle at the top
-      var button = pokeBallGroup.circle(7 ).attr({
+      var button = pokeBallGroup.circle(7).attr({
         fill: '#fff',
         stroke: '#000',
         'stroke-width': 3 ,
@@ -221,7 +240,7 @@ export default function game(socket: Socket, players: Players = {}, ball: Ball, 
 
     nested.children()[1].click(function() {
       console.log("clicked")
-      launchBall(socket, ball, pHost, ratio);
+      launchBall(socket, ball, pHost, ratio, dificulty);
     })
     let chck = false;
     
@@ -236,17 +255,30 @@ export default function game(socket: Socket, players: Players = {}, ball: Ball, 
     let isKeyDown = false;
     socket.on('getFrame', (data) => {
       if (pGuest && pGuest.paddle && pHost && pHost.paddle)
-        socket.emit('paddlePos', { y1: pGuest.paddle.cy(), y2: pHost.paddle.cy(),  playerLeft: pHost.score, playerRight: pGuest.score, ball: {cx: ball.cx, cy: ball.cy, vx: ball.vx, vy: ball.vy}, userId: pGuest.user_id});
+        socket.emit('paddlePos', { y1: pGuest.paddle.cy(), y2: pHost.paddle.cy(),  playerLeft: pHost.score, playerRight: pGuest.score, ball: {cx: ball.cx / ratio, cy: ball.cy, vx: ball.vx / vxratio, vy: ball.vy}, userId: pGuest.user_id});
     });
 
     socket.on('updateFrame', (data: {ball: Ball, y1: number, y2: number, playerLeft: number, playerRight: number, id: string }) => {
-      const {ball, playerLeft, playerRight} = data;
+      // const {playerLeft, playerRight} = data;
       if (pHost && pHost.paddle)
         pHost.paddle.cy(data.y2);
       if (pGuest && pGuest.paddle)
         pGuest.paddle.cy(data.y1);
       // send with ball playerLeft playerRight only
-        boardData(ball, pHost, pGuest, scoreLeft, scoreRight, {ball, playerLeft, playerRight}, ratio);
+      data.ball.cx = data.ball.cx * ratio;
+      // data.ball.cy = data.ball.cy * ratio;
+      data.ball.vx = data.ball.vx * ratio;
+      // data.ball.vy = data.ball.vy * ratio;
+      ball = {
+        ...ball,
+        ...data.ball,
+      }
+      ball.cercle?.center(ball.cx, ball.cy)
+      pHost.score = data.playerLeft;
+      pGuest.score = data.playerRight;
+      scoreLeft.text(pHost.score.toString())
+      scoreRight.text(pGuest.score.toString())
+        // boardData(ball, pHost, pGuest, scoreLeft, scoreRight, {ball, playerLeft, playerRight}, ratio);
     });
 
     on(document, 'keydown', function (e: any) {
@@ -351,19 +383,20 @@ export default function game(socket: Socket, players: Players = {}, ball: Ball, 
         ...data.ball,
       }
       ball.cercle.center(ball.cx, ball.cy)
+      ball.cercle.animate(20).center(width/2, height/2)
       pHost.score = data.playerLeft;
       pGuest.score = data.playerRight;
       scoreLeft.text(pHost.score.toString())
       scoreRight.text(pGuest.score.toString())
       console.log('reseted ball', ball);
       if (ball.vx === 0 && ball.vy === 0) {
-        let tvx = Math.random() * 500 - 250
-        let tvy = Math.random() * 500 - 250
-        while (Math.abs(tvx) < 100) {
-          tvx = Math.random() * 500 - 250
+        let tvx = Math.random() * dificulty * 64;
+        let tvy = Math.random() * dificulty * 64;
+        while (30 * dificulty > Math.abs(tvx)) {
+          tvx = Math.random() * dificulty * 64;
         }
-        while (Math.abs(tvy) < 100) {
-          tvy = Math.random() * 500 - 250
+        while (30 * dificulty > Math.abs(tvy)) {
+          tvy = Math.random() * dificulty * 64;
         }
         socket.emit('moveBall', { ball: {vx: tvx , vy: tvy, cx: ball.cx / ratio, cy: ball.cy}, action: "start", userId: pHost.user_id });
       }
@@ -446,7 +479,7 @@ export default function game(socket: Socket, players: Players = {}, ball: Ball, 
         }
         if ((ball.vx < 0 && ball.cx - ((ballSize / 2)) <= paddleWidth && ball.cy + (ballSize / 2)  > paddleLeftY && ball.cy - (ballSize / 2)  < paddleLeftY + paddleHeight) ||
         (ball.vx > 0 && ball.cx + ((ballSize / 2)) >= width - paddleWidth && ball.cy + (ballSize / 2)  > paddleRightY && ball.cy - (ballSize / 2)  < paddleRightY + paddleHeight)) {
-          socket.emit('moveBall', { ball: { vx: - (ball.vx / vxratio) * 1.05, vy: ball.vy , cx: 0, cy: ball.cy}, action: "paddle", userId: pHost.user_id});
+          socket.emit('moveBall', { ball: { vx: - (ball.vx / vxratio) * 1.05,  vy: (ball.cy - ((ball.vx < 0 ? paddleLeftY : paddleRightY) + paddleHeight/2)) * 7 , cx: 0, cy: ball.cy}, action: "paddle", userId: pHost.user_id});
         }
         else if ((ball.vx < 0 && ball.cx - ((ballSize / 2)) <= 0) || (ball.vx > 0 && ball.cx + ((ballSize / 2)) >= width)) {
           if (ball.vx < 0) {

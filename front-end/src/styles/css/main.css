@@ -27,6 +27,46 @@ box-sizing: border-box;
     border-radius: 16px;
 }
 
+.sbox .boardslider {
+    position: relative;
+    max-width: 320px;
+}
+
+.sbox .boards {
+    display: flex;
+    overflow: hidden;
+}
+
+.sbox .board {
+    flex: 0 0 100%;
+    box-sizing: border-box;
+    padding: 20px;
+    text-align: center;
+    /* background-color: #ddd; */
+}
+
+.sbox .settings {
+    /* position: relative; */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    /* background-color: #ddd; */
+}
+
+.boardslider .slide_btn {
+    position: absolute;
+    top: 60%;
+    transform: translateY(-60%);
+    padding: 10px;
+    cursor: pointer;
+}
+
+
+.boardslider .slide1{
+    right: 0;
+}
+
 .bbox {
     display: flex;
 box-sizing: border-box;
@@ -598,6 +638,11 @@ box-sizing: border-box;
   
   /* Medium screens (577px to 768px) */
   @media (max-width: 768px) {
+    .sbox .settings {
+        /* position: relative; */
+        flex-direction: column;
+        /* background-color: #ddd; */
+    }
     .achivements__cercle{
         width: 80px;
         height: 80px;

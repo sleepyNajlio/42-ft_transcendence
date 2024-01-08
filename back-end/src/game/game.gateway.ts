@@ -155,7 +155,10 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('matchmaking')
-  handleJoinQueue(client: Socket, data: { width: number }) {
+  handleJoinQueue(
+    client: Socket,
+    data: { width: number; difficulty: number; padl: number },
+  ) {
     // Check if the user is already in the queue based on a unique identifier (e.g., user ID)
     // const userId = getUserIdFromClient('matchmaking', client); // Implement a function to extract the user ID
 
@@ -174,14 +177,15 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         user_id: userId,
         host: false,
         width: data.width,
+        paddleSpeed: 3 * data.difficulty,
         ratio: 1,
+        padl: data.padl,
         vxratio: 1,
         x: 0,
         y: 0,
         paddleDirection: 0,
         paddle: null,
         score: 0,
-        paddleSpeed: 5,
         state: PlayerState.SEARCHING,
       };
       this.socketGateway.getClientSocket(userId)?.map((socketa) => {
@@ -194,7 +198,12 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       const player2 = this.queue.shift();
       // Create a unique game ID
       const gameId = `${player1.socket.id}-${player2.socket.id}`;
-      console.log('gameId', gameId);
+      console.log(
+        'gameId',
+        gameId,
+        'speed',
+        this.players[player1.userId].paddleSpeed,
+      );
       this.players[player1.userId].state = PlayerState.PLAYING;
       this.players[player2.userId].state = PlayerState.PLAYING;
       // Initialize the game state
@@ -209,14 +218,30 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       };
 
       this.games[gameId].players[player1.userId].host = true;
-      this.games[gameId].players[player1.userId].ratio = 1;
-      this.games[gameId].players[player2.userId].ratio =
-        this.games[gameId].players[player2.userId].width /
-        this.games[gameId].players[player1.userId].width;
-      this.games[gameId].players[player1.userId].vxratio = 1;
-      this.games[gameId].players[player2.userId].vxratio =
-        (this.games[gameId].players[player2.userId].width - 50) /
-        (this.games[gameId].players[player1.userId].width - 50);
+      // li 3ndo asghar width
+
+      if (
+        this.games[gameId].players[player1.userId].width <
+        this.games[gameId].players[player2.userId].width
+      ) {
+        this.games[gameId].players[player1.userId].ratio = 1;
+        this.games[gameId].players[player2.userId].ratio =
+          this.games[gameId].players[player2.userId].width /
+          this.games[gameId].players[player1.userId].width;
+        this.games[gameId].players[player1.userId].vxratio = 1;
+        this.games[gameId].players[player2.userId].vxratio =
+          (this.games[gameId].players[player2.userId].width - 50) /
+          (this.games[gameId].players[player1.userId].width - 50);
+      } else {
+        this.games[gameId].players[player2.userId].ratio = 1;
+        this.games[gameId].players[player1.userId].ratio =
+          this.games[gameId].players[player1.userId].width /
+          this.games[gameId].players[player2.userId].width;
+        this.games[gameId].players[player2.userId].vxratio = 1;
+        this.games[gameId].players[player1.userId].vxratio =
+          (this.games[gameId].players[player1.userId].width - 50) /
+          (this.games[gameId].players[player2.userId].width - 50);
+      }
       this.logger.log(
         `ratio 1 ${this.games[gameId].players[player1.userId].ratio}`,
       );
@@ -342,12 +367,13 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       user_id: data.userId,
       username: data.username,
       host: false,
+      width: data.width,
+      paddleSpeed: 3 * data.difficulty,
       x: 0,
       y: 0,
       paddleDirection: 0,
       paddle: null,
       score: 0,
-      paddleSpeed: 5,
       state: PlayerState.INVITING,
     };
     if (!this.notifs[data.adv_id]) {
@@ -359,6 +385,9 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     ];
     this.logger.log(`emiting invite`);
     this.logger.log(this.notifs);
+    this.socketGateway.getClientSocket(data.userId)?.map((socketa) => {
+      if (socketa.id !== client.id) socketa.emit('alreadyInQueue');
+    });
     this.socketGateway.getClientSocket(data.adv_id).map((socketa) => {
       socketa.emit('invited', this.players[data.userId]);
     });
@@ -392,7 +421,8 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         paddleDirection: 0,
         paddle: null,
         score: 0,
-        paddleSpeed: 5,
+        paddleSpeed: this.players[data.userId].paddleSpeed,
+        width: data.width,
         state: PlayerState.PLAYING,
       };
       this.players[data.userId].state = PlayerState.PLAYING;
@@ -410,6 +440,28 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         update: true,
       };
       this.games[gameId].players[data.adv_id].host = true;
+      if (
+        this.games[gameId].players[data.adv_id].width <
+        this.games[gameId].players[data.userId].width
+      ) {
+        this.games[gameId].players[data.adv_id].ratio = 1;
+        this.games[gameId].players[data.userId].ratio =
+          this.games[gameId].players[data.userId].width /
+          this.games[gameId].players[data.adv_id].width;
+        this.games[gameId].players[data.adv_id].vxratio = 1;
+        this.games[gameId].players[data.userId].vxratio =
+          (this.games[gameId].players[data.userId].width - 50) /
+          (this.games[gameId].players[data.adv_id].width - 50);
+      } else {
+        this.games[gameId].players[data.userId].ratio = 1;
+        this.games[gameId].players[data.adv_id].ratio =
+          this.games[gameId].players[data.adv_id].width /
+          this.games[gameId].players[data.userId].width;
+        this.games[gameId].players[data.userId].vxratio = 1;
+        this.games[gameId].players[data.adv_id].vxratio =
+          (this.games[gameId].players[data.adv_id].width - 50) /
+          (this.games[gameId].players[data.userId].width - 50);
+      }
       // Add the players to the game room
       this.socketGateway.getClientSocket(data.userId).map((socketa) => {
         socketa.join(gameId);
@@ -638,7 +690,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
           };
           // Emit the 'reset' event to players in the game to reset the game
           this.logger.log(
-            `score ${data.playerLeft} ${data.playerRight} ${client.id}}`,
+            `score ${data.playerLeft} ${data.playerRight} ${this.games[gameId].ball.cx} ${client.id}}`,
           );
           this.socketGateway.getServer().to(gameId).emit('reset', {
             ball: this.games[gameId].ball,

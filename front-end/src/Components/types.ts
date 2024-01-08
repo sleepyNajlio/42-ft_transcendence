@@ -46,6 +46,7 @@ export interface Player {
   vxratio: number,
   x: number;
   y: number;
+  padl: number;
   paddleDirection: number;
   score: number;
   paddle? : Rect;

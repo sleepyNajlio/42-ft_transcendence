@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Req } from '@nestjs/common';
+import { Controller, Get, Param, Req } from '@nestjs/common';
 import { ProfileService } from './profile.service';
 import { Request } from 'express';
 
@@ -32,4 +32,17 @@ export class ProfileController {
     const user = await this.profileService.getUserById(Number(id));
     return user;
   }
+
+  // @Get('/ranks')
+  // async getUsersRank() {
+  //   const user = await this.profileService.getUsersRank();
+  //   return user;
+  // }
+
+  // @Get('/rank/:id')
+  // async getUsersRankId(@Param() { id }: { id: string }) {
+  //   console.log(id);
+  //   const user = await this.profileService.getUsersRankId(Number(id));
+  //   return user;
+  // }
 }
