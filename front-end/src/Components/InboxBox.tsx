@@ -10,9 +10,12 @@ import messi from '../assets/messi.jpg';
 export default function InboxBox(props : any) {
     
     // console.log("props in inboxbox : ")
+    // console.log("room in inbox box: " + props.room.users);
     // if (props.room.chatUser)
     //   console.log(props.room.chatUser.userId);
     // console.log('userId issss: ' + props.userId)
+    // console.log("props.room.users : " , props.room.users);
+    // console.log("props.id : " , props.id);
     if (props.DisplayRoom)
     {
       return (
@@ -49,7 +52,7 @@ export default function InboxBox(props : any) {
           ) : (
             <button className="text-container" onClick={()=>props.handleRoomClick(props.room)}>
             <p className="text1">{props.room.name}</p>
-            <p className="text2">{props.message}</p>
+            <p className="text2">{props.room.lastMessage ? props.room.lastMessage.message : ''}</p>
           </button>
           )}
         </div>

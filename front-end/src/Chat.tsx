@@ -17,11 +17,13 @@ interface userChat {
 }
 
 interface Room {
+    [x: string]: any;
     id: number;
     type: string;
     name: string;
     password: string;
     users: userChat;
+    // lastMessage: string;
 }
 
 export function Chat() { // get values from data base
@@ -29,14 +31,12 @@ export function Chat() { // get values from data base
     const { user, socket } = useContext(UserContext);
     const [name, setName] = useState('');
     const [messages, setMessages] = useState<any[]>([]);
-    // const [messageText, setMessageText] = useState('');
     const [typingDisplay, setTypingDisplay] = useState('');
-    const [created, setCreated] = useState(0);
+    const [created, setCreated] = useState(false);
     const [roomType, setRoomType] = useState("");
     const [roomPassword, setRoomPassword] = useState("");
-    const [Rooms, setRooms] = useState<Room | null>(null);
+    const [Rooms, setRooms] = useState<Room[] | null>(null);
     const [Friends, setFriends] = useState<any[]>([])
-    // const [socket, setSocket] = useState(getSocket());
     const [creating, setCreating] = useState(false);
     const [selectedPswd, setSelectedPswd] = useState("");
     const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
@@ -45,6 +45,8 @@ export function Chat() { // get values from data base
     const [showRoom, setShowRoom] = useState(false);
     const [DisplayRoom, setDisplayRoom] = useState(false);
     const [DisplayDms, setDisplayDms] = useState(false);
+    const [isOwner, setIsOwner] = useState(false);
+    const [lastMessage, setLastMessage] = useState("");
 
     useEffect(() => { 
         if (!joined) return;
@@ -56,10 +58,10 @@ export function Chat() { // get values from data base
             type: selectedRoom?.type ,
             selectedPswd
         },  (response : any[]) => {
-            console.log("response got in join: ");
+            // console.log("response got in join: ");
             if (!response)
             {
-                alert("wrong password");
+                // alert("wrong password");
                 setJoined(false);
                 setShowRoom(false);
                 return;
@@ -73,7 +75,7 @@ export function Chat() { // get values from data base
         });
         socket?.on('message', (message) => {
             if (message.chat.name === selectedRoom?.name) {
-                console.log("from front message " + message);
+                // console.log("from front message " + message);
                 setMessages((prevMessages) => [...prevMessages, message]);
             }
         });
@@ -105,16 +107,16 @@ export function Chat() { // get values from data base
 
     useEffect(() => {
         if (!joinfriend) return;
-        console.log("use effect called in join friend");
+        // console.log("use effect called in join friend");
         let id : number;
         let username : string | undefined;
         id = Number(user?.id_player);
         username = user?.username;
-        console.log("name in fronttt: " + name)
+        // console.log("name in fronttt: " + name)
         socket?.emit('joinDm', { id ,  name: name, username:username},  (response : any[]) => {
             
-            console.log("response got in joinDM: ");
-            console.log(response);
+            // console.log("response got in joinDM: ");
+            // console.log(response);
         });
         socket?.emit('findAllMessages', {name: name, id, username: username}, (response: any[]) => {
             // console.log("response got in find all: ");
@@ -123,27 +125,24 @@ export function Chat() { // get values from data base
             // console.log(messages);
         });
         socket?.on('message', (message) => {
-            // console.log("from front message " + message);
-            // if (message.user.username === name)
-            console.log("the user that should listen to message " + message.user.username);
-            console.log("the user that is logged in " + username);
-            console.log("the user that the message is send to " + name);
-            setMessages((prevMessages) => [...prevMessages, message]);
+            if (message.user.username === username || message.user.username === name)
+                setMessages((prevMessages) => [...prevMessages, message]);
+            
         });
         setShowRoom(false);
         setJoinfriend(false);
         setShowDm(true);
-        // return () => {
-        //         socket?.disconnect();
-        //     };
-            
+        return () => {
+            // socket?.off('message');
+        }
         }, [joinfriend]);
         
     
     const joinDm = (username: string) => {
+            console.log("message off in joinDm : ");
         socket?.off('message');
         setName(username);
-        console.log("username name in front: " + username);
+        // console.log("username name in front: " + username);
         setShowDm(false);
         setJoinfriend(true);
         // console.log(name);
@@ -153,42 +152,63 @@ export function Chat() { // get values from data base
     useEffect(() => {
         if (!created) return;
 
-        let id1 : number;
+        let id1: number;
         id1 = Number(user?.id_player);
-        socket?.emit('createRoom', { id1 ,  name, roomType, roomPassword},  (response : any[]) => {
+        socket?.emit('createRoom', { id1, name, roomType, roomPassword }, (response: any[]) => {
             if (!response)
                 alert("room already exist");
         });
-        setShowRoom(true);
+        // socket?.off('rooms');
+        // socket?.on('rooms', (room) => {
+        //     setRooms((prevRooms: Room[] | null) => {
+        //         if (prevRooms === null) {
+        //             return [room];
+        //         }
+        //         return [...prevRooms, room];
+        //     });
+        // });
+        setIsOwner(true);
         setDisplayRoom(true);
+        
+        
     },[created]);
     
     
     useEffect(() => {
-        console.log("use effect called in display room");
+        // console.log("use effect called in display room");
         let id : number;
         id = Number(user?.id_player);
-        socket?.emit('DisplayRoom', { id },  (response : Room) => {
-            // console.log('rooms in display room :')
-            // console.log(response);
+        socket?.emit('DisplayRoom', { id },  (response : Room[]) => {
+            console.log('rooms in display room :')
+            console.log(response);
             setRooms(response);
+            // setIsOwner(true);
             // setDisplayDms(false);
             // setDisplayRoom(true);
             // DisplayRooms(response);
         });
-        socket?.on('rooms', (Room : Room) => {
-            // console.log("from front rooms: " + room);
-            setRooms(Room);
-        });
+        
+            socket?.on('rooms', (room) => {
+            setRooms((prevRooms: Room[] | null) => {
+                if (prevRooms === null) {
+                        return [room];
+                    }
+                    return [...prevRooms, room];
+                });
+            });
+            // setDisplayDms(true);
+            // setDisplayDms(false);
     return () => {
+        socket?.off('rooms');
     };
     }, [user, DisplayRoom]);
 
     useEffect(() => {
-        console.log("use effect called in show Dms");
+        // console.log("use effect called in show Dms");
         let id : number;
         id = Number(user?.id_player);
         socket?.emit('Friends', { id },  (response : any[]) => {
+            console.log('friends in show Dms :')
             console.log(response);
             setFriends(response);
             // setDisplayDms(true);
@@ -196,6 +216,7 @@ export function Chat() { // get values from data base
 
         });
         return () => {
+
         };
     }, [user, DisplayDms]);
 
@@ -210,7 +231,7 @@ export function Chat() { // get values from data base
 
     const sendMessage = (messageText: string) => {
         let id: number;
-        console.log('send message called ')
+        // console.log('send message called ')
         id = Number(user?.id_player);
         socket?.emit('createMessage', {
             name: selectedRoom ? selectedRoom.name : name,
@@ -219,13 +240,24 @@ export function Chat() { // get values from data base
             username: null,
         });
     }
+
+    const handleUpdateRoom = (newPass : string, modifypass : boolean, setPass : boolean, removepass : boolean) => {
+
+        socket?.emit('updateRoom', {name: selectedRoom?.name, type: selectedRoom?.type, newPass: newPass, modifypass: modifypass, setPass: setPass, removepass: removepass }, (response: Room) => {
+            console.log("response got in update room: ");
+            setSelectedRoom(response);
+        });
+        // setSelectedRoom(selectedRoom);
+            
+        // });
+    }
     
     const sendMessageDm = (messageText: string) => {
 
         let id: number;
         let username : string | undefined;
-        console.log('message dm called ')
-        console.log("name in message dm front: " + name);
+        // console.log('message dm called ')
+        // console.log("name in message dm front: " + name);
         id = Number(user?.id_player);
         username = user?.username;
         socket?.emit('createMessage', {
@@ -235,15 +267,17 @@ export function Chat() { // get values from data base
                 username: username,
         }, (response : any[]) => {
         });
+
     }
     
-    const DisplayRooms = (rooms: Room) => {
+    const DisplayRooms = (rooms: Room[]) => {
         setRooms(rooms);
     }
 
     const changeName = (event : any) => {
         setName(event.target.value);
     };
+
     
     const join = (event: React.MouseEvent<HTMLButtonElement>) => {
         const buttonName = event.currentTarget.name;
@@ -251,7 +285,11 @@ export function Chat() { // get values from data base
         setJoined(true);
     };
     const create = () => {
-        setCreated(1);
+        setDisplayDms(true);
+        setDisplayDms(false);
+        setDisplayRoom(false);
+        setCreated(!created);
+        setCreating(false);
     };
 
     const handleRoomType = (type: string) => {
@@ -263,15 +301,24 @@ export function Chat() { // get values from data base
     };
     // for joining room
     const handleRoomClick = (room: Room) => {
-        console.log('room clickedddd: ');
+        // console.log('room clickedddd: ');
         socket?.off('message');
         setShowRoom(false);
         if (room.type === 'PROTECTED') {
           setSelectedRoom(room);
         } else {
-            console.log('alooo')
+            // console.log('alooo')
             setSelectedRoom(room);
         }
+        // if (room.lastMessage)
+        // {
+        //     setLastMessage(room.lastMessage.message);
+        // }
+        // console.log("role in selected room : ",room.chatUser.role);
+        if (room.chatUser && room.chatUser.role === 'OWNER')
+            setIsOwner(true);
+        else
+            setIsOwner(false);
         setJoined(true);
       };
     const handleSelectedPassword = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -282,10 +329,16 @@ export function Chat() { // get values from data base
     }
 
     const handleJoinWithPassword = () => {
-        console.log('handle join with password front');
-        if (selectedRoom) {
-          setJoined(true);
+        // console.log('handle join with password front');
+        if (selectedPswd === selectedRoom?.password) {
+            setDisplayDms(true);
+            setDisplayDms(false);
+            setDisplayRoom(false);
+            setJoined(true);
+            // setDisplayRoom(true);
         }
+        else
+            alert("wrong password");
     };
 
 
@@ -308,117 +361,21 @@ export function Chat() { // get values from data base
         
             <div className="conteneur">
                 <div className="gauche">
-                    {showRoom && <Leftchat userid={user?.id_player} showRoom={showRoom}messages={messages} name={selectedRoom?.name} sendMessage={sendMessage}/> }
+                    {showRoom && <Leftchat userid={user?.id_player} showRoom={showRoom}messages={messages} name={selectedRoom?.name} sendMessage={sendMessage} isOwner={isOwner}
+                     Roomtype={selectedRoom?.type} handleUpdateRoom={handleUpdateRoom}/> }
                     {ShowDm && <Leftchat userid={user?.id_player} showDm={ShowDm} messages={messages} name={name}sendMessageDm={sendMessageDm} Friends={Friends}/> }
                 </div>
                 <div className="droite">
-                    {< Rightchat rooms={Rooms} userId={user?.id_player} handleRoomClick={handleRoomClick} create={create}
+                    {< Rightchat rooms={Rooms} userId={user?.id_player} id={user?.id_player} handleRoomClick={handleRoomClick} create={create}
                      handleRoomPassword={handleRoomPassword} name={name} roomType={roomType} roomPassword={roomPassword}
                      creating={creating} changeName={changeName} setCreating={setCreating} handleRoomType={handleRoomType}
                      handleSelectedPassword={handleSelectedPassword} handleJoinWithPassword={handleJoinWithPassword}
                      selectedPswd={selectedPswd} selectedRoom={selectedRoom} setSelectedRoom={setSelectedRoom} 
                      Friends={Friends} setDisplayDms={setDisplayDms} setDisplayRoom={setDisplayRoom} DisplayDms={DisplayDms} DisplayRoom={DisplayRoom}
-                     HandleDisplayDms={HandleDisplayDms} HandleDisplayRoom={HandleDisplayRoom} joindDm={joinDm}/> }
+                     HandleDisplayDms={HandleDisplayDms} HandleDisplayRoom={HandleDisplayRoom} joindDm={joinDm}
+                     messages={messages} isOwner={isOwner} />}
+                </div>            
                 </div>
-                {/* <div className="chat_header">
-
-                    <button className="filled bt" onClick={()=>setCreating(true)}>Create</button>
-                    <h1>Rooms</h1>
-                    
-                    {Rooms.map((room, index) => (
-                    <div key={index}>
-                      {room.type === 'PROTECTED' ? (
-                        <div>
-                          <button onClick={() => handleRoomClick(room)}>{room.name}</button>
-                          {selectedRoom && selectedRoom.name === room.name && (
-                            <div>
-                              <input
-                                type="text"
-                                placeholder="Enter password"
-                                name={`${room.name}`}
-                                id={`${room.name}`}
-                                value={selectedPswd}
-                                onChange={handleSelectedPassword}
-                              />
-                              <button name={room.name} onClick={handleJoinWithPassword}>Join</button>
-                            </div>
-                          )}
-                        </div>
-                      ) : (
-                        <button onClick={() => handleRoomClick(room)}>{room.name}</button>
-                      )}
-                    </div> */}
-                    {/* ))} */}
-                     {/* <h1>Friends</h1>
-                    
-                    {Friends.map((friend, index) => (
-                    <button key={index} name={friend.username} onClick={joinDm}>{friend.username}</button>
-                    ))} */}
-                    
-                </div>
-
-                    {/* {creating && (
-                        <div className="sbox">
-                        <div className="sbox__input">
-                            <label htmlFor="input"> channel name *</label>
-                            <input type="text" id="name" name={name} onChange={changeName} placeholder='ex: manini manini'/>
-                        </div>
-                        <select value={roomType} onChange={(e) => handleRoomType(e.target.value)}>
-                            <option disabled value="">Room Type</option>
-                             <option value="PUBLIC">Public</option>
-                             <option value="PRIVATE">Private</option>
-                             <option value="PROTECTED">Protected</option>
-                        </select>
-                            {(roomType === "PROTECTED") && (
-                                <input
-                                    type="text"
-                                    placeholder="Password"
-                                    value={roomPassword}
-                                    onChange={handleRoomPassword}
-                                />
-                                
-                            )}
-                            <button onClick={create} disabled={!name || (roomType !== "PUBLIC" && roomType !== "PRIVATE" && !roomPassword)}>
-                                Create
-                            </button>
-                        </div>
-                    )} */}
-                {/* {(showRoom) && (
-                    <div className="chat_container">
-                        <div className="Message_cnt">
-                            {messages.map((message, index) => (
-                                <div key={index}>
-                                    [{message.user.username}]: {message.message}
-                                </div>
-                            ))}
-                        </div>
-                        <div className="cin">
-                            <input type="text" name="messagechText" id="messageText" placeholder='message' value={messageText} onChange={changeMessage} onKeyDown={enter} /> 
-                            <button onClick={sendMessage}>Send</button>
-                        </div>
-                        { <div className="typing">
-                            {typingDisplay && (<p>{typingDisplay}</p>)}
-                        </div> }
-                    </div>
-                )}
-                {(ShowDm) && (
-                    <div className="chat_container">
-                        <div className="Message_cnt">
-                            {messages.map((message, index) => (
-                                <div key={index}>
-                                    [{message.user.username}]: {message.message}
-                                </div>
-                            ))}
-                        </div>
-                        <div className="cin">
-                            <input type="text" name="messagedmText" id="messageText" placeholder='message' value={messageText} onChange={changeMessage} onKeyDown={enter} /> 
-                            <button onClick={sendMessageDm}>Send</button>
-                        </div>
-                        { <div className="typing">
-                            {typingDisplay && (<p>{typingDisplay}</p>)}
-                        </div> }
-                    </div>
-                )} */}
         </>
     );
 }

@@ -51,11 +51,24 @@ export class MessagesGateway
     @MessageBody('id') id: number,
     @ConnectedSocket() client: Socket,
   ) {
-       const rooms = await this.messagesService.getRooms(id);
-       this.socketGateway.getServer().to(client.id).emit('rooms', rooms);
-      console.log('rooms in gateway : ');
-      console.log(rooms);
+      const rooms = await this.messagesService.getRooms(id);
+      // this.socketGateway.getServer().emit('rooms', rooms);
+      // console.log('rooms in gateway : ');
+      // console.log(rooms);
       return rooms;
+  }
+
+  @SubscribeMessage('updateRoom')
+  async updateRoom(
+    @MessageBody('name') name: string,
+    @MessageBody('type') type: string,
+    @MessageBody('newPass') newPass:  string,
+    @MessageBody('modifypass') modifypass: boolean,
+    @MessageBody('setPass') setPass: boolean,
+    @MessageBody('removepass') removepass: boolean,
+  )
+  {
+   return await this.messagesService.updateRoom(name,type,newPass,modifypass,setPass,removepass);
   }
 
   @SubscribeMessage('createMessage') // to be able to send new messages
@@ -71,7 +84,12 @@ export class MessagesGateway
       id,
       username,
     );
+
+    // console.log('message in gateway : ');
     const room = "chat_" + message.chatId;
+    console.log('room in gateway : ');
+    console.log(room);
+    
     this.socketGateway.getServer().to(room).emit('message', message); // emit events to all connected clients
     
     return message;
@@ -88,7 +106,15 @@ export class MessagesGateway
   {
     console.log('create called');
     // console.log('in gateway -- id: ' + id1 + ' user: ' + name + ' just created the chat');
-    return await this.messagesService.createChannel(id1, name,roomType,roomPassword, client.id);
+    const Room = await this.messagesService.createChannel(id1, name,roomType,roomPassword, client.id);
+    
+    console.log('created room in gateway : ');
+    console.log(Room);
+    if (Room)
+      this.socketGateway.getServer().emit('rooms', Room);
+    else
+      return false;
+    // return Room;
   }
   @SubscribeMessage('findAllMessages') // to be able to see the old messages
   async findAll(
@@ -134,12 +160,9 @@ export class MessagesGateway
     console.log('the user with id ' + id +' and name  ' + username + ' wants to join the dm with ' + name);
 
     const room = await this.messagesService.identifyDm(id, name,username,client.id);
-    if (room) {
-      client.join("chat_"+ room.id_chat);
-      console.log('user: ' + username + ' joined the chat with ' + name);
-      return room;
-    }
-   return false;
+    client.join("chat_"+ room.id_chat);
+    console.log('user: ' + username + ' joined the chat with ' + name + ' in ' + room.id_chat);
+    return room;
   }
 
   // @SubscribeMessage('typing')

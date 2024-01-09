@@ -6,9 +6,10 @@ import Simpleco from './Simpleco.tsx'
 import Switchgrpdm from './Switchgrpdm.tsx';
 
 const Rightchat: React.FC = (props: any) => {
-  console.log("right chat called ");
+  // console.log("right chat called ");
   // console.log("friends in right chat : ", props.Friends);
   // console.log("rooms in right chat : ", props.rooms);
+  // console.log("messages in right chat : ", props.messages);
     return (
       <div className="composant-droite">
         <Simpleco text="Chats"/>
@@ -17,12 +18,12 @@ const Rightchat: React.FC = (props: any) => {
              HandleDisplayRoom={props.HandleDisplayRoom}/>
         {props.DisplayRoom && (
         <div className='messagate'>
-          <button className="filled bt" onClick={()=>props.setCreating(true)}>Create</button>
-            {props.rooms.map((room:any) => (
+          <button className="filled bt" onClick={()=>props.setCreating(!props.creating)}>Create</button>
+            {props.rooms.map((room:any, index : any) => (
               
-              <InboxBox  room={room} DisplayRoom={props.DisplayRoom} userId={props.userId}handleRoomClick={props.handleRoomClick} handleSelectedPassword={props.handleSelectedPassword} 
+              <InboxBox  key={index} id={props.id} room={room} DisplayRoom={props.DisplayRoom} userId={props.userId}handleRoomClick={props.handleRoomClick} handleSelectedPassword={props.handleSelectedPassword} 
                  message={room.message} handleJoinWithPassword={props.handleJoinWithPassword}
-                 selectedRoom={props.selectedRoom} setSelectedRoom={props.setSelectedRoom} />
+                 selectedRoom={props.selectedRoom} isOwner={props.isOwner} setSelectedRoom={props.setSelectedRoom} />
             ))}
              {props.creating && (
                           <div className="sbox" style={{ backgroundColor: '#0f597b' }}>
@@ -55,8 +56,8 @@ const Rightchat: React.FC = (props: any) => {
           )}
           {props.DisplayDms && (
             <div className='messagate'>
-              {props.Friends.map((friend:any) => (
-                <InboxBox friend={friend} userId={props.userId} DisplayDms={props.DisplayDms} joindDm={props.joindDm} />
+              {props.Friends.map((friend:any,index: any) => (
+                <InboxBox key={index} friend={friend} userId={props.userId} DisplayDms={props.DisplayDms} joindDm={props.joindDm} />
               ))}
             </div>
           )}
