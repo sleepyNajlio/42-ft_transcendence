@@ -63,6 +63,7 @@ export class MessagesGateway
 
   @SubscribeMessage('updateRoom')
   async updateRoom(
+    @MessageBody('id') id: number,
     @MessageBody('name') name: string,
     @MessageBody('type') type: string,
     @MessageBody('newPass') newPass:  string,
@@ -71,7 +72,9 @@ export class MessagesGateway
     @MessageBody('removepass') removepass: boolean,
   )
   {
-   return await this.messagesService.updateRoom(name,type,newPass,modifypass,setPass,removepass);
+    const Rooms = await this.messagesService.updateRoom(id, name,type,newPass,modifypass,setPass,removepass);
+    
+  //  return await this.messagesService.updateRoom(id, name,type,newPass,modifypass,setPass,removepass);
   }
 
   @SubscribeMessage('createMessage') // to be able to send new messages
@@ -113,8 +116,14 @@ export class MessagesGateway
     
     console.log('created room in gateway : ');
     console.log(Room);
+    
     if (Room)
-      this.socketGateway.getServer().emit('rooms', Room);
+    {
+      if (Room.type == 'PRIVATE')
+        this.socketGateway.getServer().to(client.id).emit('rooms', Room);
+      else
+        this.socketGateway.getServer().emit('rooms', Room);
+    }
     else
       return false;
     // return Room;

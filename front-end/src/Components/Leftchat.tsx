@@ -16,7 +16,7 @@ const Leftchat: React.FC = (props: any) => {
     return (
       <div className="composant-gauche">
         <ChatHeaderComponent friendName={props.name} showRoom={props.showRoom} isOwner={props.isOwner} profileImageUrl={messi}
-          Roomtype={props.Roomtype} handleUpdateRoom={props.handleUpdateRoom}/>
+          Roomtype={props.Roomtype} handleUpdateRoom={props.handleUpdateRoom} handleDisplayRoom={props.HandleDisplayRoom}/>
         <div className="msg-section">
         {props.messages.map((message: any, index: any) => (
             <Messageco 

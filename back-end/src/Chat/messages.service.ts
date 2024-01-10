@@ -446,52 +446,7 @@ export class MessagesService {
       }
     });
   }
-  async updateRoom(name: string, type: string, newPass : string, modifypass: boolean,
-    setPass : boolean, removepass : boolean) {
   
-    let newChat : any = null;
-
-    const chat = await this.prisma.chat.findFirst({
-      where: {
-        name: name,
-      },
-    });
-    if (modifypass) {
-      newChat = await this.prisma.chat.update({
-        where: {
-          id_chat: chat.id_chat,
-        },
-        data: {
-          password: newPass,
-        },
-      });
-    }
-    else if (removepass) {
-      newChat = await this.prisma.chat.update({
-        where: {
-          id_chat: chat.id_chat,
-        },
-        data: {
-          password: null,
-          type: 'PUBLIC',
-        },
-      });
-    }
-    else if (setPass) {
-      newChat = await this.prisma.chat.update({
-        where: {
-          id_chat: chat.id_chat,
-        },
-        data: {
-          password: newPass,
-          type: 'PROTECTED',
-        },
-      });
-
-    }
-    return newChat;
-  }
-
   async getRooms(id: number) {
     const rooms = await this.prisma.chat.findMany({
       where: {
@@ -528,7 +483,7 @@ export class MessagesService {
       },
     });
     // console.log('last Messages is: ');
-
+    
     // console.log(lastMessages);
     return rooms.map(room => {
       const chatUser = chatUsers.find(chatUser => chatUser.chatId === room.id_chat && chatUser.userId === id);
@@ -539,5 +494,56 @@ export class MessagesService {
         lastMessage: lastMessage
       }
     });
-}
+  }
+
+  async updateRoom(id : number, name: string, type: string, newPass : string, modifypass: boolean,
+    setPass : boolean, removepass : boolean) {
+    
+    console.log('update room called with id: ' + id + " and name" + name);
+
+    let newChat : any = null;
+  
+    const chat = await this.prisma.chat.findFirst({
+      where: {
+        name: name,
+      },
+    });
+    if (modifypass) {
+      newChat = await this.prisma.chat.update({
+        where: {
+          id_chat: chat.id_chat,
+        },
+        data: {
+          password: newPass,
+        },
+      });
+    }
+    else if (removepass) {
+      newChat = await this.prisma.chat.update({
+        where: {
+          id_chat: chat.id_chat,
+        },
+        data: {
+          password: null,
+          type: 'PUBLIC',
+        },
+      });
+    }
+    else if (setPass) {
+      newChat = await this.prisma.chat.update({
+        where: {
+          id_chat: chat.id_chat,
+        },
+        data: {
+          password: newPass,
+          type: 'PROTECTED',
+        },
+      });
+  
+    }
+    const Rooms = await this.getRooms(id);
+    console.log('rooms in service : ');
+    console.log(Rooms);
+    return Rooms;
+  }
 }

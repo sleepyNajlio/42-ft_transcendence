@@ -17,6 +17,7 @@
   }
   
   .sender-image {
+    margin-bottom: auto;
     width: 27px;
     height: 27px;
     border-radius: 50%;

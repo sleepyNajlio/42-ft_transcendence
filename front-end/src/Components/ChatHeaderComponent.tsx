@@ -6,7 +6,7 @@ import block from '../assets/BlockIcon.png'
 import profil from '../assets/ProfilIcon.png'
 import leave from '../assets/fire-exit.png'
 import  Setting from '../assets/setting.png';
-
+import '../styles/css/ChatHeaderComponent.css'; // You can create a CSS file for styling
 // import block from '../assets/blockchat.png'
 // import './ChatHeaderComponent.css'; // You can create a CSS file for styling
 
@@ -54,6 +54,7 @@ const SettingsComponent = (props: any) => {
   const handleApplyChanges = () => {
     props.setShowSettings(!props.showSettings);
     props.handleUpdateRoom(inputValue, modify, setPassword, removePassword);
+    // props.handleDisplayRoom();
     // Logic to apply changes to the server based on modify, set, or remove password state
     // Call your API endpoints here
     // Reset state or take necessary actions
@@ -139,7 +140,8 @@ const ChatHeaderComponent: React.FC = (props : any) => {
             <img src={Setting} width='20' height='20' alt="Settings" />
           </div>
           {showSettings && <SettingsComponent  Roomtype={props.Roomtype} setShowSettings={setShowSettings}
-              showSettings={showSettings} handleUpdateRoom={props.handleUpdateRoom}/>}
+              showSettings={showSettings} handleUpdateRoom={props.handleUpdateRoom}
+              handleDisplayRoom={props.handleDisplayRoom}/>}
           <div className='blank'>
           </div>
           <div className='profil' onClick={handleleave}>

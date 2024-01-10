@@ -87,6 +87,7 @@ box-sizing: border-box;
 
 .filled {
     border: none;
+    margin-left: 6px;
     background: #0F597B;
 }
 

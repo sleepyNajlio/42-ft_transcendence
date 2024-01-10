@@ -1,5 +1,5 @@
 .conteneur {
-    margin-left: -6px;
+    /* margin-left: -6px; */
     display: flex;
     flex-direction: row;
     overflow: hidden;
@@ -7,7 +7,11 @@
   
   .gauche {
     flex: 1; /* Prend autant d'espace que possible */
-    background-color: white; /* Couleur rouge pour la div gauche */
+    background-color: white;
+    max-width: 70%;
+    border : 1px solid #ccc;
+    border-radius: 4px 0 0 4px;
+     /* Couleur rouge pour la div gauche */
   }
   
   .droite {
@@ -20,6 +24,7 @@
     height: 100vh;
     display: flex;
     flex-direction: column;
+    max-width: 100%;
     /* Ajoutez d'autres styles selon vos besoins pour la disposition verticale des enfants */
   }
   .messagate
