@@ -25,6 +25,7 @@ const Rightchat: React.FC = (props: any) => {
                  message={room.message} handleJoinWithPassword={props.handleJoinWithPassword}
                  selectedRoom={props.selectedRoom} isOwner={props.isOwner} setSelectedRoom={props.setSelectedRoom} />
             ))}
+            
              {props.creating && (
                           <div className="sbox" style={{ backgroundColor: '#0f597b' }}>
   

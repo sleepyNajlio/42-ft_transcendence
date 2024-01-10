@@ -7,12 +7,12 @@ import messi from '../assets/messi.jpg'
 
 const Leftchat: React.FC = (props: any) => {
 
-  console.log("user is owner : " + props.isOwner);
+  // console.log("user is owner : " + props.isOwner);
 
   if (props.showRoom)
   {
-    console.log("Show room called in left chat with " + props.Roomtype);
-    console.log(props.Roomtype);
+    // console.log("Show room called in left chat with " + props.Roomtype);
+    // console.log(props.Roomtype);
     return (
       <div className="composant-gauche">
         <ChatHeaderComponent friendName={props.name} showRoom={props.showRoom} isOwner={props.isOwner} profileImageUrl={messi}

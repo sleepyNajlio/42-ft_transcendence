@@ -43,6 +43,9 @@ export class MessagesGateway
   )
   {
     const Users = await this.messagesService.getUsers(id);
+    // this.socketGateway.getServer().emit('users', Users);
+    // console.log('users in gateway : ');
+    // console.log(Users);
     return Users;
   }
 
@@ -89,8 +92,8 @@ export class MessagesGateway
     const room = "chat_" + message.chatId;
     console.log('room in gateway : ');
     console.log(room);
-    
-    this.socketGateway.getServer().to(room).emit('message', message); // emit events to all connected clients
+    this.socketGateway.getServer().to(room).emit('message', message);
+
     
     return message;
   }

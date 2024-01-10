@@ -237,7 +237,9 @@ export class MessagesService {
           },
           chat: {
             select: {
+              id_chat: true,
               name: true,
+              type: true,
             },
           },
         },
@@ -282,7 +284,9 @@ export class MessagesService {
           },
           chat: {
             select: {
+              id_chat: true,
               name: true,
+              type: true,
             },
           },
         },
@@ -383,25 +387,64 @@ export class MessagesService {
           id_player: id,
         },
       },
-      include: {
-        chats: {
-          select: {
-            chatId: true,
-            userId: true,
+      // include: {
+      //   messages: {
+      //     select: {
+      //       userId: true,
+      //       message: true,
+      //       sentAt: true,
+      //       chat: true,
+      //     },
+      //     where: {
+      //       chat: {
+      //         name: null,
+      //       },
+      //     },
+      //     orderBy: {
+      //       sentAt: 'desc',
+      //     },
+      //     take: 1,
+      //   },
+      // },
+    });
+    const chats = await this.prisma.chat.findMany({
+          where: {
+            type: 'PRIVATE',
+            name: null,
           },
-        },
-        messages: {
+    });
+    const chatUsers = await this.prisma.chatUser.findMany({
+      where: {
+        chatId: { in: chats.map(room => room.id_chat) }
+      }
+    });
+    const lastMessages = await this.prisma.chatMessage.findMany({
+      where: {
+        chatId: { in: chats.map(room => room.id_chat) }
+      },
+      include: {
+        user: {
           select: {
-            userId: true,
-            message: true,
-            sentAt: true,
+            username: true,
           },
         },
       },
+      orderBy: {
+        sentAt: 'desc'
+      },
     });
-    console.log('users in service: ');
-    console.log(users);
-    return users;
+    console.log('last Messages is: ');
+    console.log(lastMessages);
+
+    return users.map(user => {
+      const chatUser = chatUsers.find(chatUser => chatUser.userId === user.id_player || chatUser.userId === id);
+      const lastMessage = lastMessages.find(message => message.userId === user.id_player || message.userId === id);
+      return {
+        ...user,
+        chatUser: chatUser,
+        lastMessage: lastMessage
+      }
+    });
   }
   async updateRoom(name: string, type: string, newPass : string, modifypass: boolean,
     setPass : boolean, removepass : boolean) {
@@ -472,6 +515,13 @@ export class MessagesService {
     const lastMessages = await this.prisma.chatMessage.findMany({
       where: {
         chatId: { in: rooms.map(room => room.id_chat) }
+      },
+      include: {
+        user: {
+          select: {
+            username: true,
+          },
+        },
       },
       orderBy: {
         sentAt: 'desc'

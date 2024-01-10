@@ -8,6 +8,7 @@ import './styles/css/inboxBox.css';
 import './styles/css/Simpleco.css';
 import './styles/css/Switchgrpdm.css';
 import './styles/css/ChatHeaderComponent.css';
+import { off } from '@svgdotjs/svg.js';
 
 interface userChat {
     userId: number;
@@ -46,10 +47,11 @@ export function Chat() { // get values from data base
     const [DisplayRoom, setDisplayRoom] = useState(false);
     const [DisplayDms, setDisplayDms] = useState(false);
     const [isOwner, setIsOwner] = useState(false);
-    const [lastMessage, setLastMessage] = useState("");
+    const [RoomId, setRoomId] = useState(0);
 
     useEffect(() => { 
-        if (!joined) return;
+        if (!joined || !selectedRoom) return;
+        console.log("use effect called in join : ");
         let id : number;
         id = Number(user?.id_player);
         socket?.emit('join', { 
@@ -68,41 +70,33 @@ export function Chat() { // get values from data base
             }
         });
         socket?.emit('findAllMessages', {name: selectedRoom?.name, id: 0, username: null}, (response: any[]) => {
-            // console.log("response got in find alll: ");
+            console.log("response got in find alll: ");
             // console.log(response);
             setMessages(response);
             // console.log(messages);
         });
         socket?.on('message', (message) => {
-            if (message.chat.name === selectedRoom?.name) {
-                // console.log("from front message " + message);
+            // console.log("the room id state is : " + RoomId);
+            console.log("id chat of the message is: " + message.chat.id_chat + " and selected room id is: " + selectedRoom?.id_chat);
+            if (message.chat.id_chat === selectedRoom?.id_chat) {
+                console.log("from front room message ");
+                console.log(message);
+                // setJoined(false);
                 setMessages((prevMessages) => [...prevMessages, message]);
             }
         });
         
         // socket?.on('rooms', (room) => {
-        //     // console.log("from front rooms: " + room);
-        //     setRooms((prevRooms) => [...prevRooms, ...room]);
-        // });
-        setJoined(false);
-        setShowRoom(true);
-        // let username : string;
-        // getUser().then(user => {
-        //     username = user.username;
-        //     socket.on('typing', ({ name:name , username: username, isTyping: isTyping }) => {
-        //     if (isTyping) {
-        //         setTypingDisplay(`${username} is typing...`);
-        //     } else {
-        //         setTypingDisplay('');
-        //     }
-        //     });
-        // }).catch(error => {
-        //     console.error("Failed to get user: ", error);
-        // });
-        // return () => {
-        //     socket.off(`message_${selectedRoom?.id}`);
-        // };
-    }, [joined]);
+            //     // console.log("from front rooms: " + room);
+            //     setRooms((prevRooms) => [...prevRooms, ...room]);
+            // });
+            setJoined(false);
+            setShowRoom(true);
+            return () => {
+            // socket?.off('message');
+            // setJoined(false);
+        }
+    }, [joined, selectedRoom]);
     
 
     useEffect(() => {
@@ -125,16 +119,21 @@ export function Chat() { // get values from data base
             // console.log(messages);
         });
         socket?.on('message', (message) => {
-            if (message.user.username === username || message.user.username === name)
+            console.log("id chat of the message is: ");
+            // console.log(message);
+            if ((message.user.username === username || message.user.username === name) && message.chat.name ===  null && message.chat.type === 'PRIVATE')
+            {
+                console.log("messageDmmm in front : ");
+                console.log(message);
                 setMessages((prevMessages) => [...prevMessages, message]);
-            
+            }
         });
         setShowRoom(false);
         setJoinfriend(false);
         setShowDm(true);
-        return () => {
-            // socket?.off('message');
-        }
+        // return () => {
+        //     socket?.off('message');
+        // }
         }, [joinfriend]);
         
     
@@ -179,8 +178,8 @@ export function Chat() { // get values from data base
         let id : number;
         id = Number(user?.id_player);
         socket?.emit('DisplayRoom', { id },  (response : Room[]) => {
-            console.log('rooms in display room :')
-            console.log(response);
+            // console.log('rooms in display room :')
+            // console.log(response);
             setRooms(response);
             // setIsOwner(true);
             // setDisplayDms(false);
@@ -208,8 +207,8 @@ export function Chat() { // get values from data base
         let id : number;
         id = Number(user?.id_player);
         socket?.emit('Friends', { id },  (response : any[]) => {
-            console.log('friends in show Dms :')
-            console.log(response);
+            // console.log('friends in show Dms :')
+            // console.log(response);
             setFriends(response);
             // setDisplayDms(true);
             // setDisplayRoom(false);
@@ -301,24 +300,19 @@ export function Chat() { // get values from data base
     };
     // for joining room
     const handleRoomClick = (room: Room) => {
-        // console.log('room clickedddd: ');
         socket?.off('message');
-        setShowRoom(false);
-        if (room.type === 'PROTECTED') {
-          setSelectedRoom(room);
-        } else {
-            // console.log('alooo')
+        console.log('room clickedddd with :');
+        console.log(room.id_chat);
+        // setRoomId(room.id_chat);
+        if (room.id_chat !== selectedRoom?.id_chat)
             setSelectedRoom(room);
+        if (room.chatUser && room.chatUser.role === 'OWNER') {
+          setIsOwner(true);
+        } else {
+          setIsOwner(false);
         }
-        // if (room.lastMessage)
-        // {
-        //     setLastMessage(room.lastMessage.message);
-        // }
-        // console.log("role in selected room : ",room.chatUser.role);
-        if (room.chatUser && room.chatUser.role === 'OWNER')
-            setIsOwner(true);
-        else
-            setIsOwner(false);
+        console.log("then is joined is set to true");
+        // if (!joined) 
         setJoined(true);
       };
     const handleSelectedPassword = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -338,7 +332,10 @@ export function Chat() { // get values from data base
             // setDisplayRoom(true);
         }
         else
+        {
+            // setDisplayRoom(false);
             alert("wrong password");
+        }
     };
 
 
