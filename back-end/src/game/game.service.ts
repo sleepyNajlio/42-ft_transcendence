@@ -134,6 +134,19 @@ export class GameService {
           win: win,
         },
       });
+      await this.prisma.player.update({
+        where: {
+          id_player: userId,
+        },
+        data: {
+          wins: {
+            increment: win,
+          },
+          loses: {
+            increment: win === 0 ? 1 : 0,
+          },
+        },
+      });
       return userGame;
     } catch (error) {
       console.error(error);
@@ -154,6 +167,7 @@ export class GameService {
     this.updateGame(gameId.id_game, state);
     this.updateUserGame(userId, gameId.id_game, 0, loserSc);
     this.updateUserGame(opponentId, gameId.id_game, 1, winnerSc);
+    return gameId.id_game;
   }
 
   async getGame() {

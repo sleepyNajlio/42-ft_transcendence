@@ -127,7 +127,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         const opponentId = Object.keys(game.players).find(
           (id) => id !== userId,
         );
-        this.gameService.finishGame(
+        const gamed = this.gameService.finishGame(
           Number(userId),
           Number(opponentId),
           0,
@@ -141,9 +141,11 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
             socketa.leave(gameId);
           }
         });
+        console.log('abort in game');
+        console.log(gamed);
         this.socketGateway.getClientSocket(opponentId)?.map((socketa) => {
           if (socketa.id !== client.id) {
-            socketa.emit('winByAbort');
+            socketa.emit('winByAbort', { gameId: gamed });
             socketa.leave(gameId);
           }
         });
@@ -343,6 +345,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.socketGateway.getServer().to(gameId).emit('startGame', {
         players: this.games[gameId].players,
         bball: this.games[gameId].ball,
+        gameId: null,
       });
       return { id: player1.userId == userId ? player2.userId : player1.userId };
     } else return { id: null };
@@ -367,8 +370,10 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       user_id: data.userId,
       username: data.username,
       host: false,
+      gameId: data.gameId,
       width: data.width,
       paddleSpeed: 3 * data.difficulty,
+      padl: data.padl,
       x: 0,
       y: 0,
       paddleDirection: 0,
@@ -422,6 +427,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         paddle: null,
         score: 0,
         paddleSpeed: this.players[data.userId].paddleSpeed,
+        padl: this.players[data.userId].padl,
         width: data.width,
         state: PlayerState.PLAYING,
       };
@@ -462,6 +468,12 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
           (this.games[gameId].players[data.adv_id].width - 50) /
           (this.games[gameId].players[data.userId].width - 50);
       }
+      this.logger.log(
+        `ratio 1 ${this.games[gameId].players[data.userId].ratio}`,
+      );
+      this.logger.log(
+        `ratio 2 ${this.games[gameId].players[data.adv_id].vxratio}`,
+      );
       // Add the players to the game room
       this.socketGateway.getClientSocket(data.userId).map((socketa) => {
         socketa.join(gameId);
@@ -474,6 +486,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.socketGateway.getServer().to(gameId).emit('startGame', {
         players: this.games[gameId].players,
         bball: this.games[gameId].ball,
+        gameId: this.players[data.userId].gameId,
       });
       this.notifs[data.userId]?.map((player) => {
         this.socketGateway.getClientSocket(player.user_id)?.map((socketa) => {
@@ -729,7 +742,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
           delete this.players[winnerId];
           delete this.players[loserId];
           delete this.games[gameId];
-          this.gameService.finishGame(
+          const gamed = this.gameService.finishGame(
             Number(loserId),
             Number(winnerId),
             data.playerLeft > data.playerRight
@@ -746,6 +759,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
             playerRight: data.playerRight,
             winnerId,
             loserId,
+            gamed,
           });
         }
       } else {

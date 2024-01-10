@@ -18,7 +18,7 @@ export default function Sbox(props: any) {
     const paddleRef = useRef<Rect | null>(null);
     const boardRef = useRef<Rect | null>(null);
     const {setCurrentBoard, setCurrentPad}  = props;
-    const {currentPad, currentBoard} = props;
+    const {currentPad, currentBoard, isLoading} = props;
     
     const handlePrevClick = (slide: number) => {
       if (slide === 1)
@@ -82,6 +82,8 @@ export default function Sbox(props: any) {
     }, [currentBoard]);
 
     useEffect(() => {
+      console.log("sbox show");
+      if ( !isLoading) {
         psvgRef.current = SVG().addTo('#padl').size(200, 125);
         paddleRef.current = psvgRef.current.rect(40, 150).radius(15).cx(100).cy(72).rotate(60).fill(psvgRef.current.pattern(10, 10, function(add) {
           add.rect(10, 10).fill('#fff');
@@ -91,15 +93,16 @@ export default function Sbox(props: any) {
         boardRef.current = bsvgRef.current.rect(200, 125).fill(bsvgRef.current.pattern(50, 50, function(add) {
           add.image(Board1).size(50, 50);
           } ));
-        return () => {
-          bsvgRef.current?.remove();
-          psvgRef.current?.remove();
-        }
-    }, []);
+      }
+      return () => {
+        bsvgRef.current?.remove();
+        psvgRef.current?.remove();
+      }
+    }, [isLoading]);
     return (
         <>
             <main className="wrapper">
-                {props.isLoading && <LoadingComponent />} {/* Render the loading component when isLoading is true */}
+                {isLoading && <LoadingComponent />} {/* Render the loading component when isLoading is true */}
                 {props.inGame && (
                     <div className="game">
                         <h1 className="btitle">ALREADY IN GAME</h1>
@@ -107,7 +110,7 @@ export default function Sbox(props: any) {
                     </div>
                 )  
                 }
-                {!props.isLoading && !props.inGame && (
+                {!isLoading && !props.inGame && (
                     <div className="sbox">
                         {props.error && (
                             <div className="sbox__title">

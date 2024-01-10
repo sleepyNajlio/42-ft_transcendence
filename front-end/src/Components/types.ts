@@ -13,6 +13,12 @@ export type achievement = {
   max: number;
 };
 
+export type History = {
+  score1: number;
+  user2: string;
+  score2: number;
+};
+
 export type user = {
   id: string;
   username: string;
@@ -30,7 +36,7 @@ export type cercle = {
 }
 export interface User {
   id_player: string;
-  email: string;
+  email?: string;
   username: string;
   avatar: string;
   isAuthenticated: boolean;

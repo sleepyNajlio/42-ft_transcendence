@@ -6,7 +6,7 @@ export function ProfilStat(props : { user_stats: user_stats, cercle: cercle, sta
     <>
     <div className="profil__stats">
       <div className='profil__ratio'>
-        <h3>{props.user_stats.winsRat}%</h3>
+        <h3>{props.user_stats.winsRat.toFixed(2)}%</h3>
         <h6>Ratio</h6>
         <svg>
           <circle id="progress" cx={props.cercle.x} cy={props.cercle.y} r={props.cercle.r}></circle>

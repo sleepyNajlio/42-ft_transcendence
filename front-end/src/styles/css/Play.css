@@ -29,7 +29,6 @@ box-sizing: border-box;
     padding-right: 10px;
     padding-top: 10px;
     padding-bottom: 10px;
-    font-family: 'inter';
     font-weight: bold;
     font-style: normal;
     font-size: 14px;
@@ -89,6 +88,13 @@ box-sizing: border-box;
 {
     width: 34px;
 }
+
+@font-face {
+  font-family: 'Raleway';
+  src: url('../../assets/fonts/Raleway.ttf') format('truetype');
+}
+
+
 .btn
 {
     padding-left: 68px;
@@ -99,10 +105,9 @@ box-sizing: border-box;
     padding-right: 10px;
     padding-top: 10px;
     padding-bottom: 10px;
-    font-family: 'inter';
-    font-weight: bold;
+    font-family: 'Raleway';
     font-style: normal;
-    font-weight: 100;
+    font-weight: 500;
     border-radius: 13px;
     background-color: #fff;
     color: black;

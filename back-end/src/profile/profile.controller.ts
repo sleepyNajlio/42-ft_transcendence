@@ -33,6 +33,18 @@ export class ProfileController {
     return user;
   }
 
+  @Get('/history/:id')
+  async getMatchHistory(@Param() { id }: { id: string }) {
+    const matches = await this.profileService.getMatchHistory(Number(id));
+    return matches;
+  }
+
+  @Get('/game/:id')
+  async getMatchStats(@Param() { id }: { id: string }) {
+    const stats = await this.profileService.getMatchStats(Number(id));
+    return stats;
+  }
+
   // @Get('/ranks')
   // async getUsersRank() {
   //   const user = await this.profileService.getUsersRank();

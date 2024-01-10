@@ -26,7 +26,7 @@ function App()
     
     const navigate = useNavigate();
     const [invite, setInvite] = useState<inviteStatus>(inviteStatus.NONE);
-    const [inviters, setInviters] = useState<{user_id: string, username: string}[]>([]);
+    const [inviters, setInviters] = useState<{user_id: string, username: string, gameId: number}[]>([]);
     const [isnotified, setisnotified] = useState(true);
     const [inPlay, setInPlay] = useState(false);
     const { user, initialize,  socket } = useContext(UserContext);
@@ -50,13 +50,15 @@ function App()
             // console.log('componentRef.current: ', componentRef.current);
             // componentRef.current?.scrollIntoView({ behavior: 'smooth' });
         // }
-        if (socket)
+        if (socket && width)
         {
             socket.emit('inviteResp', {
                 accepted: resp,
                 userId: inviter?.user_id.toString(),
-                adv_id: user?.id_player.toString(),
+                adv_id: user?.id.toString(),
                 username: user?.username,
+                gameId: inviter?.gameId,
+                width: width > 750 ? width * 0.8 : width,
             }, async (response: any) => {
                 // got players ratio
                 console.log('Received acknowledgement from server:', response);
@@ -71,7 +73,7 @@ function App()
                 console.log('gameId: ', gameId);
                 gameId = gameId.data.id_game;
                 console.log('gameId: ', gameId);
-                await axios.post(`http://localhost:3000/game/${gameId}/joinGame`, {userId: user?.id_player},  { withCredentials: true });
+                await axios.post(`http://localhost:3000/game/${gameId}/joinGame`, {userId: user?.id},  { withCredentials: true });
                 await axios.post(`http://localhost:3000/game/${gameId}/updateGame`, {status: 'PLAYING'},  { withCredentials: true });
             });
         }
@@ -93,7 +95,7 @@ function App()
                 return document.body.offsetWidth;
             }
             else
-                return '0px';
+                return 0;
         }
     } , [isMediumPlus, isMedium, isSmall] );
     useEffect(() => {
@@ -111,7 +113,7 @@ function App()
         if (socket)
         {
             console.log('listening socket: invited');
-            socket.emit('getNotifs', {userId: user?.id_player.toString()}, (response: any) => {
+            socket.emit('getNotifs', {userId: user?.id.toString()}, (response: any) => {
                 console.log('Received acknowledgement from server:', response);
                 if (response.length > 0) {
                     // use user_id and username from response to setInviters
@@ -138,7 +140,7 @@ function App()
             return;
         console.log("invited by ", data);
         setisnotified(true);
-        setInviters(prevInviters => [...prevInviters, {user_id: data.user_id, username: data.username}]);
+        setInviters(prevInviters => [...prevInviters, {user_id: data.user_id, username: data.username, gameId: data.gameId}]);
         setInvite(inviteStatus.INVITED);
     };
     const handleRmInvite = (data: any) => {

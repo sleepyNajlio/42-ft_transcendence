@@ -1,4 +1,4 @@
-import { Player, Players, Ball, User } from './types';
+import { Player, Players, Ball, User, user, user_stats } from './types';
 import { Socket } from "socket.io-client";
 import { SVG, on, Text } from '@svgdotjs/svg.js';
 import logo  from '../assets/game/Logotype.svg'
@@ -81,7 +81,7 @@ const reset = async (playerRight: number = 0, playerLeft: number = 0, width: num
 }
 
 
-export default function game(socket: Socket, dificulty: number = 10, Board: number, players: Players = {}, ball: Ball, width: number, user: User, ratio: number, vxratio: number, initia: () => void): () => void {
+export default function game(socket: Socket, dificulty: number = 10, gameId: number | null, Board: number, players: Players = {}, ball: Ball, width: number, user: User, ratio: number, vxratio: number, initia: () => void, updatestats: (win:Boolean) => void, updateHistory: (gameId: number) => void): () => void {
     // define board size and create a svg board
     // console.log("game ratio ", ratio);
     let pHost: Player;
@@ -104,11 +104,11 @@ export default function game(socket: Socket, dificulty: number = 10, Board: numb
       })
       draw.image(Hole).size(30 , 30 ).move(width/2 -(15 ), height/2 - (15 )).back();
       if (Board === 1)
-        draw.rect(width, height).fill(boardPattern1(draw)).back();
+        draw.rect(width, height).fill(boardPattern1(draw)).radius(20).back();
       else if (Board === 2)
-        draw.rect(width, height).fill(boardPattern2(draw)).back();
+        draw.rect(width, height).fill(boardPattern2(draw)).radius(20).back();
       else if (Board === 3)
-        draw.rect(width, height).fill(boardPattern3(draw)).back();
+        draw.rect(width, height).fill(boardPattern3(draw)).radius(20).back();
       
       pHost = Object.values(players).find(player => player.host === true)!;
       pGuest = Object.values(players).find(player => player.host === false)!;
@@ -245,7 +245,10 @@ export default function game(socket: Socket, dificulty: number = 10, Board: numb
     let chck = false;
     
     
-    socket.on('winByAbort', () => {
+    socket.on('winByAbort', (data:{gameId:number}) => {
+      console.log("winByAbort", gameId);
+      updateHistory(gameId as number);
+      updatestats(true);
       reset(pGuest.score, pHost.score, width, height, socket, pHost, pGuest);
       endGame(width, height, "Game Aborted", nested, initia, pHost, pGuest, cleanup)
       return cleanup;
@@ -336,7 +339,7 @@ export default function game(socket: Socket, dificulty: number = 10, Board: numb
     });
 
 
-    socket.on('done', async (data: {playerRight: number, playerLeft: number, winnerId: number, loserId: number }) => {
+    socket.on('done', async (data: {gameId:number, playerRight: number, playerLeft: number, winnerId: number, loserId: number }) => {
       ball = {
         ...ball,
         ...{vx: 0, vy: 0},
@@ -361,10 +364,16 @@ export default function game(socket: Socket, dificulty: number = 10, Board: numb
       console.log("user.id_player", user.id_player);
       const id: number = Number(user.id_player);
       const winid: number = Number(data.winnerId);
-      if (winid === id)
+      console.log("id", gameId);
+      updateHistory(gameId as number);
+      if (winid === id){
+        updatestats(true);
         endGame(width, height, "You Won !", nested, initia, pHost, pGuest, cleanup)
-      else
+      }
+      else{
+        updatestats(false);
         endGame(width, height, "You Lost !", nested, initia, pHost, pGuest, cleanup)
+      }
       return cleanup;
     });
     socket.on('reset', (data: {ball: Ball, playerRight: number, playerLeft: number }) => {
