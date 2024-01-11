@@ -130,14 +130,15 @@ export class ProfileService {
     return matches2;
   }
 
-  // async getUsersRank() {
-  //   const players = await this.prisma.player.findMany({
-  //     include: {
-  //       games: true,
-  //     },
-  //   });
-  //   return players;
-  // }
+  async getUsersRankId(id: number) {
+    const players = await this.prisma.player.findMany({
+      orderBy: {
+        wins: 'desc',
+      },
+    });
+    const playerIndex = players.findIndex((player) => player.id_player === id);
+    return playerIndex + 1;
+  }
   // getUsersRankId(arg0: number) {
   //   throw new Error('Method not implemented.');
   // }

@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect, useRef } from 'react';
-import { getHistory, getUser, initializeUser } from './player';
+import { getHistory, getUser, initializeUser, getRank } from './player';
 import { initializeSocket, getSocket } from './socket';
 import { User, user, user_stats, History } from './Components/types';
 import { Socket } from 'socket.io-client';
@@ -73,14 +73,19 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     states.total_matches++;
     win ? states.wins++ : states.wins;
     states.winsRat = states.wins / states.total_matches;
-    setUser(prevUser => {
-      if (prevUser) {
-        return { ...prevUser, user_stats: states };
-      } else {
-        // return a default user object with all properties defined
-        return null;
-      }
-    });
+    getRank().then(res => {
+      setUser(prevUser => {
+        if (prevUser) {
+          return { ...prevUser, user_stats: states, rank: res };
+        } else {
+          // return a default user object with all properties defined
+          return null;
+        }
+      });
+    }
+    ).catch(error => {
+      console.error("Failed to get rank: ", error);
+    } );
   };
 
 

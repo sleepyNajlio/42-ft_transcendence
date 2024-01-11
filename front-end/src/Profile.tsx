@@ -37,6 +37,7 @@ export function Profile(props: {  }) {
         username: user.username,
         avatar: user.avatar,
         user_stats: user.user_stats,
+        rank: user.rank,
       }));
       console.log("hstoire: ");
       console.log(history);
@@ -82,8 +83,8 @@ export function Profile(props: {  }) {
                         <div className="rank__cercle"></div>
                       </div> */}
                     {history && history.map((item, index) => (
-                      <div className="rankbar">
-                        <div className="rank__user" key={index}>
+                      <div className="rankbar" key={index}>
+                        <div className="rank__user" >
                           <div className="rank__cercle" style={{backgroundImage: `url(${user?.avatar})`}}></div>
                         </div>
                           <div className="score">

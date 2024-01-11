@@ -19,10 +19,12 @@ async function getUserInfo(): Promise<user | null> {
             achievement: 0,
             total_matches: Number(res.user.wins) + Number(res.user.loses),
         };
+        const rank: number = (await axios.get(`http://localhost:3000/profile/rank/${res.user.id_player}`, { withCredentials: true })).data;
+        console.log("rank: ", rank);
         const user: user = {
             id: res.user.id_player,
             username: res.user.username,
-            rank: 0,
+            rank: rank,
             avatar: res.user.avatar,
             achievement: [],
             user_stats: stats,
@@ -35,6 +37,14 @@ async function getUserInfo(): Promise<user | null> {
         // console.log(response.message);
     }
 }
+
+export async function getRank(): Promise<number> {
+    if (player){
+        const rank: number = (await axios.get(`http://localhost:3000/profile/rank/${player?.id}`, { withCredentials: true })).data;
+        player.rank = rank;
+    }
+    return player?.rank || 0;
+}  
 
 async function getMatchHistory(id: number): Promise<History[] | null> {
 

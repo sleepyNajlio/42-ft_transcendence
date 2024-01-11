@@ -263,13 +263,15 @@ export function Play({ setInPlay, inviter, setboardWidth }: { setInPlay: any, in
             isAuthenticated: true,
           }
           console.log('gamila: ', gameId);
-          const cleanup = game(socket, 6, gameId, currentBoard, players, bballRef.current, width > 750 ? width * 0.8 : width, guser, players[user.id].ratio, players[user.id].vxratio, inita, updateStats, updatehistory);
+          let cleanup = () => {};
+          if (gameId)
+            cleanup = game(socket, 6, gameId, currentBoard, players, bballRef.current, width > 750 ? width * 0.8 : width, guser, players[user.id].ratio, players[user.id].vxratio, inita, updateStats, updatehistory);
           return () => {
             cleanup();
           };
         }
       }
-    } , [showGame]);
+    } , [showGame, gameId]);
 
     useEffect(() => {
       return () => {

@@ -45,6 +45,13 @@ export class ProfileController {
     return stats;
   }
 
+  @Get('/rank/:id')
+  async getUsersRankId(@Param() { id }: { id: string }) {
+    console.log(id);
+    const rank = await this.profileService.getUsersRankId(Number(id));
+    return rank;
+  }
+
   // @Get('/ranks')
   // async getUsersRank() {
   //   const user = await this.profileService.getUsersRank();
