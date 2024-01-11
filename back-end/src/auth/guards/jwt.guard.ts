@@ -8,7 +8,7 @@ import { ConfigService } from '@nestjs/config';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { AuthService } from '../auth.service';
-import { UsersService } from 'src/users/users.service';
+import { ProfileService } from 'src/Profile/profile.service';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -17,7 +17,7 @@ export class AuthGuard implements CanActivate {
     private config: ConfigService,
     private reflector: Reflector,
     private authservice: AuthService,
-    private Users: UsersService,
+    private Users: ProfileService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {

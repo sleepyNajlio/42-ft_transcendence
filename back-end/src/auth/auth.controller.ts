@@ -13,7 +13,7 @@ import {
 import { AuthService } from './auth.service';
 import { Request, Response } from 'express';
 import { FTAuthGuard } from './guards/42.auth.guard';
-import { SignUpDTO } from 'src/users/dto/SignUp.dto';
+import { SignUpDTO } from 'src/Profile/dto/SignUp.dto';
 import { ConfigService } from '@nestjs/config';
 
 @Controller('auth')
@@ -38,6 +38,7 @@ export class AuthController {
     // console.log("FTCallback begin");
     // console.log(req.user);
     const cookie = await this.authService.signToken(req.user);
+    console.log(req.user['isAuthenticated']);
     if (req.user['isAuthenticated']) {
       console.log('mwellef');
       res.cookie('JWT_TOKEN', cookie, { httpOnly: true });
@@ -56,7 +57,7 @@ export class AuthController {
   }
 
   @SetMetadata('isPublic', true)
-  @Post('finish-signup')
+  @Post('finish_signup')
   async finish_signup(
     @Body() dto: SignUpDTO,
     @Req() req,
@@ -70,6 +71,8 @@ export class AuthController {
     const UserToken = req.cookies['USER'];
     const token = await this.authService.finish_signup(dto, UserToken);
     res.cookie('JWT_TOKEN', token);
+    console.log(res.cookie);
     res.cookie('USER', '', { expires: new Date() });
+    return { msg: 'User created' };
   }
 }

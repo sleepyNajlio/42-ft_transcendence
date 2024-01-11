@@ -10,21 +10,21 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
+model Player {
   id_player       Int          @id @default(autoincrement())
   username        String       @unique
   avatar          String       @unique
   email           String       @unique
   isAuthenticated Boolean?     @default(false)
   level           Int          @default(1)
-  status          UserStatus   @default(OFFLINE)
+  status          PlayerStatus   @default(OFFLINE)
   wins            Int          @default(0)
   loses           Int          @default(0)
   twofa           Boolean?     @default(false)
   twoFASecret     String?
 }
 
-enum UserStatus {
+enum PlayerStatus {
   ONLINE
   OFFLINE
 }
