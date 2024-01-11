@@ -6,16 +6,18 @@ import {
   HttpStatus,
   SetMetadata,
   Param,
-
+  Res,
 } from '@nestjs/common';
 import { ProfileService } from './profile.service';
 import { SignUpDTO } from './dto/SignUp.dto';
-import { Request } from 'express';
+import { Request, Response } from 'express';
+import { ConfigService } from '@nestjs/config';
 
 
 @Controller('profile')
 export class ProfileController {
-  constructor(private readonly ProfileService: ProfileService) {}
+  constructor(private readonly ProfileService: ProfileService,
+    private Config: ConfigService) {}
 
   @SetMetadata('isPublic', true)
   @Get()
@@ -52,5 +54,23 @@ export class ProfileController {
     console.log(id);
     const user = await this.ProfileService.getUserById(Number(id));
     return user;
+  }
+
+  @Get("/logout")
+  async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+    console.log("logging out");
+    if (req.cookies['JWT_TOKEN']){
+      res.cookie('JWT_TOKEN', '', { expires: new Date() });
+      res.redirect(`${this.Config.get('FRONTEND_URL')}/`);
+      // return "Logge/d out";
+    }
+    else if (req.cookies['USER']) {
+      res.cookie('USER', '', { expires: new Date() });
+      res.redirect(`${this.Config.get('FRONTEND_URL')}/`);
+      // return "Logged out";
+    }
+    else
+      throw new HttpException('No Cookies', HttpStatus.UNAUTHORIZED);
+
   }
 }
