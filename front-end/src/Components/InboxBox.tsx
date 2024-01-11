@@ -28,6 +28,7 @@ import messi from '../assets/messi.jpg';
     // console.log('userId issss: ' + props.userId)
     // console.log("props.room.users : " , props.room.users);
     // console.log("props.id : " , props.id);
+    console.log("props.lastmes : " , props.lastMessage);
     const handleImageClick = () => {
       props.joindDm(props.friend.username);
     };
@@ -42,8 +43,7 @@ import messi from '../assets/messi.jpg';
                         {profilePicture(messi)}
                         <div className="message-style">
                           <p className="text1">{props.room.name}</p>
-                          <p className="text2">{props.room.lastMessage ? props.room.lastMessage.user.username + ": " 
-                            + props.room.lastMessage.message  : ''}</p>
+                          <p className="text2"></p>
                         </div>
                     </button>
                     {props.selectedRoom && props.selectedRoom.name === props.room.name
@@ -67,7 +67,7 @@ import messi from '../assets/messi.jpg';
             <div className="message-style">
               <p className="text1">{props.room.name}</p>
               <p className="text2">{props.room.lastMessage ? props.room.lastMessage.user.username + ": " 
-              + props.room.lastMessage.message  : ''}</p>
+              + props.room.lastMessage.message  : ""}</p>
             </div>
           </button>
           )}

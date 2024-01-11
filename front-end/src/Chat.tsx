@@ -48,6 +48,7 @@ export function Chat() { // get values from data base
     const [DisplayDms, setDisplayDms] = useState(false);
     const [isOwner, setIsOwner] = useState(false);
     const [RoomId, setRoomId] = useState(0);
+    const [lastMessage, setLastMessage] = useState("");
 
     useEffect(() => { 
         if (!joined || !selectedRoom) return;
@@ -76,14 +77,38 @@ export function Chat() { // get values from data base
             // console.log(messages);
         });
         socket?.on('message', (message) => {
-            // console.log("the room id state is : " + RoomId);
-            // console.log("id chat of the message is: " + message.chat.id_chat + " and selected room id is: " + selectedRoom?.id_chat);
             if (message.chat.id_chat === selectedRoom?.id_chat) {
-                // console.log("from front room message ");
-                // console.log(message);
-                // setJoined(false);
                 setMessages((prevMessages) => [...prevMessages, message]);
             }
+                setRooms((prevRooms) => {
+                    if (prevRooms === null) {
+                        return null;
+                    }
+                    const updatedRooms = prevRooms.map((room) => {
+                        if (room.id_chat === message.chatId) {
+                            return {
+                                ...room,
+                                lastMessage: room.lastMessage
+                                    ? {
+                                          ...room.lastMessage,
+                                          message: message.message,
+                                          user: {
+                                              ...room.lastMessage.user,
+                                              username: message.user.username,
+                                          },
+                                      }
+                                    : {
+                                          message: message.message,
+                                          user: {
+                                              username: message.user.username,
+                                          },
+                                      },
+                            };
+                        }
+                        return room;
+                    });
+                    return updatedRooms;
+                });
         });
         
         // socket?.on('rooms', (room) => {
@@ -127,6 +152,23 @@ export function Chat() { // get values from data base
                 console.log(message);
                 setMessages((prevMessages) => [...prevMessages, message]);
             }
+            setFriends((prevFriends) => {
+                const updatedFriends = prevFriends.map((friend) => {
+                    if (friend.username === message.user.username || friend.username === message.user.username) {
+                        return {
+                            ...friend,
+                            lastMessage: {
+                                message: message.message,
+                                user: {
+                                    username: message.user.username,
+                                },
+                            },
+                        };
+                    }
+                    return friend;
+                });
+                return updatedFriends;
+            });
         });
         setShowRoom(false);
         setJoinfriend(false);
@@ -198,6 +240,7 @@ export function Chat() { // get values from data base
                     }
                     return [...prevRooms, room];
                 });
+                
             });
             // setDisplayDms(true);
             // setDisplayDms(false);
@@ -397,7 +440,7 @@ export function Chat() { // get values from data base
                      selectedPswd={selectedPswd} selectedRoom={selectedRoom} setSelectedRoom={setSelectedRoom} 
                      Friends={Friends} setDisplayDms={setDisplayDms} setDisplayRoom={setDisplayRoom} DisplayDms={DisplayDms} DisplayRoom={DisplayRoom}
                      HandleDisplayDms={HandleDisplayDms} HandleDisplayRoom={HandleDisplayRoom} joindDm={joinDm}
-                     messages={messages} isOwner={isOwner} />}
+                     messages={messages} lastMessage={lastMessage} isOwner={isOwner} />}
                 </div>            
                 </div>
         </>

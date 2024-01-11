@@ -23,7 +23,7 @@ const Rightchat: React.FC = (props: any) => {
               
               <InboxBox  key={index} id={props.id} room={room} DisplayRoom={props.DisplayRoom} userId={props.userId}handleRoomClick={props.handleRoomClick} handleSelectedPassword={props.handleSelectedPassword} 
                  message={room.message} handleJoinWithPassword={props.handleJoinWithPassword}
-                 selectedRoom={props.selectedRoom} isOwner={props.isOwner} setSelectedRoom={props.setSelectedRoom} />
+                 selectedRoom={props.selectedRoom} lastMessage={props.lastMessage} isOwner={props.isOwner} setSelectedRoom={props.setSelectedRoom} />
             ))}
 
              {props.creating && (
