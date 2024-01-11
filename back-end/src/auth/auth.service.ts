@@ -7,8 +7,8 @@ import {
 } from '@nestjs/common';
 import { ProfileService } from 'src/Profile/profile.service';
 import { JwtService } from '@nestjs/jwt';
-import { SignUpDTO } from 'src/Profile/dto/SignUp.dto';
-import { MailDTO } from 'src/Profile/dto/Mail.dto';
+import { SignUpDTO } from 'src/profile/dto/SignUp.dto';
+import { MailDTO } from 'src/profile/dto/Mail.dto';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
