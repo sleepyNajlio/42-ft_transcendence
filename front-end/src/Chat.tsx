@@ -50,6 +50,31 @@ export function Chat() { // get values from data base
     const [RoomId, setRoomId] = useState(0);
     const [lastMessage, setLastMessage] = useState("");
 
+
+    // save the states in local storage
+
+    useEffect(() => {
+        const storedShowRoom = localStorage.getItem('showRoom');
+        if (storedShowRoom !== null) {
+          setShowRoom(storedShowRoom === 'true');
+        }
+      }, []);
+    
+      useEffect(() => {
+        localStorage.setItem('showRoom', showRoom.toString());
+      }, [showRoom]);
+    
+      useEffect(() => {
+        const storedShowDm = localStorage.getItem('ShowDm');
+        if (storedShowDm !== null) {
+          setShowDm(storedShowDm === 'true');
+        }
+      }, []);
+    
+      useEffect(() => {
+        localStorage.setItem('ShowDm', ShowDm.toString());
+      }, [ShowDm]);
+
     useEffect(() => { 
         if (!joined || !selectedRoom) return;
         console.log("use effect called in join : ");
@@ -301,10 +326,14 @@ export function Chat() { // get values from data base
 
         socket?.emit('updateRoom', {id: user?.id_player, name: selectedRoom?.name, type: selectedRoom?.type, newPass: newPass, modifypass: modifypass, setPass: setPass, removepass: removepass }, (response: Room[]) => {
             console.log("response got in update room: ");
+            console.log(response);
             setRooms(response);
             // UpdateRooms(response);
             // setSelectedRoom(response);
         });
+        // setShowDm(true);
+        // setShowDm(false);
+        // setShowRoom(true);
         socket?.on('rooms', (room) => {
             setRooms((prevRooms: Room[] | null) => {
                 if (prevRooms === null) {
@@ -312,7 +341,7 @@ export function Chat() { // get values from data base
                 }
                 return [...prevRooms, room];
             });
-        });        
+        });
         // HandleDisplayRoom();
         // setSelectedRoom(selectedRoom);
             
@@ -407,6 +436,12 @@ export function Chat() { // get values from data base
             alert("wrong password");
         }
     };
+    // const TriangleComponent = () => (
+    //     <div className="triangle-container">
+    //       <div className="triangle"></div>
+    //       <p className="welcome-message">Welcome to the chat interface!</p>
+    //     </div>
+    //   );
 
 
     // const typingEmit = () => {
@@ -422,6 +457,7 @@ export function Chat() { // get values from data base
     //         console.error("Failed to get user: ", error);
     //     });
     // };
+    const shouldShowTriangle = !(showRoom || ShowDm || DisplayDms || DisplayRoom);
 
     return (
         <>
@@ -431,7 +467,12 @@ export function Chat() { // get values from data base
                     {showRoom && <Leftchat userid={user?.id_player} showRoom={showRoom}messages={messages} name={selectedRoom?.name} sendMessage={sendMessage} isOwner={isOwner}
                      Roomtype={selectedRoom?.type} handleUpdateRoom={handleUpdateRoom} HandleDisplayRoom={HandleDisplayRoom} DisplayRoom={DisplayRoom}/> }
                     {ShowDm && <Leftchat userid={user?.id_player} showDm={ShowDm} messages={messages} name={name}sendMessageDm={sendMessageDm} Friends={Friends}/> }
+                    
+                {shouldShowTriangle && 
+                    <div className='welcome-message'>Welcome to the chat interface!</div>
+                }
                 </div>
+                <div/>
                 <div className="droite">
                     {< Rightchat rooms={Rooms} userId={user?.id_player} id={user?.id_player} handleRoomClick={handleRoomClick} create={create}
                      handleRoomPassword={handleRoomPassword} name={name} roomType={roomType} roomPassword={roomPassword}

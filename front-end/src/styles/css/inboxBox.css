@@ -1,3 +1,22 @@
+
+.welcome-message
+{
+  /* text-align: center; */
+  font-size: 77px;
+  font-weight: bold;
+  margin-top: 413px;
+  /* margin-bottom: 35px; */
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+
 .simple-component {
     border-radius: 10px;
     background-color: white;

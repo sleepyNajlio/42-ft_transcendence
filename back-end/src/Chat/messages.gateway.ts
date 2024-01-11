@@ -73,7 +73,8 @@ export class MessagesGateway
   )
   {
     const Rooms = await this.messagesService.updateRoom(id, name,type,newPass,modifypass,setPass,removepass);
-    
+    return Rooms;
+
   //  return await this.messagesService.updateRoom(id, name,type,newPass,modifypass,setPass,removepass);
   }
 

@@ -28,7 +28,7 @@ import messi from '../assets/messi.jpg';
     // console.log('userId issss: ' + props.userId)
     // console.log("props.room.users : " , props.room.users);
     // console.log("props.id : " , props.id);
-    console.log("props.lastmes : " , props.lastMessage);
+    // console.log("props.lastmes : " , props.lastMessage);
     const handleImageClick = () => {
       props.joindDm(props.friend.username);
     };
