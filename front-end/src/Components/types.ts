@@ -48,6 +48,7 @@ export interface Player {
   user_id: string,
   host: boolean,
   width: string,
+  username: string,
   ratio: number,
   vxratio: number,
   x: number;

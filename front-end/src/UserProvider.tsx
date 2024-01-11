@@ -31,7 +31,7 @@ export const UserContext = createContext<UserContextProps>({
   initialize: async () => {},
   updateStats: (win:Boolean) => {},
   updatehistory: async (gameId: number) => {},
-  socket: null 
+  socket: null
 });
 
 export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
@@ -55,7 +55,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
       newHistory.user2 = newusergames.find(game => game.userId !== user?.id).user.avatar;
       setHistory(prevHistory => {
         if (prevHistory) {
-          return [...prevHistory, newHistory];
+          return [newHistory, ...prevHistory];
         } else {
           // return a default user object with all properties defined
           return null;

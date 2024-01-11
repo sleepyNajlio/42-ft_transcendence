@@ -344,6 +344,7 @@ export default function game(socket: Socket, dificulty: number = 10, gameId: num
         ...ball,
         ...{vx: 0, vy: 0},
       }
+      updateHistory(gameId as number);
       ball.cercle.center(width/2, height/2)
       ball.cercle.hide();
       pHost.score = data.playerLeft;
@@ -365,7 +366,6 @@ export default function game(socket: Socket, dificulty: number = 10, gameId: num
       const id: number = Number(user.id_player);
       const winid: number = Number(data.winnerId);
       console.log("id", gameId);
-      updateHistory(gameId as number);
       if (winid === id){
         updatestats(true);
         endGame(width, height, "You Won !", nested, initia, pHost, pGuest, cleanup)

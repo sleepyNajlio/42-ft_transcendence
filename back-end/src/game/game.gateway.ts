@@ -159,7 +159,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('matchmaking')
   handleJoinQueue(
     client: Socket,
-    data: { width: number; difficulty: number; padl: number },
+    data: { width: number; difficulty: number; padl: number; username: string },
   ) {
     // Check if the user is already in the queue based on a unique identifier (e.g., user ID)
     // const userId = getUserIdFromClient('matchmaking', client); // Implement a function to extract the user ID
@@ -180,6 +180,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         host: false,
         width: data.width,
         paddleSpeed: 3 * data.difficulty,
+        username: data.username,
         ratio: 1,
         padl: data.padl,
         vxratio: 1,
@@ -342,6 +343,8 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
           }
         }
       }
+      this.logger.log('players');
+      this.logger.log(this.players);
       this.socketGateway.getServer().to(gameId).emit('startGame', {
         players: this.games[gameId].players,
         bball: this.games[gameId].ball,

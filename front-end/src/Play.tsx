@@ -111,7 +111,7 @@ export function Play({ setInPlay, inviter, setboardWidth }: { setInPlay: any, in
       // here we set a state for the game id
       console.log('currentPad: ', currentPad);
       if (socket && componentRef.current)
-      socket.emit('matchmaking', { id: socket.id, width: componentRef.current?.offsetWidth > 750 ? componentRef.current?.offsetWidth * 0.8 : componentRef.current?.offsetWidth, difficulty: 3, padl: currentPad }, async (response: any) => {
+      socket.emit('matchmaking', { id: socket.id, width: componentRef.current?.offsetWidth > 750 ? componentRef.current?.offsetWidth * 0.8 : componentRef.current?.offsetWidth, difficulty: 3, padl: currentPad, username: user?.username }, async (response: any) => {
         console.log('Received acknowledgement from server:', response);
         resp = response;
         if (!resp) {
@@ -281,6 +281,12 @@ export function Play({ setInPlay, inviter, setboardWidth }: { setInPlay: any, in
       <>
         <div ref={componentRef}
         className="game_container" id="game_container">
+          {showGame && componentRef.current && (
+            <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
+              <h1>{Object.values(players).find(player => player.host === true)?.username} </h1>
+              <h1>{Object.values(players).find(player => player.host === false)?.username} </h1>
+            </div>
+          )}
           {showSbox && (
               <Sbox
                   btitle="Play"

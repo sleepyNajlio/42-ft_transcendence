@@ -407,6 +407,7 @@ box-sizing: border-box;
 .profil .container {
     display: grid;
     grid-template-columns: 7fr 4fr;
+    grid-auto-rows: 0fr 1fr;
     margin: 0;
     grid-gap: 37px;
     width: 90%;
