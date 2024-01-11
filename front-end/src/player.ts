@@ -1,8 +1,11 @@
-import { User } from './Components/types.ts';
+import axios from 'axios';
+import { Player, User, user,  user_stats, History } from './Components/types.ts';
 
-let player: User | null;
+let player: user | null;
+let history: History[] | null;
+let stats: user_stats | null;
 
-async function getUserInfo(): Promise<User | null> {
+async function getUserInfo(): Promise<user | null> {
     const response = await fetch("http://localhost:3000/profile", {
         credentials: "include",
         method: "GET",
@@ -10,7 +13,23 @@ async function getUserInfo(): Promise<User | null> {
     if (response.ok) {
         const res = await response.json();
         // console.log("user: ", res);
-        return res.user as User;
+        const stats: user_stats = {
+            winsRat: Number(res.user.wins) ? Number(res.user.wins) / (Number(res.user.wins) + Number(res.user.loses)): 0,
+            wins: Number(res.user.wins),
+            achievement: 0,
+            total_matches: Number(res.user.wins) + Number(res.user.loses),
+        };
+        const rank: number = (await axios.get(`http://localhost:3000/profile/rank/${res.user.id_player}`, { withCredentials: true })).data;
+        console.log("rank: ", rank);
+        const user: user = {
+            id: res.user.id_player,
+            username: res.user.username,
+            rank: rank,
+            avatar: res.user.avatar,
+            achievement: [],
+            user_stats: stats,
+        };
+        return user;
     } else {
         // alert("Failed to fetch user data");
         console.log("Failed to fetch user data");
@@ -19,9 +38,42 @@ async function getUserInfo(): Promise<User | null> {
     }
 }
 
+export async function getRank(): Promise<number> {
+    if (player){
+        const rank: number = (await axios.get(`http://localhost:3000/profile/rank/${player?.id}`, { withCredentials: true })).data;
+        player.rank = rank;
+    }
+    return player?.rank || 0;
+}  
+
+async function getMatchHistory(id: number): Promise<History[] | null> {
+
+    return new Promise<History[] | null>((resolve, reject) => {
+        axios.get(`http://localhost:3000/profile/history/${id}`, { withCredentials: true })
+            .then((res) => {
+                const matches: History[] = [];
+                res.data.forEach((match: any) => {
+                    matches.push({
+                        score1: match.score1,
+                        user2: match.user2,
+                        score2: match.score2,
+                    });
+                });
+                resolve(matches);
+            })
+            .catch((err) => {
+                console.log('err: ', err);
+                reject(null);
+            });
+    });
+}
+
+
 export async function initializeUser() : Promise<Boolean>  {
     try {
         const res = await getUserInfo();
+        const res2 = await getMatchHistory(Number(res?.id));
+        history = res2;
         // console.log("got user : ", res);
         player = res;
         return true;
@@ -31,10 +83,18 @@ export async function initializeUser() : Promise<Boolean>  {
     }
 }
 
-export async function getUser() : Promise<User> {
+export async function getUser() : Promise<user> {
     if (player) {
         return player;
     }
     else
         throw new Error("User not initialized");
+}
+
+export async function getHistory() : Promise<History[]> {
+    if (history) {
+        return history;
+    }
+    else
+        throw new Error("history not initialized");
 }

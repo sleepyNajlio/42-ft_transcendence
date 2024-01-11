@@ -79,7 +79,7 @@ export function Chat() { // get values from data base
         if (!joined || !selectedRoom) return;
         console.log("use effect called in join : ");
         let id : number;
-        id = Number(user?.id_player);
+        id = Number(user?.id);
         socket?.emit('join', { 
             id , 
             name: selectedRoom?.name,
@@ -154,7 +154,7 @@ export function Chat() { // get values from data base
         // console.log("use effect called in join friend");
         let id : number;
         let username : string | undefined;
-        id = Number(user?.id_player);
+        id = Number(user?.id);
         username = user?.username;
         // console.log("name in fronttt: " + name)
         socket?.emit('joinDm', { id ,  name: name, username:username},  (response : any[]) => {
@@ -219,7 +219,7 @@ export function Chat() { // get values from data base
         if (!created) return;
 
         let id1: number;
-        id1 = Number(user?.id_player);
+        id1 = Number(user?.id);
         socket?.emit('createRoom', { id1, name, roomType, roomPassword }, (response: any[]) => {
             if (!response)
                 alert("room already exist");
@@ -247,7 +247,7 @@ export function Chat() { // get values from data base
     useEffect(() => {
         console.log("use effect called in display room");
         let id : number;
-        id = Number(user?.id_player);
+        id = Number(user?.id);
         socket?.emit('DisplayRoom', { id },  (response : Room[]) => {
             // console.log('rooms in display room :')
             // console.log(response);
@@ -277,7 +277,7 @@ export function Chat() { // get values from data base
     useEffect(() => {
         // console.log("use effect called in show Dms");
         let id : number;
-        id = Number(user?.id_player);
+        id = Number(user?.id);
         socket?.emit('Friends', { id },  (response : any[]) => {
             // console.log('friends in show Dms :')
             // console.log(response);
@@ -305,7 +305,7 @@ export function Chat() { // get values from data base
     const sendMessage = (messageText: string) => {
         let id: number;
         // console.log('send message called ')
-        id = Number(user?.id_player);
+        id = Number(user?.id);
         socket?.emit('createMessage', {
             name: selectedRoom ? selectedRoom.name : name,
             text: messageText,
@@ -324,7 +324,7 @@ export function Chat() { // get values from data base
     // }
     const handleUpdateRoom = (newPass : string, modifypass : boolean, setPass : boolean, removepass : boolean) => {
 
-        socket?.emit('updateRoom', {id: user?.id_player, name: selectedRoom?.name, type: selectedRoom?.type, newPass: newPass, modifypass: modifypass, setPass: setPass, removepass: removepass }, (response: Room[]) => {
+        socket?.emit('updateRoom', {id: user?.id, name: selectedRoom?.name, type: selectedRoom?.type, newPass: newPass, modifypass: modifypass, setPass: setPass, removepass: removepass }, (response: Room[]) => {
             console.log("response got in update room: ");
             console.log(response);
             setRooms(response);
@@ -354,7 +354,7 @@ export function Chat() { // get values from data base
         let username : string | undefined;
         // console.log('message dm called ')
         // console.log("name in message dm front: " + name);
-        id = Number(user?.id_player);
+        id = Number(user?.id);
         username = user?.username;
         socket?.emit('createMessage', {
                 name: name,
@@ -464,9 +464,9 @@ export function Chat() { // get values from data base
         
             <div className="conteneur">
                 <div className="gauche">
-                    {showRoom && <Leftchat userid={user?.id_player} showRoom={showRoom}messages={messages} name={selectedRoom?.name} sendMessage={sendMessage} isOwner={isOwner}
+                    {showRoom && <Leftchat userid={user?.id} showRoom={showRoom}messages={messages} name={selectedRoom?.name} sendMessage={sendMessage} isOwner={isOwner}
                      Roomtype={selectedRoom?.type} handleUpdateRoom={handleUpdateRoom} HandleDisplayRoom={HandleDisplayRoom} DisplayRoom={DisplayRoom}/> }
-                    {ShowDm && <Leftchat userid={user?.id_player} showDm={ShowDm} messages={messages} name={name}sendMessageDm={sendMessageDm} Friends={Friends}/> }
+                    {ShowDm && <Leftchat userid={user?.id} showDm={ShowDm} messages={messages} name={name}sendMessageDm={sendMessageDm} Friends={Friends}/> }
                     
                 {shouldShowTriangle && 
                     <div className='welcome-message'>Welcome to the chat interface!</div>
@@ -474,7 +474,7 @@ export function Chat() { // get values from data base
                 </div>
                 <div/>
                 <div className="droite">
-                    {< Rightchat rooms={Rooms} userId={user?.id_player} id={user?.id_player} handleRoomClick={handleRoomClick} create={create}
+                    {< Rightchat rooms={Rooms} userId={user?.id} id={user?.id} handleRoomClick={handleRoomClick} create={create}
                      handleRoomPassword={handleRoomPassword} name={name} roomType={roomType} roomPassword={roomPassword}
                      creating={creating} changeName={changeName} setCreating={setCreating} handleRoomType={handleRoomType}
                      handleSelectedPassword={handleSelectedPassword} handleJoinWithPassword={handleJoinWithPassword}
@@ -487,4 +487,3 @@ export function Chat() { // get values from data base
         </>
     );
 }
-

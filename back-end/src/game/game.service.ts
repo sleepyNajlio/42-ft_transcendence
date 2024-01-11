@@ -34,7 +34,8 @@ export class GameService {
       });
       return game;
     } catch (error) {
-      console.error(error);
+      console.error('getGameByUserId', error);
+      return null;
     }
   }
 
@@ -50,6 +51,9 @@ export class GameService {
           },
         },
       });
+      if (!game || game === undefined) {
+        return false;
+      }
       await this.prisma.userGame.deleteMany({
         where: {
           gameId: game.id_game,
@@ -63,9 +67,10 @@ export class GameService {
         },
       });
       Logger.log('delete Game');
-      return game;
+      return true;
     } catch (error) {
       console.error(error);
+      return false;
     }
   }
 
@@ -107,7 +112,12 @@ export class GameService {
     }
   }
 
-  async updateUserGame(userId: number, gameId: number, win: number) {
+  async updateUserGame(
+    userId: number,
+    gameId: number,
+    win: number,
+    score: number,
+  ) {
     console.log(
       ' updateUserGame ' + userId + ' game ' + gameId + 'status ' + win + '',
     );
@@ -120,13 +130,44 @@ export class GameService {
           },
         },
         data: {
+          score: score,
           win: win,
+        },
+      });
+      await this.prisma.player.update({
+        where: {
+          id_player: userId,
+        },
+        data: {
+          wins: {
+            increment: win,
+          },
+          loses: {
+            increment: win === 0 ? 1 : 0,
+          },
         },
       });
       return userGame;
     } catch (error) {
       console.error(error);
     }
+  }
+
+  async finishGame(
+    userId: number,
+    opponentId: number,
+    winnerSc: number,
+    loserSc: number,
+    state: GameStatus,
+  ) {
+    const gameId = await this.getGameByUserId(userId, GameStatus.PLAYING);
+    if (!gameId) {
+      return false;
+    }
+    this.updateGame(gameId.id_game, state);
+    this.updateUserGame(userId, gameId.id_game, 0, loserSc);
+    this.updateUserGame(opponentId, gameId.id_game, 1, winnerSc);
+    return gameId.id_game;
   }
 
   async getGame() {

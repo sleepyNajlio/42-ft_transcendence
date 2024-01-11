@@ -20,17 +20,24 @@
   background-color: rgba(192, 192, 192, 0.5); /* Grey color with some transparency */
 }
 
-.invite{
+.invite.sbox{
   position: fixed;
   top: 3%;
   left: 20%;
-  height: 50px !important;
+  height: auto !important;
   width: auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  padding: 0 !important;
+
+}
+.invite {
   /* transform: translate(-50%, -50%); */
   /* background-color: white; */
   /* border: 2px solid black; */
   padding: 10px !important;
-  width: auto;
+  display: flex !important;
+  /* width: auto; */
   flex-direction: row !important;
   justify-content: space-between !important;
   background: linear-gradient(65.87deg, #173256 20.93%, #0F597B 92.75%) !important;

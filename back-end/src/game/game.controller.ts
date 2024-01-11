@@ -26,7 +26,6 @@ export class GameController {
     @Param() { userId }: { userId: string },
     @Param() { status }: { status: GameStatus },
   ) {
-    console.log('user ' + userId + ' delete game ' + status + '');
     const game = await this.gameService.deleteGameByUserId(
       Number(userId),
       status,
@@ -62,11 +61,13 @@ export class GameController {
     @Param() { gameId }: { gameId: string },
     @Param() { userId }: { userId: string },
     @Body() { win }: { win: number },
+    @Body() { score }: { score: number },
   ) {
     const game = await this.gameService.updateUserGame(
       Number(userId),
       Number(gameId),
       win,
+      score,
     );
     return game;
   }

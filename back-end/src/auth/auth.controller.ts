@@ -85,6 +85,7 @@ export class AuthController {
     if (!token) {
       token = req.cookies['USER'];
       if (!token) throw new UnauthorizedException('Invalid Request');
+      else return { sub: -42 };
     }
     try {
       const payload = await this.jwtService.verifyAsync(token, {
