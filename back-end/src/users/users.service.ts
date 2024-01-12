@@ -2,27 +2,43 @@ import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { SignUpDTO, FinishSignUpDTO } from './dto/SignUp.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UsersService {
   constructor(
     private readonly prisma: PrismaService,
     private jwt: JwtService,
+    private config: ConfigService,
   ) {}
 
-  // async findByUsername(username: string) {
-  //   const user = await this.prisma.player.findUnique({
-  //     where: { username: username },
-  //   });
-  //   // if (!user) return new HttpException('User not found', HttpStatus.NOT_FOUND);
-  //   return user;
-  // }
+  async GetUserByToken(token: string) {
+    // console.log("token: ", token);
+    const payload = this.jwt.verify(token);
+    // console.log("payload: ", payload);
+    const user = await this.prisma.player.findUnique({
+      where: { email: payload.email },
+    });
+    if (!user) {
+      throw new HttpException('invalid token', HttpStatus.UNAUTHORIZED);
+    }
+    return user;
+  }
 
   async findByEmail(email: string) {
     const user = await this.prisma.player.findUnique({
       where: { email: email },
     });
     // if (!user) return new HttpException('User not found', HttpStatus.NOT_FOUND);
+    return user;
+  }
+
+  async getUserById(id: number) {
+    const user = await this.prisma.player.findUnique({
+      where: {
+        id_player: id,
+      },
+    });
     return user;
   }
 
@@ -59,39 +75,6 @@ export class UsersService {
     return userExists;
   }
 
-  // async findAll() {
-  //   const users = await this.prisma.player.findMany();
-  //   return users;
-  // }
-
-  async getUserById(id: number) {
-    const user = await this.prisma.player.findUnique({
-      where: {
-        id_player: id,
-      },
-    });
-    return user;
-  }
-
-  async getAllUsers(token: string) {
-    try {
-      const decoded = this.jwt.verify(token);
-      // Here, you can fetch user data based on the decoded JWT token payload
-      // Example: Fetch user data from the database using `decoded.sub` or `decoded.username`
-      // console.log(decoded);
-      const user = await this.prisma.player.findMany({
-        where: {
-          NOT: {
-            username: decoded.username,
-          },
-        },
-      });
-      return user;
-    } catch (error) {
-      throw new Error('Invalid token'); // Handle token verification errors
-    }
-  }
-
   async updateProfile(FinishSignUpDTO: FinishSignUpDTO) {
     const userExists = await this.prisma.player.findUnique({
       where: { email: FinishSignUpDTO.email },
@@ -107,16 +90,16 @@ export class UsersService {
     return user;
   }
 
-  async GetUserByToken(token: string) {
-    // console.log("token: ", token);
-    const payload = this.jwt.verify(token);
-    // console.log("payload: ", payload);
-    const user = await this.prisma.player.findUnique({
-      where: { email: payload.email },
+  async UploadAvatar(id: number, file: Express.Multer.File) {
+    const user = await this.prisma.player.update({
+      where: { id_player: id },
+      data: {
+        avatar: `${this.config.get('BACKEND_URL')}` + file.path,
+      },
     });
-    if (!user) {
-      throw new HttpException('invalid token', HttpStatus.UNAUTHORIZED);
-    }
     return user;
   }
+
+
+
 }

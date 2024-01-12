@@ -7,17 +7,51 @@ import {
   SetMetadata,
   Param,
   Res,
+  Post,
+  UseGuards,
+  UseInterceptors,
+  UploadedFile
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { SignUpDTO } from './dto/SignUp.dto';
 import { Request, Response } from 'express';
 import { ConfigService } from '@nestjs/config';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { editFilename } from './AvatarTools';
+import { imageFileFilter } from './AvatarTools';
+
 
 
 @Controller('user')
 export class UsersController {
   constructor(private readonly UsersService: UsersService,
     private Config: ConfigService) {}
+
+  @SetMetadata('isPublic', true)
+  @Post('avatar')
+  @UseInterceptors(FileInterceptor('file', {
+    storage: diskStorage({
+      destination: './avatars',
+      filename: editFilename
+    }),
+    fileFilter: imageFileFilter,
+    limits: { fileSize: 1024 * 1024 * 5 }
+  }))
+  async addAvatar(@Req() request: Request, @UploadedFile() file: Express.Multer.File) {
+    let user: any;
+    if (request.cookies['JWT_TOKEN'])
+      user = await this.UsersService.GetUserByToken(request.cookies['JWT_TOKEN']);
+    else
+      user = await this.UsersService.GetUserByToken(request.cookies['USER']);
+    const uploaded = this.UsersService.UploadAvatar(user.id_player,file);
+    // if upload is successful
+    if (file) {
+      console.log({file});
+      return `${this.Config.get('BACKEND_URL')}` + file.path;
+    }
+    return "madazsh";
+  }
 
   @SetMetadata('isPublic', true)
   @Get()
