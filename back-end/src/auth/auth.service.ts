@@ -5,29 +5,29 @@ import {
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
-import { ProfileService } from 'src/Profile/profile.service';
+import { UsersService } from 'src/users/users.service';
 import { JwtService } from '@nestjs/jwt';
-import { SignUpDTO } from 'src/Profile/dto/SignUp.dto';
-import { MailDTO } from 'src/Profile/dto/Mail.dto';
+import { SignUpDTO } from 'src/users/dto/SignUp.dto';
+import { MailDTO } from 'src/users/dto/Mail.dto';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private ProfileService: ProfileService,
+    private UsersService: UsersService,
     private jwtService: JwtService,
     private config: ConfigService,
   ) {}
 
   async validateUser(profile: SignUpDTO): Promise<any> {
-    let user = await this.ProfileService.findByEmail(profile.email);
+    let user = await this.UsersService.findByEmail(profile.email);
     if (!user) {
-      await this.ProfileService.signUp({
+      await this.UsersService.signUp({
         username: profile.username,
         email: profile.email,
         avatar: profile.avatar,
       });
-      user = await this.ProfileService.findByEmail(profile.email);
+      user = await this.UsersService.findByEmail(profile.email);
     }
     return user;
   }
@@ -48,18 +48,18 @@ export class AuthService {
     } catch {
       throw new UnauthorizedException();
     }
-    const user = await this.ProfileService.finishSignUp({
+    const user = await this.UsersService.finishSignUp({
       email: dto.email,
       username: dto.username,
       avatar: dto.avatar,
     });
     return this.signToken({ email: user.email });
-    // let player = await this.ProfileService.findByEmail(dto.email);
+    // let player = await this.UsersService.findByEmail(dto.email);
     // if (!player)
     //   throw new ForbiddenException('you need to signup with intra first');
     // if (player.isAuthenticated)
     //   throw new ForbiddenException('User Already Authenticated ');
-    // await this.ProfileService.updateProfile({
+    // await this.UsersService.updateProfile({
     //     email: dto.email,
     //     username: dto.username,
     //     avatar: dto.avatar,

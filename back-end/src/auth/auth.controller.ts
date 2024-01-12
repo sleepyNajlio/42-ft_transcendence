@@ -13,7 +13,7 @@ import {
 import { AuthService } from './auth.service';
 import { Request, Response } from 'express';
 import { FTAuthGuard } from './guards/42.auth.guard';
-import { SignUpDTO } from 'src/Profile/dto/SignUp.dto';
+import { SignUpDTO } from 'src/users/dto/SignUp.dto';
 import { ConfigService } from '@nestjs/config';
 
 @Controller('auth')

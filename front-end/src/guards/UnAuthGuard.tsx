@@ -1,7 +1,6 @@
 import React, { useEffect, ReactNode, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { HttpStatus } from '@nestjs/common';
 
 const UnAuthGuard = ({ component }: { component: ReactNode }) => {
 	const [status, setStatus] = useState(false);
@@ -18,7 +17,7 @@ const UnAuthGuard = ({ component }: { component: ReactNode }) => {
 
 	const checkToken = async () => {
 		console.log('checkToken');
-		axios.get('http://localhost:3000/profile', { withCredentials: true })
+		axios.get('http://localhost:3000/user', { withCredentials: true })
 		.then(() => {
 			// console.log(res);
 			// console.log('mlogi');

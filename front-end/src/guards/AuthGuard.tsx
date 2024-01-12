@@ -16,7 +16,7 @@ const AuthGuard = ({ component }: { component: ReactNode }) => {
 	
 	
 	const checkToken = async () => {
-		await axios.get('http://localhost:3000/profile', { withCredentials: true })
+		await axios.get('http://localhost:3000/user', { withCredentials: true })
 		.then(res => {
 			if (res.data.isAuthenticated == false) {
 				setStatus(true);

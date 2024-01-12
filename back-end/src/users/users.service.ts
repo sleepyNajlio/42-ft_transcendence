@@ -4,7 +4,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
-export class ProfileService {
+export class UsersService {
   constructor(
     private readonly prisma: PrismaService,
     private jwt: JwtService,

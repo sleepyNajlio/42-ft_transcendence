@@ -8,15 +8,15 @@ import {
   Param,
   Res,
 } from '@nestjs/common';
-import { ProfileService } from './profile.service';
+import { UsersService } from './users.service';
 import { SignUpDTO } from './dto/SignUp.dto';
 import { Request, Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 
 
-@Controller('profile')
-export class ProfileController {
-  constructor(private readonly ProfileService: ProfileService,
+@Controller('user')
+export class UsersController {
+  constructor(private readonly UsersService: UsersService,
     private Config: ConfigService) {}
 
   @SetMetadata('isPublic', true)
@@ -24,13 +24,13 @@ export class ProfileController {
   async GetProfileData(@Req() req: Request) {
     // console.log("GetProfileData begin");
     if (req.cookies['JWT_TOKEN']) {
-      const user = await this.ProfileService.GetUserByToken(
+      const user = await this.UsersService.GetUserByToken(
         req.cookies['JWT_TOKEN'],
       );
       return user;
     }
     else if (req.cookies['USER']) {
-      const user = await this.ProfileService.GetUserByToken(
+      const user = await this.UsersService.GetUserByToken(
         req.cookies['USER'],
       );
       return user;
@@ -39,20 +39,10 @@ export class ProfileController {
       throw new HttpException('No Cookies', HttpStatus.UNAUTHORIZED);
   }
 
-  @Get('/all')
-  async getAllUsers(@Req() req: Request) {
-    const token = req.cookies['JWT_TOKEN']; // Get the JWT from cookies
-    if (!token) {
-      throw new Error('Access token not found');
-    }
-    const users = await this.ProfileService.getAllUsers(token);
-    return { users: users };
-  }
-
   // @Get('/:id')
   // async getUserById(@Param() { id }: { id: string }) {
   //   console.log(id);
-  //   const user = await this.ProfileService.getUserById(Number(id));
+  //   const user = await this.UsersService.getUserById(Number(id));
   //   return user;
   // }
 

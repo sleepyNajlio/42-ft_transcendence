@@ -47,7 +47,7 @@ async function finishSignup(
 
 async function getPreAuthData() {
   const cookie = Cookies.get(); // Get all cookies
-  const response = await fetch("http://localhost:3000/profile", {
+  const response = await fetch("http://localhost:3000/user", {
     credentials: "include",
     method: "GET",
     headers: {

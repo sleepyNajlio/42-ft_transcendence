@@ -82,7 +82,7 @@ export default function Navbar() {
                 <img src={settings} alt="Settings Icon"/>
             </div>
         </div>
-        <a href="http://localhost:3000/profile/logout">
+        <a href="http://localhost:3000/user/logout">
             <div className="logout">
                 <div className="user">
                     <div className="cercle_profile" style={{ backgroundImage: `url(${user && user.avatar})` }}></div>

@@ -9,7 +9,7 @@ import { default as Strategy } from 'passport-42';
 import { ConfigService } from '@nestjs/config';
 import { Profile } from 'passport';
 import { AuthService } from './auth.service';
-import { ProfileService } from 'src/Profile/profile.service';
+import { UsersService } from 'src/users/users.service';
 
 interface profile extends Profile {
   id: string;
@@ -32,7 +32,7 @@ export class FTStrategy extends PassportStrategy(Strategy, '42') {
   constructor(
     private readonly configService: ConfigService,
     private readonly authService: AuthService,
-    private readonly ProfileService: ProfileService,
+    private readonly UsersService: UsersService,
   ) {
     super({
       clientID: configService.get<string>('42_UID'),
