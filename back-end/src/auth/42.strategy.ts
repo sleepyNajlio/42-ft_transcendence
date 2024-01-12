@@ -1,5 +1,3 @@
-// src/auth/fortytwo.strategy.ts
-
 import {
   Injectable,
   HttpException,

@@ -49,12 +49,12 @@ export class ProfileController {
     return { users: users };
   }
 
-  @Get('/:id')
-  async getUserById(@Param() { id }: { id: string }) {
-    console.log(id);
-    const user = await this.ProfileService.getUserById(Number(id));
-    return user;
-  }
+  // @Get('/:id')
+  // async getUserById(@Param() { id }: { id: string }) {
+  //   console.log(id);
+  //   const user = await this.ProfileService.getUserById(Number(id));
+  //   return user;
+  // }
 
   @Get("/logout")
   async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
