@@ -21,7 +21,7 @@ export class MessagesService {
     
     // console.log('password in service: ');
     // console.log(selectedPswd);
-    console.log('called identify');
+    // console.log('called identify');
 
     let existingChat = await this.prisma.chat.findFirst({
       where: {
@@ -78,9 +78,9 @@ export class MessagesService {
     }
     console.log('id: ' + id + ' user: ' + name + ' joined the chat');
     
-    console.log(existingChat);
-    console.log('-------------------');
-    console.log(chatUSers);
+    // console.log(existingChat);
+    // console.log('-------------------');
+    // console.log(chatUSers);
     return existingChat;
   }
 
@@ -150,8 +150,8 @@ export class MessagesService {
 
     type roomType = 'PUBLIC' | 'PRIVATE' | 'PROTECTED';
     const roomType1: roomType = roomType as roomType;
-    console.log('room type: ');
-    console.log(roomType1);
+    // console.log('room type: ');
+    // console.log(roomType1);
     const existingChat = await this.prisma.chat.findFirst({
       where: {
         name: {
@@ -516,6 +516,9 @@ export class MessagesService {
         data: {
           password: newPass,
         },
+        include: {
+          users: true,
+        },
       });
     }
     else if (removepass) {
@@ -526,6 +529,9 @@ export class MessagesService {
         data: {
           password: null,
           type: 'PUBLIC',
+        },
+        include: {
+          users: true,
         },
       });
     }
@@ -538,12 +544,15 @@ export class MessagesService {
           password: newPass,
           type: 'PROTECTED',
         },
+        include: {
+          users: true,
+        },
       });
   
     }
-    const Rooms = await this.getRooms(id);
-    console.log('rooms in service : ');
-    console.log(Rooms);
-    return Rooms;
+    // const Rooms = await this.getRooms(id);
+    // console.log('rooms in service : ');
+    // console.log(Rooms);
+    return newChat;
   }
 }

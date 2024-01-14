@@ -15,6 +15,14 @@ import { subscribe } from 'diagnostics_channel';
 import { Client } from 'socket.io/dist/client';
 import { ChatType } from '@prisma/client';
 
+
+type updatedRoom = {
+  newPass : string | null,
+  type : string,
+  id : number,
+  Role : string,
+}
+
 @WebSocketGateway({
   // namespace: 'chat',
   cors: '*:*',
@@ -72,8 +80,22 @@ export class MessagesGateway
     @MessageBody('removepass') removepass: boolean,
   )
   {
-    const Rooms = await this.messagesService.updateRoom(id, name,type,newPass,modifypass,setPass,removepass);
-    return Rooms;
+    // const paswd : string | null = newPass || null;
+    // const newtype : ChatType = type as ChatType;
+    // const role : string = 'ADMIN';
+    const Room = await this.messagesService.updateRoom(id, name,type,newPass,modifypass,setPass,removepass);
+
+    const room : updatedRoom = {
+      newPass : Room.password ? Room.password : null,
+      type : Room.type,
+      id : Room.id_chat,
+      Role : Room.users[0].role,
+    }
+    // console.log('rooooooom in gateway : ');
+    // console.log(room);
+
+    this.socketGateway.getServer().emit('update', room);
+    return room;
 
   //  return await this.messagesService.updateRoom(id, name,type,newPass,modifypass,setPass,removepass);
   }
@@ -94,8 +116,8 @@ export class MessagesGateway
 
     // console.log('message in gateway : ');
     const room = "chat_" + message.chatId;
-    console.log('room in gateway : ');
-    console.log(room);
+    // console.log('room in gateway : ');
+    // console.log(room);
     this.socketGateway.getServer().to(room).emit('message', message);
 
     
@@ -115,8 +137,8 @@ export class MessagesGateway
     // console.log('in gateway -- id: ' + id1 + ' user: ' + name + ' just created the chat');
     const Room = await this.messagesService.createChannel(id1, name,roomType,roomPassword, client.id);
     
-    console.log('created room in gateway : ');
-    console.log(Room);
+    // console.log('created room in gateway : ');
+    // console.log(Room);
     
     if (Room)
     {

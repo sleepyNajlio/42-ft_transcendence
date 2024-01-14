@@ -1,5 +1,6 @@
 import '../styles/css/inboxBox.css';
 import messi from '../assets/messi.jpg';
+import { useState } from 'react';
 // interface UserInfoProps {
 //   profilePicture: string;
 //   name: string;
@@ -8,6 +9,10 @@ import messi from '../assets/messi.jpg';
 
 // const UserInfo: React.FC<UserInfoProps> = ({ profilePicture, name, onModifyProfileClick }) => {
   function profilePicture(avatar : any) {
+
+    
+
+
     return (
       <div className="profile-picture">
         <img
@@ -29,6 +34,7 @@ import messi from '../assets/messi.jpg';
     // console.log("props.room.users : " , props.room.users);
     // console.log("props.id : " , props.id);
     // console.log("props.lastmes : " , props.lastMessage);
+   
     const handleImageClick = () => {
       props.joindDm(props.friend.username);
     };
@@ -47,7 +53,7 @@ import messi from '../assets/messi.jpg';
                         </div>
                     </button>
                     {props.selectedRoom && props.selectedRoom.name === props.room.name
-                      &&(
+                      && props.passjoin && (
                       <div>
                         <input
                           type="text"
@@ -57,7 +63,7 @@ import messi from '../assets/messi.jpg';
                           value={props.selectedPswd}
                           onChange={props.handleSelectedPassword}
                         />
-                        <button name={props.room.name} onClick={props.handleJoinWithPassword}>Join</button>
+                       <button name={props.room.name} onClick={props.handleJoinWithPassword}>Join</button>
                       </div>
                     )}
                   </>
