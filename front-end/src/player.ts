@@ -98,3 +98,28 @@ export async function getHistory() : Promise<History[]> {
     else
         throw new Error("history not initialized");
 }
+
+export async function getRanks() : Promise<user[]> {
+    const res = await axios.get("http://localhost:3000/profile/ranks", { withCredentials: true });
+    console.log("ranks: ", res.data);
+    const ranks: user[] = [];
+    res.data.forEach((rank: any) => {
+        const stats: user_stats = {
+            winsRat: Number(rank.wins) ? Number(rank.wins) / (Number(rank.wins) + Number(rank.loses)): 0,
+            wins: Number(rank.wins),
+            achievement: 0,
+            total_matches: Number(rank.wins) + Number(rank.loses),
+        };
+        const user: user = {
+            id: rank.id_player,
+            username: rank.username,
+            rank: rank.rank,
+            avatar: rank.avatar,
+            achievement: [],
+            user_stats: stats,
+        };
+        ranks.push(user);
+    });
+    console.log("ranks: ", ranks);
+    return ranks;
+}

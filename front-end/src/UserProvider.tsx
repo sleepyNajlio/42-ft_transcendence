@@ -1,15 +1,17 @@
 import React, { createContext, useState, useEffect, useRef } from 'react';
-import { getHistory, getUser, initializeUser, getRank } from './player';
+import { getHistory, getUser, initializeUser, getRank, getRanks } from './player';
 import { initializeSocket, getSocket } from './socket';
 import { User, user, user_stats, History } from './Components/types';
 import { Socket } from 'socket.io-client';
 import axios from 'axios';
+import { get } from 'svg.js';
 
 interface UserContextProps {
   user: user | null;
   history: History[] | null;
+  leadboard: user[] | null;
   socket: Socket | null;
-  updateUser: (newUser: user) => void; // Add this line
+  updateUser: (newUser: any) => void; // Add this line
   initialize: () => Promise<void>;
   updateStats: (win: Boolean) => void;
   updatehistory: (gameId: number) => Promise<void>;
@@ -27,7 +29,8 @@ const getSessionCookies = (): string => {
 export const UserContext = createContext<UserContextProps>({ 
   user: null, // Provide a default value
   history: null,
-  updateUser: (newUser:user) => {}, // Provide a default function
+  leadboard : null,
+  updateUser: (newUser:any) => {}, // Provide a default function
   initialize: async () => {},
   updateStats: (win:Boolean) => {},
   updatehistory: async (gameId: number) => {},
@@ -37,13 +40,22 @@ export const UserContext = createContext<UserContextProps>({
 export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     const [user, setUser] = useState<user | null>(null);
     const [history, setHistory] = useState<History[] | null>(null);
+    const [leadboard, setLeadboard] = useState<user[] | null>(null);
     // const [ user_stats, setStats ] = useState<user_stats | any>(null);
     const [socket, setSocket] = useState<Socket | null>(null);
     const hasInitialized = useRef(false);
 
-  const updateUser = (newUser:user) => {
-    setUser(newUser);
+  const updateUser = (newUser:any) => {
+    setUser( prevUser => {
+      if (prevUser) {
+        return { ...prevUser, ...newUser };
+      } else {
+        // return a default user object with all properties defined
+        return null;
+      }
+    } );
   };
+  
 
   const updatehistory = async (gameId: number) => {
     // const newHistory: History = history;
@@ -62,7 +74,13 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         }
       } );
       } );
+      getRanks().then(res => {
+        setLeadboard(res);
+        });
+
   }
+
+
 
   const updateStats = (win: Boolean) => {
     // setStats(newStats);
@@ -106,6 +124,12 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
               console.error("Failed to get history: ", error);
               return false;
             } );
+            getRanks().then(res => {
+              setLeadboard(res);
+            } ).catch(error => {
+              console.error("Failed to get leaderboard: ", error);
+              return false;
+            } );
             // console.log("User: set", res);
           }
           initializeSocket(res.id, getSessionCookies()).then(res => {
@@ -136,8 +160,12 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   }
 
   return (
-    <UserContext.Provider value={{ user, history, updatehistory, updateStats, updateUser, initialize, socket }}>
+    <UserContext.Provider value={{ user, history, leadboard, updatehistory, updateStats, updateUser, initialize, socket }}>
       {children}
     </UserContext.Provider>
   );
 };
+
+function updateLeadboard() {
+  throw new Error('Function not implemented.');
+}

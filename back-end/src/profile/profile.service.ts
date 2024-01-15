@@ -142,4 +142,31 @@ export class ProfileService {
   // getUsersRankId(arg0: number) {
   //   throw new Error('Method not implemented.');
   // }
+  async getUsersRank() {
+    const players = await this.prisma.player.findMany({
+      orderBy: {
+        wins: 'desc',
+      },
+    });
+    const filteredPlayers = players.filter((player) => player.loses > 0);
+
+    const rankedPlayers = filteredPlayers.map((player) => ({
+      ...player,
+      ratio: player.wins / player.loses,
+    }));
+    console.log('rankkk', rankedPlayers);
+    return rankedPlayers;
+  }
+  async updateUser(id: number, avatar: string, username: string) {
+    const user = await this.prisma.player.update({
+      where: {
+        id_player: id,
+      },
+      data: {
+        avatar: avatar,
+        username: username,
+      },
+    });
+    return user;
+  }
 }
