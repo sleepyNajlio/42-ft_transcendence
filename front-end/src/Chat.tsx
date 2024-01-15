@@ -597,7 +597,11 @@ export function Chat() { // get values from data base
                     
                 {welcomeMsg && 
                     <div className="welcome-message-container">
-                    <div className="welcome-message">Welcome to the chat interface !</div>
+                    <div className="welcome-message">
+                        Welcome to the chat interface!
+                    </div>
+                    <> Join/Create channels </> <br/>
+                    <> send private messages </>
                     </div>
                 }
                 </div>

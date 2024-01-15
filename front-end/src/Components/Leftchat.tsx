@@ -40,7 +40,7 @@ const Leftchat: React.FC = (props: any) => {
     // console.log("name : " +  props.name);
     return (
       <div className="composant-gauche">
-        <ChatHeaderComponent friendName={props.name} showDm={props.showDm} profileImageUrl={props.Friends.find((friend: any) => friend.username === props.name)?.avatar || messi} />
+        <ChatHeaderComponent friendName={props.name} showDm={props.showDm} profileImageUrl={props.Friends.find((friend: any) => friend.username === props.name)?.avatar || ftlogo} />
         <div className="msg-section">
         {props.messages.map((message: any, index: any) => (
             <Messageco 

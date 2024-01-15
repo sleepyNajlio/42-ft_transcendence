@@ -13,13 +13,11 @@
   border: 1px solid #ccc;
   border-radius: 4px 0 0 4px;
   /* Apply a blur effect when welcomeMsg is true */
-  backdrop-filter: blur(100vw);
+  /* backdrop-filter: blur(100vw); */
 }
 
 .welcome-message-container {
-  /* background-color: #086590; */
-  /* background-color: black; */
-  background: #0F597B;
+  background: #166386;
   padding: 70px;
   border-radius: 22px;
   text-align: center;
@@ -28,15 +26,14 @@
   margin-right: 150px;
   animation: slideIn 1s ease-in-out, pulse 2s infinite;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  color: #fff;
+  color: #fcf9f9;
 }
 
 .welcome-message {
   font-size: 24px;
   font-weight: bold;
   line-height: 1.5;
-  /* color: black; */
-}
+} 
 
 @keyframes slideIn {
   from {

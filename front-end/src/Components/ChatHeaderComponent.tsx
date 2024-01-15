@@ -112,13 +112,30 @@ const ChatHeaderComponent: React.FC = (props : any) => {
 
   const handleSettings = () => {
     setShowSettings(!showSettings);
+    if (setAdmin)
+      setsetAdmin(!setAdmin);
+    if (leaveRoom)
+      setLeaveRoom(!leaveRoom);
+
   }
   const handleleave = () => {
     setLeaveRoom(!leaveRoom);
+    if (setAdmin)
+      setsetAdmin(!setAdmin);
+    if (showSettings)
+      setShowSettings(!showSettings);
+    
+
     // props.handleleave();
   }
   const handlesetAdmin = () => {
     setsetAdmin(!setAdmin);
+    if (showSettings)
+      setShowSettings(!showSettings);
+    if (leaveRoom)
+      setLeaveRoom(!leaveRoom);
+    // setShowSettings(!showSettings);
+    // setLeaveRoom(!leaveRoom);
     props.getChatUsers(props.friendName);
   }
 
@@ -184,9 +201,9 @@ const ChatHeaderComponent: React.FC = (props : any) => {
           {setAdmin && (
             <div className="profil">
               {props.chatUsers && props.chatUsers.map((user: any) => (
-                  user.role === 'MEMBER' && (
+                  user && user.role === 'MEMBER' && (
                     <button key={user.userId} className="user-button" onClick={() => handleAdmin(user.user.username)}>
-                      <img  src= {user.user.avatar} width='12' height='12' />
+                      <img  src= {user.user.avatar} />
                       {user.user.username}
                     </button>
                   )
