@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { authenticator } from 'otplib';
 import { UsersService } from 'src/users/users.service';
 import { ConfigService } from '@nestjs/config';
-import { TwoFaDTO } from 'src/users/dto/SignUp.dto';
+import { UserDTO } from 'src/users/dto/SignUp.dto';
 import { Response } from 'express';
 import { toFileStream } from 'qrcode';
 
@@ -23,6 +23,18 @@ export class TwofaService {
 
     async pipeQrCodeStream(stream: Response, otpauth: string) {
         return toFileStream(stream, otpauth);
+    }
+
+    async verifyTwoFaToken(twoFaCode: string, user: UserDTO): Promise<boolean> {
+        // console.log("verifyTwoFaToken, ", twoFaCode, user.twoFASecret);
+        const isValid = authenticator.verify({
+            token: twoFaCode,
+            secret: user.twoFASecret,
+        });
+        if (isValid) {
+            await this.usersService.updateTwoFaStatus(user.id_player, true);
+        }
+        return isValid;
     }
 }
 

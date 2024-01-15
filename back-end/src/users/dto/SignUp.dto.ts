@@ -28,12 +28,21 @@ export class MailDTO {
 }
 
 export class TwoFaDTO extends PartialType(SignUpDTO) {
-  //user id
   @IsNumber()
   @IsNotEmpty()
   id_player: number;
 
   @IsString()
   @IsNotEmpty()
-  TwoFaSecret: string;
+  twoFASecret: string;
+
+  @IsBoolean()
+  TwoFaStatus: boolean;
+}
+
+export class UserDTO extends PartialType(TwoFaDTO) {}
+
+export class Update2faDTO {
+  @IsNotEmpty()
+  twoFaCode: string;
 }

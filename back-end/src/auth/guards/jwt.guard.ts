@@ -33,7 +33,7 @@ export class AuthGuard implements CanActivate {
       const payload = await this.jwt.verifyAsync(req.cookies['JWT_TOKEN'], {
         secret: this.config.get('JWT_SECRET'),
       });
-      const {id_player, username, email, avatar, isAuthenticated,  } =
+      const {id_player, username, email, avatar, isAuthenticated, twoFASecret  } =
         await this.Users.findByEmail(payload['email']);
       req['user'] = {
         id_player,
@@ -41,6 +41,7 @@ export class AuthGuard implements CanActivate {
         email,
         avatar,
         isAuthenticated,
+        twoFASecret,
       };
     } catch {
       return false;

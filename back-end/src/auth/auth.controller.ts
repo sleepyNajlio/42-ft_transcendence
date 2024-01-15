@@ -13,7 +13,7 @@ import {
 import { AuthService } from './auth.service';
 import { Request, Response } from 'express';
 import { FTAuthGuard } from './guards/42.auth.guard';
-import { SignUpDTO } from 'src/users/dto/SignUp.dto';
+import { SignUpDTO, TwoFaDTO, Update2faDTO, UserDTO } from 'src/users/dto/SignUp.dto';
 import { ConfigService } from '@nestjs/config';
 import { TwofaService } from './twofa.service';
 
@@ -37,25 +37,14 @@ export class AuthController {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
-    // console.log("FTCallback begin");
-    // console.log(req.user);
     const cookie = await this.authService.signToken(req.user);
-    console.log(req.user['isAuthenticated']);
     if (req.user['isAuthenticated']) {
-      console.log('mwellef');
       res.cookie('JWT_TOKEN', cookie, { httpOnly: true });
-      // return 'mwellef';
       res.redirect(`${this.Config.get('FRONTEND_URL')}/Profile`);
     } else {
-      console.log('first time');
       res.cookie('USER', cookie, { httpOnly: true });
-      // return "first time";
-      // return cookie;
       res.redirect(`${this.Config.get('FRONTEND_URL')}/Config`);
     }
-    // console.log(req.user);
-    // return "Authentication 42 callback";
-    // return this.authService.login();
   }
 
   @SetMetadata('isPublic', true)
@@ -69,11 +58,11 @@ export class AuthController {
       if (!req.cookies['USER'])
         throw new HttpException('Invalid Request', HttpStatus.BAD_REQUEST);
     } else throw new HttpException('Invalid Request', HttpStatus.BAD_REQUEST);
-    console.log('finish_signup controller');
+    // console.log('finish_signup controller');
     const UserToken = req.cookies['USER'];
     const token = await this.authService.finish_signup(dto, UserToken);
     res.cookie('JWT_TOKEN', token);
-    console.log(res.cookie);
+    // console.log(res.cookie);
     res.cookie('USER', '', { expires: new Date() });
     return { msg: 'User created' };
   }
@@ -81,9 +70,20 @@ export class AuthController {
   // @SetMetadata('isPublic', true)
   @Get("twofa/generate")
 	async register(@Req() req: Request, @Res() res: Response) {
-    // console.log("twofa/generate, ", req.user);
 		const otpauthUrl  = await this.twofaService.genrateTwoFaSecret(req.user['id_player'], req.user['email']);
 		return this.twofaService.pipeQrCodeStream(res, otpauthUrl);
 	}
+
+  @Post("twofa/turn-on")
+  async turnOnTwoFa(@Req() req: Request, @Body() twofa: Update2faDTO) {
+    const isCodeValid = await this.twofaService.verifyTwoFaToken(twofa.twoFaCode, req.user);
+    if (!isCodeValid) {
+      throw new HttpException('Invalid code', HttpStatus.CREATED);
+    }
+    return { msg: 'TwoFa enabled' };
+  }
+
+
+  
   
 }

@@ -110,6 +110,16 @@ export class UsersService {
     return user;
   }
 
+  async updateTwoFaStatus(id: number, status: boolean) {
+    const user = await this.prisma.player.update({
+      where: { id_player: id },
+      data: {
+        twofa: status,
+      },
+    });
+    return user;
+  }
+
 
 
 }
