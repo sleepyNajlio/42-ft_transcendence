@@ -8,8 +8,9 @@ import './styles/css/inboxBox.css';
 import './styles/css/Simpleco.css';
 import './styles/css/Switchgrpdm.css';
 import './styles/css/ChatHeaderComponent.css';
-import { off } from '@svgdotjs/svg.js';
-import { user } from './Components/types.ts';
+import './styles/css/chatui.css';
+// import { off } from '@svgdotjs/svg.js';
+// import { user } from './Components/types.ts';
 
 interface User {
     id: number;
@@ -61,6 +62,7 @@ export function Chat() { // get values from data base
     const [welcomeMsg, setwelcomeMsg] = useState(!(showRoom || ShowDm || DisplayDms || DisplayRoom));
     const [passjoin, setPassjoin] = useState(true);
     const [chatUsers, setChatUsers] = useState<userChat | null>(null);
+    const [isAdmin, setIsAdmin] = useState(false);
 
 
 
@@ -403,10 +405,7 @@ export function Chat() { // get values from data base
                 if (prevChatUsers === null) {
                     return null;
                 }
-                return {
-                    ...prevChatUsers,
-                    role: response.role
-                };
+                return { ...prevChatUsers, role: response.role }; 
             });
         });
         return () => {
@@ -492,6 +491,12 @@ export function Chat() { // get values from data base
           setIsOwner(true);
         } else {
           setIsOwner(false);
+        }
+        if (room.chatUser && room.chatUser.role === 'ADMIN') {
+            console.log("is admin is set to true");
+          setIsAdmin(true);
+        } else {
+          setIsAdmin(false);
         }
 
         if (room.type === 'PUBLIC') {
@@ -587,11 +592,13 @@ export function Chat() { // get values from data base
                 <div className="gauche">
                     {showRoom && <Leftchat userid={user?.id} showRoom={showRoom}messages={messages} name={selectedRoom?.name} sendMessage={sendMessage} isOwner={isOwner}
                      Roomtype={selectedRoom?.type} handleUpdateRoom={handleUpdateRoom} handleAdmin={handleAdmin} HandleDisplayRoom={HandleDisplayRoom} DisplayRoom={DisplayRoom} room={selectedRoom}
-                     getChatUsers={getChatUsers} chatUsers={chatUsers}/> }
+                     getChatUsers={getChatUsers} isAdmin={isAdmin} chatUsers={chatUsers}/> }
                     {ShowDm && <Leftchat userid={user?.id} showDm={ShowDm} messages={messages} name={name}sendMessageDm={sendMessageDm} Friends={Friends}/> }
                     
                 {welcomeMsg && 
-                    <div className='welcome-message'>Welcome to the chat interface!</div>
+                    <div className="welcome-message-container">
+                    <div className="welcome-message">Welcome to the chat interface !</div>
+                    </div>
                 }
                 </div>
                 <div/>

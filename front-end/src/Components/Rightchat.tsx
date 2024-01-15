@@ -1,4 +1,5 @@
 import React from 'react';
+import ftlogo from '/ftlogo.png';
 import '../styles/css/chatui.css';
 import UserInfo from './UserInfo.tsx';
 import InboxBox from './InboxBox.tsx';
@@ -19,6 +20,33 @@ const Rightchat: React.FC = (props: any) => {
         {props.DisplayRoom && (
         <div className='messagate'>
           <button className="filled bt" onClick={()=>props.setCreating(!props.creating)}>Create</button>
+          {props.creating && (
+                       <div className="sbox" style={{ backgroundColor: '#0f597b' }}>
+
+                       <div className="sbox__input">
+                           <label htmlFor="input"> channel name *</label>
+                           <input type="text" id="name" name={props.name} onChange={props.changeName} placeholder='ex: manini manini'/>
+                       </div>
+                       <select value={props.roomType} onChange={(e) => props.handleRoomType(e.target.value)}>
+                           <option disabled value="">Room Type</option>
+                            <option value="PUBLIC">Public</option>
+                            <option value="PRIVATE">Private</option>
+                            <option value="PROTECTED">Protected</option>
+                       </select>
+                           {(props.roomType === "PROTECTED") && (
+                               <input
+                                   type="text"
+                                   placeholder="Password"
+                                   value={props.roomPassword}
+                                   onChange={props.handleRoomPassword}
+                               />
+                               
+                           )}
+                           <button onClick={props.create} disabled={!props.name || (props.roomType !== "PUBLIC" && props.roomType !== "PRIVATE" && !props.roomPassword)}>
+                               Create
+                           </button>
+                       </div>
+                   )}
             {props.rooms.map((room:any, index : any) => (
               
               <InboxBox  key={index} id={props.id} room={room} DisplayRoom={props.DisplayRoom} userId={props.userId}handleRoomClick={props.handleRoomClick} handleSelectedPassword={props.handleSelectedPassword} 
@@ -26,33 +54,6 @@ const Rightchat: React.FC = (props: any) => {
                  selectedRoom={props.selectedRoom} lastMessage={props.lastMessage} isOwner={props.isOwner} setSelectedRoom={props.setSelectedRoom} />
             ))}
 
-             {props.creating && (
-                          <div className="sbox" style={{ backgroundColor: '#0f597b' }}>
-  
-                          <div className="sbox__input">
-                              <label htmlFor="input"> channel name *</label>
-                              <input type="text" id="name" name={props.name} onChange={props.changeName} placeholder='ex: manini manini'/>
-                          </div>
-                          <select value={props.roomType} onChange={(e) => props.handleRoomType(e.target.value)}>
-                              <option disabled value="">Room Type</option>
-                               <option value="PUBLIC">Public</option>
-                               <option value="PRIVATE">Private</option>
-                               <option value="PROTECTED">Protected</option>
-                          </select>
-                              {(props.roomType === "PROTECTED") && (
-                                  <input
-                                      type="text"
-                                      placeholder="Password"
-                                      value={props.roomPassword}
-                                      onChange={props.handleRoomPassword}
-                                  />
-                                  
-                              )}
-                              <button onClick={props.create} disabled={!props.name || (props.roomType !== "PUBLIC" && props.roomType !== "PRIVATE" && !props.roomPassword)}>
-                                  Create
-                              </button>
-                          </div>
-                      )}
             </div>
           )}
           {props.DisplayDms && (

@@ -1,5 +1,7 @@
 import '../styles/css/inboxBox.css';
 import messi from '../assets/messi.jpg';
+import ftlogo from '/ftlogo.png';
+
 import { useState } from 'react';
 // interface UserInfoProps {
 //   profilePicture: string;
@@ -46,7 +48,7 @@ import { useState } from 'react';
           {props.room.type === 'PROTECTED' && !props.room.chatUser ? (
                   <>
                      <button className="text-container" onClick={()=>props.handleRoomClick(props.room)}>
-                        {profilePicture(messi)}
+                        {profilePicture(ftlogo)}
                         <div className="message-style">
                           <p className="text1">{props.room.name}</p>
                           <p className="text2"></p>
@@ -69,11 +71,14 @@ import { useState } from 'react';
                   </>
           ) : (
             <button className="text-container" onClick={()=>props.handleRoomClick(props.room)}>
-            {profilePicture(messi)}
+            {profilePicture(ftlogo)}
             <div className="message-style">
               <p className="text1">{props.room.name}</p>
-              <p className="text2">{props.room.lastMessage ? props.room.lastMessage.user.username + ": " 
-              + props.room.lastMessage.message  : ""}</p>
+              {props.room.lastMessage && props.room.chatUser && (
+                <p className="text2">
+                  {props.room.lastMessage.user.username + ": " + props.room.lastMessage.message}
+                </p>
+              )}
             </div>
           </button>
           )}

@@ -140,7 +140,7 @@ const ChatHeaderComponent: React.FC = (props : any) => {
           <div className='blank'>
           </div>
           <div className='profil' onClick={handleleave}>
-            <img src={leave} width='20' height='20' alt="leave" />
+            <img title="leave room" src={leave} width='20' height='20' alt="leave" />
           </div>
           {leaveRoom &&
             <div className="leave-box">
@@ -167,7 +167,7 @@ const ChatHeaderComponent: React.FC = (props : any) => {
           <div className='blank'>
           </div>
           <div className='profil' onClick={handleSettings}>
-            <img src={Setting} width='20' height='20' alt="Settings" />
+            <img title="Settings" src={Setting} width='20' height='20' alt="Settings" />
           </div>
           {showSettings && <SettingsComponent  Roomtype={props.Roomtype} setShowSettings={setShowSettings}
               showSettings={showSettings} handleUpdateRoom={props.handleUpdateRoom}
@@ -175,18 +175,18 @@ const ChatHeaderComponent: React.FC = (props : any) => {
           <div className='blank'>
           </div>
           <div className='profil' onClick={handlesetAdmin}>
-            <img src={set_admin} width='20' height='20' alt="leave" style={{ marginRight: '19px' }} />
+            <img title="Set Admin" src={set_admin} width='20' height='20' alt="leave" style={{ marginRight: '19px' }} />
           </div>
           <div className='profil'onClick={handleleave} >
-            <img src={leave} width='20' height='20' alt="leave" />
+            <img title="Leave" src={leave} width='20' height='20' alt="leave" />
           </div>
       
           {setAdmin && (
-            <div className="admin-users">
+            <div className="profil">
               {props.chatUsers && props.chatUsers.map((user: any) => (
                   user.role === 'MEMBER' && (
-                    <button key={props.chatUsers.user.userId} className="user-button" onClick={() => handleAdmin(user.user.username)}>
-                      <img className="user-avatar" />
+                    <button key={user.userId} className="user-button" onClick={() => handleAdmin(user.user.username)}>
+                      <img  src= {user.user.avatar} width='12' height='12' />
                       {user.user.username}
                     </button>
                   )
@@ -216,17 +216,17 @@ const ChatHeaderComponent: React.FC = (props : any) => {
     </div>
     <div className="icons-container">
       <div className='game'>
-        <img src={game} alt="Icon1" />
+        <img title="invite to game" src={game} alt="Icon1" />
       </div>
       <div className='blank'>
       </div>
       <div className='block'>
-        <img src={block} alt="Icon2" />
+        <img title="block" src={block} alt="Icon2" />
       </div>
       <div className='blank'>
       </div>
       <div className='profil'>
-        <img src={profil} alt="Icon2" />
+        <img title="view profile" src={profil} alt="Icon2" />
       </div>
     </div>
   </div>

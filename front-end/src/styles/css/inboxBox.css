@@ -1,20 +1,4 @@
 
-.welcome-message
-{
-  font-size: 77px;
-  font-weight: bold;
-  margin-top: 413px;
-  color: #0F597B;
-}
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
 
 .simple-component {
     border-radius: 10px;
