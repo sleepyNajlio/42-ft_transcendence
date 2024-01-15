@@ -6,6 +6,7 @@ import { FTStrategy } from './42.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './guards/jwt.guard';
+import { TwofaService } from './twofa.service';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { AuthGuard } from './guards/jwt.guard';
       provide: APP_GUARD,
       useClass: AuthGuard,
     },
+    TwofaService,
   ],
 })
 export class AuthModule {}

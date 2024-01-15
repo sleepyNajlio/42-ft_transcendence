@@ -8,7 +8,6 @@ import {
 import { UsersService } from 'src/users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { SignUpDTO } from 'src/users/dto/SignUp.dto';
-import { MailDTO } from 'src/users/dto/Mail.dto';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()

@@ -15,12 +15,14 @@ import { Request, Response } from 'express';
 import { FTAuthGuard } from './guards/42.auth.guard';
 import { SignUpDTO } from 'src/users/dto/SignUp.dto';
 import { ConfigService } from '@nestjs/config';
+import { TwofaService } from './twofa.service';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private Config: ConfigService,
+    private twofaService: TwofaService,
   ) {}
 
   @SetMetadata('isPublic', true)
@@ -75,4 +77,13 @@ export class AuthController {
     res.cookie('USER', '', { expires: new Date() });
     return { msg: 'User created' };
   }
+
+  // @SetMetadata('isPublic', true)
+  @Get("twofa/generate")
+	async register(@Req() req: Request, @Res() res: Response) {
+    // console.log("twofa/generate, ", req.user);
+		const otpauthUrl  = await this.twofaService.genrateTwoFaSecret(req.user['id_player'], req.user['email']);
+		return this.twofaService.pipeQrCodeStream(res, otpauthUrl);
+	}
+  
 }

@@ -32,7 +32,6 @@ export class FTStrategy extends PassportStrategy(Strategy, '42') {
   constructor(
     private readonly configService: ConfigService,
     private readonly authService: AuthService,
-    private readonly UsersService: UsersService,
   ) {
     super({
       clientID: configService.get<string>('42_UID'),

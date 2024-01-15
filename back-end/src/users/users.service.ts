@@ -100,6 +100,16 @@ export class UsersService {
     return user;
   }
 
+  async updateTwoFaSecret(id: number, secret: string) {
+    const user = await this.prisma.player.update({
+      where: { id_player: id },
+      data: {
+        twoFASecret: secret,
+      },
+    });
+    return user;
+  }
+
 
 
 }
