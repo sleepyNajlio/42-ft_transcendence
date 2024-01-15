@@ -1,0 +1,39 @@
+/* Add or modify in the styles.css file */
+.button-container {
+  margin-bottom: 5px;
+  margin-left: 6px;
+  display: flex;
+  width: fit-content;
+  height: 5%;
+  min-width: 12vw;
+  }
+  
+  .button {
+    flex: 1;
+    padding: 9px;
+    cursor: pointer;
+    border: none;
+    border-radius: 32px;
+    background-color: #F2F4F6;
+    color: black;
+    /* transition: background-color 0.3s ease, color 0.3s ease; */
+  }
+  
+  .button:hover {
+    background-color: #0F597B;
+    color: #fff;
+  }
+  
+  .button:active {
+    color: #fff;
+    transform: scale(0.95);
+  }
+  
+  .button:focus {
+    /* outline: none; */
+  }
+  
+  .button:last-child {
+    margin-left: 10px;
+  }
+  
