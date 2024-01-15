@@ -9,12 +9,20 @@ import './styles/css/Simpleco.css';
 import './styles/css/Switchgrpdm.css';
 import './styles/css/ChatHeaderComponent.css';
 import { off } from '@svgdotjs/svg.js';
+import { user } from './Components/types.ts';
+
+interface User {
+    id: number;
+    username: string;
+    avatar: string;
+}
 
 interface userChat {
     userId: number;
     id_chat : number;
     id_chat_user : number;
     role: string;
+    user: User;
 }
 
 interface Room {
@@ -52,6 +60,7 @@ export function Chat() { // get values from data base
     const [showT, setShowT] = useState(false);
     const [welcomeMsg, setwelcomeMsg] = useState(!(showRoom || ShowDm || DisplayDms || DisplayRoom));
     const [passjoin, setPassjoin] = useState(true);
+    const [chatUsers, setChatUsers] = useState<userChat | null>(null);
 
 
 
@@ -64,20 +73,22 @@ export function Chat() { // get values from data base
     // save the states in local storage
     useEffect(() => { 
         if (!joined || !selectedRoom) return;
+
+        console.log("use effect called in join with rooms : ");
         console.log(Rooms);
-        console.log("use effect called in join : ");
         let id : number;
         id = Number(user?.id);
         socket?.emit('join', { 
             id , 
             name: selectedRoom?.name,
             type: selectedRoom?.type ,
-            selectedPswd: selectedPswd,
+            selectedPswd: selectedRoom?.password,
         },  (response : any[]) => {
             if (!response)
             {
 
                 // setJoined(false);
+                // setSelectedPswd("");
                 setShowRoom(false);
                 return;
                 // setwelcomeMsg(true);
@@ -128,7 +139,9 @@ export function Chat() { // get values from data base
 
             setJoined(false);
             setShowRoom(true);
-            setShowT(false);
+            setwelcomeMsg(false);
+            setDisplayRoom(true);
+            // selectedPswd && setSelectedPswd("");
             return () => {
             // socket?.off('message');
             // setJoined(false);
@@ -185,6 +198,7 @@ export function Chat() { // get values from data base
         setShowRoom(false);
         setJoinfriend(false);
         setShowDm(true);
+        setwelcomeMsg(false);
         // setShowT(false);
         // return () => {
         //     socket?.off('message');
@@ -239,8 +253,8 @@ export function Chat() { // get values from data base
         let id : number;
         id = Number(user?.id);
         socket?.emit('DisplayRoom', { id },  (response : Room[]) => {
-            // console.log('rooms in display room :')
-            // console.log(response);
+            console.log('rooms in display room :')
+            console.log(response);
             setRooms(response);
             // setIsOwner(true);
             // setDisplayDms(false);
@@ -269,7 +283,7 @@ export function Chat() { // get values from data base
         // console.log("use effect called in show Dms");
         let id : number;
         id = Number(user?.id);
-        socket?.emit('Friends', { id },  (response : any[]) => {
+        socket?.emit('Friends', { id },  (response : any) => {
             // console.log('friends in show Dms :')
             // console.log(response);
             setFriends(response);
@@ -373,22 +387,33 @@ export function Chat() { // get values from data base
                         type: response.type
                         };
             });
-
-            // setShowRoom(false);
-            // setShowRoom(true);
-            // HandleDisplayDms();
-            // HandleDisplayRoom();
         });
-        // socket?.on('update', (room : Room[]) => {
-        //     console.log("room in update : ");
-        //     console.log(room);
-        //     setRooms(room);
-        // });
         return () => {
             // socket?.off('update');
         }
     }
     
+    const handleAdmin = (username : string) => {
+        console.log("handle admin called in front");
+        console.log("username : " + username);
+        socket?.emit('setAdmin', { id: user?.id, username: username, name: selectedRoom?.name }, (response: any) => {
+            console.log("response got in set admin: ");
+            console.log(response);
+            setChatUsers((prevChatUsers: any | null) => {
+                if (prevChatUsers === null) {
+                    return null;
+                }
+                return {
+                    ...prevChatUsers,
+                    role: response.role
+                };
+            });
+        });
+        return () => {
+            // socket?.off('update');
+        }
+    }
+
     const sendMessageDm = (messageText: string) => {
 
         let id: number;
@@ -407,9 +432,17 @@ export function Chat() { // get values from data base
 
     }
     
-    const DisplayRooms = (rooms: Room[]) => {
-        setRooms(rooms);
+    const getChatUsers = (name: string) => {
+        socket?.emit('getChatUsers', { name, id : user?.id }, (response: userChat) => {
+            // console.log("response got in getChatUsers: ", response.userChat);
+            // console.log("hahahaa", response.id_chat);
+            // console.log(response);
+            setChatUsers(response);
+            // setShowRoom(false);
+            // setShowRoom(true);
+        });
     }
+
 
     const changeName = (event : any) => {
         setName(event.target.value);
@@ -436,11 +469,18 @@ export function Chat() { // get values from data base
     const handleRoomPassword = (event: React.ChangeEvent<HTMLInputElement>) => {
         setRoomPassword(event.target.value);
     };
+
+
+
     // for joining room
     const handleRoomClick = (room: Room) => {
         socket?.off('message');
-        // console.log('room clickedddd with :');
-        // console.log(room.id_chat);
+        console.log('room clickedddd with :');
+        console.log(room.id_chat);
+        console.log(room.name + " ===== " + room.type + " " );
+        console.log("with pass = " + selectedPswd);
+
+        getChatUsers(room.name);
         // setRoomId(room.id_chat);
         // setShowRoom(false);
         // setShowT(true)
@@ -454,26 +494,55 @@ export function Chat() { // get values from data base
           setIsOwner(false);
         }
 
-        if (room.type === 'PUBLIC' && room.id_chat !== selectedRoom?.id_chat) {
+        if (room.type === 'PUBLIC') {
+            console.log("room is publicccccc");
             setSelectedRoom(room);
             setJoined(true);
             return;
         }
 
-        if (room.type === 'PROTECTED' && room.id_chat !== selectedRoom?.id_chat && room.chatUser) {
+        if (room.type === 'PROTECTED' && room.chatUser) {
+            console.log("the Room prtected and chat user is true");
             setSelectedRoom(room);
             setJoined(true);
             return;
         }
-        if (room.type === 'PROTECTED' && !selectedPswd && !room.chatUser) {
-            console.log("welcome msg is set to true");
+        if (room.type === 'PROTECTED' && selectedPswd ===  room.password) {
+            console.log("room protected and it's modified");
             setSelectedRoom(room);
             setShowRoom(false);
             setwelcomeMsg(true);
+            return;
         }
-        // if (room.type === 'PROTECTED')
+        if (room.type === 'PROTECTED' && !selectedPswd && !room.chatUser) {
+            console.log("welcome msg is set to truuuue");
+            // console.log("show passjoin is : " + passjoin);
+            setPassjoin(true);
+            console.log(room);
+            setSelectedRoom(room);
+            setShowRoom(false);
+            setwelcomeMsg(true);
+            return;
+        }
+        if (room.type === 'PROTECTED' && selectedPswd !==  room.password && !room.chatUser) {
+            console.log("selected pswd is : " + selectedPswd + " and room pswd is : " + room.password);
+            console.log("welcome msg is set to true");
+            console.log("show passjoin is : " + passjoin);
+            setPassjoin(true);
+            setSelectedRoom(room);
+            setShowRoom(false);
+            setwelcomeMsg(true);
+            return;
+        }
+        if (room.type === 'PRIVATE') {
+            console.log("room is privateeeeee");
+            setSelectedRoom(room);
+            setJoined(true);
+            return;
+        }
+        // if (room.type === 'PROTECTED' || room.type === 'PRIVATE' || room.type === 'PUBLIC')
         // {
-        //     setPassjoin(!passjoin);
+        //     // setPassjoin(!passjoin);
         // }
         // 
         // console.log("then is joined is set to true");
@@ -494,8 +563,12 @@ export function Chat() { // get values from data base
         if (selectedPswd === selectedRoom?.password) {
             // setDisplayDms(true);
             // setDisplayDms(false);
+            setDisplayRoom(false);
+            // setDisplayDms(true);
+            // setDisplayDms(false);
             // setDisplayRoom(true);
             // setDisplayDms(false);
+            setSelectedPswd("");
             setPassjoin(false);
             setJoined(true);
 
@@ -513,7 +586,8 @@ export function Chat() { // get values from data base
             <div className="conteneur">
                 <div className="gauche">
                     {showRoom && <Leftchat userid={user?.id} showRoom={showRoom}messages={messages} name={selectedRoom?.name} sendMessage={sendMessage} isOwner={isOwner}
-                     Roomtype={selectedRoom?.type} handleUpdateRoom={handleUpdateRoom} HandleDisplayRoom={HandleDisplayRoom} DisplayRoom={DisplayRoom}/> }
+                     Roomtype={selectedRoom?.type} handleUpdateRoom={handleUpdateRoom} handleAdmin={handleAdmin} HandleDisplayRoom={HandleDisplayRoom} DisplayRoom={DisplayRoom} room={selectedRoom}
+                     getChatUsers={getChatUsers} chatUsers={chatUsers}/> }
                     {ShowDm && <Leftchat userid={user?.id} showDm={ShowDm} messages={messages} name={name}sendMessageDm={sendMessageDm} Friends={Friends}/> }
                     
                 {welcomeMsg && 

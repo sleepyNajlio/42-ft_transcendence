@@ -84,6 +84,66 @@ export class MessagesService {
     return existingChat;
   }
 
+  async getChatUsers(name: string, id: number) {
+
+    const chat = await this.prisma.chat.findFirst({
+      where: {
+        name: name,
+      },
+    });
+    const chatUsers = await this.prisma.chatUser.findMany({
+      where: {
+        NOT: {
+          userId: id,
+        },
+        chatId: chat.id_chat,
+      },
+      include: {
+        user: {
+          select: {
+            username: true,
+            avatar: true,
+          },
+        },
+      },
+    });
+    console.log('chat users are: ');
+    console.log(chatUsers);
+    return chatUsers;
+  }
+
+  async setAdmin(id: number, username: string, name: string) {
+  
+    const chat = await this.prisma.chat.findFirst({
+      where: {
+        name: name,
+      },
+    });
+    const user = await this.prisma.player.findFirst({
+      where: {
+        username: username,
+      },
+    });
+    const chatUser = await this.prisma.chatUser.findFirst({
+      where: {
+        userId: user.id_player,
+        chatId: chat.id_chat,
+      },
+    });
+    const newChatUser = await this.prisma.chatUser.update({
+      where: {
+        id_chat_user: chatUser.id_chat_user,
+      },
+      data: {
+        role: 'ADMIN',
+      },
+    });
+    console.log('new chat user is: ');
+    console.log(newChatUser);
+    return newChatUser;
+  
+  }
+
   // joining a dm
 
   async identifyDm(id: number, name: string, username: string, clientId: string) {

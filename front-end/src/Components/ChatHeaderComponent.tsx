@@ -6,6 +6,7 @@ import block from '../assets/BlockIcon.png'
 import profil from '../assets/ProfilIcon.png'
 import leave from '../assets/fire-exit.png'
 import  Setting from '../assets/setting.png';
+import set_admin from '../assets/set_admin.png';
 import '../styles/css/ChatHeaderComponent.css'; // You can create a CSS file for styling
 // import block from '../assets/blockchat.png'
 // import './ChatHeaderComponent.css'; // You can create a CSS file for styling
@@ -98,6 +99,16 @@ const ChatHeaderComponent: React.FC = (props : any) => {
   
   const [showSettings, setShowSettings] = useState(false);
   const [leaveRoom, setLeaveRoom] = useState(false);
+  const [setAdmin, setsetAdmin] = useState(false);
+
+  console.log("chatUsers got in chatHeeder : " , props.chatUsers);
+  
+  // props.chatUsers.map((user: any) => {
+    // console.log("user in chat header : " , user);
+    // console.log("username in chat header : " , user.user.username);
+    // // console.log(user);
+    // return null;
+  // });
 
   const handleSettings = () => {
     setShowSettings(!showSettings);
@@ -106,6 +117,16 @@ const ChatHeaderComponent: React.FC = (props : any) => {
     setLeaveRoom(!leaveRoom);
     // props.handleleave();
   }
+  const handlesetAdmin = () => {
+    setsetAdmin(!setAdmin);
+    props.getChatUsers(props.friendName);
+  }
+
+  const handleAdmin = (username : string) => {
+    console.log("user clicked : " , username);
+    props.handleAdmin(username);
+  }
+
   
   if (props.showRoom && !props.isOwner)
   {
@@ -118,9 +139,18 @@ const ChatHeaderComponent: React.FC = (props : any) => {
         <div className="icons-container">
           <div className='blank'>
           </div>
-          <div className='profil'>
-            <img src={leave} width='20' height='20' alt="Icon2" />
+          <div className='profil' onClick={handleleave}>
+            <img src={leave} width='20' height='20' alt="leave" />
           </div>
+          {leaveRoom &&
+            <div className="leave-box">
+              <div className="leave-input">
+                <label htmlFor="input"> Are you sure ?</label>
+              </div>
+              <button onClick={props.handleleave}>Yes</button>
+              <button onClick={handleleave}>No</button>
+            </div>
+          }
         </div>
       </div>
         );
@@ -144,9 +174,25 @@ const ChatHeaderComponent: React.FC = (props : any) => {
               handleDisplayRoom={props.handleDisplayRoom}/>}
           <div className='blank'>
           </div>
-          <div className='profil' onClick={handleleave}>
+          <div className='profil' onClick={handlesetAdmin}>
+            <img src={set_admin} width='20' height='20' alt="leave" style={{ marginRight: '19px' }} />
+          </div>
+          <div className='profil'onClick={handleleave} >
             <img src={leave} width='20' height='20' alt="leave" />
           </div>
+      
+          {setAdmin && (
+            <div className="admin-users">
+              {props.chatUsers && props.chatUsers.map((user: any) => (
+                  user.role === 'MEMBER' && (
+                    <button key={props.chatUsers.user.userId} className="user-button" onClick={() => handleAdmin(user.user.username)}>
+                      <img className="user-avatar" />
+                      {user.user.username}
+                    </button>
+                  )
+                ))}
+            </div>
+          )}
           {leaveRoom &&
             <div className="leave-box">
               <div className="leave-input">

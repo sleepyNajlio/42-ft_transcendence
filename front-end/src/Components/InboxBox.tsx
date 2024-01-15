@@ -54,7 +54,7 @@ import { useState } from 'react';
                     </button>
                     {props.selectedRoom && props.selectedRoom.name === props.room.name
                       && props.passjoin && (
-                      <div>
+                      <div> 
                         <input
                           type="text"
                           placeholder="Enter password"

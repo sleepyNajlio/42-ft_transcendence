@@ -184,6 +184,29 @@ export class MessagesGateway
     }
    return false;
   }
+
+  @SubscribeMessage('getChatUsers')
+  async getChatUsers(
+    @MessageBody('name') name: string,
+    @MessageBody('id') id: number,
+  )
+  {
+    const users = await this.messagesService.getChatUsers(name, id);
+    return users;
+  }
+
+  @SubscribeMessage('setAdmin')
+  async setAdmin(
+    @MessageBody('id') id: number,
+    @MessageBody('username') username: string,
+    @MessageBody('name') name: string,
+    // @ConnectedSocket() client: Socket,
+  )
+  {
+    const room = await this.messagesService.setAdmin(id, username,name);
+    return room;
+  }
+
   @SubscribeMessage('joinDm')
   async joinDm(
     @MessageBody('id') id: number,
