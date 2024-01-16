@@ -17,7 +17,7 @@ export class ProfileService {
       // console.log(decoded);
       const user = await this.prisma.player.findUnique({
         where: {
-          username: decoded.username,
+          email: decoded.email,
         },
       });
       return user;
@@ -35,7 +35,7 @@ export class ProfileService {
       const user = await this.prisma.player.findMany({
         where: {
           NOT: {
-            username: decoded.username,
+            email: decoded.email,
           },
         },
       });
