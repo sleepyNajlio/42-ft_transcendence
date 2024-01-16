@@ -1,6 +1,10 @@
 // ChatHeaderComponent.tsx
 import React from 'react';
 import { useState } from 'react';
+import PofilCard from './PofilCard.tsx';
+import MobProfilCard from './MobProfilCard.tsx';
+import { Profile } from '../Profile.tsx';
+import { useNavigate } from 'react-router-dom';
 import game from '../assets/PlayIcon.png'
 import block from '../assets/BlockIcon.png'
 import profil from '../assets/ProfilIcon.png'
@@ -100,8 +104,10 @@ const ChatHeaderComponent: React.FC = (props : any) => {
   const [showSettings, setShowSettings] = useState(false);
   const [leaveRoom, setLeaveRoom] = useState(false);
   const [setAdmin, setsetAdmin] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
 
-  console.log("chatUsers got in chatHeeder : " , props.chatUsers);
+  // const navigate = useNavigate();
+  // console.log("chatUsers got in chatHeeder : " , props.chatUsers);
   
   // props.chatUsers.map((user: any) => {
     // console.log("user in chat header : " , user);
@@ -109,6 +115,9 @@ const ChatHeaderComponent: React.FC = (props : any) => {
     // // console.log(user);
     // return null;
   // });
+
+  // console.log("isAdmin is : " , props.isAdmin);
+  // console.log("isOwner is : " , props.isOwner);
 
   const handleSettings = () => {
     setShowSettings(!showSettings);
@@ -144,8 +153,18 @@ const ChatHeaderComponent: React.FC = (props : any) => {
     props.handleAdmin(username);
   }
 
+  const LeaveRoom = () => {
+    props.handleleave();
+    setLeaveRoom(!leaveRoom);
+  }
+
+    const UserProfile = () => {
+      setShowProfile(!showProfile);
+      // navigate(`/Profile/${props.friendName}`);
+  }
+    
   
-  if (props.showRoom && !props.isOwner)
+  if (props.showRoom && !props.isOwner && !props.isAdmin)
   {
     return (
       <div className="chat-header-container">
@@ -164,7 +183,7 @@ const ChatHeaderComponent: React.FC = (props : any) => {
               <div className="leave-input">
                 <label htmlFor="input"> Are you sure ?</label>
               </div>
-              <button onClick={props.handleleave}>Yes</button>
+              <button onClick={LeaveRoom}>Yes</button>
               <button onClick={handleleave}>No</button>
             </div>
           }
@@ -198,16 +217,16 @@ const ChatHeaderComponent: React.FC = (props : any) => {
             <img title="Leave" src={leave} width='20' height='20' alt="leave" />
           </div>
       
-          {setAdmin && (
+          {setAdmin && Array.isArray(props.chatUsers) && (
             <div className="profil">
-              {props.chatUsers && props.chatUsers.map((user: any) => (
-                  user && user.role === 'MEMBER' && (
-                    <button key={user.userId} className="user-button" onClick={() => handleAdmin(user.user.username)}>
-                      <img  src= {user.user.avatar} />
-                      {user.user.username}
-                    </button>
-                  )
-                ))}
+              {props.chatUsers.map((user: any) => (
+                user && user.role === 'MEMBER' && (
+                  <button key={user.userId} className="user-button" onClick={() => handleAdmin(user.user.username)}>
+                    <img src={user.user.avatar} alt={user.user.username} />
+                    {user.user.username}
+                  </button>
+                )
+              ))}
             </div>
           )}
           {leaveRoom &&
@@ -215,7 +234,34 @@ const ChatHeaderComponent: React.FC = (props : any) => {
               <div className="leave-input">
                 <label htmlFor="input"> Are you sure ?</label>
               </div>
-              <button onClick={props.handleleave}>Yes</button>
+              <button onClick={LeaveRoom}>Yes</button>
+              <button onClick={handleleave}>No</button>
+            </div>
+          }
+        </div>
+      </div>
+        );
+  }
+  if (props.showRoom && props.isAdmin)
+  {
+    return (
+      <div className="chat-header-container">
+        <img className="profile-image" src={props.profileImageUrl} alt="Friend" />
+        <div className="friend-info">
+          <div className="friend-name">{props.friendName}</div>
+        </div>
+        <div className="icons-container">
+          <div className='blank'>
+          </div>
+          <div className='profil'onClick={handleleave} >
+            <img title="Leave" src={leave} width='20' height='20' alt="leave" />
+          </div>
+          {leaveRoom &&
+            <div className="leave-box">
+              <div className="leave-input">
+                <label htmlFor="input"> Are you sure ?</label>
+              </div>
+              <button onClick={LeaveRoom}>Yes</button>
               <button onClick={handleleave}>No</button>
             </div>
           }
@@ -242,9 +288,10 @@ const ChatHeaderComponent: React.FC = (props : any) => {
       </div>
       <div className='blank'>
       </div>
-      <div className='profil'>
+      <div className='profil' onClick={UserProfile}>
         <img title="view profile" src={profil} alt="Icon2" />
       </div>
+      {showProfile && <Profile />}
     </div>
   </div>
     );

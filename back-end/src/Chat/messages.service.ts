@@ -31,7 +31,7 @@ export class MessagesService {
       } as ChatWhereInput,
     });
     
-    console.log('id: ' + id + ' user: ' + name + ' is trying to join the chat');
+    // console.log('id: ' + id + ' user: ' + name + ' is trying to join the chat');
     if (existingChat.type === 'PROTECTED') {
         chatUSers = await this.prisma.chatUser.findFirst({
           where: {
@@ -40,11 +40,11 @@ export class MessagesService {
           },
         });
         if (selectedPswd !== existingChat.password && chatUSers === null) {
-          console.log('id: ' + id + ' user: ' + name + ' cant join the chat because of wrong password');
+          // console.log('id: ' + id + ' user: ' + name + ' cant join the chat because of wrong password');
           return false;
         }
         if (chatUSers) {
-          console.log('id: ' + id + ' user: ' + name + ' already joined the chat');
+          // console.log('id: ' + id + ' user: ' + name + ' already joined the chat');
           return existingChat;
         }
         else{
@@ -64,7 +64,7 @@ export class MessagesService {
         },
       });
       if (chatUSers) {
-        console.log('id: ' + id + ' user: ' + name + ' already joined the chat');
+        // console.log('id: ' + id + ' user: ' + name + ' already joined the chat');
         return existingChat;
       }
       else{
@@ -76,7 +76,7 @@ export class MessagesService {
         });
       }
     }
-    console.log('id: ' + id + ' user: ' + name + ' joined the chat');
+    // console.log('id: ' + id + ' user: ' + name + ' joined the chat');
     
     // console.log(existingChat);
     // console.log('-------------------');
@@ -107,8 +107,8 @@ export class MessagesService {
         },
       },
     });
-    console.log('chat users are: ');
-    console.log(chatUsers);
+    // console.log('chat users are: ');
+    // console.log(chatUsers);
     return chatUsers;
   }
 
@@ -138,10 +138,20 @@ export class MessagesService {
         role: 'ADMIN',
       },
     });
-    console.log('new chat user is: ');
-    console.log(newChatUser);
+    // console.log('new chat user is: ');
+    // console.log(newChatUser);
     return newChatUser;
   
+  }
+
+  async getSocketByUserId(userId: number) {
+    const socketId = this.clients[userId];
+    // console.log('socket id is: ');
+    // console.log(socketId);
+    if (socketId) {
+      return this.clients[userId];
+    }
+    return null;
   }
 
   // joining a dm
@@ -170,7 +180,7 @@ export class MessagesService {
     });
     // console.log('id: ' + id + ' user: ' + username + ' is trying to join the chat');
     if (existingChat) {
-      console.log('id: ' + id + ' user: ' + username + ' already joined the chat');
+      // console.log('id: ' + id + ' user: ' + username + ' already joined the chat');
       return existingChat;
     }
     else{
@@ -194,12 +204,12 @@ export class MessagesService {
           userId: usertojoin.id_player,
         },
       });
-      console.log('id: ' + id + ' user: ' + username + ' joined the chat');
-      console.log(newChat);
-      console.log('-------------------');
-      console.log(chatUSers);
-      console.log('-------------------');
-      console.log(chatUSers2);
+      // console.log('id: ' + id + ' user: ' + username + ' joined the chat');
+      // console.log(newChat);
+      // console.log('-------------------');
+      // console.log(chatUSers);
+      // console.log('-------------------');
+      // console.log(chatUSers2);
       return newChat;
     }
   }
@@ -249,9 +259,9 @@ export class MessagesService {
       },
     });
 
-    console.log(newChat);
-    console.log('-------------------');
-    console.log(chatUSers);
+    // console.log(newChat);
+    // console.log('-------------------');
+    // console.log(chatUSers);
     return newChat;
     // return Object.values(this.clients);
     
@@ -273,7 +283,7 @@ export class MessagesService {
     };
     let createdChatMessage = null;
     if (username === null) {
-      console.log('username is null so its a channel');
+      // console.log('username is null so its a channel');
       const chat = await this.prisma.chat.findFirst({
         where: {
           name: message.name,
@@ -304,8 +314,8 @@ export class MessagesService {
           },
         },
       });
-      console.log('message that just got created : ');
-      console.log(createdChatMessage);
+      // console.log('message that just got created : ');
+      // console.log(createdChatMessage);
     }
     else {
       
@@ -327,7 +337,7 @@ export class MessagesService {
           ]
         } as ChatWhereInput
       });
-      console.log('username ' + username + ' want to send msg to ' + message.name + 'in chat : ' + chat.id_chat);
+      // console.log('username ' + username + ' want to send msg to ' + message.name + 'in chat : ' + chat.id_chat);
 
       createdChatMessage = await this.prisma.chatMessage.create({
         data: {
@@ -352,8 +362,8 @@ export class MessagesService {
         },
       }) as { user: { username: string }, id3_chat_message: number, message: string, userId: number, chatId: number, sentAt: Date };
         
-      console.log('message that just got created : ');
-      console.log(createdChatMessage);
+      // console.log('message that just got created : ');
+      // console.log(createdChatMessage);
     }
       
 
@@ -447,25 +457,6 @@ export class MessagesService {
           id_player: id,
         },
       },
-      // include: {
-      //   messages: {
-      //     select: {
-      //       userId: true,
-      //       message: true,
-      //       sentAt: true,
-      //       chat: true,
-      //     },
-      //     where: {
-      //       chat: {
-      //         name: null,
-      //       },
-      //     },
-      //     orderBy: {
-      //       sentAt: 'desc',
-      //     },
-      //     take: 1,
-      //   },
-      // },
     });
     const chats = await this.prisma.chat.findMany({
           where: {
@@ -493,8 +484,8 @@ export class MessagesService {
         sentAt: 'desc'
       },
     });
-    console.log('last Messages is: ');
-    console.log(lastMessages);
+    // console.log('last Messages is: ');
+    // console.log(lastMessages);
 
     return users.map(user => {
       const chatUser = chatUsers.find(chatUser => chatUser.userId === user.id_player || chatUser.userId === id);
@@ -556,10 +547,31 @@ export class MessagesService {
     });
   }
 
+  async leave(id : number, name : string)
+  {
+    const chat = await this.prisma.chat.findFirst({
+      where: {
+        name: name,
+      },
+    });
+    const chatUser = await this.prisma.chatUser.findFirst({
+      where: {
+        userId: id,
+        chatId: chat.id_chat,
+      },
+    });
+    const chatUserDeleted = await this.prisma.chatUser.delete({
+      where: {
+        id_chat_user: chatUser.id_chat_user,
+      },
+    });
+    return chatUserDeleted;
+  }
+
   async updateRoom(id : number, name: string, type: string, newPass : string, modifypass: boolean,
     setPass : boolean, removepass : boolean) {
     
-    console.log('update room called with id: ' + id + " and name" + name);
+    // console.log('update room called with id: ' + id + " and name" + name);
 
     let newChat : any = null;
   

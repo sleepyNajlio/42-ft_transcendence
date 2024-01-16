@@ -240,6 +240,7 @@ export function Chat() { // get values from data base
         // });
         setIsOwner(true);
         setDisplayRoom(true);
+        setCreated(false);
         // setShowT(false);
         return () => {
             // socket?.off('rooms');
@@ -322,11 +323,12 @@ export function Chat() { // get values from data base
     }
 
     useEffect(() => {
+        console.log("user" + user?.id + " is listening on update in front");
         console.log("listening on update in front");
         socket?.on('update', (response : any) => {
             console.log("room in update : ");
             console.log(response);
-            console.log(Rooms);
+            // console.log(Rooms);
             setRooms((prevRooms: Room[] | null) => {
                 if (prevRooms === null) {
                     return null;
@@ -344,6 +346,34 @@ export function Chat() { // get values from data base
                     return room;
                 });
             });
+
+            socket?.on('Admin', (response) => {
+           console.log("user" + user?.id + " is listening on Admin in front");
+
+                console.log("response got in Admin: ");
+                console.log(response);
+                if (response.userId === user?.id)
+                {
+                    console.log("user " + user?.id + " listen to him being admin " + response.chatId);
+                    setRooms((prevRooms: Room[] | null) => {
+                        if (prevRooms === null) {
+                            return null;
+                        }
+                        return prevRooms.map((room) => {
+                            console.log("in room ", response);
+                            if (room.id_chat === response.chatId) {
+                                console.log("user " + user?.id + " listen to him being admin " + room.id_chat + " with room " + response.chatId);
+                                return {
+                                    ...room,
+                                    role: response.role
+                                };
+                            }
+                            return room;
+                        });
+                    });
+                }
+            
+            });
             // setRooms(...room, {passwrd: room.});
             // setRooms(room);
             
@@ -351,10 +381,45 @@ export function Chat() { // get values from data base
 
         return () => {
         console.log("off listening on update in front");
+        console.log("off listening on Admin in front");
+
 
             socket?.off('update');
+            socket?.off('Admin');
         };
-    }, [DisplayRoom]);
+    },);
+
+    const handleleave = () => {
+        console.log("handle leave called in front");
+
+        socket?.emit('leave', { id: user?.id, name: selectedRoom?.name }, (response: any) => {
+            console.log("response got in leave: ");
+            console.log(response);
+            setRooms((prevRooms: Room[] | null) => {
+                if (prevRooms === null) {
+                    return null;
+                }
+                return prevRooms.filter((room) => {
+                    if (room.id_chat !== response.id) {
+                        return room;
+                    }
+                    return null;
+                });
+            });
+            setSelectedRoom(null);
+            // setDisplayRoom(false);
+            // setwelcomeMsg(true);
+        });
+        if (DisplayDms)
+            setDisplayDms(!DisplayDms);
+        if (DisplayRoom)
+            setDisplayRoom(!DisplayRoom);
+        if (ShowDm)
+            setShowDm(!ShowDm);
+        if (showRoom)
+            setShowRoom(!showRoom);
+        setwelcomeMsg(true);
+    }
 
     const handleUpdateRoom = (newPass : string, modifypass : boolean, setPass : boolean, removepass : boolean) => {
 
@@ -407,6 +472,8 @@ export function Chat() { // get values from data base
                 }
                 return { ...prevChatUsers, role: response.role }; 
             });
+            // setDisplayRoom(!DisplayRoom);
+            // setDisplayRoom(!DisplayRoom);
         });
         return () => {
             // socket?.off('update');
@@ -437,6 +504,7 @@ export function Chat() { // get values from data base
             // console.log("hahahaa", response.id_chat);
             // console.log(response);
             setChatUsers(response);
+
             // setShowRoom(false);
             // setShowRoom(true);
         });
@@ -480,12 +548,6 @@ export function Chat() { // get values from data base
         console.log("with pass = " + selectedPswd);
 
         getChatUsers(room.name);
-        // setRoomId(room.id_chat);
-        // setShowRoom(false);
-        // setShowT(true)
-        // if (selectedRoom?.type === 'PROTECTED') {
-        //     setShowT(false);
-        // }
         if (room.chatUser && room.chatUser.role === 'OWNER') {
             console.log("is owner is set to true");
           setIsOwner(true);
@@ -592,7 +654,7 @@ export function Chat() { // get values from data base
                 <div className="gauche">
                     {showRoom && <Leftchat userid={user?.id} showRoom={showRoom}messages={messages} name={selectedRoom?.name} sendMessage={sendMessage} isOwner={isOwner}
                      Roomtype={selectedRoom?.type} handleUpdateRoom={handleUpdateRoom} handleAdmin={handleAdmin} HandleDisplayRoom={HandleDisplayRoom} DisplayRoom={DisplayRoom} room={selectedRoom}
-                     getChatUsers={getChatUsers} isAdmin={isAdmin} chatUsers={chatUsers}/> }
+                     getChatUsers={getChatUsers} isAdmin={isAdmin} chatUsers={chatUsers} handleleave={handleleave}/> }
                     {ShowDm && <Leftchat userid={user?.id} showDm={ShowDm} messages={messages} name={name}sendMessageDm={sendMessageDm} Friends={Friends}/> }
                     
                 {welcomeMsg && 

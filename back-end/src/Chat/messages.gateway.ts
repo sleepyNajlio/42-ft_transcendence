@@ -37,11 +37,12 @@ export class MessagesGateway
   ) {}
 
   handleDisconnect(client: any) {
+    console.log(`Message gateway client disconnected: ${client.id}`);
     delete this.messagesService.clients[client.id];
   }
 
   async handleConnection(client: any, ...args: any[]) {
-    console.log(`Client connected: ${client.id}`);
+    console.log(`Message gateway client connected: ${client.id}`);
   }
 
   @SubscribeMessage('Friends')
@@ -133,7 +134,7 @@ export class MessagesGateway
     @ConnectedSocket() client: Socket,
   )
   {
-    console.log('create called');
+    // console.log('create called');
     // console.log('in gateway -- id: ' + id1 + ' user: ' + name + ' just created the chat');
     const Room = await this.messagesService.createChannel(id1, name,roomType,roomPassword, client.id);
     
@@ -168,12 +169,12 @@ export class MessagesGateway
     @MessageBody('selectedPswd') selectedPswd: string,
     @ConnectedSocket() client: Socket,
   ) {
-    console.log('selcted pswd in gateway : ');
-    console.log(selectedPswd)
-    console.log('room name in gateway : ');
-    console.log(name);
-    console.log('room type in gateway : ');
-    console.log(selectedType);
+    // console.log('selcted pswd in gateway : ');
+    // console.log(selectedPswd)
+    // console.log('room name in gateway : ');
+    // console.log(name);
+    // console.log('room type in gateway : ');
+    // console.log(selectedType);
     const room = await this.messagesService.identify(id, name,selectedType,selectedPswd,client.id);
     // console.log('room in gateway : ');
     // console.log(room);
@@ -200,10 +201,23 @@ export class MessagesGateway
     @MessageBody('id') id: number,
     @MessageBody('username') username: string,
     @MessageBody('name') name: string,
-    // @ConnectedSocket() client: Socket,
+    @ConnectedSocket() client: Socket,
   )
   {
-    const room = await this.messagesService.setAdmin(id, username,name);
+    const room = await this.messagesService.setAdmin(id, username, name);
+    this.socketGateway.getServer().emit('Admin', room);
+    return room;
+  }
+
+  @SubscribeMessage('leave')
+  async leave(
+    @MessageBody('id') id: number,
+    @MessageBody('name') name: string,
+    @ConnectedSocket() client: Socket,
+  ) {
+    const room = await this.messagesService.leave(id, name);
+    client.leave("chat_"+ room.chatId);
+    console.log('user: ' + id + ' left the chat');
     return room;
   }
 
@@ -215,11 +229,11 @@ export class MessagesGateway
     @ConnectedSocket() client: Socket,
   ) {
 
-    console.log('the user with id ' + id +' and name  ' + username + ' wants to join the dm with ' + name);
+    // console.log('the user with id ' + id +' and name  ' + username + ' wants to join the dm with ' + name);
 
     const room = await this.messagesService.identifyDm(id, name,username,client.id);
     client.join("chat_"+ room.id_chat);
-    console.log('user: ' + username + ' joined the chat with ' + name + ' in ' + room.id_chat);
+    // console.log('user: ' + username + ' joined the chat with ' + name + ' in ' + room.id_chat);
     return room;
   }
 
