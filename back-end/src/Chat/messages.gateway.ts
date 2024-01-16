@@ -12,6 +12,14 @@ import { Server, Socket } from 'socket.io';
 import { SocketGateway } from 'src/socket/socket.gateway';
 import { ChatType } from '@prisma/client';
 
+
+type updatedRoom = {
+  newPass : string | null,
+  type : string,
+  id : number,
+  Role : string,
+}
+
 @WebSocketGateway({
   // namespace: 'chat',
   cors: '*:*',
@@ -26,11 +34,12 @@ export class MessagesGateway
   ) {}
 
   handleDisconnect(client: any) {
+    console.log(`Message gateway client disconnected: ${client.id}`);
     delete this.messagesService.clients[client.id];
   }
 
   async handleConnection(client: any, ...args: any[]) {
-    console.log(`Client connected: ${client.id}`);
+    console.log(`Message gateway client connected: ${client.id}`);
   }
 
   @SubscribeMessage('Friends')
@@ -39,6 +48,9 @@ export class MessagesGateway
     @ConnectedSocket() Client: Socket,
   ) {
     const Users = await this.messagesService.getUsers(id);
+    // this.socketGateway.getServer().emit('users', Users);
+    // console.log('users in gateway : ');
+    // console.log(Users);
     return Users;
   }
 
@@ -47,11 +59,42 @@ export class MessagesGateway
     @MessageBody('id') id: number,
     @ConnectedSocket() client: Socket,
   ) {
-    const rooms = await this.messagesService.getRooms(id);
-    this.socketGateway.getServer().to(client.id).emit('rooms', rooms);
-    console.log('rooms in gateway : ');
-    console.log(rooms);
-    return rooms;
+      const rooms = await this.messagesService.getRooms(id);
+      // this.socketGateway.getServer().emit('rooms', rooms);
+      // console.log('rooms in gateway : ');
+      // console.log(rooms);
+      return rooms;
+  }
+
+  @SubscribeMessage('updateRoom')
+  async updateRoom(
+    @MessageBody('id') id: number,
+    @MessageBody('name') name: string,
+    @MessageBody('type') type: string,
+    @MessageBody('newPass') newPass:  string,
+    @MessageBody('modifypass') modifypass: boolean,
+    @MessageBody('setPass') setPass: boolean,
+    @MessageBody('removepass') removepass: boolean,
+  )
+  {
+    // const paswd : string | null = newPass || null;
+    // const newtype : ChatType = type as ChatType;
+    // const role : string = 'ADMIN';
+    const Room = await this.messagesService.updateRoom(id, name,type,newPass,modifypass,setPass,removepass);
+
+    const room : updatedRoom = {
+      newPass : Room.password ? Room.password : null,
+      type : Room.type,
+      id : Room.id_chat,
+      Role : Room.users[0].role,
+    }
+    // console.log('rooooooom in gateway : ');
+    // console.log(room);
+
+    this.socketGateway.getServer().emit('update', room);
+    return room;
+
+  //  return await this.messagesService.updateRoom(id, name,type,newPass,modifypass,setPass,removepass);
   }
 
   @SubscribeMessage('createMessage') // to be able to send new messages
@@ -67,9 +110,14 @@ export class MessagesGateway
       id,
       username,
     );
-    const room = 'chat_' + message.chatId;
-    this.socketGateway.getServer().to(room).emit('message', message); // emit events to all connected clients
 
+    // console.log('message in gateway : ');
+    const room = "chat_" + message.chatId;
+    // console.log('room in gateway : ');
+    // console.log(room);
+    this.socketGateway.getServer().to(room).emit('message', message);
+
+    
     return message;
   }
 
@@ -79,16 +127,26 @@ export class MessagesGateway
     @MessageBody('name') name: string,
     @MessageBody('roomType') roomType: ChatType,
     @MessageBody('roomPassword') roomPassword: string,
-    // @ConnectedSocket() client: Socket,
-  ) {
-    console.log('create called');
+    @ConnectedSocket() client: Socket,
+  )
+  {
+    // console.log('create called');
     // console.log('in gateway -- id: ' + id1 + ' user: ' + name + ' just created the chat');
-    return await this.messagesService.createChannel(
-      id1,
-      name,
-      roomType,
-      roomPassword,
-    );
+    const Room = await this.messagesService.createChannel(id1, name,roomType,roomPassword, client.id);
+    
+    // console.log('created room in gateway : ');
+    // console.log(Room);
+    
+    if (Room)
+    {
+      if (Room.type == 'PRIVATE')
+        this.socketGateway.getServer().to(client.id).emit('rooms', Room);
+      else
+        this.socketGateway.getServer().emit('rooms', Room);
+    }
+    else
+      return false;
+    // return Room;
   }
   @SubscribeMessage('findAllMessages') // to be able to see the old messages
   async findAll(
@@ -107,19 +165,13 @@ export class MessagesGateway
     @MessageBody('selectedPswd') selectedPswd: string,
     @ConnectedSocket() client: Socket,
   ) {
-    console.log('selcted pswd in gateway : ');
-    console.log(selectedPswd);
-    console.log('room name in gateway : ');
-    console.log(name);
-    console.log('room type in gateway : ');
-    console.log(selectedType);
-    const room = await this.messagesService.identify(
-      id,
-      name,
-      selectedType,
-      selectedPswd,
-      // client.id,
-    );
+    // console.log('selcted pswd in gateway : ');
+    // console.log(selectedPswd)
+    // console.log('room name in gateway : ');
+    // console.log(name);
+    // console.log('room type in gateway : ');
+    // console.log(selectedType);
+    const room = await this.messagesService.identify(id, name,selectedType,selectedPswd,client.id);
     // console.log('room in gateway : ');
     // console.log(room);
     if (room) {
@@ -129,6 +181,42 @@ export class MessagesGateway
     }
     return false;
   }
+
+  @SubscribeMessage('getChatUsers')
+  async getChatUsers(
+    @MessageBody('name') name: string,
+    @MessageBody('id') id: number,
+  )
+  {
+    const users = await this.messagesService.getChatUsers(name, id);
+    return users;
+  }
+
+  @SubscribeMessage('setAdmin')
+  async setAdmin(
+    @MessageBody('id') id: number,
+    @MessageBody('username') username: string,
+    @MessageBody('name') name: string,
+    @ConnectedSocket() client: Socket,
+  )
+  {
+    const room = await this.messagesService.setAdmin(id, username, name);
+    this.socketGateway.getServer().emit('Admin', room);
+    return room;
+  }
+
+  @SubscribeMessage('leave')
+  async leave(
+    @MessageBody('id') id: number,
+    @MessageBody('name') name: string,
+    @ConnectedSocket() client: Socket,
+  ) {
+    const room = await this.messagesService.leave(id, name);
+    client.leave("chat_"+ room.chatId);
+    console.log('user: ' + id + ' left the chat');
+    return room;
+  }
+
   @SubscribeMessage('joinDm')
   async joinDm(
     @MessageBody('id') id: number,
@@ -136,22 +224,13 @@ export class MessagesGateway
     @MessageBody('username') username: string,
     @ConnectedSocket() client: Socket,
   ) {
-    console.log(
-      'the user with id ' +
-        id +
-        ' and name  ' +
-        username +
-        ' wants to join the dm with ' +
-        name,
-    );
 
-    const room = await this.messagesService.identifyDm(id, name, username);
-    if (room) {
-      client.join('chat_' + room.id_chat);
-      console.log('user: ' + username + ' joined the chat with ' + name);
-      return room;
-    }
-    return false;
+    // console.log('the user with id ' + id +' and name  ' + username + ' wants to join the dm with ' + name);
+
+    const room = await this.messagesService.identifyDm(id, name,username,client.id);
+    client.join("chat_"+ room.id_chat);
+    // console.log('user: ' + username + ' joined the chat with ' + name + ' in ' + room.id_chat);
+    return room;
   }
 
   // @SubscribeMessage('typing')

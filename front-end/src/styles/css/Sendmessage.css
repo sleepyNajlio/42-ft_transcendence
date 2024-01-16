@@ -1,12 +1,12 @@
 .message-input-container
 {
-  align-self: flex-end;
+  /* align-self: flex-end; */
   margin-top: auto;
 }
   
   .inputfield {
     display: flex;
-    width: 54vw;
+    /* width: 54vw; */
     /* flex-grow: 1; */
     padding: 8px;
     border: 1px solid #ccc;

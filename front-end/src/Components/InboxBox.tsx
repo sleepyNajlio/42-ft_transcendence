@@ -1,5 +1,8 @@
 import '../styles/css/inboxBox.css';
 import messi from '../assets/messi.jpg';
+import roomlogo from '/room-logo.png';
+
+import { useState } from 'react';
 // interface UserInfoProps {
 //   profilePicture: string;
 //   name: string;
@@ -7,33 +10,53 @@ import messi from '../assets/messi.jpg';
 // }
 
 // const UserInfo: React.FC<UserInfoProps> = ({ profilePicture, name, onModifyProfileClick }) => {
-export default function InboxBox(props : any) {
+  function profilePicture(avatar : any) {
+
+    
+
+
+    return (
+      <div className="profile-picture">
+        <img
+          src={avatar} // Replace with the path to your profile image
+          alt="Profile"
+          width="100%"
+          height="100%"
+        />
+      </div>
+    );
+  }
+  export default function InboxBox(props : any) {
     
     // console.log("props in inboxbox : ")
+    // console.log("room in inbox box: " + props.room.users);
     // if (props.room.chatUser)
     //   console.log(props.room.chatUser.userId);
     // console.log('userId issss: ' + props.userId)
+    // console.log("props.room.users : " , props.room.users);
+    // console.log("props.id : " , props.id);
+    // console.log("props.lastmes : " , props.lastMessage);
+   
+    const handleImageClick = () => {
+      props.joindDm(props.friend.username);
+    };
+
     if (props.DisplayRoom)
     {
       return (
         <div className="simple-component">
-          <div className="profile-picture">
-            <img
-              src={messi} // Replace with the path to your profile image
-              alt="Profile"
-              width="100%"
-              height="100%"
-            />
-          </div>
           {props.room.type === 'PROTECTED' && !props.room.chatUser ? (
-                  <div>
-                    <button className="text-container" onClick={() => props.setSelectedRoom(props.room)}>
+                  <>
+                     <button className="text-container" onClick={()=>props.handleRoomClick(props.room)}>
+                        {profilePicture(roomlogo)}
+                        <div className="message-style">
                           <p className="text1">{props.room.name}</p>
-                          <p className="text2">{props.message}</p>
+                          <p className="text2"></p>
+                        </div>
                     </button>
                     {props.selectedRoom && props.selectedRoom.name === props.room.name
-                      &&(
-                      <div>
+                      && props.passjoin && (
+                      <div> 
                         <input
                           type="text"
                           placeholder="Enter password"
@@ -42,14 +65,21 @@ export default function InboxBox(props : any) {
                           value={props.selectedPswd}
                           onChange={props.handleSelectedPassword}
                         />
-                        <button name={props.room.name} onClick={props.handleJoinWithPassword}>Join</button>
+                       <button name={props.room.name} onClick={props.handleJoinWithPassword}>Join</button>
                       </div>
                     )}
-                  </div>
+                  </>
           ) : (
             <button className="text-container" onClick={()=>props.handleRoomClick(props.room)}>
-            <p className="text1">{props.room.name}</p>
-            <p className="text2">{props.message}</p>
+            {profilePicture(roomlogo)}
+            <div className="message-style">
+              <p className="text1">{props.room.name}</p>
+              {props.room.lastMessage && props.room.chatUser && (
+                <p className="text2">
+                  {props.room.lastMessage.user.username + ": " + props.room.lastMessage.message}
+                </p>
+              )}
+            </div>
           </button>
           )}
         </div>
@@ -58,19 +88,17 @@ export default function InboxBox(props : any) {
     else {
       return (
         <div className="simple-component">
+        <button className="text-container" onClick={handleImageClick}>
           <div className="profile-picture">
-            <img
-              src={props.friend.avatar} // Replace with the path to your profile image
-              alt="Profile"
-              width="100%"
-              height="100%"
-            />
+          {profilePicture(props.friend.avatar)}
           </div>
-            <button className="text-container" onClick={() => props.joindDm(props.friend.username)}>
+          <div className="message-style">
             <p className="text1">{props.friend.username}</p>
-            <p className="text2">{props.message}</p>
-          </button>
-        </div>
+            <p className="text2">{props.friend.lastMessage ? props.friend.lastMessage.user.username + ': ' 
+            + props.friend.lastMessage.message : ''}</p>
+          </div>
+        </button>
+      </div>
       );
     }
 }

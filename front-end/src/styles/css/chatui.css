@@ -1,25 +1,70 @@
 .conteneur {
-    margin-left: -6px;
+    /* margin-left: -6px; */
     display: flex;
     flex-direction: row;
     overflow: hidden;
   }
   
   .gauche {
-    flex: 1; /* Prend autant d'espace que possible */
-    background-color: white; /* Couleur rouge pour la div gauche */
+  flex: 1;
+  background-color: white;
+
+  max-width: 70%;
+  border: 1px solid #ccc;
+  border-radius: 4px 0 0 4px;
+  /* Apply a blur effect when welcomeMsg is true */
+  /* backdrop-filter: blur(100vw); */
+}
+
+.welcome-message-container {
+  background: #166386;
+  padding: 70px;
+  border-radius: 33px;
+  text-align: center;
+  margin-top: 426px;
+  margin-left: 165px;
+  margin-right: 165px;
+  animation: slideIn 1s ease-in-out, pulse 2s infinite;
+  color: #fcf9f9;
+}
+
+.welcome-message {
+  font-size: 24px;
+  font-weight: bold;
+  line-height: 1.5;
+} 
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
   }
-  
+  to {
+    opacity: 1;
+    transform: translateY(2);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(0.9);
+  }
+  50% {
+    transform: scale(1);
+  }
+}
   .droite {
     flex: 0.5; /* Prend 80% de l'espace disponible, ajustez selon vos besoins */
     background-color: white; /* Couleur bleue pour la div droite */
   }
+  
   
   .composant-gauche,
   .composant-droite {
     height: 100vh;
     display: flex;
     flex-direction: column;
+    max-width: 100%;
     /* Ajoutez d'autres styles selon vos besoins pour la disposition verticale des enfants */
   }
   .messagate
