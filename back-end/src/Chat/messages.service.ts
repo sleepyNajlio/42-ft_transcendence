@@ -31,33 +31,31 @@ export class MessagesService {
         },
       } as ChatWhereInput,
     });
-    
+
     // console.log('id: ' + id + ' user: ' + name + ' is trying to join the chat');
     if (existingChat.type === 'PROTECTED') {
-        chatUSers = await this.prisma.chatUser.findFirst({
-          where: {
+      chatUSers = await this.prisma.chatUser.findFirst({
+        where: {
+          chatId: existingChat.id_chat,
+          userId: id,
+        },
+      });
+      if (selectedPswd !== existingChat.password && chatUSers === null) {
+        // console.log('id: ' + id + ' user: ' + name + ' cant join the chat because of wrong password');
+        return false;
+      }
+      if (chatUSers) {
+        // console.log('id: ' + id + ' user: ' + name + ' already joined the chat');
+        return existingChat;
+      } else {
+        chatUSers = await this.prisma.chatUser.create({
+          data: {
             chatId: existingChat.id_chat,
             userId: id,
           },
         });
-        if (selectedPswd !== existingChat.password && chatUSers === null) {
-          // console.log('id: ' + id + ' user: ' + name + ' cant join the chat because of wrong password');
-          return false;
-        }
-        if (chatUSers) {
-          // console.log('id: ' + id + ' user: ' + name + ' already joined the chat');
-          return existingChat;
-        }
-        else{
-          chatUSers = await this.prisma.chatUser.create({
-            data: {
-              chatId: existingChat.id_chat,
-              userId: id,
-            },
-          });
-        }
-    }
-    else{
+      }
+    } else {
       chatUSers = await this.prisma.chatUser.findFirst({
         where: {
           chatId: existingChat.id_chat,
@@ -77,7 +75,7 @@ export class MessagesService {
       }
     }
     // console.log('id: ' + id + ' user: ' + name + ' joined the chat');
-    
+
     // console.log(existingChat);
     // console.log('-------------------');
     // console.log(chatUSers);
@@ -85,7 +83,6 @@ export class MessagesService {
   }
 
   async getChatUsers(name: string, id: number) {
-
     const chat = await this.prisma.chat.findFirst({
       where: {
         name: name,
@@ -113,7 +110,6 @@ export class MessagesService {
   }
 
   async setAdmin(id: number, username: string, name: string) {
-  
     const chat = await this.prisma.chat.findFirst({
       where: {
         name: name,
@@ -141,7 +137,6 @@ export class MessagesService {
     // console.log('new chat user is: ');
     // console.log(newChatUser);
     return newChatUser;
-  
   }
 
   async getSocketByUserId(userId: number) {
@@ -187,13 +182,13 @@ export class MessagesService {
           // name: name,
         },
       });
-      const chatUSers = await this.prisma.chatUser.create({
+      await this.prisma.chatUser.create({
         data: {
           chatId: newChat.id_chat,
           userId: id,
         },
       });
-      const chatUSers2 = await this.prisma.chatUser.create({
+      await this.prisma.chatUser.create({
         data: {
           chatId: newChat.id_chat,
           userId: usertojoin.id_player,
@@ -249,7 +244,7 @@ export class MessagesService {
       });
     }
 
-    const chatUSers = await this.prisma.chatUser.create({
+    await this.prisma.chatUser.create({
       data: {
         chatId: newChat.id_chat,
         userId: id,
@@ -314,9 +309,7 @@ export class MessagesService {
       });
       // console.log('message that just got created : ');
       // console.log(createdChatMessage);
-    }
-    else {
-      
+    } else {
       const user = await this.prisma.player.findFirst({
         where: {
           username: message.name,
@@ -330,10 +323,10 @@ export class MessagesService {
               users: { some: { userId: id } },
             },
             {
-              users: { some: { userId: user.id_player } }
-            }
-          ]
-        } as ChatWhereInput
+              users: { some: { userId: user.id_player } },
+            },
+          ],
+        } as ChatWhereInput,
       });
       // console.log('username ' + username + ' want to send msg to ' + message.name + 'in chat : ' + chat.id_chat);
 
@@ -358,8 +351,15 @@ export class MessagesService {
             },
           },
         },
-      }) as { user: { username: string }, id3_chat_message: number, message: string, userId: number, chatId: number, sentAt: Date };
-        
+      })) as {
+        user: { username: string };
+        id3_chat_message: number;
+        message: string;
+        userId: number;
+        chatId: number;
+        sentAt: Date;
+      };
+
       // console.log('message that just got created : ');
       // console.log(createdChatMessage);
     }
@@ -447,19 +447,19 @@ export class MessagesService {
       },
     });
     const chats = await this.prisma.chat.findMany({
-          where: {
-            type: 'PRIVATE',
-            name: null,
-          },
+      where: {
+        type: 'PRIVATE',
+        name: null,
+      },
     });
     const chatUsers = await this.prisma.chatUser.findMany({
       where: {
-        chatId: { in: chats.map(room => room.id_chat) }
-      }
+        chatId: { in: chats.map((room) => room.id_chat) },
+      },
     });
     const lastMessages = await this.prisma.chatMessage.findMany({
       where: {
-        chatId: { in: chats.map(room => room.id_chat) }
+        chatId: { in: chats.map((room) => room.id_chat) },
       },
       include: {
         user: {
@@ -469,23 +469,28 @@ export class MessagesService {
         },
       },
       orderBy: {
-        sentAt: 'desc'
+        sentAt: 'desc',
       },
     });
     // console.log('last Messages is: ');
     // console.log(lastMessages);
 
-    return users.map(user => {
-      const chatUser = chatUsers.find(chatUser => chatUser.userId === user.id_player || chatUser.userId === id);
-      const lastMessage = lastMessages.find(message => message.userId === user.id_player || message.userId === id);
+    return users.map((user) => {
+      const chatUser = chatUsers.find(
+        (chatUser) =>
+          chatUser.userId === user.id_player || chatUser.userId === id,
+      );
+      const lastMessage = lastMessages.find(
+        (message) => message.userId === user.id_player || message.userId === id,
+      );
       return {
         ...user,
         chatUser: chatUser,
-        lastMessage: lastMessage
-      }
+        lastMessage: lastMessage,
+      };
     });
   }
-  
+
   async getRooms(id: number) {
     const rooms = await this.prisma.chat.findMany({
       where: {
@@ -508,7 +513,7 @@ export class MessagesService {
 
     const lastMessages = await this.prisma.chatMessage.findMany({
       where: {
-        chatId: { in: rooms.map(room => room.id_chat) }
+        chatId: { in: rooms.map((room) => room.id_chat) },
       },
       include: {
         user: {
@@ -518,25 +523,29 @@ export class MessagesService {
         },
       },
       orderBy: {
-        sentAt: 'desc'
+        sentAt: 'desc',
       },
     });
     // console.log('last Messages is: ');
-    
+
     // console.log(lastMessages);
-    return rooms.map(room => {
-      const chatUser = chatUsers.find(chatUser => chatUser.chatId === room.id_chat && chatUser.userId === id);
-      const lastMessage = lastMessages.find(message => message.chatId === room.id_chat);
+    return rooms.map((room) => {
+      const chatUser = chatUsers.find(
+        (chatUser) =>
+          chatUser.chatId === room.id_chat && chatUser.userId === id,
+      );
+      const lastMessage = lastMessages.find(
+        (message) => message.chatId === room.id_chat,
+      );
       return {
         ...room,
         chatUser: chatUser,
-        lastMessage: lastMessage
-      }
+        lastMessage: lastMessage,
+      };
     });
   }
 
-  async leave(id : number, name : string)
-  {
+  async leave(id: number, name: string) {
     const chat = await this.prisma.chat.findFirst({
       where: {
         name: name,
@@ -556,13 +565,19 @@ export class MessagesService {
     return chatUserDeleted;
   }
 
-  async updateRoom(id : number, name: string, type: string, newPass : string, modifypass: boolean,
-    setPass : boolean, removepass : boolean) {
-    
+  async updateRoom(
+    id: number,
+    name: string,
+    type: string,
+    newPass: string,
+    modifypass: boolean,
+    setPass: boolean,
+    removepass: boolean,
+  ) {
     // console.log('update room called with id: ' + id + " and name" + name);
 
-    let newChat : any = null;
-  
+    let newChat: any = null;
+
     const chat = await this.prisma.chat.findFirst({
       where: {
         name: name,
@@ -580,8 +595,7 @@ export class MessagesService {
           users: true,
         },
       });
-    }
-    else if (removepass) {
+    } else if (removepass) {
       newChat = await this.prisma.chat.update({
         where: {
           id_chat: chat.id_chat,
@@ -594,8 +608,7 @@ export class MessagesService {
           users: true,
         },
       });
-    }
-    else if (setPass) {
+    } else if (setPass) {
       newChat = await this.prisma.chat.update({
         where: {
           id_chat: chat.id_chat,
@@ -608,7 +621,6 @@ export class MessagesService {
           users: true,
         },
       });
-  
     }
     // const Rooms = await this.getRooms(id);
     // console.log('rooms in service : ');

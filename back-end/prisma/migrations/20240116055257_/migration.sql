@@ -1,14 +1,50 @@
+/*
+  Warnings:
+
+  - You are about to drop the `Post` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `User` table. If the table is not empty, all the data it contains will be lost.
+
+*/
 -- CreateEnum
-CREATE TYPE "ChatRole" AS ENUM ('MEMBER', 'ADMIN');
+CREATE TYPE "ChatRole" AS ENUM ('OWNER', 'MEMBER', 'ADMIN');
 
 -- CreateEnum
-CREATE TYPE "ChatType" AS ENUM ('PUBLIC', 'PRIVATE', 'PROTECTED');
+CREATE TYPE "ChatType" AS ENUM ('PUBLIC', 'PROTECTED', 'PRIVATE');
 
 -- CreateEnum
 CREATE TYPE "GameStatus" AS ENUM ('SEARCHING', 'PLAYING', 'FINISHED', 'ABORTED');
 
 -- CreateEnum
+CREATE TYPE "PlayerStatus" AS ENUM ('ONLINE', 'OFFLINE');
+
+-- CreateEnum
 CREATE TYPE "RelationStatus" AS ENUM ('PENDING', 'ACCEPTED', 'REJECTED');
+
+-- DropForeignKey
+ALTER TABLE "Post" DROP CONSTRAINT "Post_authorId_fkey";
+
+-- DropTable
+DROP TABLE "Post";
+
+-- DropTable
+DROP TABLE "User";
+
+-- CreateTable
+CREATE TABLE "Player" (
+    "id_player" SERIAL NOT NULL,
+    "username" TEXT NOT NULL,
+    "avatar" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "isAuthenticated" BOOLEAN DEFAULT false,
+    "level" INTEGER NOT NULL DEFAULT 1,
+    "status" "PlayerStatus" NOT NULL DEFAULT 'OFFLINE',
+    "wins" INTEGER NOT NULL DEFAULT 0,
+    "loses" INTEGER NOT NULL DEFAULT 0,
+    "twofa" BOOLEAN DEFAULT false,
+    "twoFASecret" TEXT,
+
+    CONSTRAINT "Player_pkey" PRIMARY KEY ("id_player")
+);
 
 -- CreateTable
 CREATE TABLE "FriendShip" (
@@ -70,6 +106,15 @@ CREATE TABLE "ChatMessage" (
 
     CONSTRAINT "ChatMessage_pkey" PRIMARY KEY ("id3_chat_message")
 );
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Player_username_key" ON "Player"("username");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Player_avatar_key" ON "Player"("avatar");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Player_email_key" ON "Player"("email");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "FriendShip_userId_friendId_key" ON "FriendShip"("userId", "friendId");
