@@ -9,6 +9,21 @@ import ftlogo from '/ftlogo.png';
 
 const Leftchat: React.FC = (props: any) => {
 
+  console.log("Messages isssss : ", props.messages);
+
+  const handleMenuOptionClick = (option: string) => {
+    // Perform actions based on the selected option
+    if (option === 'kick') {
+      // Handle kick action
+    } else if (option === 'ban') {
+      // Handle ban action
+    } else if (option === 'mute_1min') {
+      // Handle mute for 1 minute
+    } else if (option === 'mute_5min') {
+      // Handle mute for 5 minutes
+    }
+  };
+
   // console.log("user is owner : " + props.isOwner);
 
   if (props.showRoom)
@@ -27,6 +42,13 @@ const Leftchat: React.FC = (props: any) => {
             text={message.message}
             profileImageUrl={message.user.avatar}
             isOwnMessage={message.userId === props.userid ? true : false}
+            onMenuOptionClick = {handleMenuOptionClick}
+            users={props.chatUsers}
+            room={props.room}
+            messageId = {message.userId}
+
+
+
             />
         ))}
             </div>

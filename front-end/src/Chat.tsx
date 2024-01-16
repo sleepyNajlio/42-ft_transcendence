@@ -105,6 +105,8 @@ export function Chat() { // get values from data base
             // console.log(messages);
         });
         socket?.on('message', (message) => {
+            // console.log("message in frontttttttt : ");
+            // console.log(message.chat.users);
             if (message.chat.id_chat === selectedRoom?.id_chat) {
                 setMessages((prevMessages) => [...prevMessages, message]);
             }
@@ -171,7 +173,7 @@ export function Chat() { // get values from data base
             // console.log(messages);
         });
         socket?.on('message', (message) => {
-            console.log("id chat of the message is: ");
+            // console.log("id chat of the message is: ");
             // console.log(message);
             if ((message.user.username === username || message.user.username === name) && message.chat.name ===  null && message.chat.type === 'PRIVATE')
             {
@@ -322,12 +324,12 @@ export function Chat() { // get values from data base
         });
     }
 
-    useEffect(() => {
-        console.log("user" + user?.id + " is listening on update in front");
-        console.log("listening on update in front");
+    useEffect( () => {
+        // console.log("user" + user?.id + " is listening on update in front");
+        // console.log("listening on update in front");
         socket?.on('update', (response : any) => {
-            console.log("room in update : ");
-            console.log(response);
+            // console.log("room in update : ");
+            // console.log(response);
             // console.log(Rooms);
             setRooms((prevRooms: Room[] | null) => {
                 if (prevRooms === null) {
@@ -346,48 +348,56 @@ export function Chat() { // get values from data base
                     return room;
                 });
             });
-
-            socket?.on('Admin', (response) => {
-           console.log("user" + user?.id + " is listening on Admin in front");
-
-                console.log("response got in Admin: ");
-                console.log(response);
-                if (response.userId === user?.id)
-                {
-                    console.log("user " + user?.id + " listen to him being admin " + response.chatId);
-                    setRooms((prevRooms: Room[] | null) => {
-                        if (prevRooms === null) {
-                            return null;
-                        }
-                        return prevRooms.map((room) => {
-                            console.log("in room ", response);
-                            if (room.id_chat === response.chatId) {
-                                console.log("user " + user?.id + " listen to him being admin " + room.id_chat + " with room " + response.chatId);
-                                return {
-                                    ...room,
-                                    role: response.role
-                                };
-                            }
-                            return room;
-                        });
-                    });
-                }
-            
-            });
-            // setRooms(...room, {passwrd: room.});
-            // setRooms(room);
-            
         });
 
         return () => {
-        console.log("off listening on update in front");
-        console.log("off listening on Admin in front");
-
+        // console.log("off listening on update in front");
 
             socket?.off('update');
-            socket?.off('Admin');
         };
-    },);
+    });
+
+    useEffect(() => {
+
+        socket?.on('Admin', (response) => {
+            // console.log("user" + user?.id + " is listening on Admin in front");
+ 
+            //      console.log("response got in Admin: ");
+            //      console.log(response);
+            //      console.log("user id : " + user?.id);
+                    // console.log("response user id : " + response.userId);
+                 if (response.userId === user?.id)
+                 {
+                     console.log("user " + user?.id + " listen to him being admin " + response.chatId);
+                     setRooms((prevRooms: Room[] | null) => {
+                         if (prevRooms === null) {
+                             return null;
+                         }
+                         return prevRooms.map((room) => {
+                            //  console.log("in room ", response);
+                            //  console.log("room id chat : " + room.id_chat);
+                            //     console.log("response chat id : " + response.chatId);
+                             if (room.id_chat === response.chatId) {
+                                //  console.log("user " + user?.id + " listen to him being admin " + room.id_chat + " with room " + response.chatId);
+                                 return {
+                                     ...room,
+                                     role: response.role
+                                 };
+                             }
+                             return room;
+                         });
+                     });
+                 }
+             
+             });
+             // setRooms(...room, {passwrd: room.});
+             // setRooms(room);
+             
+             return () => {
+                //  console.log("off listening on Admin in front");
+                 socket?.off('Admin');
+                }
+    });
 
     const handleleave = () => {
         console.log("handle leave called in front");

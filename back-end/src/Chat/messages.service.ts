@@ -310,6 +310,7 @@ export class MessagesService {
               id_chat: true,
               name: true,
               type: true,
+              users: true,
             },
           },
         },
