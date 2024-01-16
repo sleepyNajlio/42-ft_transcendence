@@ -17,7 +17,7 @@ export class ProfileService {
       // console.log(decoded);
       const user = await this.prisma.player.findUnique({
         where: {
-          username: decoded.username,
+          email: decoded.email,
         },
       });
       return user;

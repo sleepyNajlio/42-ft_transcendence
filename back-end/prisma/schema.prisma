@@ -15,13 +15,13 @@ model Player {
   username  String  @unique
   avatar    String  @unique
   email     String  @unique
-  hash      String  @unique
   isAuthenticated Boolean ? @default(false)
   level     Int     @default(1)
   status    PlayerStatus @default(OFFLINE)
   wins      Int     @default(0)
   loses     Int     @default(0)
   twofa     Boolean ? @default(false)
+  twoFASecret String?
 
   chats    ChatUser[]
   games    UserGame[]
@@ -125,5 +125,5 @@ enum PlayerStatus {
 enum RelationStatus {
   PENDING
   ACCEPTED
-  DECLINED
+  REJECTED
 }

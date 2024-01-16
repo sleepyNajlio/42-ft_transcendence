@@ -1,20 +1,12 @@
-import {
-  Controller,
-  Get,
-  Redirect,
-  Render,
-  Req,
-  UseGuards,
-  Session,
-  Res,
-} from '@nestjs/common';
-import { Request, Response } from 'express';
-import { HttpService } from '@nestjs/axios';
-import { firstValueFrom, map } from 'rxjs';
-import { PrismaClient } from '@prisma/client';	
+import { Controller, Get } from '@nestjs/common';
+import { AppService } from './app.service';
 
 @Controller()
 export class AppController {
-  constructor(private readonly httpService: HttpService) {}
+  constructor(private readonly appService: AppService) {}
 
+  @Get()
+  getHello(): string {
+    return this.appService.getHello();
+  }
 }

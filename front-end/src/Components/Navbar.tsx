@@ -10,6 +10,19 @@ import exit from '../assets/exit.svg';
 import { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { UserContext } from '../UserProvider.tsx';
+import axios from 'axios';
+
+async function logout() {
+    axios.get('http://localhost:3001/auth/logout', { withCredentials: true })
+    .then((res) => {
+        console.log(res);
+        window.location.reload();
+    })
+    .catch((err) => {
+        console.log(err);
+    })
+
+    }
 
 
 
@@ -69,15 +82,17 @@ export default function Navbar() {
                 <img src={settings} alt="Settings Icon"/>
             </div>
         </div>
-        <div className="logout">
-            <div className="user">
-                <div className="cercle_profile" style={{ backgroundImage: `url(${user && user.avatar})` }}></div>
-                <span className="name">{user && user.username}</span>
+        <a href="http://localhost:3000/user/logout">
+            <div className="logout">
+                <div className="user">
+                    <div className="cercle_profile" style={{ backgroundImage: `url(${user && user.avatar})` }}></div>
+                    <span className="name">{user && user.username}</span>
+                </div>
+                <div>
+                    <img width="40" height="40" src={exit} alt="Search Icon"/>
+                </div>
             </div>
-            <div>
-                <img width="40" height="40" src={exit} alt="Search Icon"/>
-            </div>
-        </div>
+        </a>
     </section>
     </>
   )

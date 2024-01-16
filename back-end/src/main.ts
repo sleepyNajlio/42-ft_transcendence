@@ -1,22 +1,22 @@
 import { NestFactory } from '@nestjs/core';
-import { ExpressAdapter } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
+import { RequestMethod, ValidationPipe } from '@nestjs/common';
 import passport from 'passport';
 import cookieParser from 'cookie-parser';
-import { RequestMethod, ValidationPipe } from '@nestjs/common';
-import { NamespaceIoAdapter } from './nameSpace-IO.adapter';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, new ExpressAdapter());
+  const config = new ConfigService();
+  const app = await NestFactory.create(AppModule);
   app.enableCors({
-    origin: 'http://localhost:5173',
+    origin: config.get('FRONTEND_URL'),
     credentials: true,
     methods: [RequestMethod.ALL.toString()],
   });
-  app.useWebSocketAdapter(new NamespaceIoAdapter(app));
   app.use(cookieParser());
   app.use(passport.initialize());
   app.useGlobalPipes(new ValidationPipe());
   await app.listen(3000, '0.0.0.0');
 }
+
 bootstrap();
