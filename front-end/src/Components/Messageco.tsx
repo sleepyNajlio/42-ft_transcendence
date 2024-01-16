@@ -29,7 +29,7 @@ const MessageComponent: React.FC<MessageComponentProps> = ({
   console.log("useeers in messageco : " , users);
   console.log("room in messageco : " , room);
   console.log("id if the message : " , messageId);
-  const isUserOwner = users.some((user: { userId: number; role: string; }) => user.userId === messageId && user.role === 'OWNER');
+  const isUserOwner =  Array.isArray(users) &&  users.some((user: { userId: number; role: string; }) => user.userId === messageId && user.role === 'OWNER');
   // console.log("is user not owner : " , isUserNotOwner);
 
   const handleMute = () => {
