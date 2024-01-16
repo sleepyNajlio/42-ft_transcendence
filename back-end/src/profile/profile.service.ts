@@ -35,7 +35,7 @@ export class ProfileService {
       const user = await this.prisma.player.findMany({
         where: {
           NOT: {
-            username: decoded.username,
+            email: decoded.email,
           },
         },
       });

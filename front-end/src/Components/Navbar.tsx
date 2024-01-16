@@ -7,10 +7,12 @@ import ranking_icon from '../assets/chart_icon.svg';
 import play_icon from '../assets/playground_icon.svg';
 import settings from '../assets/settings_icon.svg';
 import exit from '../assets/exit.svg';
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { UserContext } from '../UserProvider.tsx';
 import axios from 'axios';
+import Notification from './Notif';
+import { inviteStatus } from './types.ts';
 
 async function logout() {
     axios.get('http://localhost:3001/auth/logout', { withCredentials: true })
@@ -26,11 +28,26 @@ async function logout() {
 
 
 
-export default function Navbar() {
+export default function Navbar(props: any) {
     const { user } = useContext(UserContext);
+    function popNotifs() {
+        console.log("hhhhh\n");
+        if(props.invite === inviteStatus.NONE){
+         setNotifs(!Notifs);
+        }
+         props.setInvite(inviteStatus.NONE);
 
+    }
+    const [Notifs, setNotifs] = useState<Boolean>(false);
   return (
     <>
+    {
+        (props.invite === inviteStatus.INVITED || Notifs) &&
+        (
+        <Notification inviters={props.inviters} inviteResp={props.inviteResp} inviteStatus={props.inviteStatus}  />
+        )
+
+    }
     <input type="checkbox" id="menu-toggle"/>
       <label htmlFor="menu-toggle" className="menu-icon">
         <div className="bar"></div>
@@ -75,6 +92,12 @@ export default function Navbar() {
             </div>
         </div>
         <div className="line">
+        </div>
+        <div className="btn_container">
+            <button onClick={popNotifs} className="btn">Notification</button>
+            <div className="icon">
+                <img src={settings} alt="Notification Icon"/>
+            </div>
         </div>
         <div className="btn_container">
             <Link to="/Settings"><button className="btn">Settings</button></Link>

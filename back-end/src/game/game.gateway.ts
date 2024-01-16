@@ -519,7 +519,10 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
           });
         } else {
           this.socketGateway.getClientSocket(player.user_id)?.map((socketa) => {
-            socketa.emit('rminvite', data.userId);
+            socketa.emit('rminvite', data.adv_id);
+          });
+          this.socketGateway.getClientSocket(data.adv_id)?.map((socketa) => {
+            socketa.emit('rminvite', player.user_id);
           });
         }
       });

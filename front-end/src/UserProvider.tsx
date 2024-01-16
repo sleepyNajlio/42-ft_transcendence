@@ -166,6 +166,6 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   );
 };
 
-function updateLeadboard() {
-  throw new Error('Function not implemented.');
-}
+// function updateLeadboard() {
+//   throw new Error('Function not implemented.');
+// }

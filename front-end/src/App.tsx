@@ -19,6 +19,12 @@ import {inviteStatus} from './Components/types.ts'
 import { TestChat } from './Testchat.tsx';
 import axios from 'axios';
 
+interface inviters
+{
+    user_id: string,
+     username: string,
+     gameId: number,
+}
 
 function App()
 {
@@ -118,7 +124,7 @@ function App()
                 if (response.length > 0) {
                     // use user_id and username from response to setInviters
                     setInviters(response);
-                    setInvite(inviteStatus.INVITED);
+                    setInvite(inviteStatus.NONE);
                     setisnotified(true);
                 }
                 else
@@ -166,21 +172,9 @@ function App()
                 <AuthGuard
                     component={
                     <>
-                        {location.pathname != "/" && location.pathname != "/Config" && location.pathname != "/TwoFA" && location.pathname != "/Verify2FA" && (<Navbar />)}
-                        <div className="invite sbox">
-                        {isnotified && invite === inviteStatus.INVITED && inviters.map((inviter) => ( (
-                            <div key={inviter.user_id} className="invite">
-                                <div className="sbox__title">
-                                    <h1 className="btitle">{inviter.username} {inviter.user_id}</h1>
-                                    <h3 className="stitle">invited you to play</h3>
-                                </div>
-                                <div className="sbox__btn">
-                                    <button className="trans bt" onClick={()=> {inviteResp(true, inviter); navigate('/Play')}}>Accept</button>
-                                    <button className="filled bt" onClick={()=> inviteResp(false, inviter)}>decline</button>
-                                </div>
-                            </div>
-                                )))}
-                        </div>
+                        {location.pathname != "/" && location.pathname != "/Config" && location.pathname != "/TwoFA" && location.pathname != "/Verify2FA" && 
+                        (<Navbar invite={invite} inviters={inviters} inviteResp={inviteResp} setInvite={setInvite}/>)
+                        }
                         <Routes>
                         <Route key='Config' path='/Config' caseSensitive={true} element={<Config />} />
                         <Route key='TwoFA' path='/TwoFA' caseSensitive={true} element={<TwoFA />} />
