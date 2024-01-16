@@ -1,0 +1,30 @@
+/* Add or modify in the styles.css file */
+.search-component {
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .search-bar {
+    margin: auto;
+    background-color: #F2F4F6;
+    display: flex;
+    align-items: center;
+    padding: 4px;
+    border-radius: 32px;
+    width: 95%;
+    margin: auto;
+  }
+  
+  input {
+    background-color: #F2F4F6;
+    padding: 8px;
+    border: none;
+    outline: none;
+    flex: 1;
+  }
+  
+  img {
+    margin-right: 10px;
+  }
+  

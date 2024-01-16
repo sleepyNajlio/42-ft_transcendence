@@ -1,0 +1,66 @@
+
+
+.message-container {
+  display: flex;
+  align-items: center;
+  max-height: 200px;
+  /* max-width: 100vw; */
+  margin-top: 10px;
+  color: #fff;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+  max-width: 100vw;
+  width: fit-content;
+  box-sizing: border-box;
+  flex-wrap: wrap;
+  }
+  
+  .sender-image {
+    margin-bottom: auto;
+    width: 27px;
+    height: 27px;
+    border-radius: 50%;
+    margin-right: 6px;
+  }
+  .message-text {
+    padding: 6px;
+    border-radius: 18px;
+    font-size: 16px;
+    margin-right: 5px;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    /* overflow: hidden; */
+    max-width: 750px; /* Adjust this value as needed */
+    display: -webkit-box;
+    flex-shrink: 1;
+    -webkit-box-orient: vertical;
+  }
+   
+.message-container.friend-message {
+
+  flex-direction: row; /* Reverse the direction for friend messages */
+}
+.message-container.own-message
+{
+  align-self: self-end;
+  flex-direction: row-reverse;
+}
+
+.message-container.own-message .message-text {
+  font-family: initial;
+  /* height: 22px; */
+  /* max-width: 100px; */
+  background-color: #0F597B;
+  /* overflow-wrap: break-word; Allows word wrapping for long text */
+  /* word-wrap: break-word; */
+}
+
+/* Styles for friend messages */
+.message-container.friend-message .message-text {
+  font-family: initial;
+  
+    /* height: auto; */
+    color: black;
+    background-color: #FFBCB6; /* Change color as needed */
+}
