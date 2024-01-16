@@ -13,7 +13,7 @@ import {
 import { AuthService } from './auth.service';
 import { Request, Response } from 'express';
 import { FTAuthGuard } from './guards/42.auth.guard';
-import { SignUpDTO, TwoFaDTO, Update2faDTO, UserDTO } from 'src/users/dto/SignUp.dto';
+import { SignUpDTO, Update2faDTO } from 'src/users/dto/SignUp.dto';
 import { ConfigService } from '@nestjs/config';
 import { TwofaService } from './twofa.service';
 
@@ -68,22 +68,24 @@ export class AuthController {
   }
 
   // @SetMetadata('isPublic', true)
-  @Get("twofa/generate")
-	async register(@Req() req: Request, @Res() res: Response) {
-		const otpauthUrl  = await this.twofaService.genrateTwoFaSecret(req.user['id_player'], req.user['email']);
-		return this.twofaService.pipeQrCodeStream(res, otpauthUrl);
-	}
+  @Get('twofa/generate')
+  async register(@Req() req: Request, @Res() res: Response) {
+    const otpauthUrl = await this.twofaService.genrateTwoFaSecret(
+      req.user['id_player'],
+      req.user['email'],
+    );
+    return this.twofaService.pipeQrCodeStream(res, otpauthUrl);
+  }
 
-  @Post("twofa/turn-on")
+  @Post('twofa/turn-on')
   async turnOnTwoFa(@Req() req: Request, @Body() twofa: Update2faDTO) {
-    const isCodeValid = await this.twofaService.verifyTwoFaToken(twofa.twoFaCode, req.user);
+    const isCodeValid = await this.twofaService.verifyTwoFaToken(
+      twofa.twoFaCode,
+      req.user,
+    );
     if (!isCodeValid) {
       throw new HttpException('Invalid code', HttpStatus.CREATED);
     }
     return { msg: 'TwoFa enabled' };
   }
-
-
-  
-  
 }

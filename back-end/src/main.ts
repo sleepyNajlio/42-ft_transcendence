@@ -16,7 +16,7 @@ async function bootstrap() {
   app.use(cookieParser());
   app.use(passport.initialize());
   app.useGlobalPipes(new ValidationPipe());
-  await app.listen(3000);
+  await app.listen(3000, '0.0.0.0');
 }
 
 bootstrap();

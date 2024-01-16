@@ -36,11 +36,9 @@ input {
     padding-right: 10px;
     padding-top: 10px;
     padding-bottom: 10px;
-    font-family: 'inter';
-    font-weight: bold;
+    font-family: 'Raleway-Regular';
     font-style: normal;
     font-size: 14px;
-    font-weight: 100;
     border: 1px solid grey;
     border-radius: 20px;
     background-color: #ffffff;
@@ -65,7 +63,7 @@ input {
   background-color: rgba(15, 89, 123, 1);
   border: none;
   text-align: center;
-  font-family: 'inter';
+  font-family: 'Raleway-Regular';
   font-style: normal;
   color: white;
   font-size: 20px;

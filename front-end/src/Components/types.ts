@@ -1,4 +1,4 @@
-import { Rect, Circle } from '@svgdotjs/svg.js';
+import { Rect, Circle, Image, G } from '@svgdotjs/svg.js';
 export type user_stats = {
   winsRat: number;
   wins: number;
@@ -11,6 +11,12 @@ export type achievement = {
   description: string;
   progress: number;
   max: number;
+};
+
+export type History = {
+  score1: number;
+  user2: string;
+  score2: number;
 };
 
 export type user = {
@@ -30,7 +36,7 @@ export type cercle = {
 }
 export interface User {
   id_player: string;
-  email: string;
+  email?: string;
   username: string;
   avatar: string;
   isAuthenticated: boolean;
@@ -40,12 +46,19 @@ export interface User {
 export interface Player {
   s_id: string;
   user_id: string,
-  host: boolean;
+  host: boolean,
+  width: string,
+  username: string,
+  ratio: number,
+  vxratio: number,
   x: number;
   y: number;
+  padl: number;
   paddleDirection: number;
+  score: number;
   paddle? : Rect;
   paddleSpeed : number;
+  state: string;
 }
 
 // define a type of all players
@@ -57,8 +70,15 @@ export interface Players {
 export interface Ball {
   cx: number;
   cy: number;
-  cercle : Circle;
+  cercle : G;
   vx: number;
   vy: number;
 }
 
+export enum inviteStatus {
+  NONE,
+  INVITED,
+  ACCEPTED,
+  DECLINED,
+  ABORTED,
+}

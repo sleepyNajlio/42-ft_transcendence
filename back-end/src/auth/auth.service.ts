@@ -1,10 +1,4 @@
-import {
-  Injectable,
-  UnauthorizedException,
-  ForbiddenException,
-  HttpException,
-  HttpStatus,
-} from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { SignUpDTO } from 'src/users/dto/SignUp.dto';
@@ -19,6 +13,8 @@ export class AuthService {
   ) {}
 
   async validateUser(profile: SignUpDTO): Promise<any> {
+    // console.log('validateUser service');
+    // console.log(profile);
     let user = await this.UsersService.findByEmail(profile.email);
     if (!user) {
       await this.UsersService.signUp({

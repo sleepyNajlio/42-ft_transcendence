@@ -1,15 +1,9 @@
-import {
-  Injectable,
-  HttpException,
-  HttpStatus,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { default as Strategy } from 'passport-42';
 import { ConfigService } from '@nestjs/config';
 import { Profile } from 'passport';
 import { AuthService } from './auth.service';
-import { UsersService } from 'src/users/users.service';
 
 interface profile extends Profile {
   id: string;

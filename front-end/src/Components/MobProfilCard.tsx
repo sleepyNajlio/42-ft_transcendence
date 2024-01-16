@@ -14,7 +14,7 @@ function PofilCard(props: {user: user}){
     y: 40,
     r:  40,
   } as cercle;
-  let Mstats_names = ["TM", "W", "Ac"];
+  let Mstats_names = ["T M", "W", "Ac"];
 
   return (
     <>

@@ -7,11 +7,11 @@ interface MessageComponentProps {
     isOwnMessage: boolean;
   }
   
-  const MessageComponent: React.FC<MessageComponentProps> = ({ text, profileImageUrl, isOwnMessage }) => {
+  const MessageComponent: React.FC<MessageComponentProps> = ({text, profileImageUrl, isOwnMessage }) => {
     return (
-      <div className={`message-container ${isOwnMessage ? 'own-message' : 'friend-message'}`}>
-        {/* <img className="sender-image" src={profileImageUrl} alt="Profile" /> */}
-        <div className="message-text">{text}</div>
+      <div  className={`message-container ${isOwnMessage ? 'own-message' : 'friend-message'}`}>
+        <img className="sender-image" src={profileImageUrl} alt="Profile" style={{ width: '33px', height:'33px' }} />
+        <div className="message-text">{text} </div>
       </div>
     );
   };

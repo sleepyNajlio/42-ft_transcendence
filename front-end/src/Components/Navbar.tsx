@@ -46,7 +46,7 @@ export default function Navbar() {
             </div>
         </div>
         <div className="btn_container">
-            <Link to="/play"><button className="btn">Play</button></Link>
+            <Link to="/Play"><button className="btn">Play</button></Link>
 
             
             <div className="icon">
@@ -54,21 +54,21 @@ export default function Navbar() {
             </div>
         </div>
         <div className="btn_container">
-            <Link to="/profile"><button className="btn">Profile</button></Link>
+            <Link to="/Profile"><button className="btn">Profile</button></Link>
 
             <div className="icon">
                 <img src={profile_icon} alt="Profile Icon"/>
             </div>
         </div>
         <div className="btn_container">
-            <Link to="/chat"><button className="btn">Messages</button></Link>
+            <Link to="/Chat"><button className="btn">Messages</button></Link>
 
             <div className="icon">
                 <img src={msg_icon} alt="Messages Icon"/>
             </div>
         </div>
         <div className="btn_container">
-            <Link to="/leaderboard"><button className="btn">Ranking</button></Link>
+            <Link to="/Leaderboard"><button className="btn">Ranking</button></Link>
 
             <div className="icon">
                 <img src={ranking_icon} alt="Search Icon"/>
@@ -77,22 +77,22 @@ export default function Navbar() {
         <div className="line">
         </div>
         <div className="btn_container">
-            <Link to="/settings"><button className="btn">Settings</button></Link>
+            <Link to="/Settings"><button className="btn">Settings</button></Link>
             <div className="icon">
                 <img src={settings} alt="Settings Icon"/>
             </div>
         </div>
-        <a href="http://localhost:3000/user/logout">
             <div className="logout">
                 <div className="user">
                     <div className="cercle_profile" style={{ backgroundImage: `url(${user && user.avatar})` }}></div>
                     <span className="name">{user && user.username}</span>
                 </div>
+                <a href="http://localhost:3000/user/logout">
                 <div>
                     <img width="40" height="40" src={exit} alt="Search Icon"/>
                 </div>
+                </a>
             </div>
-        </a>
     </section>
     </>
   )

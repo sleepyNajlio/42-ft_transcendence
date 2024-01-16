@@ -3,13 +3,11 @@ import MobProfilCard from './Components/MobProfilCard.tsx';
 import './styles/css/main.css';
 import { useMediaPredicate } from 'react-media-hook';
 import { user } from './Components/types.ts';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { UserContext } from './UserProvider.tsx';
 
 export function Profile(props: {  }) {
-  const { user } = useContext(UserContext);
-  // console.log("user: ");
-  // console.log(user);
+  const { user, history } = useContext(UserContext);
 
   const [tempuser, setTempuser] = useState({
     id: "1",
@@ -17,10 +15,10 @@ export function Profile(props: {  }) {
     avatar: "./",
     rank: 1,
     user_stats: {
-      total_matches: 341,
-      wins: 203,
-      winsRat: 64,
-      achievement: 3,
+      total_matches: 1,
+      wins: 1,
+      winsRat: 1,
+      achievement: 1,
     },
     achievement: [
         {name: "First win", description: "Win your first game", progress: 1, max: 1},
@@ -35,10 +33,14 @@ export function Profile(props: {  }) {
     if (user) {
       setTempuser(prevTempuser => ({
         ...prevTempuser,
-        id: user.id_player,
+        id: user.id,
         username: user.username,
         avatar: user.avatar,
+        user_stats: user.user_stats,
+        rank: user.rank,
       }));
+      console.log("hstoire: ");
+      console.log(history);
     }
     // console.log("user: ");
     // console.log(user);
@@ -68,19 +70,33 @@ export function Profile(props: {  }) {
         <div className="right-div">
               <h1 className="rank__title">History</h1>
               <div className="history">
-                <div className="rankbar">
+                    {/* 
                     <div className="rank__user">
                         <div className="rank__cercle"></div>
-                    </div>
+                        </div>
                     <div className="score">
                         <span className="rankval">1</span>
                         <span className="rankname">-</span>
                         <span className="rankval">1</span>
-                    </div>
-                    <div className="rank__user">
+                        </div>
+                        <div className="rank__user">
                         <div className="rank__cercle"></div>
-                    </div>
-                </div>
+                      </div> */}
+                    {history && history.map((item, index) => (
+                      <div className="rankbar" key={index}>
+                        <div className="rank__user" >
+                          <div className="rank__cercle" style={{backgroundImage: `url(${user?.avatar})`}}></div>
+                        </div>
+                          <div className="score">
+                            <span className="rankval">{item.score1}</span>
+                            <span className="rankname">-</span>
+                            <span className="rankval">{item.score2}</span>
+                          </div>
+                        <div className="rank__user" key={index}>
+                          <div className="rank__cercle" style={{backgroundImage: `url(${item.user2})`}}></div>
+                        </div>
+                      </div>
+                      ))}
             </div>
         </div>
       </div>

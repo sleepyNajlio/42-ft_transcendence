@@ -8,13 +8,21 @@ import { AuthModule } from './auth/auth.module';
 import { MulterModule } from '@nestjs/platform-express';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { MessagesModule } from './Chat/messages.module';
+import { SocketModule } from './socket/socket.module';
+import { GameModule } from './game/game.module';
+import { ProfileModule } from './profile/profileModule';
 
 @Module({
   imports: [
     UsersModule,
     PrismaModule,
+    ProfileModule,
     ConfigModule.forRoot({ isGlobal: true }),
     AuthModule,
+    MessagesModule,
+    SocketModule,
+    GameModule,
     MulterModule.register({
       dest: './avatars',
     }),

@@ -5,15 +5,12 @@ import {
   HttpException,
   HttpStatus,
   SetMetadata,
-  Param,
   Res,
   Post,
-  UseGuards,
   UseInterceptors,
-  UploadedFile
+  UploadedFile,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { SignUpDTO } from './dto/SignUp.dto';
 import { Request, Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -21,36 +18,42 @@ import { diskStorage } from 'multer';
 import { editFilename } from './AvatarTools';
 import { imageFileFilter } from './AvatarTools';
 
-
-
 @Controller('user')
 export class UsersController {
-  constructor(private readonly UsersService: UsersService,
-    private Config: ConfigService) {}
+  constructor(
+    private readonly UsersService: UsersService,
+    private Config: ConfigService,
+  ) {}
 
   @SetMetadata('isPublic', true)
   @Post('avatar')
-  @UseInterceptors(FileInterceptor('file', {
-    storage: diskStorage({
-      destination: './avatars',
-      filename: editFilename
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: './avatars',
+        filename: editFilename,
+      }),
+      fileFilter: imageFileFilter,
+      limits: { fileSize: 1024 * 1024 * 5 },
     }),
-    fileFilter: imageFileFilter,
-    limits: { fileSize: 1024 * 1024 * 5 }
-  }))
-  async addAvatar(@Req() request: Request, @UploadedFile() file: Express.Multer.File) {
+  )
+  async addAvatar(
+    @Req() request: Request,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
     let user: any;
     if (request.cookies['JWT_TOKEN'])
-      user = await this.UsersService.GetUserByToken(request.cookies['JWT_TOKEN']);
-    else
-      user = await this.UsersService.GetUserByToken(request.cookies['USER']);
-    const uploaded = this.UsersService.UploadAvatar(user.id_player,file);
+      user = await this.UsersService.GetUserByToken(
+        request.cookies['JWT_TOKEN'],
+      );
+    else user = await this.UsersService.GetUserByToken(request.cookies['USER']);
+    await this.UsersService.UploadAvatar(user.id_player, file);
     // if upload is successful
     if (file) {
-      console.log({file});
+      console.log({ file });
       return `${this.Config.get('BACKEND_URL')}` + file.path;
     }
-    return "madazsh";
+    return 'madazsh';
   }
 
   @SetMetadata('isPublic', true)
@@ -62,15 +65,10 @@ export class UsersController {
         req.cookies['JWT_TOKEN'],
       );
       return user;
-    }
-    else if (req.cookies['USER']) {
-      const user = await this.UsersService.GetUserByToken(
-        req.cookies['USER'],
-      );
+    } else if (req.cookies['USER']) {
+      const user = await this.UsersService.GetUserByToken(req.cookies['USER']);
       return user;
-    }
-    else
-      throw new HttpException('No Cookies', HttpStatus.UNAUTHORIZED);
+    } else throw new HttpException('No Cookies', HttpStatus.UNAUTHORIZED);
   }
 
   // @Get('/:id')
@@ -80,21 +78,17 @@ export class UsersController {
   //   return user;
   // }
 
-  @Get("/logout")
+  @Get('/logout')
   async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
-    console.log("logging out");
-    if (req.cookies['JWT_TOKEN']){
+    console.log('logging out');
+    if (req.cookies['JWT_TOKEN']) {
       res.cookie('JWT_TOKEN', '', { expires: new Date() });
       res.redirect(`${this.Config.get('FRONTEND_URL')}/`);
       // return "Logge/d out";
-    }
-    else if (req.cookies['USER']) {
+    } else if (req.cookies['USER']) {
       res.cookie('USER', '', { expires: new Date() });
       res.redirect(`${this.Config.get('FRONTEND_URL')}/`);
       // return "Logged out";
-    }
-    else
-      throw new HttpException('No Cookies', HttpStatus.UNAUTHORIZED);
-
+    } else throw new HttpException('No Cookies', HttpStatus.UNAUTHORIZED);
   }
 }
