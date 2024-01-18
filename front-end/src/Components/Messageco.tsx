@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useState } from 'react';
 import threedots from '../assets/three-dots.png';
 
@@ -10,7 +10,8 @@ interface MessageComponentProps {
   isOwnMessage: boolean;
   users : any;
   room : any;
-  messageId : number;
+  message_userId : number;
+  message_id : number;
   onMenuOptionClick: (option: string) => void;
 }
 
@@ -21,28 +22,38 @@ const MessageComponent: React.FC<MessageComponentProps> = ({
   onMenuOptionClick,
   users,
   room,
-  messageId,
+  message_userId,
+  message_id,
 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
+  // const [lastClickedmessage_Id, setLastClickedmessage_Id] = useState<number | null>(null);
 
-  console.log("useeers in messageco : " , users);
-  console.log("room in messageco : " , room);
-  console.log("id if the message : " , messageId);
-  const isUserOwner =  Array.isArray(users) &&  users.some((user: { userId: number; role: string; }) => user.userId === messageId && user.role === 'OWNER');
+  // console.log("useeers in messageco : " , users);
+  // console.log("room in messageco : " , room);
+  const isUserOwner =  Array.isArray(users) &&  users.some((user: { userId: number; role: string; }) => user.userId === message_userId && user.role === 'OWNER');
+  // const isUserAdmin =  Array.isArray(users) &&  users.some((user: { userId: number; role: string; }) => user.userId === message_userId && user.role === 'ADMIN');
   // console.log("is user not owner : " , isUserNotOwner);
+  // console.log("id of the message : " , message_id);
 
-  const handleMute = () => {
-    setIsMuted(true);
-    // setIsMenuOpen(false);
-  };
 
   const handleMenuToggle = () => {
+    // if (lastClickedmessage_Id !== message_id)
+    // {
+    //   setLastClickedmessage_Id(message_id);
+    //   setIsMenuOpen(true);
+    // }
+    // else
+    // {
+    //   if (lastClickedmessage_Id === message_id)
+    //     setIsMenuOpen(!isMenuOpen);
+    // }
+    // console.log("is menu opennn : " , isMenuOpen);
+    // console.log('last clicked message id innnnnn: ' , lastClickedmessage_Id);
     setIsMenuOpen(!isMenuOpen);
   };
 
-  const handleMenuOptionClick = (option: string) => {
-    onMenuOptionClick(option);
+  const handleMenuOptionClick = (option: string, name : string, userId : number) => {
+    onMenuOptionClick(option, name, userId);
     setIsMenuOpen(false);
   };
 
@@ -62,56 +73,38 @@ const MessageComponent: React.FC<MessageComponentProps> = ({
       <img title="options" src={threedots} width='20' height='20' alt="leave" />
       {isMenuOpen && (
         <div className="message-menu">
-          <div className="menu-option" onClick={() => handleMenuOptionClick('kick')}>
+          <div className="menu-option" onClick={() => handleMenuOptionClick('kick', room.name, message_userId)}>
             Kick
           </div>
-          <div className="menu-option" onClick={() => handleMenuOptionClick('ban')}>
+          <div className="menu-option" onClick={() => handleMenuOptionClick('ban', room.name, message_userId)}>
             Ban
           </div>
-          <div className="menu-submenu" onClick={handleMute}>
+          <div className="menu-option" onClick={() => handleMenuOptionClick('mute', room.name, message_userId)}>
             Mute
-            {isMuted && (
-              <>
-                <div className="submenu-option" onClick={() => handleMenuOptionClick('mute_1min')}>
-                  1 minute
-                </div>
-                <div className="submenu-option" onClick={() => handleMenuOptionClick('mute_5min')}>
-                  5 minutes
-                </div>
-              </>
-            )}
+            <span style={{ fontSize: '12px' }}> (5min) </span>
           </div>
         </div>
       )}
       
     </div>
   )}
-  {!isOwnMessage && room && room.chatUser && room.chatUser.role === 'ADMIN' && !isUserOwner &&  (
+  {!isOwnMessage && room && room.chatUser && room.chatUser.role === 'ADMIN' && !isUserOwner &&(
     <div className='menu-click' onClick={handleMenuToggle}>
-      <img title="options" src={threedots} width='20' height='20' alt="leave" />
-      {isMenuOpen && (
-        <div className="message-menu">
-          <div className="menu-option" onClick={() => handleMenuOptionClick('kick')}>
-            Kick
-          </div>
-          <div className="menu-option" onClick={() => handleMenuOptionClick('ban')}>
-            Ban
-          </div>
-          <div className="menu-submenu" onClick={handleMute}>
-            Mute
-            {isMuted && (
-              <>
-                <div className="submenu-option" onClick={() => handleMenuOptionClick('mute_1min')}>
-                  1 minute
-                </div>
-                <div className="submenu-option" onClick={() => handleMenuOptionClick('mute_5min')}>
-                  5 minutes
-                </div>
-              </>
-            )}
-          </div>
+    <img title="options" src={threedots} width='20' height='20' alt="leave" />
+    {isMenuOpen && (
+      <div className="message-menu">
+        <div className="menu-option" onClick={() => handleMenuOptionClick('kick', room.name, message_userId)}>
+          Kick
         </div>
-      )}
+        <div className="menu-option" onClick={() => handleMenuOptionClick('ban', room.name, message_userId)}>
+          Ban
+        </div>
+        <div className="menu-option" onClick={() => handleMenuOptionClick('mute', room.name, message_userId)}>
+          <>Mute</> <br/>
+          <span style={{ fontSize: '12px' }}>(5min)</span>
+        </div>
+      </div>
+    )}
       
     </div>
   )}

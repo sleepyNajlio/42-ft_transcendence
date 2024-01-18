@@ -9,18 +9,20 @@ import ftlogo from '/ftlogo.png';
 
 const Leftchat: React.FC = (props: any) => {
 
-  console.log("Messages isssss : ", props.messages);
+  // console.log("Messages isssss : ", props.messages);
 
-  const handleMenuOptionClick = (option: string) => {
+  const handleMenuOptionClick = (option: string, name : string, userId : number) => {
     // Perform actions based on the selected option
     if (option === 'kick') {
-      // Handle kick action
+      console.log("user want to kick in " + name + "user with id : " + userId);
+      props.handleKick(name, userId);
     } else if (option === 'ban') {
-      // Handle ban action
-    } else if (option === 'mute_1min') {
-      // Handle mute for 1 minute
-    } else if (option === 'mute_5min') {
-      // Handle mute for 5 minutes
+      console.log("user want to ban in " + name + "user with id : " + userId);
+      props.handleBan(name, userId);
+
+    } else if (option === 'mute') {
+      console.log("user want to mute in " + name + "user with id : " + userId);
+      props.handleMute(name, userId);
     }
   };
 
@@ -45,7 +47,8 @@ const Leftchat: React.FC = (props: any) => {
             onMenuOptionClick = {handleMenuOptionClick}
             users={props.chatUsers}
             room={props.room}
-            messageId = {message.userId}
+            message_userId = {message.userId}
+            message_id = {message.id3_chat_message}
 
 
 

@@ -1,10 +1,10 @@
 
 
 .message-container {
+  position: relative;
   display: flex;
   align-items: center;
   max-height: 200px;
-  /* max-width: 100vw; */
   margin-top: 10px;
   color: #fff;
   padding: 10px;
@@ -14,25 +14,59 @@
   width: fit-content;
   box-sizing: border-box;
   flex-wrap: wrap;
-  }
+}
 
-  .message-menu{
-    background-color: black;
-  }
+.message-menu {
+  position: absolute;
+  top: calc(-100% - 20px);
+  left: 23px;
+  background-color: black;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  border: 0px solid #555;
+  border-radius: 12px;
+  padding: 9px;
+  padding-top: 9px;
+  padding-bottom: 9px;
+  padding-left: 9px;
+  padding-left: 14px;
+  padding-bottom: 0px;
+  padding-top: 0px;
+  padding-right: 10px;
+  background-color: rgb(255, 255, 255);
+  border: 0.5px solid #000001;
+}
 
-  .menu-click
-  {
-    display: inherit;
-    width: auto;
-  }
-  .menu-option{
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    margin-left: auto;
-    margin-right: 10px;
-    cursor: pointer;
-  }
+.menu-option{
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  color: black;/* Add a smooth transition effect */
+}
+
+.menu-option:hover{
+  background-color: #bab9b9; /* Change background color on hover */
+}
+.option-5min{
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  color: black;/* Add a smooth transition effect */
+}
+
+
+.menu-click {
+  display: inherit;
+  width: auto;
+  position: relative;
+  cursor: pointer;
+}
+
 
   
   .sender-image {

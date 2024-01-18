@@ -65,7 +65,7 @@ const SettingsComponent = (props: any) => {
     // Reset state or take necessary actions
   };
 
-  console.log("room type in settings : " + props.Roomtype);
+  // console.log("room type in settings : " + props.Roomtype);
 
   return (
     <div className="settings-navbar">
@@ -163,7 +163,8 @@ const ChatHeaderComponent: React.FC = (props : any) => {
       // navigate(`/Profile/${props.friendName}`);
   }
     
-  
+  // console.log("users in seting : " , props.chatUsers);
+
   if (props.showRoom && !props.isOwner && !props.isAdmin)
   {
     return (
@@ -217,7 +218,7 @@ const ChatHeaderComponent: React.FC = (props : any) => {
             <img title="Leave" src={leave} width='20' height='20' alt="leave" />
           </div>
       
-          {setAdmin && Array.isArray(props.chatUsers) && (
+            {setAdmin && Array.isArray(props.chatUsers) && !props.chatUsers.some((user: any) => user.role === 'ADMIN') && (
             <div className="profil">
               {props.chatUsers.map((user: any) => (
                 user && user.role === 'MEMBER' && (

@@ -8,7 +8,6 @@ type ChatWhereInput = Prisma.ChatWhereInput;
 
 @Injectable()
 export class MessagesService {
-  public clients = {};
 
   constructor(private prisma: PrismaService) {}
 
@@ -109,6 +108,42 @@ export class MessagesService {
     return chatUsers;
   }
 
+  async kick(id: number, name: string) {
+    const chat = await this.prisma.chat.findFirst({
+      where: {
+        name: name,
+      },
+    });
+    const chatUser = await this.prisma.chatUser.findFirst({
+      where: {
+        userId: id,
+        chatId: chat.id_chat,
+      },
+    });
+    if (!chatUser) {
+      console.log('user is not in the chat');
+      return false;
+    }
+    const chatUserDeleted = await this.prisma.chatUser.delete({
+      where: {
+        id_chat_user: chatUser.id_chat_user,
+      },
+      include: {
+        user: {
+          select: {
+            username: true,
+          },
+        },
+        chat: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
+    return chatUserDeleted;
+  }
+
   async setAdmin(id: number, username: string, name: string) {
     const chat = await this.prisma.chat.findFirst({
       where: {
@@ -126,6 +161,10 @@ export class MessagesService {
         chatId: chat.id_chat,
       },
     });
+    if (!chatUser) {
+        console.log('user is not in the chat');
+        return false;
+    }
     const newChatUser = await this.prisma.chatUser.update({
       where: {
         id_chat_user: chatUser.id_chat_user,

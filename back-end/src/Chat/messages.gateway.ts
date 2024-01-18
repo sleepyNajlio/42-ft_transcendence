@@ -206,6 +206,25 @@ export class MessagesGateway
     return room;
   }
 
+  @SubscribeMessage('kick')
+  async kick(
+    @MessageBody('id') id: number,
+    @MessageBody('name') name: string,
+    @ConnectedSocket() client: Socket,
+  ) {
+
+    const socketId = getSocketByUserId(id);
+
+    const room = await this.messagesService.kick(id, name);
+    if (room)
+    {
+      this.socketGateway.getServer().emit('onkick', room);
+      return room;
+    }
+    else
+      return false;
+  }
+
   @SubscribeMessage('leave')
   async leave(
     @MessageBody('id') id: number,
@@ -215,6 +234,7 @@ export class MessagesGateway
     const room = await this.messagesService.leave(id, name);
     client.leave('chat_' + room.chatId);
     console.log('user: ' + id + ' left the chat');
+    this.socketGateway.getServer().emit('onleave', room);
     return room;
   }
 
