@@ -39,6 +39,7 @@ export class MessagesGateway
 
   async handleConnection(client: any, ...args: any[]) {
     console.log(`Message gateway client connected: ${client.id}`);
+    this.messagesService.clients[client.id] = client;
   }
 
   @SubscribeMessage('Friends')
@@ -212,17 +213,27 @@ export class MessagesGateway
     @MessageBody('name') name: string,
     @ConnectedSocket() client: Socket,
   ) {
+    console.log('kick called ');
+    this.socketGateway.getClientSocket(id.toString())?.map((socketa) => {
+      // console.log('socketat');
+      // console.log(socketa.id);
+      // if (socketa.id !== client.id) {
+        console.log('socketat');
+        console.log(socketa.id);
+        // socketa.leave('chat_' + id);
+      // }
+    });
 
-    const socketId = getSocketByUserId(id);
+
+    // Log all client IDs
 
     const room = await this.messagesService.kick(id, name);
-    if (room)
-    {
+    if (room) {
       this.socketGateway.getServer().emit('onkick', room);
       return room;
-    }
-    else
+    } else {
       return false;
+    }
   }
 
   @SubscribeMessage('leave')

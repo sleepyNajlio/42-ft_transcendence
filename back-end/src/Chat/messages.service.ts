@@ -8,6 +8,7 @@ type ChatWhereInput = Prisma.ChatWhereInput;
 
 @Injectable()
 export class MessagesService {
+  public clients = [];
 
   constructor(private prisma: PrismaService) {}
 
@@ -178,12 +179,12 @@ export class MessagesService {
     return newChatUser;
   }
 
-  async getSocketByUserId(userId: number) {
-    const socketId = this.clients[userId];
+  async getSocketByUserId(id: number) {
+    const socketId = this.clients[id];
     // console.log('socket id is: ');
     // console.log(socketId);
     if (socketId) {
-      return this.clients[userId];
+      return this.clients[id];
     }
     return null;
   }
@@ -600,6 +601,18 @@ export class MessagesService {
     const chatUserDeleted = await this.prisma.chatUser.delete({
       where: {
         id_chat_user: chatUser.id_chat_user,
+      },
+      include: {
+        user: {
+          select: {
+            username: true,
+          },
+        },
+        chat: {
+          select: {
+            name: true,
+          },
+        },
       },
     });
     return chatUserDeleted;

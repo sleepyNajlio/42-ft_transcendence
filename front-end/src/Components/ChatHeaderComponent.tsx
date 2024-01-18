@@ -222,7 +222,7 @@ const ChatHeaderComponent: React.FC = (props : any) => {
             <div className="profil">
               {props.chatUsers.map((user: any) => (
                 user && user.role === 'MEMBER' && (
-                  <button key={user.userId} className="user-button" onClick={() => handleAdmin(user.user.username)}>
+                  <button key={user.userId} className="admin-button" onClick={() => handleAdmin(user.user.username)}>
                     <img src={user.user.avatar} alt={user.user.username} />
                     {user.user.username}
                   </button>

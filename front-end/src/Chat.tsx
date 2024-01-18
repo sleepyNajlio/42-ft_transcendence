@@ -65,6 +65,8 @@ export function Chat() { // get values from data base
     const [chatUsers, setChatUsers] = useState<userChat | null>(null);
     const [isAdmin, setIsAdmin] = useState(false);
     const [toRefresh, setToRefresh] = useState(false);
+    const [showNotif, setShownotif] = useState(false);
+    const [lastNotification, setLastNotification] = useState("");
 
     const { addToast } = useToasts();
 
@@ -463,7 +465,19 @@ export function Chat() { // get values from data base
                     return null;
                 });
             });
-            
+
+            if (selectedRoom?.name === response.chat.name) {
+                console.log("User " + user?.id + "entered to change chatUserss in leave");
+
+                setChatUsers((prevChatUsers: any | null) => {
+                    if (prevChatUsers === null) {
+                        return null;
+                    }
+                    const updatedChatUsers = { ...prevChatUsers };
+                    delete updatedChatUsers[response.userId];
+                    return updatedChatUsers;
+                });
+            }
             // getChatUsers(selectedRoom?.name ?? null);
             // if (selectedRoom && selectedRoom.id_chat === response.id)
             // {
@@ -516,12 +530,23 @@ export function Chat() { // get values from data base
     }
 
     useEffect(() => {
-        let lastNotification = '';
+        console.log("use effect called in show notifff");
+        if (showNotif)
+        addToast(`You were kicked from the room ${lastNotification}`, {
+            appearance: 'error',
+            autoDismiss: true,
+            autoDismissTimeout: 10000,
+          });
+        
+          setShownotif(false);
+    }, [showNotif]);
+
+    useEffect(() => {
       
         socket?.on('onkick', (response) => {
-          console.log("user" + user?.id + " is listening on kick in front");
-          console.log("response got in kick: ");
-          console.log(response);
+        //   console.log("user" + user?.id + " is listening on kick in front");
+        //   console.log("response got in kick: ");
+        //   console.log(response);
       
           setRooms((prevRooms: Room[] | null) => {
             if (prevRooms === null) {
@@ -535,35 +560,33 @@ export function Chat() { // get values from data base
               return null;
             });
           });
+          if (user?.id === response.userId && lastNotification !== response.chat.name && !showNotif) {
+            //   console.log("user " + user?.id + "sees him kicked from the room " + response.chat.name);
+            //   console.log("selected room that the user is in ", selectedRoom);
+              if (selectedRoom && selectedRoom.name === response.chat.name) {
+                // console.log("selectedRoom.name " + selectedRoom.name + " ==== " + response.chat.name);
+                setSelectedRoom(null);
+        
+                if (DisplayDms) setDisplayDms(!DisplayDms);
+                if (DisplayRoom) setDisplayRoom(!DisplayRoom);
+                if (ShowDm) setShowDm(!ShowDm);
+                if (showRoom) setShowRoom(!showRoom);
+                setwelcomeMsg(true);
+                setShownotif(true);
+                setLastNotification(response.chat.name);
+              }
+            //   else
+            //   {
+            //     console.log("user " + user?.id + " sees him kicked from the room but he is not in it " + response.chat.name);
+            //   }
       
-          if (user?.id === response.userId && lastNotification !== response.chat.name) {
-            console.log("user " + user?.id + "sees him kicked from the room " + response.chat.name);
-            console.log("selected room that the user is in ", selectedRoom);
-      
-            addToast(`You were kicked from the room ${response.chat.name}`, {
-              appearance: 'error',
-              autoDismiss: false,
-              autoDismissTimeout: 0,
-            });
-      
-            lastNotification = response.chat.name;
-      
-            if (selectedRoom && selectedRoom.name === response.chat.name) {
-              console.log("selectedRoom.name " + selectedRoom.name + " ==== " + response.chat.name);
-              setSelectedRoom(null);
-      
-              if (DisplayDms) setDisplayDms(!DisplayDms);
-              if (DisplayRoom) setDisplayRoom(!DisplayRoom);
-              if (ShowDm) setShowDm(!ShowDm);
-              if (showRoom) setShowRoom(!showRoom);
-              setwelcomeMsg(true);
-            }
           }
         });
       
         return () => {
           // console.log("off listening on kick in front");
           socket?.off('kick');
+
         };
       },);
       
