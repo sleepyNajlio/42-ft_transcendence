@@ -130,8 +130,8 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         const gamed = this.gameService.finishGame(
           Number(userId),
           Number(opponentId),
-          0,
-          0,
+          3,
+          0,  
           gameStatus.ABORTED,
         );
         // remove the game from this.games

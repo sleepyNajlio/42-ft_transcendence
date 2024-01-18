@@ -9,6 +9,7 @@ import {
   Body,
   HttpException,
   HttpStatus,
+  Param,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Request, Response } from 'express';
@@ -67,16 +68,17 @@ export class AuthController {
     return { msg: 'User created' };
   }
 
-  // @SetMetadata('isPublic', true)
-  @Get('twofa/generate')
-  async register(@Req() req: Request, @Res() res: Response) {
+  @SetMetadata('isPublic', true)
+  @Get('twofa/generate/:id/:email')
+  async register(@Req() req: Request, @Res() res: Response, @Param() { id, email }: { id: string, email: string }) {
     const otpauthUrl = await this.twofaService.genrateTwoFaSecret(
-      req.user['id_player'],
-      req.user['email'],
+      Number(id),
+      email,
     );
     return this.twofaService.pipeQrCodeStream(res, otpauthUrl);
   }
 
+  @SetMetadata('isPublic', true)
   @Post('twofa/turn-on')
   async turnOnTwoFa(@Req() req: Request, @Body() twofa: Update2faDTO) {
     const isCodeValid = await this.twofaService.verifyTwoFaToken(
