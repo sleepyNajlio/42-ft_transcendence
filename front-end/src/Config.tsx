@@ -6,20 +6,9 @@ import { User } from './Components/types';
 import { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from './UserProvider';
+import { TwoFA } from './TwoFA';
 
 async function finishSignup(email: string, username: string, avatar: string): Promise<any> {
-  // if (avatar) {
-  //   const formData = new FormData();
-  //   formData.append("avatar", avatar);
-  //   const response = await fetch("http://localhost3000/auth/uploadAvatar", {
-  //     credentials: "include",
-  //     method: "POST",
-  //     body: formData,
-  //   });
-  //   if (!response.ok) {
-  //     alert("File upload failed.");
-  //   }
-  //}
   try {
     const response = await fetch("http://localhost:3000/auth/finish_signup", {
       credentials: "include",
@@ -71,8 +60,8 @@ async function getPreAuthData() {
 
 export function Config() {
   const { user, initialize } = useContext(UserContext);
-
-  const [userpre, setUserpre] = useState<{email: string, username: string, avatar: string}>({email: "", username: "", avatar: ""});
+  const[twoFA, setTwoFa] = useState(false);
+  const [userpre, setUserpre] = useState<{id: String, email: string, username: string, avatar: string}>({id : "" ,email: "", username: "", avatar: ""});
   const navigate = useNavigate();
   const [newUsername, setUsername] = useState<string>("kkkk");
   
@@ -81,7 +70,7 @@ export function Config() {
       await getPreAuthData().then(res => {
         if (res) {
           console.log("username set to: ", res.username);
-          setUserpre ({email: res.email, username: res.username, avatar: res.avatar});
+          setUserpre ({id : res.id_player, email: res.email, username: res.username, avatar: res.avatar});
           setUsername(res.username);
         }
       }
@@ -112,24 +101,29 @@ return (
     <>
       <section className="Config">
         <Logo name={''}></Logo>
-        <div className="lll">
-          <div className="cercle" style={{ backgroundImage: `url(${userpre.avatar})` }}>
+        {
+          !twoFA && (
+          <div className="lll">
+            <div className="cercle" style={{ backgroundImage: `url(${userpre.avatar})` }}>
+            </div>
+            <form onSubmit={(e) => e.preventDefault()} style={{display: 'flex', flexDirection: 'column', gap: '30px', alignItems: 'center'}}>
+              <input
+                  required
+                  type="text"
+                  placeholder="Username"
+                  defaultValue={userpre.username}
+                  onChange={(e) => {
+                    setUsername(e.target.value);
+                  }}
+              ></input>
+              <button value="/profile" type="submit" onClick={() => submitForm('/profile')}> Done </button>
+              <Button value="/TwoFA" link="#" msg="Enable 2FA" onClick={() => setTwoFa(true)}/>
+            </form>
           </div>
-          <form onSubmit={(e) => e.preventDefault()} style={{display: 'flex', flexDirection: 'column', gap: '30px', alignItems: 'center'}}>
-            <input
-                required
-                type="text"
-                placeholder="Username"
-                defaultValue={userpre.username}
-                onChange={(e) => {
-                  setUsername(e.target.value);
-                }}
-            ></input>
-            <button value="/profile" type="submit" onClick={() => submitForm('/profile')}> Done </button>
-            <Button value="/TwoFA" link="#" msg="Enable 2FA" onClick={() => submitForm('/TwoFA')}/>
-          </form>
+          )
+        }
         
-        </div>
+        {twoFA && <TwoFA userpre={userpre} />}
       </section>
     </>
   )

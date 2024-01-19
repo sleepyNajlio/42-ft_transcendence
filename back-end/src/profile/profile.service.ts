@@ -148,9 +148,9 @@ export class ProfileService {
         wins: 'desc',
       },
     });
-    const filteredPlayers = players.filter((player) => player.loses > 0);
+    // const filteredPlayers = players.filter((player) => player.loses > 0);
 
-    const rankedPlayers = filteredPlayers.map((player) => ({
+    const rankedPlayers = players.map((player) => ({
       ...player,
       ratio: player.wins / player.loses,
     }));

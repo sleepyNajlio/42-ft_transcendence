@@ -64,6 +64,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
       const newHistory: History = {} as History;
       newHistory.score1 = newusergames.find(game => game.userId === user?.id)?.score;
       newHistory.score2 = newusergames.find(game => game.userId !== user?.id)?.score;
+      console.log('score1', newHistory.score1, 'score2', newHistory.score2);
       newHistory.user2 = newusergames.find(game => game.userId !== user?.id).user.avatar;
       setHistory(prevHistory => {
         if (prevHistory) {

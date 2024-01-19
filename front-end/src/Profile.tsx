@@ -70,20 +70,9 @@ export function Profile(props: {  }) {
         <div className="right-div">
               <h1 className="rank__title">History</h1>
               <div className="history">
-                    {/* 
-                    <div className="rank__user">
-                        <div className="rank__cercle"></div>
-                        </div>
-                    <div className="score">
-                        <span className="rankval">1</span>
-                        <span className="rankname">-</span>
-                        <span className="rankval">1</span>
-                        </div>
-                        <div className="rank__user">
-                        <div className="rank__cercle"></div>
-                      </div> */}
                     {history && history.map((item, index) => (
-                      <div className="rankbar" key={index}>
+                      <div className="rankbar" key={index} style={{ boxShadow: item.score1 < item.score2 ? '0 0 5px red' : '0 0 5px green' }}>
+
                         <div className="rank__user" >
                           <div className="rank__cercle" style={{backgroundImage: `url(${user?.avatar})`}}></div>
                         </div>

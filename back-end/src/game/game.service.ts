@@ -165,6 +165,8 @@ export class GameService {
       return false;
     }
     this.updateGame(gameId.id_game, state);
+    console.log('loserSc ' + loserSc + ' winnerSc ' + winnerSc);
+    
     this.updateUserGame(userId, gameId.id_game, 0, loserSc);
     this.updateUserGame(opponentId, gameId.id_game, 1, winnerSc);
     return gameId.id_game;
