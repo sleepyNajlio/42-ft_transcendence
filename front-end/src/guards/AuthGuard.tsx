@@ -22,11 +22,14 @@ const AuthGuard = ({ component }: { component: ReactNode }) => {
 				setStatus(true);
 				navigate('/Config');
 			}
+			else if (res.data.msg === "no cookies") {
+				navigate('/');
+			}
 			else
 				setStatus(true);
 			console.log('AuthGuard');
-		}).catch(error => {
-			console.error(error.response.data.message);
+		}).catch(() => {
+			// console.error(error.response.data.message);
 			setStatus(false);
 			navigate('/');
 		});
