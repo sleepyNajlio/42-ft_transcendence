@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import '../styles/css/chatui.css';
 import ChatHeaderComponent from './ChatHeaderComponent.tsx';
 import Messageco from './Messageco.tsx'
@@ -10,6 +10,8 @@ import ftlogo from '/ftlogo.png';
 const Leftchat: React.FC = (props: any) => {
 
   // console.log("Messages isssss : ", props.messages);
+
+  // const MessageRef = useRef(null);
 
   const handleMenuOptionClick = (option: string, name : string, userId : number) => {
     // Perform actions based on the selected option
@@ -25,6 +27,7 @@ const Leftchat: React.FC = (props: any) => {
       props.handleMute(name, userId);
     }
   };
+
 
   // console.log("user is owner : " + props.isOwner);
 
