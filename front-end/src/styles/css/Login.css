@@ -89,6 +89,34 @@ box-sizing: border-box;
   grid-template-columns: 1fr 1fr;
 }
 
+.profil__info .profil__button.add {
+  background-color: #0f597b;
+  color: #fff;
+}
+
+.profil__info .profil__button.add:hover {
+  border: none;
+  transition: all 0.3s ease-in-out;
+  box-shadow: 0 0 5px #ff8471;
+}
+
+.profil__info .profil__button.add:focus {
+  outline: none;
+}
+
+.profil__info .profil__button.block {
+  border: none;
+  background-color: #ff8471;
+  color: #000;
+}
+
+.profil__buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+}
+
 @media screen and (max-width: 994px) {
   .cmain
   {
