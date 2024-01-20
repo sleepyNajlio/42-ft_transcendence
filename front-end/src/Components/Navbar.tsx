@@ -33,7 +33,7 @@ async function logout() {
 export default function Navbar(props: any) {
     const [searchQuery, setSearchQuery] = useState('');
     const { user, getUserById, getMatchHistory } = useContext(UserContext);
-
+    const [search, setSearch] = useState(false);
     const [users, setUsers] = useState([]);
     // const [Players, setPlayers] = useState(false);
     const navigate = useNavigate();
@@ -65,13 +65,21 @@ export default function Navbar(props: any) {
     setSearchQuery(query);
   };
 
+    const handleOnBlur = () => {
+        setTimeout(() => {
+            setSearch(false);
+        }, 200);
+    };
+
   const handleFocus = () => {
     if (users.length === 0)
         getPlayers();
+
+    setSearch(true);
     };
 
     useEffect(() => {
-        if (searchQuery === '') {
+        if (searchQuery.length === 0) {
             getPlayers();
             return;
         }
@@ -121,10 +129,10 @@ export default function Navbar(props: any) {
       </label>
     <section className="Navbar">
       <Logo name={"plogo"}></Logo>
-        <UserInfo onFocus={handleFocus} onSearch={handleSearch} />
+        <UserInfo onBlur={handleOnBlur} onFocus={handleFocus} onSearch={handleSearch} />
         <div className="players">
             {
-                users.map((player : any) => (
+                search && users.map((player : any) => (
                     <div className="user_rec">
                         <div className="image" style={{ backgroundImage: `url(${player.avatar})` }}></div>
                         <span className="text">{player.username}</span>
