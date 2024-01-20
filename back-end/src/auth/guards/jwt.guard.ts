@@ -35,6 +35,7 @@ export class AuthGuard implements CanActivate {
         avatar,
         isAuthenticated,
         twoFASecret,
+        twofa
       } = await this.Users.findByEmail(payload['email']);
       req['user'] = {
         id_player,
@@ -43,6 +44,7 @@ export class AuthGuard implements CanActivate {
         avatar,
         isAuthenticated,
         twoFASecret,
+        twofa
       };
     } catch {
       return false;

@@ -19,6 +19,7 @@ import {inviteStatus, user} from './Components/types.ts'
 import { TestChat } from './Testchat.tsx';
 import axios from 'axios';
 import { History } from './Components/types.ts';
+import { ToastProvider } from 'react-toast-notifications';
 
 interface inviters
 {
@@ -162,7 +163,9 @@ function App()
     const [boardWidth, setboardWidth] = useState<number | null>(null);
 
     return (
+        
         <div className={`container ` + (checkIfMediumPlus ? "default" : "one")}>
+        
         <Routes>
             <Route key='Login' path='/' element={<UnAuthGuard component={<Login />}  />}>
                 {' '}
@@ -176,6 +179,7 @@ function App()
             element={
                 <AuthGuard
                     component={
+                    <ToastProvider>
                     <>
                         {location.pathname != "/" && location.pathname != "/Config" && location.pathname != "/TwoFA" && location.pathname != "/Verify2FA" && 
                         (<Navbar setProfile={setProfile} setHistory={setHistory} invite={invite} inviters={inviters} inviteResp={inviteResp} setInvite={setInvite}/>)
@@ -198,6 +202,7 @@ function App()
                         }
                         
                     </>
+                    </ToastProvider>
                     }
                 />
             }

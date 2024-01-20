@@ -14,7 +14,6 @@ const Rightchat: React.FC = (props: any) => {
     setSearchQuery(query);
   };
 
-  // Conditionally filter rooms based on the search query
   const filteredRooms = searchQuery
     ? props.rooms.filter((room : any) =>
         room.name.toLowerCase().includes(searchQuery.toLowerCase())
