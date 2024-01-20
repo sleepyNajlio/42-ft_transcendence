@@ -70,7 +70,11 @@ export class AuthController {
 
   @SetMetadata('isPublic', true)
   @Get('twofa/generate/:id/:email')
-  async register(@Req() req: Request, @Res() res: Response, @Param() { id, email }: { id: string, email: string }) {
+  async register(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Param() { id, email }: { id: string; email: string },
+  ) {
     const otpauthUrl = await this.twofaService.genrateTwoFaSecret(
       Number(id),
       email,

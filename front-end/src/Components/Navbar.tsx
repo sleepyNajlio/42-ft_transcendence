@@ -71,21 +71,21 @@ export default function Navbar(props: any) {
             </div>
         </div>
         <div className="btn_container">
-            <Link to="/Profile"><button className="btn">Profile</button></Link>
+            <Link to="/Profile"><button onClick={() => {props.setHistory(null); props.setProfile(null)}} className="btn">Profile</button></Link>
 
             <div className="icon">
                 <img src={profile_icon} alt="Profile Icon"/>
             </div>
         </div>
         <div className="btn_container">
-            <Link to="/Chat"><button className="btn">Messages</button></Link>
+            <Link to="/Chat"><button onClick={() => {props.setHistory(null); props.setProfile(null)}}  className="btn">Messages</button></Link>
 
             <div className="icon">
                 <img src={msg_icon} alt="Messages Icon"/>
             </div>
         </div>
         <div className="btn_container">
-            <Link to="/Leaderboard"><button className="btn">Ranking</button></Link>
+            <Link to="/Leaderboard"><button onClick={() => {props.setHistory(null); props.setProfile(null)}}  className="btn">Ranking</button></Link>
 
             <div className="icon">
                 <img src={ranking_icon} alt="Search Icon"/>
@@ -100,7 +100,7 @@ export default function Navbar(props: any) {
             </div>
         </div>
         <div className="btn_container">
-            <Link to="/Settings"><button className="btn">Settings</button></Link>
+            <Link to="/Settings"><button onClick={() => {props.setHistory(null); props.setProfile(null)}}  className="btn">Settings</button></Link>
             <div className="icon">
                 <img src={settings} alt="Settings Icon"/>
             </div>

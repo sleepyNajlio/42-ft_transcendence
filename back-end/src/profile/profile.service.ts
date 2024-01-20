@@ -46,12 +46,16 @@ export class ProfileService {
   }
 
   async getUserById(id: number) {
-    const user = await this.prisma.player.findUnique({
-      where: {
-        id_player: id,
-      },
-    });
-    return user;
+    try {
+      const user = await this.prisma.player.findUnique({
+        where: {
+          id_player: id,
+        },
+      });
+      return { user: user };
+    } catch (error) {
+      throw new Error('Invalid token'); // Handle token verification errors
+    }
   }
 
   async getMatchStats(id: number) {

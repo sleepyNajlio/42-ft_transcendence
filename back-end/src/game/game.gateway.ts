@@ -21,6 +21,12 @@ enum PlayerState {
   INVITING = 'INVITING',
 }
 
+enum NotifType {
+  MESSAGE = 'MESSAGE',
+  INVITE = 'INVITE',
+  GAME = 'GAME',
+}
+
 enum gameStatus {
   PLAYING = 'PLAYING',
   ABORTED = 'ABORTED',
@@ -131,7 +137,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
           Number(userId),
           Number(opponentId),
           3,
-          0,  
+          0,
           gameStatus.ABORTED,
         );
         // remove the game from this.games
@@ -159,7 +165,13 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('matchmaking')
   handleJoinQueue(
     client: Socket,
-    data: { width: number; difficulty: number; padl: number; username: string },
+    data: {
+      width: number;
+      difficulty: number;
+      padl: number;
+      username: string;
+      avatar: string;
+    },
   ) {
     // Check if the user is already in the queue based on a unique identifier (e.g., user ID)
     // const userId = getUserIdFromClient('matchmaking', client); // Implement a function to extract the user ID
@@ -178,6 +190,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         s_id: client.id,
         user_id: userId,
         host: false,
+        avatar: data.avatar,
         width: data.width,
         paddleSpeed: 3 * data.difficulty,
         username: data.username,
@@ -372,6 +385,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       s_id: client.id,
       user_id: data.userId,
       username: data.username,
+      avatar: data.avatar,
       host: false,
       gameId: data.gameId,
       width: data.width,
@@ -387,17 +401,22 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (!this.notifs[data.adv_id]) {
       this.notifs[data.adv_id] = [];
     }
-    this.notifs[data.adv_id] = [
-      ...this.notifs[data.adv_id],
-      this.players[data.userId],
-    ];
+    const newNotification = {
+      user_id: data.userId,
+      type: NotifType.GAME, // Replace with the actual type
+      avatar: this.players[data.userId].avatar,
+      username: this.players[data.userId].username,
+      // board: this.players[data.userId].board,
+      paddle: this.players[data.userId].padl,
+    };
+    this.notifs[data.adv_id] = [...this.notifs[data.adv_id], newNotification];
     this.logger.log(`emiting invite`);
     this.logger.log(this.notifs);
     this.socketGateway.getClientSocket(data.userId)?.map((socketa) => {
       if (socketa.id !== client.id) socketa.emit('alreadyInQueue');
     });
     this.socketGateway.getClientSocket(data.adv_id).map((socketa) => {
-      socketa.emit('invited', this.players[data.userId]);
+      socketa.emit('invited', newNotification);
     });
     return true;
   }
@@ -423,6 +442,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         s_id: client.id,
         user_id: data.adv_id,
         username: data.username,
+        avatar: data.avatar,
         host: false,
         x: 0,
         y: 0,

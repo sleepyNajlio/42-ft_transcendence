@@ -27,6 +27,12 @@ export class ProfileController {
     const user = await this.profileService.getUserInfoFromToken(token);
     return { user: user };
   }
+  @Get('/friend/:id')
+  async getUserById(@Param() { id }: { id: string }) {
+    console.log(id);
+    const user = await this.profileService.getUserById(Number(id));
+    return user;
+  }
 
   @Get('/all')
   async getAllUsers(@Req() req: Request) {
@@ -37,13 +43,6 @@ export class ProfileController {
     const users = await this.profileService.getAllUsers(token);
     return { users: users };
   }
-
-  // @Get('/:id')
-  // async getUserById(@Param() { id }: { id: string }) {
-  //   console.log(id);
-  //   const user = await this.profileService.getUserById(Number(id));
-  //   return user;
-  // }
 
   @Get('/history/:id')
   async getMatchHistory(@Param() { id }: { id: string }) {
