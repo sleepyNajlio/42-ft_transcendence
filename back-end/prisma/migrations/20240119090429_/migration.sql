@@ -63,6 +63,8 @@ CREATE TABLE "ChatUser" (
     "role" "ChatRole" NOT NULL DEFAULT 'MEMBER',
     "userId" INTEGER NOT NULL,
     "chatId" INTEGER NOT NULL,
+    "isBanned" BOOLEAN NOT NULL DEFAULT false,
+    "isMuted" BOOLEAN NOT NULL DEFAULT false,
     "joinedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "ChatUser_pkey" PRIMARY KEY ("id_chat_user")
