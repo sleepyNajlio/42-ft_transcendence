@@ -20,6 +20,8 @@ import search from '../assets/SearchIcon.png';
           <input
             type="text"
             placeholder="Search..."
+            onFocus={props.onFocus}
+            onBlur={props.onBlur}
             onChange={handleInputChange}
           />
         </div>

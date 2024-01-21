@@ -7,12 +7,14 @@ import ranking_icon from '../assets/chart_icon.svg';
 import play_icon from '../assets/playground_icon.svg';
 import settings from '../assets/settings_icon.svg';
 import exit from '../assets/exit.svg';
-import { useContext, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useContext, useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { UserContext } from '../UserProvider.tsx';
 import axios from 'axios';
 import Notification from './Notif';
 import { inviteStatus } from './types.ts';
+import UserInfo from './UserInfo.tsx';
+import { get } from 'svg.js';
 
 async function logout() {
     axios.get('http://localhost:3001/auth/logout', { withCredentials: true })
@@ -29,7 +31,78 @@ async function logout() {
 
 
 export default function Navbar(props: any) {
-    const { user } = useContext(UserContext);
+    const [searchQuery, setSearchQuery] = useState('');
+    const { user, getUserById, getMatchHistory } = useContext(UserContext);
+    const [search, setSearch] = useState(false);
+    const [users, setUsers] = useState([]);
+    // const [Players, setPlayers] = useState(false);
+    const navigate = useNavigate();
+
+
+    const getPlayers = async () => {
+        try {
+          const response = await fetch('http://localhost:3000/profile/all', {
+            credentials: "include",
+            method: "GET",
+          });
+          const data = await response.json(); // Parse the response as JSON
+          console.log("data: ", data);
+          setUsers(data.users); // Set the parsed data to state
+        } catch (error) {
+          console.error(error);
+        }
+      };
+
+    useEffect(() => {
+        if (users.length > 0) {
+          console.log("users1: ", users);
+          console.log("showing users");
+        //   setPlayers(true);
+        }
+      }, [users]);
+
+  const handleSearch = (query : any) => {
+    setSearchQuery(query);
+  };
+
+    const handleOnBlur = () => {
+        setTimeout(() => {
+            setSearch(false);
+        }, 200);
+    };
+
+  const handleFocus = () => {
+    if (users.length === 0)
+        getPlayers();
+
+    setSearch(true);
+    };
+
+    useEffect(() => {
+        if (searchQuery.length === 0) {
+            getPlayers();
+            return;
+        }
+        setUsers(
+            users.filter((user : any) => {
+                return user.username.toLowerCase().includes(searchQuery.toLowerCase());
+            } )
+        );
+    }, [searchQuery]);
+
+    function searchPlayer(id_player: string): void {
+        getMatchHistory(Number(id_player)).then (res => {
+          console.log("history: ", res);
+          props.setHistory(res);
+        } );
+        getUserById(Number(id_player)).then (res => {
+          console.log("player: ", res);
+          props.setProfile(res);
+        });
+        navigate("/Profile")
+      }
+    
+
     function popNotifs() {
         console.log("hhhhh\n");
         if(props.invite === inviteStatus.NONE){
@@ -56,14 +129,23 @@ export default function Navbar(props: any) {
       </label>
     <section className="Navbar">
       <Logo name={"plogo"}></Logo>
-        <div className="search_container">
-        <input type="text" placeholder="Search" />
-            <div className="search-icon">
-                <img src={search} alt="Search Icon"/>
-            </div>
+        <UserInfo onBlur={handleOnBlur} onFocus={handleFocus} onSearch={handleSearch} />
+        <div className="players">
+            {
+                search && users.map((player : any) => (
+                    <div className="user_rec">
+                        <div className="image" style={{ backgroundImage: `url(${player.avatar})` }}></div>
+                        <span className="text">{player.username}</span>
+                        <div className="buttons">
+                            <button className="buttons">Invite</button>
+                            <button className="buttons" onClick={() => searchPlayer(player.id_player)}>Profile</button>
+                        </div>
+                    </div>
+                ))
+            }
         </div>
         <div className="btn_container">
-            <Link to="/Play"><button className="btn">Play</button></Link>
+            <Link to="/Play"><button onClick={() =>{props.setHistory(null); props.setProfile(null)}} className="btn">Play</button></Link>
 
             
             <div className="icon">
@@ -71,21 +153,21 @@ export default function Navbar(props: any) {
             </div>
         </div>
         <div className="btn_container">
-            <Link to="/Profile"><button className="btn">Profile</button></Link>
+            <Link to="/Profile"><button onClick={() =>{props.setHistory(null); props.setProfile(null)}} className="btn">Profile</button></Link>
 
             <div className="icon">
                 <img src={profile_icon} alt="Profile Icon"/>
             </div>
         </div>
         <div className="btn_container">
-            <Link to="/Chat"><button className="btn">Messages</button></Link>
+            <Link to="/Chat"><button onClick={() =>{props.setHistory(null); props.setProfile(null)}} className="btn">Messages</button></Link>
 
             <div className="icon">
                 <img src={msg_icon} alt="Messages Icon"/>
             </div>
         </div>
         <div className="btn_container">
-            <Link to="/Leaderboard"><button className="btn">Ranking</button></Link>
+            <Link to="/Leaderboard"><button onClick={() =>{props.setHistory(null); props.setProfile(null)}} className="btn">Ranking</button></Link>
 
             <div className="icon">
                 <img src={ranking_icon} alt="Search Icon"/>
@@ -100,7 +182,7 @@ export default function Navbar(props: any) {
             </div>
         </div>
         <div className="btn_container">
-            <Link to="/Settings"><button className="btn">Settings</button></Link>
+            <Link to="/Settings"><button onClick={() =>{props.setHistory(null); props.setProfile(null)}} className="btn">Settings</button></Link>
             <div className="icon">
                 <img src={settings} alt="Settings Icon"/>
             </div>

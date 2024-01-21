@@ -28,7 +28,6 @@ export class AuthController {
     private user: UsersService,
   ) {}
 
-
   @SetMetadata('isPublic', true)
   @UseGuards(FTAuthGuard)
   @Get('42')
@@ -45,12 +44,10 @@ export class AuthController {
     if (req.user['twofa']) {
       res.cookie('TWOFA', cookie, { httpOnly: true });
       res.redirect(`${this.Config.get('FRONTEND_URL')}/Verify2FA`);
-    }
-    else if (req.user['isAuthenticated']) {
+    } else if (req.user['isAuthenticated']) {
       res.cookie('JWT_TOKEN', cookie, { httpOnly: true });
       res.redirect(`${this.Config.get('FRONTEND_URL')}/Profile`);
-    }
-    else {
+    } else {
       res.cookie('USER', cookie, { httpOnly: true });
       res.redirect(`${this.Config.get('FRONTEND_URL')}/Config`);
     }
@@ -83,7 +80,7 @@ export class AuthController {
     const otpauthUrl = await this.twofaService.genrateTwoFaSecret(
       user.id_player,
       user.email,
-   );
+    );
     return this.twofaService.pipeQrCodeStream(res, otpauthUrl);
   }
 
@@ -100,7 +97,7 @@ export class AuthController {
     if (!isCodeValid) {
       return { success: false, msg: 'Invalid Code' };
     }
-    return { success : true };
+    return { success: true };
   }
   @Get('twofa/check')
   async checkTwoFa(@Req() req: Request) {
