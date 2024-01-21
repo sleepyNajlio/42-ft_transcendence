@@ -1,5 +1,5 @@
 import '../styles/css/Login.css';
-import { ProfilAch } from './ProfilAch';
+import ProfilAch  from './ProfilAch';
 import { ProfilInfo } from './ProfilInfo';
 import { ProfilStat } from './ProfilStat';
 
@@ -15,7 +15,6 @@ function PofilCard(props: {user: user}){
     r:  40,
   } as cercle;
   let Mstats_names = ["T M", "W", "Ac"];
-
   return (
     <>
     <div className="left-div desktop">
@@ -26,7 +25,8 @@ function PofilCard(props: {user: user}){
         <ProfilInfo name={props.user.username} rank={props.user.rank} image={props.user.avatar}></ProfilInfo>
       </div>
     </div>
-    <ProfilAch achievement={props.user.achievement}></ProfilAch>
+    <ProfilAch winsRat={props.user.user_stats.winsRat} wins={props.user.user_stats.wins} total_matches={props.user.user_stats.total_matches}></ProfilAch>
+
     </>
     )
 }

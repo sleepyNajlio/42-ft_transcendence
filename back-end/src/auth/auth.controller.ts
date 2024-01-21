@@ -70,24 +70,28 @@ export class AuthController {
 
   @SetMetadata('isPublic', true)
   @Get('twofa/generate/:id/:email')
-  async register(@Req() req: Request, @Res() res: Response, @Param() { id, email }: { id: string, email: string }) {
+  async register(@Req() req: Request, @Res() res: Response, @Param() { id}: { id: string}) {
     const otpauthUrl = await this.twofaService.genrateTwoFaSecret(
       Number(id),
-      email,
     );
     return this.twofaService.pipeQrCodeStream(res, otpauthUrl);
   }
 
   @SetMetadata('isPublic', true)
-  @Post('twofa/turn-on')
-  async turnOnTwoFa(@Req() req: Request, @Body() twofa: Update2faDTO) {
-    const isCodeValid = await this.twofaService.verifyTwoFaToken(
-      twofa.twoFaCode,
-      req.user,
-    );
-    if (!isCodeValid) {
-      throw new HttpException('Invalid code', HttpStatus.CREATED);
-    }
-    return { msg: 'TwoFa enabled' };
+  @Post('twofa/verify')
+async turnOnTwoFa(@Req() req: Request, @Body() { id, twofa }: {id : string, twofa: Update2faDTO }) {
+  console.log('id', id, 'res msg', twofa.twoFaCode);
+  if (!twofa.twoFaCode) {
+    throw new HttpException('Invalid request', HttpStatus.BAD_REQUEST);
   }
+  const isCodeValid = await this.twofaService.verifyTwoFaToken(
+    twofa.twoFaCode,
+    id,
+  );
+  console.log('isCodeValid', isCodeValid);
+  if (!isCodeValid) {
+    throw new HttpException('Invalid code', HttpStatus.CREATED);
+  }
+  return { msg: 'TwoFa enabled' };
+}
 }

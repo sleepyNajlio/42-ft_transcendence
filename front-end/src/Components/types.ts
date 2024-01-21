@@ -6,13 +6,6 @@ export type user_stats = {
   total_matches: number;
 };
 
-export type achievement = {
-  name: string;
-  description: string;
-  progress: number;
-  max: number;
-};
-
 export type History = {
   score1: number;
   user2: string;
@@ -24,7 +17,7 @@ export type user = {
   username: string;
   rank: number;
   avatar: string;
-  achievement: achievement[];
+  achievement: number;
   user_stats: user_stats;
   // Add other properties as needed
 };

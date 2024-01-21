@@ -18,16 +18,8 @@ export function Profile(props: {  }) {
       total_matches: 1,
       wins: 1,
       winsRat: 1,
-      achievement: 1,
     },
-    achievement: [
-        {name: "First win", description: "Win your first game", progress: 1, max: 1},
-        {name: "Win 10 games", description: "Win 10 games", progress: 10, max: 10},
-        {name: "Win 100 games", description: "Win 100 games", progress: 99, max: 100},
-        {name: "default", description: "Win 100 games", progress: 0, max: 100},
-        {name: "default", description: "Win 100 games", progress: 0, max: 100},
-        {name: "default", description: "Win 100 games", progress: 0, max: 100},
-    ],
+    achievement: 0,
   } as user);
   useEffect(() => {
     if (user) {
@@ -38,6 +30,7 @@ export function Profile(props: {  }) {
         avatar: user.avatar,
         user_stats: user.user_stats,
         rank: user.rank,
+        achievement: user.achievement,
       }));
       console.log("hstoire: ");
       console.log(history);

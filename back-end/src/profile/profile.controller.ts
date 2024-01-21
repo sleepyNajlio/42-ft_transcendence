@@ -59,8 +59,6 @@ export class ProfileController {
 
   @Get('/ranks')
   async getUsersRank() {
-    // console.log('====================rank');
-    // return 'rank';
     const users = await this.profileService.getUsersRank();
     return users;
   }

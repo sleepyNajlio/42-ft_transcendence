@@ -12,21 +12,30 @@ async function getUserInfo(): Promise<user | null> {
     });
     if (response.ok) {
         const res = await response.json();
-        // console.log("user: ", res);
         const stats: user_stats = {
             winsRat: Number(res.user.wins) ? Number(res.user.wins) / (Number(res.user.wins) + Number(res.user.loses)): 0,
             wins: Number(res.user.wins),
-            achievement: 0,
+            achievement:Number(0),
             total_matches: Number(res.user.wins) + Number(res.user.loses),
         };
+        if(stats.winsRat <= 0.1 && stats.winsRat >= 0.01)
+            stats.achievement += 1;
+        if(stats.total_matches >= 5)
+            stats.achievement += 1;
+        if(res.user.wins >= 10)
+            stats.achievement += 1;
+        if(res.user.wins >= 1)
+            stats.achievement += 1;
+        const achievement : number = res.user.wins;
         const rank: number = (await axios.get(`http://localhost:3000/profile/rank/${res.user.id_player}`, { withCredentials: true })).data;
         console.log("rank: ", rank);
+        console.log("achie: ", achievement);
         const user: user = {
             id: res.user.id_player,
             username: res.user.username,
             rank: rank,
             avatar: res.user.avatar,
-            achievement: [],
+            achievement: achievement,
             user_stats: stats,
         };
         return user;
@@ -45,6 +54,15 @@ export async function getRank(): Promise<number> {
     }
     return player?.rank || 0;
 }  
+
+export async function getAchievement(): Promise<number> 
+{
+    if (player){
+        const achievement: number = (await axios.get(`http://localhost:3000/profile/achievement/${player?.id}`, { withCredentials: true })).data;
+        player.user_stats.achievement = achievement;
+    }
+    return player?.user_stats.achievement || 0;
+}
 
 async function getMatchHistory(id: number): Promise<History[] | null> {
 
@@ -74,7 +92,6 @@ export async function initializeUser() : Promise<Boolean>  {
         const res = await getUserInfo();
         const res2 = await getMatchHistory(Number(res?.id));
         history = res2;
-        // console.log("got user : ", res);
         player = res;
         return true;
     } catch (err) {
@@ -107,7 +124,7 @@ export async function getRanks() : Promise<user[]> {
         const stats: user_stats = {
             winsRat: Number(rank.wins) ? Number(rank.wins) / (Number(rank.wins) + Number(rank.loses)): 0,
             wins: Number(rank.wins),
-            achievement: 0,
+            achievement: 1,
             total_matches: Number(rank.wins) + Number(rank.loses),
         };
         const user: user = {
@@ -115,7 +132,7 @@ export async function getRanks() : Promise<user[]> {
             username: rank.username,
             rank: rank.rank,
             avatar: rank.avatar,
-            achievement: [],
+            achievement: 0,
             user_stats: stats,
         };
         ranks.push(user);
