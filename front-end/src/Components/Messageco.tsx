@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { useRef } from 'react';
 import { useState } from 'react';
 import threedots from '../assets/three-dots.png';
 
@@ -27,42 +28,40 @@ const MessageComponent: React.FC<MessageComponentProps> = ({
 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [lastClickedmessage_Id, setLastClickedmessage_Id] = useState<number | null>(null);
-
-  // console.log("useeers in messageco : " , users);
-  // console.log("room in messageco : " , room);
-  const isUserOwner =  Array.isArray(users) &&  users.some((user: { userId: number; role: string; }) => user.userId === message_userId && user.role === 'OWNER');
-  // const isUserAdmin =  Array.isArray(users) &&  users.some((user: { userId: number; role: string; }) => user.userId === message_userId && user.role === 'ADMIN');
-  // console.log("is user not owner : " , isUserNotOwner);
-  console.log("id of the message : " , message_id);
+  const menuRef = useRef<HTMLDivElement | null>(null);
 
 
-  useEffect(() => {
-
-    console.log("last clicked message id : " , lastClickedmessage_Id);
-
-
-  return () => {
-    // console.log("last clicked message id : " , lastClickedmessage_Id);
-      // setLastClickedmessage_Id(null); 
-    }
-
-
-    },[lastClickedmessage_Id]);
-
+  const isUserOwner =
+    Array.isArray(users) &&
+    users.some((user: { userId: number; role: string }) => user.userId === message_userId && user.role === 'OWNER');
 
   const handleMenuToggle = () => {
-
-
-    // console.log("is menu opennn : " , isMenuOpen);
-    console.log('last clicked message id innnnnn: ' , lastClickedmessage_Id);
     setIsMenuOpen(!isMenuOpen);
-  
+    setLastClickedmessage_Id(isMenuOpen ? null : message_id);
   };
 
-  const handleMenuOptionClick = (option: string, name : string, userId : number) => {
+  const handleMenuOptionClick = (option: string, name: string, userId: number) => {
     onMenuOptionClick(option, name, userId);
     setIsMenuOpen(false);
   };
+
+ 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+
+      if (menuRef.current && !menuRef.current.contains(event.target as Node) && lastClickedmessage_Id !== message_id) {
+        setIsMenuOpen(false);
+        setLastClickedmessage_Id(message_id);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+      setLastClickedmessage_Id(null);
+    };
+  }, []);
 
 
   return (
@@ -79,7 +78,7 @@ const MessageComponent: React.FC<MessageComponentProps> = ({
   {!isOwnMessage && room && room.chatUser && room.chatUser.role === 'OWNER' && (
     <div className='menu-click' onClick={handleMenuToggle}>
       <img title="options" src={threedots} width='20' height='20' alt="leave" />
-      {isMenuOpen &&  lastClickedmessage_Id === message_id && (
+      {isMenuOpen && lastClickedmessage_Id === message_id && (
         <div className="message-menu">
           <div className="menu-option" onClick={() => handleMenuOptionClick('kick', room.name, message_userId)}>
             Kick
@@ -96,7 +95,8 @@ const MessageComponent: React.FC<MessageComponentProps> = ({
       
     </div>
   )}
-  {!isOwnMessage && room && room.chatUser && room.chatUser.role === 'ADMIN' && !isUserOwner &&(
+  {!isOwnMessage && room && room.chatUser && room.chatUser.role === 'ADMIN' && !isUserOwner &&
+     !room.chatUser.isBanned && (
     <div className='menu-click' onClick={handleMenuToggle}>
     <img title="options" src={threedots} width='20' height='20' alt="leave" />
     {isMenuOpen && (
