@@ -44,6 +44,23 @@ export class ProfileService {
       throw new Error('Invalid token'); // Handle token verification errors
     }
   }
+  getFriendStatus(id_player: number, id_player1: number) {
+    const friendStatus = this.prisma.friendShip.findFirst({
+      where: {
+        OR: [
+          {
+            userId: id_player,
+            friendId: id_player1,
+          },
+          {
+            userId: id_player1,
+            friendId: id_player,
+          },
+        ],
+      },
+    });
+    return friendStatus;
+  }
 
   async getUserById(id: number) {
     try {

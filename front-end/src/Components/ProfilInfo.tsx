@@ -4,6 +4,9 @@ import { UserContext } from '../UserProvider';
 
 export function ProfilInfo(props : {name: string, rank: number, image: string}){
   const {user} = useContext(UserContext);
+  const dosomth = () => {
+    console
+  }
     return (
     <>
     <div className="left-content profil__info">
@@ -14,7 +17,7 @@ export function ProfilInfo(props : {name: string, rank: number, image: string}){
         {
           props.name !== user?.username && (
             <div className="bt">
-              <button className="bt profil__button add">ADD</button>
+              <button className="bt profil__button add" onClick={dosomth}>ADD</button>
               <button className="bt profil__button block">Block</button>
             </div>
           )

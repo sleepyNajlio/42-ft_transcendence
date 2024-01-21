@@ -28,10 +28,15 @@ export class ProfileController {
     return { user: user };
   }
   @Get('/friend/:id')
-  async getUserById(@Param() { id }: { id: string }) {
-    console.log(id);
-    const user = await this.profileService.getUserById(Number(id));
-    return user;
+  async getUserById(@Req() req: Request, @Param() { id }: { id: string }) {
+    const owuser = req.user;
+    console.log(owuser);
+    const { user } = await this.profileService.getUserById(Number(id));
+    const friendStatus = await this.profileService.getFriendStatus(
+      Number(owuser['id_player']),
+      user.id_player,
+    );
+    return { user, state: friendStatus.status };
   }
 
   @Get('/all')
