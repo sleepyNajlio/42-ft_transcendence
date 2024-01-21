@@ -1,3 +1,10 @@
+/*
+  Warnings:
+
+  - You are about to drop the `Post` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `User` table. If the table is not empty, all the data it contains will be lost.
+
+*/
 -- CreateEnum
 CREATE TYPE "ChatRole" AS ENUM ('OWNER', 'MEMBER', 'ADMIN');
 
@@ -12,6 +19,15 @@ CREATE TYPE "PlayerStatus" AS ENUM ('ONLINE', 'OFFLINE');
 
 -- CreateEnum
 CREATE TYPE "RelationStatus" AS ENUM ('PENDING', 'ACCEPTED', 'REJECTED');
+
+-- DropForeignKey
+ALTER TABLE "Post" DROP CONSTRAINT "Post_authorId_fkey";
+
+-- DropTable
+DROP TABLE "Post";
+
+-- DropTable
+DROP TABLE "User";
 
 -- CreateTable
 CREATE TABLE "Player" (
@@ -32,9 +48,10 @@ CREATE TABLE "Player" (
 
 -- CreateTable
 CREATE TABLE "FriendShip" (
+    "friendId" INTEGER NOT NULL,
     "status" "RelationStatus" NOT NULL DEFAULT 'PENDING',
-    "userId" INTEGER NOT NULL,
-    "friendId" INTEGER NOT NULL
+
+    CONSTRAINT "FriendShip_pkey" PRIMARY KEY ("friendId")
 );
 
 -- CreateTable
@@ -101,16 +118,10 @@ CREATE UNIQUE INDEX "Player_avatar_key" ON "Player"("avatar");
 CREATE UNIQUE INDEX "Player_email_key" ON "Player"("email");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "FriendShip_userId_friendId_key" ON "FriendShip"("userId", "friendId");
-
--- CreateIndex
 CREATE UNIQUE INDEX "UserGame_userId_gameId_key" ON "UserGame"("userId", "gameId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "ChatUser_userId_chatId_key" ON "ChatUser"("userId", "chatId");
-
--- AddForeignKey
-ALTER TABLE "FriendShip" ADD CONSTRAINT "FriendShip_userId_fkey" FOREIGN KEY ("userId") REFERENCES "Player"("id_player") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "FriendShip" ADD CONSTRAINT "FriendShip_friendId_fkey" FOREIGN KEY ("friendId") REFERENCES "Player"("id_player") ON DELETE RESTRICT ON UPDATE CASCADE;

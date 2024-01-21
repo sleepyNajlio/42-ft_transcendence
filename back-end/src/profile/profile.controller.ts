@@ -22,11 +22,11 @@ export class ProfileController {
   constructor(private profileService: ProfileService) {}
 
   @Get()
-  @SetMetadata("isPublic", true)
+  @SetMetadata('isPublic', true)
   async getUserInfo(@Req() req: Request) {
-    const token = req.cookies['JWT_TOKEN'] || req.cookies["USER"]; // Get the JWT from cookies
+    const token = req.cookies['JWT_TOKEN'] || req.cookies['USER']; // Get the JWT from cookies
     if (!token) {
-      throw new HttpException("no token", HttpStatus.OK);
+      throw new HttpException('no token', HttpStatus.OK);
     }
     const user = await this.profileService.getUserInfoFromToken(token);
     return { user: user };
@@ -34,13 +34,41 @@ export class ProfileController {
   @Get('/friend/:id')
   async getUserById(@Req() req: Request, @Param() { id }: { id: string }) {
     const owuser = req.user;
-    console.log(owuser);
     const { user } = await this.profileService.getUserById(Number(id));
     const friendStatus = await this.profileService.getFriendStatus(
+      Number(id),
       Number(owuser['id_player']),
-      user.id_player,
     );
     return { user, state: friendStatus.status };
+  }
+
+  @Get('/notfriend')
+  async getNotFriend(@Req() req: Request) {
+    const owuser = req.user;
+    const users = await this.profileService.getNotFriend(
+      Number(owuser['id_player']),
+    );
+    return { users: users };
+  }
+
+  @Get('/block')
+  async getBockedUsers(@Req() req: Request) {
+    const owuser = req.user;
+    /* get all blocked users */
+    const users = await this.profileService.getBockedUsers(
+      Number(owuser['id_player']),
+    );
+    return { users: users };
+  }
+
+  @Get('/notBlocked')
+  async getNotBockedUsers(@Req() req: Request) {
+    const owuser = req.user;
+    /* get all blocked users */
+    const users = await this.profileService.getNotBockedUsers(
+      Number(owuser['id_player']),
+    );
+    return { users: users };
   }
 
   @Get('/all')

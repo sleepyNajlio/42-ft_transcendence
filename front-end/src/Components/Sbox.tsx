@@ -130,8 +130,8 @@ export default function Sbox(props: any) {
                                 <div key={user.id_player} className="player">
                                 <img src={user.avatar} alt="player" className="player__img" />
                                 <h3 className="player__name">{user.username}</h3>
-                                {/* <button onClick={()=> props.handleFriendClick(user.id_player)} className="player__button" >Invite</button> */}
-                                <button onClick={()=> searchPlayer(user.id_player)} className="player__button" >Invite</button>
+                                <button onClick={()=> props.handleFriendClick(user.id_player)} className="player__button" >Invite</button>
+                                {/* <button onClick={()=> searchPlayer(user.id_player)} className="player__button" >Invite</button> */}
                                 </div>
                             ))}
                           </div>

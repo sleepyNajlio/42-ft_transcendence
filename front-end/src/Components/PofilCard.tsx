@@ -17,7 +17,7 @@ function PofilCard(props: {user: user}){
     <>
     <div className={`left-div`}>
       <div className={`ptest`}>
-        <ProfilInfo name={props.user.username} rank={props.user.rank} image={props.user.avatar}></ProfilInfo>
+        <ProfilInfo state={props.user.friend} name={props.user.username} rank={props.user.rank} image={props.user.avatar}></ProfilInfo>
         <div className={`left-content profil__card`}>
           <ProfilStat user_stats={props.user.user_stats} cercle={cercle} stats_names={Dstats_names}></ProfilStat>
         </div>

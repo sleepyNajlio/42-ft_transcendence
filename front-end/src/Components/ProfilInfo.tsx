@@ -2,11 +2,13 @@ import { useContext } from 'react';
 import '../styles/css/Login.css';
 import { UserContext } from '../UserProvider';
 
-export function ProfilInfo(props : {name: string, rank: number, image: string}){
+export function ProfilInfo(props : {state: string | undefined, name: string, rank: number, image: string}){
   const {user} = useContext(UserContext);
   const dosomth = () => {
     console
   }
+
+  console.log(props.state);
     return (
     <>
     <div className="left-content profil__info">
@@ -15,7 +17,7 @@ export function ProfilInfo(props : {name: string, rank: number, image: string}){
         <h4 className="profil__username">{props.name}</h4>
         <h6 className="profil__rank">#{props.rank}</h6>
         {
-          props.name !== user?.username && (
+          props.name !== user?.username && props.state !== "ACCEPTED" && (
             <div className="bt">
               <button className="bt profil__button add" onClick={dosomth}>ADD</button>
               <button className="bt profil__button block">Block</button>

@@ -22,7 +22,7 @@ export class ProfileService {
       });
       return user;
     } catch (error) {
-      throw new HttpException("invalid Token", HttpStatus.OK); // Handle token verification errors
+      throw new HttpException('invalid Token', HttpStatus.OK); // Handle token verification errors
     }
   }
 
@@ -44,6 +44,134 @@ export class ProfileService {
       throw new Error('Invalid token'); // Handle token verification errors
     }
   }
+
+  async getNotBockedUsers(id: number) {
+    const users = await this.prisma.player.findMany({
+      where: {
+        AND: [
+          {
+            OR: [
+              {
+                friendshipAsked: {
+                  some: {
+                    AND: [
+                      {
+                        OR: [{ userId: id }, { friendId: id }],
+                      },
+                      { NOT: { status: 'BLOCKED' } },
+                    ],
+                  },
+                },
+              },
+              {
+                friendshipReceived: {
+                  some: {
+                    AND: [
+                      {
+                        OR: [{ userId: id }, { friendId: id }],
+                      },
+                      { NOT: { status: 'BLOCKED' } },
+                    ],
+                  },
+                },
+              },
+            ],
+          },
+          {
+            NOT: {
+              id_player: id,
+            },
+          },
+        ],
+      },
+    });
+    console.log(users);
+    return users;
+  }
+
+  async getBockedUsers(id: number) {
+    const users = await this.prisma.player.findMany({
+      where: {
+        AND: [
+          {
+            OR: [
+              {
+                friendshipAsked: {
+                  some: {
+                    AND: [
+                      {
+                        OR: [{ userId: id }, { friendId: id }],
+                      },
+                      { status: 'BLOCKED' },
+                    ],
+                  },
+                },
+              },
+              {
+                friendshipReceived: {
+                  some: {
+                    AND: [
+                      {
+                        OR: [{ userId: id }, { friendId: id }],
+                      },
+                      { status: 'BLOCKED' },
+                    ],
+                  },
+                },
+              },
+            ],
+          },
+          {
+            NOT: {
+              id_player: id,
+            },
+          },
+        ],
+      },
+    });
+    console.log(users);
+    return users;
+  }
+
+  async getNotFriend(id: number) {
+    const users = await this.prisma.player.findMany({
+      where: {
+        AND: [
+          {
+            NOT: {
+              OR: [
+                {
+                  friendshipReceived: {
+                    some: {
+                      friendId: id,
+                      status: 'PENDING',
+                    },
+                  },
+                },
+                // in friendshipAsked add -> status: 'PENDING', decline -> status: 'REJECTED', accept -> status: 'ACCEPTED', block -> status: 'BLOCKED'
+                {
+                  friendshipAsked: {
+                    some: {
+                      friendId: id,
+                      status: 'PENDING',
+                    },
+                  },
+                },
+              ],
+            },
+          },
+          {
+            NOT: {
+              id_player: id,
+            },
+          },
+        ],
+      },
+    });
+    console.log(users);
+    return users;
+  }
+
   getFriendStatus(id_player: number, id_player1: number) {
     const friendStatus = this.prisma.friendShip.findFirst({
       where: {

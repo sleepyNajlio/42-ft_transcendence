@@ -41,7 +41,7 @@ export default function Navbar(props: any) {
 
     const getPlayers = async () => {
         try {
-          const response = await fetch('http://localhost:3000/profile/all', {
+          const response = await fetch('http://localhost:3000/profile/notblocked', {
             credentials: "include",
             method: "GET",
           });
@@ -91,6 +91,7 @@ export default function Navbar(props: any) {
     }, [searchQuery]);
 
     function searchPlayer(id_player: string): void {
+        console.log("id_player: ", id_player);
         getMatchHistory(Number(id_player)).then (res => {
           console.log("history: ", res);
           props.setHistory(res);
