@@ -2,9 +2,12 @@ import {
   Body,
   Controller,
   Get,
+  HttpException,
+  HttpStatus,
   Param,
   Post,
   Req,
+  SetMetadata,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -19,10 +22,11 @@ export class ProfileController {
   constructor(private profileService: ProfileService) {}
 
   @Get()
+  @SetMetadata("isPublic", true)
   async getUserInfo(@Req() req: Request) {
-    const token = req.cookies['JWT_TOKEN']; // Get the JWT from cookies
+    const token = req.cookies['JWT_TOKEN'] || req.cookies["USER"]; // Get the JWT from cookies
     if (!token) {
-      throw new Error('Access token not found');
+      throw new HttpException("no token", HttpStatus.OK);
     }
     const user = await this.profileService.getUserInfoFromToken(token);
     return { user: user };

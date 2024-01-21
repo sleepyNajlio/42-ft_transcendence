@@ -5,6 +5,7 @@ import { useContext, useEffect, useState } from 'react';
 import { UserContext } from './UserProvider.tsx';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { TwoFA } from './TwoFA.tsx';
 
 
 export async function turnOffTwoFactorAuth() {
@@ -18,9 +19,8 @@ export function Settings() {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [username, setUsername] = useState<string>("Richard");
     const [isTwoFactorAuthEnabled, setTwoFactorAuthEnabled] = useState(false);
-    const [isLoading, setIsLoading] = useState(true);
     const navigate = useNavigate();
-
+    const[twoFA, setTwoFa] = useState(false);
 
 
     const handleFileChange = (selectedFile: File | null) => {
@@ -51,28 +51,32 @@ export function Settings() {
         // const res = await finishSignup(username, selectedFile);
         
     }
+    const checkTwoFactorAuth = async () => {
+        // Replace with your actual API endpoint
+        await axios.get('http://localhost:3000/auth/twofa/check', {withCredentials: true})
+        .then((response) => {
+            console.log('2FA enabled:', response.data);
+            setTwoFactorAuthEnabled(response.data.isTwoFaEnabled);
+        })
+        .catch((error) => {
+            console.error('Failed to check 2FA:', error);
+        });
+    };
+
+    const TwofaDone = () => {
+        checkTwoFactorAuth();
+        setTwoFa(false);
+    }
+
     useEffect(() => {
-        const checkTwoFactorAuth = async () => {
-            // Replace with your actual API endpoint
-            await axios.get('http://localhost:3000/auth/twofa/check', {withCredentials: true})
-            .then((response) => {
-                console.log('2FA enabled:', response.data);
-                setTwoFactorAuthEnabled(response.data.isTwoFaEnabled);
-                setIsLoading(false);
-            })
-            .catch((error) => {
-                console.error('Failed to check 2FA:', error);
-                setIsLoading(false);
-            });
-        };
         checkTwoFactorAuth();
     }, []);
 
+
     return (
         <>
-        
             <main className="wrapper">
-                <div className="sbox ">
+                {!twoFA &&  <div className="sbox ">
                     <div className="sbox__title">
                         <h1 className="btitle">Settings</h1>
                         <h3 className="stitle">Adjust your profile</h3>
@@ -92,7 +96,7 @@ export function Settings() {
                         onChange={(e) => { 
                             setTwoFactorAuthEnabled(e.target.checked);
                             if (e.target.checked) {
-                                navigate('/TwoFA');
+                                setTwoFa(true);
                             } else {
                                 turnOffTwoFactorAuth();
                             }
@@ -105,9 +109,9 @@ export function Settings() {
                             <input type="text" id="input" name="input" placeholder='ex: manini manini' />
                         </div>
                         <button value="Save" className="filled bt" onClick={onSubmitSettings}> Done </button>
-
                     </div>
-                </div>
+                </div> }
+                {twoFA && <TwoFA user={user} onDone={TwofaDone} />}
             </main>
         </>
     )

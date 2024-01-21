@@ -13,8 +13,9 @@ export class UsersService {
   ) {}
 
   async GetUserByToken(token: string) {
-    // console.log("token: ", token);
-    const payload = this.jwt.verify(token);
+    
+    // console.log("token:", "'", token, "'");
+    const payload = this.jwt.verify(token.trim());
     // console.log("payload: ", payload);
     const user = await this.prisma.player.findUnique({
       where: { email: payload.email },

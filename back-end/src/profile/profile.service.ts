@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'src/prisma/prisma.service';
 
@@ -22,7 +22,7 @@ export class ProfileService {
       });
       return user;
     } catch (error) {
-      throw new Error('Invalid token'); // Handle token verification errors
+      throw new HttpException("invalid Token", HttpStatus.OK); // Handle token verification errors
     }
   }
 

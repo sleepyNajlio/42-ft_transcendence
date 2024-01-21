@@ -123,7 +123,7 @@ return (
           )
         }
         
-        {twoFA && <TwoFA userpre={userpre} />}
+        {twoFA && <TwoFA userpre={userpre} onDone={() => setTwoFa(false)}  />}
       </section>
     </>
   )
