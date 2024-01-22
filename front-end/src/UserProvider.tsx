@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect, useRef } from 'react';
-import { getHistory, getUser, initializeUser, getRank, getRanks } from './player';
+import { getHistory, getUser, initializeUser, getRank, getRanks, getUserInfo, getMatchHistory } from './player';
 import { initializeSocket, getSocket } from './socket';
 import { User, user, user_stats, History } from './Components/types';
 import { Socket } from 'socket.io-client';
@@ -15,6 +15,8 @@ interface UserContextProps {
   initialize: () => Promise<void>;
   updateStats: (win: Boolean) => void;
   updatehistory: (gameId: number) => Promise<void>;
+  getUserById: (id?: number) => Promise<user | null>;
+  getMatchHistory(id: number): Promise<History[] | null>;
 }
 
 interface UserProviderProps {
@@ -34,6 +36,8 @@ export const UserContext = createContext<UserContextProps>({
   initialize: async () => {},
   updateStats: (win:Boolean) => {},
   updatehistory: async (gameId: number) => {},
+  getUserById: async (id?: number): Promise<user | null> => { return null; },
+  getMatchHistory: async (id: number): Promise<History[] | null> => { return null; },
   socket: null
 });
 
@@ -55,6 +59,14 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
       }
     } );
   };
+
+  const getUserById = async (id?: number): Promise<user | null> => {
+    if (!id) {
+      return null;
+    }
+    const zbi: user | null = await getUserInfo(id);
+    return zbi;
+  }
   
 
   const updatehistory = async (gameId: number) => {
@@ -64,6 +76,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
       const newHistory: History = {} as History;
       newHistory.score1 = newusergames.find(game => game.userId === user?.id)?.score;
       newHistory.score2 = newusergames.find(game => game.userId !== user?.id)?.score;
+      console.log('score1', newHistory.score1, 'score2', newHistory.score2);
       newHistory.user2 = newusergames.find(game => game.userId !== user?.id).user.avatar;
       setHistory(prevHistory => {
         if (prevHistory) {
@@ -160,12 +173,12 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   }
 
   return (
-    <UserContext.Provider value={{ user, history, leadboard, updatehistory, updateStats, updateUser, initialize, socket }}>
+    <UserContext.Provider value={{ user, history, leadboard, getMatchHistory, getUserById, updatehistory, updateStats, updateUser, initialize, socket }}>
       {children}
     </UserContext.Provider>
   );
 };
 
-function updateLeadboard() {
-  throw new Error('Function not implemented.');
-}
+// function updateLeadboard() {
+//   throw new Error('Function not implemented.');
+// }

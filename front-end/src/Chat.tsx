@@ -1,5 +1,6 @@
 import  './styles/css/chat.css'
 import { useState, useEffect, useContext} from 'react';
+import { useToasts } from 'react-toast-notifications';
 import { UserContext } from './UserProvider.tsx';
 import Leftchat from './Components/Leftchat.tsx';
 import Rightchat from './Components/Rightchat.tsx';
@@ -56,14 +57,20 @@ export function Chat() { // get values from data base
     const [DisplayRoom, setDisplayRoom] = useState(false);
     const [DisplayDms, setDisplayDms] = useState(false);
     const [isOwner, setIsOwner] = useState(false);
-    const [RoomId, setRoomId] = useState(0);
     const [lastMessage, setLastMessage] = useState("");
-    const [showT, setShowT] = useState(false);
     const [welcomeMsg, setwelcomeMsg] = useState(!(showRoom || ShowDm || DisplayDms || DisplayRoom));
     const [passjoin, setPassjoin] = useState(true);
     const [chatUsers, setChatUsers] = useState<userChat | null>(null);
     const [isAdmin, setIsAdmin] = useState(false);
+    const [showNotifKick, setShownotifKick] = useState(false);
+    const [showNotifBan, setShownotifBan] = useState(false);
+    const [BanNotification, setBanNotification] = useState("");
+    const [KickNotification, setKickNotification] = useState("");
+    const [showNotifMute, setShownotifMute] = useState(false);
+    const [MuteNotification, setMuteNotification] = useState("");
+    const [MuteisOver, setMuteisOver] = useState(false);
 
+    const { addToast } = useToasts();
 
 
     // const handlejoinpass = () => {
@@ -77,66 +84,67 @@ export function Chat() { // get values from data base
         if (!joined || !selectedRoom) return;
 
         console.log("use effect called in join with rooms : ");
-        console.log(Rooms);
+        // console.log(Rooms);
         let id : number;
         id = Number(user?.id);
         socket?.emit('join', { 
-            id , 
+            id, 
             name: selectedRoom?.name,
-            type: selectedRoom?.type ,
+            type: selectedRoom?.type,
             selectedPswd: selectedRoom?.password,
-        },  (response : any[]) => {
-            if (!response)
-            {
-
-                // setJoined(false);
-                // setSelectedPswd("");
-                setShowRoom(false);
-                return;
-                // setwelcomeMsg(true);
-                // alert("Wrong password-")
-                // return;
+          }, (response: any[]) => {
+            if (response) {
+              socket?.emit('findAllMessages', { name: selectedRoom?.name, id: user?.id }, (response: any[]) => {
+                setMessages(response);
+              });
+            } else {
+              setShowRoom(false);
             }
-        });
-        socket?.emit('findAllMessages', {name: selectedRoom?.name, id: 0, username: null}, (response: any[]) => {
-            // console.log("response got in find alll: ");
-            // console.log(response);
-            setMessages(response);
-            // console.log(messages);
-        });
+          });
+          
+        let isUserBanned: boolean;
+        let isUserMuted: boolean;
         socket?.on('message', (message) => {
+            // console.log("message in frontttttttt : ");
+            // console.log(message);
             if (message.chat.id_chat === selectedRoom?.id_chat) {
-                setMessages((prevMessages) => [...prevMessages, message]);
+                // console.log("usrersss : ");
+                // console.log(message.chat.users);
+                isUserBanned = message.chat.users.some((usertmp : any) => usertmp.userId === user?.id && usertmp.isBanned);
+                isUserMuted = message.chat.users.some((usertmp : any) => usertmp.userId === user?.id && usertmp.isMuted);
+                // console.log("is user banned : " + isUserBanned);
+                if (!isUserBanned)
+                    setMessages((prevMessages) => [...prevMessages, message]);
             }
-                setRooms((prevRooms) => {
-                    if (prevRooms === null) {
-                        return null;
-                    }
-                    const updatedRooms = prevRooms.map((room) => {
-                        if (room.id_chat === message.chatId) {
-                            return {
-                                ...room,
-                                lastMessage: room.lastMessage
-                                    ? {
-                                          ...room.lastMessage,
-                                          message: message.message,
-                                          user: {
-                                              ...room.lastMessage.user,
-                                              username: message.user.username,
-                                          },
-                                      }
-                                    : {
-                                          message: message.message,
-                                          user: {
-                                              username: message.user.username,
-                                          },
+            setRooms((prevRooms) => {
+                if (prevRooms === null) {
+                    return null;
+                }
+                const updatedRooms = prevRooms.map((room) => {
+                    if (room.id_chat === message.chatId && !isUserBanned) {
+                        return {
+                            ...room,
+                            lastMessage: room.lastMessage
+                                ? {
+                                      ...room.lastMessage,
+                                      message: message.message,
+                                      user: {
+                                          ...room.lastMessage.user,
+                                          username: message.user.username,
                                       },
-                            };
-                        }
-                        return room;
-                    });
-                    return updatedRooms;
+                                  }
+                                : {
+                                      message: message.message,
+                                      user: {
+                                          username: message.user.username,
+                                      },
+                                  },
+                        };
+                    }
+                    return room;
                 });
+                return updatedRooms;
+            });
         });
 
             setJoined(false);
@@ -164,14 +172,14 @@ export function Chat() { // get values from data base
             // console.log("response got in joinDM: ");
             // console.log(response);
         });
-        socket?.emit('findAllMessages', {name: name, id, username: username}, (response: any[]) => {
+        socket?.emit('findAllMessagesDm', {name: name, id, username: username}, (response: any[]) => {
             // console.log("response got in find all: ");
             // console.log(response);
             setMessages(response);
             // console.log(messages);
         });
         socket?.on('message', (message) => {
-            console.log("id chat of the message is: ");
+            // console.log("id chat of the message is: ");
             // console.log(message);
             if ((message.user.username === username || message.user.username === name) && message.chat.name ===  null && message.chat.type === 'PRIVATE')
             {
@@ -256,8 +264,8 @@ export function Chat() { // get values from data base
         let id : number;
         id = Number(user?.id);
         socket?.emit('DisplayRoom', { id },  (response : Room[]) => {
-            console.log('rooms in display room :')
-            console.log(response);
+            // console.log('rooms in display room :')
+            // console.log(response);
             setRooms(response);
             // setIsOwner(true);
             // setDisplayDms(false);
@@ -266,7 +274,7 @@ export function Chat() { // get values from data base
         });
         
             socket?.on('rooms', (room) => {
-            console.log("from front rooms: ", room);
+            // console.log("from front rooms: ", room);
             setRooms((prevRooms: Room[] | null) => {
                 if (prevRooms === null) {
                         return [room];
@@ -310,24 +318,14 @@ export function Chat() { // get values from data base
         setDisplayRoom(true);
     }
 
-    const sendMessage = (messageText: string) => {
-        let id: number;
-        // console.log('send message called ')
-        id = Number(user?.id);
-        socket?.emit('createMessage', {
-            name: selectedRoom ? selectedRoom.name : name,
-            text: messageText,
-            id: id,
-            username: null,
-        });
-    }
+  
 
-    useEffect(() => {
-        console.log("user" + user?.id + " is listening on update in front");
-        console.log("listening on update in front");
+    useEffect( () => {
+        // console.log("user" + user?.id + " is listening on update in front");
+        // console.log("listening on update in front");
         socket?.on('update', (response : any) => {
-            console.log("room in update : ");
-            console.log(response);
+            // console.log("room in update : ");
+            // console.log(response);
             // console.log(Rooms);
             setRooms((prevRooms: Room[] | null) => {
                 if (prevRooms === null) {
@@ -336,7 +334,7 @@ export function Chat() { // get values from data base
                 return prevRooms.map((room) => {
                     console.log("in room ", response);
                     if (room.id_chat === response.id) {
-                        console.log("user " + user?.id + " will update the room " + room.id_chat + " with room " + response.id);
+                        // console.log("user " + user?.id + " will update the room " + room.id_chat + " with room " + response.id);
                         return {
                             ...room,
                             password: response.newPass,
@@ -346,55 +344,92 @@ export function Chat() { // get values from data base
                     return room;
                 });
             });
-
-            socket?.on('Admin', (response) => {
-           console.log("user" + user?.id + " is listening on Admin in front");
-
-                console.log("response got in Admin: ");
-                console.log(response);
-                if (response.userId === user?.id)
-                {
-                    console.log("user " + user?.id + " listen to him being admin " + response.chatId);
-                    setRooms((prevRooms: Room[] | null) => {
-                        if (prevRooms === null) {
-                            return null;
+            if (selectedRoom && selectedRoom.id_chat === response.id)
+            {
+                setSelectedRoom((prevRoom: Room | null) => {
+                    if (prevRoom === null) {
+                        return null;
                         }
-                        return prevRooms.map((room) => {
-                            console.log("in room ", response);
-                            if (room.id_chat === response.chatId) {
-                                console.log("user " + user?.id + " listen to him being admin " + room.id_chat + " with room " + response.chatId);
-                                return {
-                                    ...room,
-                                    role: response.role
-                                };
-                            }
-                            return room;
-                        });
-                    });
-                }
-            
-            });
-            // setRooms(...room, {passwrd: room.});
-            // setRooms(room);
-            
+                        return {
+                            ...prevRoom,
+                            password: response.newPass,
+                            type: response.type
+                            
+                        };
+                });
+            }
+            // setDisplayRoom(!DisplayRoom);
+            // setDisplayRoom(!DisplayRoom);
         });
 
         return () => {
-        console.log("off listening on update in front");
-        console.log("off listening on Admin in front");
-
 
             socket?.off('update');
-            socket?.off('Admin');
         };
-    },);
+    });
 
-    const handleleave = () => {
-        console.log("handle leave called in front");
+    useEffect(() => {
 
-        socket?.emit('leave', { id: user?.id, name: selectedRoom?.name }, (response: any) => {
-            console.log("response got in leave: ");
-            console.log(response);
+        socket?.on('Admin', (response) => {
+            // console.log("user" + user?.id + " is listening on Admin in front");
+ 
+            //      console.log("response got in Admin: ");
+            //      console.log(response);
+            //      console.log("user id : " + user?.id);
+                    // console.log("response user id : " + response.userId);
+                 if (response.userId === user?.id)
+                 {
+                     console.log("user " + user?.id + " listen to him being admin " + response.chatId);
+                     setRooms((prevRooms: Room[] | null) => {
+                         if (prevRooms === null) {
+                             return null;
+                         }
+                         return prevRooms.map((room) => {
+                            //  console.log("in room ", response);
+                            //  console.log("room id chat : " + room.id_chat);
+                            //     console.log("response chat id : " + response.chatId);
+                             if (room.id_chat === response.chatId) {
+                                //  console.log("++++++ user " + user?.id + " listen to him being admin " + room.id_chat + " with room " + response.chatId);
+                                 
+                                    return {
+                                        ...room,
+                                        chatUser: {
+                                            ...room.chatUser,
+                                            role: response.role,
+                                        },
+                                    };
+                             }
+                             return room;
+                         });
+                     });
+                     setSelectedRoom((prevRoom: Room | null) => {
+                        if (prevRoom === null) {
+                            return null;
+                            }
+                            return {
+                                ...prevRoom,
+                                chatUser: {
+                                    ...prevRoom.chatUser,
+                                    role: response.role,
+                                },
+                                
+                        };
+                    });
+                }
+             
+             });
+             
+             return () => {
+                //  console.log("off listening on Admin in front");
+                 socket?.off('Admin');
+                }
+    });
+
+    useEffect(() => {
+        socket?.on('onleave', (response) => {
+            // console.log("user" + user?.id + " is listening on leave in front");
+            // console.log("response got in leave: ");
+            // console.log(response);
             setRooms((prevRooms: Room[] | null) => {
                 if (prevRooms === null) {
                     return null;
@@ -406,25 +441,326 @@ export function Chat() { // get values from data base
                     return null;
                 });
             });
-            setSelectedRoom(null);
-            // setDisplayRoom(false);
-            // setwelcomeMsg(true);
+
+            if (selectedRoom?.name === response.chat.name && response.role === 'OWNER') {
+                console.log("User " + user?.id + "entered to change chatUserss in leave");
+
+                setChatUsers((prevChatUsers: any | null) => {
+                    if (prevChatUsers === null) {
+                        return null;
+                    }
+                    const updatedChatUsers = { ...prevChatUsers };
+                    delete updatedChatUsers[response.userId];
+                    return updatedChatUsers;
+                });
+            }
         });
-        if (DisplayDms)
-            setDisplayDms(!DisplayDms);
-        if (DisplayRoom)
-            setDisplayRoom(!DisplayRoom);
-        if (ShowDm)
-            setShowDm(!ShowDm);
-        if (showRoom)
-            setShowRoom(!showRoom);
+        return () => {
+            // console.log("off listening on leave in front");
+            socket?.off('leave');
+        }
+    });
+
+    
+    const handleleave = () => {
+        // console.log("handle leave called in front");
+
+        socket?.emit('leave', { id: user?.id, name: selectedRoom?.name }, (response: any) => {
+            // console.log("response got in leave: ");
+            // console.log(response);
+            setRooms((prevRooms: Room[] | null) => {
+                if (prevRooms === null) {
+                    return null;
+                }
+                return prevRooms.filter((room) => {
+                    if (room.id_chat !== response.id) {
+                        return room;
+                    }
+                    return null;
+                });
+            });
+            setSelectedRoom(null); 
+        });
+        if (DisplayDms) setDisplayDms(!DisplayDms);
+        if (DisplayRoom) setDisplayRoom(!DisplayRoom);
+        if (ShowDm) setShowDm(!ShowDm);
+        if (showRoom) setShowRoom(!showRoom);
         setwelcomeMsg(true);
+    }
+
+    useEffect(() => {
+    console.log("use effect called in show notifff");
+    if (showNotifKick)
+    addToast(`You were kicked from the room ${KickNotification}`, {
+        appearance: 'error',
+        autoDismiss: true,
+        autoDismissTimeout: 10000,
+        });
+        setShownotifKick(false);
+
+    }, [showNotifKick]);
+
+    useEffect(() => {
+      
+        socket?.on('onkick', (response) => {
+            if (user?.id === response.userId) {
+                console.log("user " + user?.id + " sees him kicked from the room " + response.chat.name);
+                console.log("selected room that the user is in ", selectedRoom);
+                if (selectedRoom?.name === response.chat.name) {
+                  setSelectedRoom(null);
+                  if (DisplayDms)
+                      setDisplayDms(!DisplayDms);
+                  if (DisplayRoom)
+                      setDisplayRoom(!DisplayRoom);
+                  if (ShowDm)
+                      setShowDm(!ShowDm);
+                  if (showRoom)
+                      setShowRoom(!showRoom);
+                  setwelcomeMsg(true);
+                  setKickNotification(response.chat.name);
+                  setShownotifKick(true);
+              }
+              else
+              {
+                console.log("user is not in the room " + user?.id + " but sees him kicked from the room " + response.chat.name);
+                setRooms((prevRooms: Room[] | null) => {
+                    if (prevRooms === null) {
+                        return null;
+                    }
+                    return prevRooms.map((room) => {
+                        if (response.chat.name === room.name) {
+                            console.log("user " + user?.id + " entered to delete hime self from " + response.chat.name);
+                            delete room.chatUser;
+                            return room;
+                        }
+                        return room;
+                    });
+                });
+                setKickNotification(response.chat.name);
+                setShownotifKick(true);
+              }
+          }
+          });
+          return () => {
+            // console.log("off listening on kick in front");
+            socket?.off('onkick');
+  
+          };
+        });
+
+        useEffect(() => {
+            console.log("use effect called in show notifff");
+            if (showNotifBan)
+            addToast(`You were banned from the room ${BanNotification}`, {
+                appearance: 'error',
+                autoDismiss: true,
+                autoDismissTimeout: 10000,
+                });
+                setShownotifBan(false);
+        
+            }, [showNotifBan]);
+
+
+        useEffect(() => {
+        socket?.on('onban', (response) => {
+
+            setRooms((prevRooms: Room[] | null) => {
+                if (prevRooms === null) {
+                    return null;
+                }
+                return prevRooms.map((room) => {
+                   //  console.log("in room ", response);
+                   //  console.log("room id chat : " + room.id_chat);
+                   //     console.log("response chat id : " + response.chatId);
+                    if (room.id_chat === response.chatId && user?.id === response.userId) {
+                       //  console.log("++++++ user " + user?.id + " listen to him being admin " + room.id_chat + " with room " + response.chatId);
+                        
+                           return {
+                               ...room,
+                               chatUser: {
+                                   ...room.chatUser,
+                                   role: response.role,
+                                   isBanned: response.isBanned
+                               },
+                           };
+                    }
+                    return room;
+                });
+            });
+            if (user?.id === response.userId)
+            {
+                console.log("response is : ");
+                console.log(response);
+
+                setChatUsers((prevChatUsers: any | null) => {
+                    if (prevChatUsers === null) {
+                        return null;
+                    }
+                    if (prevChatUsers[response.userId])
+                    {
+                        const updatedChatUsers = { ...prevChatUsers };
+                        updatedChatUsers[response.userId].isBanned = true;
+                        return updatedChatUsers;
+                    }
+                });
+
+                setBanNotification(response.chat.name);
+                setShownotifBan(true);
+                
+                if (selectedRoom?.name === response.chat.name) {
+                    setSelectedRoom((prevRoom: Room | null) => {
+                        if (prevRoom === null) {
+                            return null;
+                            }
+                            return {
+                                ...prevRoom,
+                                chatUser: {
+                                    ...prevRoom.chatUser,
+                                    role: response.role,
+                                    isBanned: response.isBanned
+                                },
+                                
+                        };
+                    });
+                }
+            }
+        });
+
+        return () => {
+            // console.log("off listening on ban in front");
+            socket?.off('onban');
+        };
+    });
+
+    useEffect(() => {
+        console.log("use effect called in show  mute notifff");
+        if (showNotifMute)
+        addToast(`You were muted for 5 min from the room ${MuteNotification}`, {
+            appearance: 'error',
+            autoDismiss: true,
+            autoDismissTimeout: 10000,
+            });
+            setShownotifMute(false);
+    
+        }, [showNotifMute]);
+
+    useEffect(() => {
+            console.log("use effect called in mute is over");
+            if (MuteisOver)
+            addToast(`Your mute for 5 min in room ${MuteNotification} is over`, {
+                appearance: 'error',
+                autoDismiss: true,
+                autoDismissTimeout: 10000,
+                });
+                setMuteisOver(false);
+        
+            }, [MuteisOver]);
+
+    useEffect(() => {
+
+        socket?.on('onmute', (response) => {
+            setRooms((prevRooms: Room[] | null) => {
+                if (prevRooms === null) {
+                    return null;
+                }
+                return prevRooms.map((room) => {
+                   //  console.log("in room ", response);
+                   //  console.log("room id chat : " + room.id_chat);
+                   //     console.log("response chat id : " + response.chatId);
+                    if (room.id_chat === response.chatId && user?.id === response.userId) {
+                       //  console.log("++++++ user " + user?.id + " listen to him being admin " + room.id_chat + " with room " + response.chatId);
+                        
+                           return {
+                               ...room,
+                               chatUser: {
+                                    ...room.chatUser,
+                                    role: response.role,
+                                    isMuted: response.isMuted
+                               },
+                           };
+                    }
+                    return room;
+                });
+            });
+            if (user?.id === response.userId) {
+
+                console.log("response is : ");
+                console.log(response);
+
+                setChatUsers((prevChatUsers: any | null) => {
+                    if (prevChatUsers === null) {
+                        return null;
+                    }
+                    if (prevChatUsers && prevChatUsers[response.userId])
+                    {
+                        const updatedChatUsers = { ...prevChatUsers };
+                        updatedChatUsers[response.userId].isMuted = response.isMuted;
+                        return updatedChatUsers;
+                    }
+                });
+                if (response.isMuted){
+                    setMuteNotification(response.chat.name);
+                    setShownotifMute(true);
+                    setTimeout(() => {
+                        setMuteisOver(true);
+                        setMuteNotification(response.chat.name);
+                    }, 5 * 12 * 1000);
+                }
+                if (selectedRoom?.name === response.chat.name) {
+                    setSelectedRoom((prevRoom: Room | null) => {
+                        if (prevRoom === null) {
+                            return null;
+                            }
+                            return {
+                                ...prevRoom,
+                                chatUser: {
+                                    ...prevRoom.chatUser,
+                                    role: response.role,
+                                    isMuted: response.isMuted,
+                                },
+                                
+                        };
+                    });
+                }
+            }
+        });
+
+
+        return () => {
+            // console.log("off listening on mute in front");
+            socket?.off('onmute');
+        }
+
+    });
+      
+    const handleMute = (name : string, userId : number) => {
+
+        socket?.emit('mute', { id: userId,  name: name}, (response: any) => {
+            if (!response)
+                alert("user already muted or not in the room");
+        });
+    }
+
+    const handleKick = (name : string, userId : number) => {
+        // console.log("handle kick called in front");
+        socket?.emit('kick', { id: userId,  name: name}, (response: any) => {
+           if (!response)
+                alert("user already not in the room");
+        });
+    }
+
+    const handleBan = (name : string, userId : number) => {
+        // console.log("handle ban called in front");
+        socket?.emit('ban', { id: userId,  name: name}, (response: any) => {
+            if (!response)
+                alert("user already banned or not in the room");
+        });
     }
 
     const handleUpdateRoom = (newPass : string, modifypass : boolean, setPass : boolean, removepass : boolean) => {
 
         socket?.emit('updateRoom', {id: user?.id, name: selectedRoom?.name, type: selectedRoom?.type, newPass: newPass, modifypass: modifypass, setPass: setPass, removepass: removepass }, (response: any) => {
-            console.log("response got in update room: ");
+            // console.log("response got in update room: ");
             // console.log(response);
             
             setRooms((prevRooms: Room[] | null) => {
@@ -452,32 +788,49 @@ export function Chat() { // get values from data base
                         ...prevRoom,
                         password: response.newPass,
                         type: response.type
+                        
                         };
             });
         });
         return () => {
-            // socket?.off('update');
         }
     }
+
     
+    
+
     const handleAdmin = (username : string) => {
-        console.log("handle admin called in front");
-        console.log("username : " + username);
+        // console.log("handle admin called in front");
+        // console.log("username : " + username);
         socket?.emit('setAdmin', { id: user?.id, username: username, name: selectedRoom?.name }, (response: any) => {
-            console.log("response got in set admin: ");
-            console.log(response);
+            // console.log("response got in set admin: ");
+            // console.log(response);
             setChatUsers((prevChatUsers: any | null) => {
                 if (prevChatUsers === null) {
                     return null;
                 }
                 return { ...prevChatUsers, role: response.role }; 
             });
+
             // setDisplayRoom(!DisplayRoom);
             // setDisplayRoom(!DisplayRoom);
         });
         return () => {
             // socket?.off('update');
         }
+    }
+
+
+    const sendMessage = (messageText: string) => {
+        let id: number;
+        // console.log('send message called ')
+        id = Number(user?.id);
+        socket?.emit('createMessage', {
+            name: selectedRoom ? selectedRoom.name : name,
+            text: messageText,
+            id: id,
+            username: null,
+        });
     }
 
     const sendMessageDm = (messageText: string) => {
@@ -498,7 +851,7 @@ export function Chat() { // get values from data base
 
     }
     
-    const getChatUsers = (name: string) => {
+    const getChatUsers = (name: string | null) => {
         socket?.emit('getChatUsers', { name, id : user?.id }, (response: userChat) => {
             // console.log("response got in getChatUsers: ", response.userChat);
             // console.log("hahahaa", response.id_chat);
@@ -539,62 +892,63 @@ export function Chat() { // get values from data base
 
 
 
+
     // for joining room
     const handleRoomClick = (room: Room) => {
         socket?.off('message');
-        console.log('room clickedddd with :');
-        console.log(room.id_chat);
-        console.log(room.name + " ===== " + room.type + " " );
-        console.log("with pass = " + selectedPswd);
+        // console.log('room clickedddd with :');
+        // console.log(room.id_chat);
+        // console.log(room.name + " ===== " + room.type + " " );
+        // console.log("with pass = " + selectedPswd);
 
         getChatUsers(room.name);
         if (room.chatUser && room.chatUser.role === 'OWNER') {
-            console.log("is owner is set to true");
+            // console.log("is owner is set to true");
           setIsOwner(true);
         } else {
           setIsOwner(false);
         }
         if (room.chatUser && room.chatUser.role === 'ADMIN') {
-            console.log("is admin is set to true");
+            // console.log("is admin is set to true");
           setIsAdmin(true);
         } else {
           setIsAdmin(false);
         }
 
         if (room.type === 'PUBLIC') {
-            console.log("room is publicccccc");
+            // console.log("room is publicccccc");
             setSelectedRoom(room);
             setJoined(true);
             return;
         }
 
         if (room.type === 'PROTECTED' && room.chatUser) {
-            console.log("the Room prtected and chat user is true");
+            // console.log("the Room prtected and chat user is true");
             setSelectedRoom(room);
             setJoined(true);
             return;
         }
         if (room.type === 'PROTECTED' && selectedPswd ===  room.password) {
-            console.log("room protected and it's modified");
+            // console.log("room protected and it's modified");
             setSelectedRoom(room);
             setShowRoom(false);
             setwelcomeMsg(true);
             return;
         }
         if (room.type === 'PROTECTED' && !selectedPswd && !room.chatUser) {
-            console.log("welcome msg is set to truuuue");
+            // console.log("welcome msg is set to truuuue");
             // console.log("show passjoin is : " + passjoin);
             setPassjoin(true);
-            console.log(room);
+            // console.log(room);
             setSelectedRoom(room);
             setShowRoom(false);
             setwelcomeMsg(true);
             return;
         }
         if (room.type === 'PROTECTED' && selectedPswd !==  room.password && !room.chatUser) {
-            console.log("selected pswd is : " + selectedPswd + " and room pswd is : " + room.password);
-            console.log("welcome msg is set to true");
-            console.log("show passjoin is : " + passjoin);
+            // console.log("selected pswd is : " + selectedPswd + " and room pswd is : " + room.password);
+            // console.log("welcome msg is set to true");
+            // console.log("show passjoin is : " + passjoin);
             setPassjoin(true);
             setSelectedRoom(room);
             setShowRoom(false);
@@ -602,7 +956,7 @@ export function Chat() { // get values from data base
             return;
         }
         if (room.type === 'PRIVATE') {
-            console.log("room is privateeeeee");
+            // console.log("room is privateeeeee");
             setSelectedRoom(room);
             setJoined(true);
             return;
@@ -654,7 +1008,8 @@ export function Chat() { // get values from data base
                 <div className="gauche">
                     {showRoom && <Leftchat userid={user?.id} showRoom={showRoom}messages={messages} name={selectedRoom?.name} sendMessage={sendMessage} isOwner={isOwner}
                      Roomtype={selectedRoom?.type} handleUpdateRoom={handleUpdateRoom} handleAdmin={handleAdmin} HandleDisplayRoom={HandleDisplayRoom} DisplayRoom={DisplayRoom} room={selectedRoom}
-                     getChatUsers={getChatUsers} isAdmin={isAdmin} chatUsers={chatUsers} handleleave={handleleave}/> }
+                     getChatUsers={getChatUsers} isAdmin={isAdmin} chatUsers={chatUsers} handleleave={handleleave} handleKick={handleKick}
+                     handleBan={handleBan} handleMute={handleMute}/> }
                     {ShowDm && <Leftchat userid={user?.id} showDm={ShowDm} messages={messages} name={name}sendMessageDm={sendMessageDm} Friends={Friends}/> }
                     
                 {welcomeMsg && 

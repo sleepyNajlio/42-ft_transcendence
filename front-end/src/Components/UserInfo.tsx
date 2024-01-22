@@ -19,7 +19,9 @@ import search from '../assets/SearchIcon.png';
           <img src={search} alt="Icon2" width="20" height="20" />
           <input
             type="text"
-            placeholder="Search..."
+            placeholder="Add friend..."
+            onFocus={props.onFocus}
+            onBlur={props.onBlur}
             onChange={handleInputChange}
           />
         </div>

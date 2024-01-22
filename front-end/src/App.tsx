@@ -15,20 +15,34 @@ import { UserContext } from './UserProvider.tsx';
 import AuthGuard from './guards/AuthGuard.tsx';
 import UnAuthGuard from './guards/UnAuthGuard.tsx';
 import { useMediaPredicate, useMedia } from 'react-media-hook';
-import {inviteStatus} from './Components/types.ts'
+import {inviteStatus, user} from './Components/types.ts'
 import { TestChat } from './Testchat.tsx';
 import axios from 'axios';
+import { History } from './Components/types.ts';
+import { ToastProvider } from 'react-toast-notifications';
 
+interface inviters
+{
+    user_id: string,
+     username: string,
+     gameId: number,
+}
+
+enum NotifType {
+    MESSAGE = 'MESSAGE',
+    INVITE = 'INVITE',
+    GAME = 'GAME',
+  }
 
 function App()
 {
     const location = useLocation();
     
-    const navigate = useNavigate();
     const [invite, setInvite] = useState<inviteStatus>(inviteStatus.NONE);
-    const [inviters, setInviters] = useState<{user_id: string, username: string, gameId: number}[]>([]);
-    const [isnotified, setisnotified] = useState(true);
+    const [inviters, setInviters] = useState<{user_id:string, avatar: string, username: string, type: NotifType}[]>([]);
     const [inPlay, setInPlay] = useState(false);
+    const [profile, setProfile] = useState<user | null>(null);
+    const [history, setHistory] = useState<History[] | null>(null);
     const { user, initialize,  socket } = useContext(UserContext);
 
     const checkIfMediumPlus = useMediaPredicate(
@@ -56,6 +70,7 @@ function App()
                 accepted: resp,
                 userId: inviter?.user_id.toString(),
                 adv_id: user?.id.toString(),
+                avatar: user?.avatar,
                 username: user?.username,
                 gameId: inviter?.gameId,
                 width: width > 750 ? width * 0.8 : width,
@@ -118,11 +133,9 @@ function App()
                 if (response.length > 0) {
                     // use user_id and username from response to setInviters
                     setInviters(response);
-                    setInvite(inviteStatus.INVITED);
-                    setisnotified(true);
+                    setInvite(inviteStatus.NONE);
+                    console.log('response: ', response);
                 }
-                else
-                    setisnotified(false);
             });
             socket.on('invited', (data: any) => handleInvited(data));
             socket.on('rminvite', (data: any) => handleRmInvite(data));
@@ -139,8 +152,7 @@ function App()
         if (inPlay)
             return;
         console.log("invited by ", data);
-        setisnotified(true);
-        setInviters(prevInviters => [...prevInviters, {user_id: data.user_id, username: data.username, gameId: data.gameId}]);
+        setInviters(prevInviters => [...prevInviters, {user_id: data.user_id, avatar: data.avatar, username: data.username, type: NotifType.GAME, paddle: data.paddle}]);
         setInvite(inviteStatus.INVITED);
     };
     const handleRmInvite = (data: any) => {
@@ -151,7 +163,9 @@ function App()
     const [boardWidth, setboardWidth] = useState<number | null>(null);
 
     return (
+        
         <div className={`container ` + (checkIfMediumPlus ? "default" : "one")}>
+        
         <Routes>
             <Route key='Login' path='/' element={<UnAuthGuard component={<Login />}  />}>
                 {' '}
@@ -165,35 +179,30 @@ function App()
             element={
                 <AuthGuard
                     component={
+                    <ToastProvider>
                     <>
-                        {location.pathname != "/" && location.pathname != "/Config" && location.pathname != "/TwoFA" && location.pathname != "/Verify2FA" && (<Navbar />)}
-                        <div className="invite sbox">
-                        {isnotified && invite === inviteStatus.INVITED && inviters.map((inviter) => ( (
-                            <div key={inviter.user_id} className="invite">
-                                <div className="sbox__title">
-                                    <h1 className="btitle">{inviter.username} {inviter.user_id}</h1>
-                                    <h3 className="stitle">invited you to play</h3>
-                                </div>
-                                <div className="sbox__btn">
-                                    <button className="trans bt" onClick={()=> {inviteResp(true, inviter); navigate('/Play')}}>Accept</button>
-                                    <button className="filled bt" onClick={()=> inviteResp(false, inviter)}>decline</button>
-                                </div>
-                            </div>
-                                )))}
-                        </div>
-                        <Routes>
-                        <Route key='Config' path='/Config' caseSensitive={true} element={<Config />} />
-                        <Route key='TwoFA' path='/TwoFA' caseSensitive={true} element={<TwoFA />} />
-                        <Route key='testchat' path='/Testchat' caseSensitive={true} element={<TestChat />} />
-                        <Route key='Verify2FA' path='/Verify2FA' caseSensitive={true} element={<Verify2FA />} />
-                        <Route key='Profile' path='/Profile' caseSensitive={true} element={<Profile />} />
-                        <Route key='Play' path='/Play' caseSensitive={true} element={<Play setInPlay={setInPlay} inviter={inviters} setboardWidth={setboardWidth} />} />
-                        <Route key='Chat' path='/Chat' caseSensitive={true} element={<Chat />} />
-                        <Route key='Settings' path='/Settings' caseSensitive={true} element={<Settings />} />
-                        <Route key='Leaderboard' path='/Leaderboard' caseSensitive={true} element={<Leaderboard />} />
-                        <Route path='*' element={<Navigate to='/Profile' />} />
-                        </Routes>
+                        {location.pathname != "/" && location.pathname != "/Config" && location.pathname != "/TwoFA" && location.pathname != "/Verify2FA" && 
+                        (<Navbar setProfile={setProfile} setHistory={setHistory} invite={invite} inviters={inviters} inviteResp={inviteResp} setInvite={setInvite}/>)
+                        }
+                        {
+                            <>
+                                <Routes>
+                                <Route key='Config' path='/Config' caseSensitive={true} element={<Config />} />
+                                <Route key='TwoFA' path='/TwoFA' caseSensitive={true} element={<TwoFA  />} />
+                                <Route key='testchat' path='/Testchat' caseSensitive={true} element={<TestChat />} />
+                                <Route key='Verify2FA' path='/Verify2FA' caseSensitive={true} element={<Verify2FA />} />
+                                <Route key='Profile' path='/Profile' caseSensitive={true} element={<Profile freind={profile} fhistory={history} />} />
+                                <Route key='Play' path='/Play' caseSensitive={true} element={<Play setHistory={setHistory} setProfile={setProfile} setInPlay={setInPlay} inviter={inviters} setboardWidth={setboardWidth} />} />
+                                <Route key='Chat' path='/Chat' caseSensitive={true} element={<Chat />} />
+                                <Route key='Settings' path='/Settings' caseSensitive={true} element={<Settings />} />
+                                <Route key='Leaderboard' path='/Leaderboard' caseSensitive={true} element={<Leaderboard />} />
+                                <Route path='*' element={<Navigate to='/Profile' />} />
+                                </Routes>
+                            </>
+                        }
+                        
                     </>
+                    </ToastProvider>
                     }
                 />
             }

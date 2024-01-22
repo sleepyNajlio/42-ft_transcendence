@@ -1,0 +1,51 @@
+.notif-container
+{
+    position: absolute;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease-in-out;
+    top: 20%;
+    left: 28%;
+    transform: translate(-50%, -50%);
+}
+.notification {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    background-color: #f2f2f2;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+.notification-button:hover {
+    transform: scale(1.05);
+}
+
+.notification-image {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.notification-name, .notification-text {
+    font-weight: bold;
+    margin-right: 10px;
+    color: #45a049;
+}
+
+.notification-button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+    margin-right: 5px;
+}
+
+.notification-button:hover {
+    background-color: #45a049;
+}
+

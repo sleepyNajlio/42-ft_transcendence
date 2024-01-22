@@ -1,6 +1,6 @@
 import '../styles/css/main.css'
 import LoadingComponent from './LoadingComponent'; // Import the loading component
-import { SetStateAction, useEffect, useRef, useState } from 'react';
+import { SetStateAction, useContext, useEffect, useRef, useState } from 'react';
 import { User, inviteStatus } from './types';
 import Board1 from '../assets/game/zig-zag.svg';
 import Board2 from '../assets/game/sor.svg';
@@ -8,9 +8,13 @@ import Board4 from '../assets/game/b4.svg';
 import '@fortawesome/fontawesome-free/css/all.min.css'; // Import Font Awesome styles
 import { Pattern, Rect, SVG, Svg } from '@svgdotjs/svg.js';
 import { padlPattern1, padlPattern2, padlPattern3, boardPattern1, boardPattern2, boardPattern3 } from './patterns';
+import GamePattern from './Pattern';
+import { Link, useNavigate } from 'react-router-dom';
+import { UserContext } from '../UserProvider';
 
 
 export default function Sbox(props: any) {
+  const navigate = useNavigate();
     const [users, setUsers] = useState<User[]>([]);
     const [Players, setPlayers] = useState(false);
     const psvgRef = useRef<Svg | null>(null);
@@ -19,6 +23,8 @@ export default function Sbox(props: any) {
     const boardRef = useRef<Rect | null>(null);
     const {setCurrentBoard, setCurrentPad}  = props;
     const {currentPad, currentBoard, isLoading} = props;
+    const { getUserById, getMatchHistory } = useContext(UserContext);
+
     
     const handlePrevClick = (slide: number) => {
       if (slide === 1)
@@ -83,22 +89,23 @@ export default function Sbox(props: any) {
 
     useEffect(() => {
       console.log("sbox show");
-      if ( !isLoading) {
-        psvgRef.current = SVG().addTo('#padl').size(200, 125);
-        paddleRef.current = psvgRef.current.rect(40, 150).radius(15).cx(100).cy(72).rotate(60).fill(psvgRef.current.pattern(10, 10, function(add) {
-          add.rect(10, 10).fill('#fff');
-          add.rect(7.7, 7.7).rotate(45).translate(5, 0).fill('#444');
-          } ));
-        bsvgRef.current = SVG().addTo('#board').size(200, 125);
-        boardRef.current = bsvgRef.current.rect(200, 125).fill(bsvgRef.current.pattern(50, 50, function(add) {
-          add.image(Board1).size(50, 50);
-          } ));
-      }
       return () => {
         bsvgRef.current?.remove();
         psvgRef.current?.remove();
       }
     }, [isLoading]);
+  function searchPlayer(id_player: string): void {
+    const history = getMatchHistory(Number(id_player)).then (res => {
+      console.log("history: ", res);
+      props.setHistory(res);
+    } );
+    const player = getUserById(Number(id_player)).then (res => {
+      console.log("player: ", res);
+      props.setProfile(res);
+    });
+    navigate("/Profile")
+  }
+
     return (
         <>
             <main className="wrapper">
@@ -124,6 +131,7 @@ export default function Sbox(props: any) {
                                 <img src={user.avatar} alt="player" className="player__img" />
                                 <h3 className="player__name">{user.username}</h3>
                                 <button onClick={()=> props.handleFriendClick(user.id_player)} className="player__button" >Invite</button>
+                                {/* <button onClick={()=> searchPlayer(user.id_player)} className="player__button" >Invite</button> */}
                                 </div>
                             ))}
                           </div>
@@ -144,7 +152,7 @@ export default function Sbox(props: any) {
                           <div className="boardslider">
                             <h3 className="stitle">Choose your board</h3>
                             <div className="boards">
-                              <div id="board" className="board"></div>
+                              <GamePattern pad={0} board={currentBoard} width={200} height={125} cx={100} cy={62} />
                               {/* <img src={Board1} alt="board" className="board" /> */}
                             </div>
                             <button className="slide_btn" onClick={()=>handlePrevClick(2)}><i className="fas fa-chevron-left"></i></button>
@@ -153,7 +161,7 @@ export default function Sbox(props: any) {
                           <div className="boardslider">
                             <h3 className="stitle">Choose your paddle</h3>
                             <div className="paddls boards">
-                              <div id="padl" className="board"></div>
+                              <GamePattern pad={currentPad} board={0} width={160} height={125} cx={90} cy={62}/>
                               {/* <div id="padl" className="board"> */}
                               {/* </div> */}
                             </div>
@@ -161,23 +169,6 @@ export default function Sbox(props: any) {
                             <button className="slide_btn slide1" onClick={()=>handleNextClick(1)}><i className="fas fa-chevron-right"></i></button>
                           </div>
                         </div>
-                        {/* {props.invite === inviteStatus.INVITED && (
-                          <div className="sbox__title">
-                              <h1 className="btitle">Invite from {props.inviter.username}</h1>
-                          </div>
-                        )}
-                        {props.invite === inviteStatus.ABORTED && (
-                          <div className="sbox__title">
-                              <h1 className="btitle">{props.inviter.username} Aborted invitation</h1>
-                          </div>
-                        )} */}
-                        {/* {props.invite === inviteStatus.INVITED && (
-                          <div className="sbox__btn">
-                            <button className="trans bt" onClick={()=> props.inviteResp(true, props.inviter)}>Accept</button>
-                            <button className="filled bt" onClick={()=> props.inviteResp(false, null)}>decline</button>
-                          </div>
-                        )}
-                           */}
                     </div>
                 )}
             </main>

@@ -11,6 +11,7 @@ import { CreateMessageDto } from './dto/create-message.dto';
 import { Server, Socket } from 'socket.io';
 import { SocketGateway } from 'src/socket/socket.gateway';
 import { ChatType } from '@prisma/client';
+import { subscribe } from 'diagnostics_channel';
 
 type updatedRoom = {
   newPass: string | null;
@@ -39,6 +40,7 @@ export class MessagesGateway
 
   async handleConnection(client: any, ...args: any[]) {
     console.log(`Message gateway client connected: ${client.id}`);
+    this.messagesService.clients[client.id] = client;
   }
 
   @SubscribeMessage('Friends')
@@ -110,7 +112,8 @@ export class MessagesGateway
       id,
       username,
     );
-
+      
+    if (!message) return false;
     // console.log('message in gateway : ');
     const room = 'chat_' + message.chatId;
     // console.log('room in gateway : ');
@@ -147,15 +150,25 @@ export class MessagesGateway
     } else return false;
     // return Room;
   }
-  @SubscribeMessage('findAllMessages') // to be able to see the old messages
+  @SubscribeMessage('findAllMessagesDm') // to be able to see the old messages
   async findAll(
     @MessageBody('name') name: string,
     @MessageBody('id') id: number,
     @MessageBody('username') username: string | null,
     // @ConnectedSocket() client: Socket,
   ) {
-    return await this.messagesService.findAll(name, id, username);
+    return await this.messagesService.findAllDm(name, id, username);
   }
+
+  @SubscribeMessage('findAllMessages')
+  async findAllMessages(
+    @MessageBody('name') name: string,
+    @MessageBody('id') id: number,
+    @ConnectedSocket() client: Socket,
+  ) {
+    return await this.messagesService.findAllMessages(name, id);
+  }
+
   @SubscribeMessage('join')
   async joinRoom(
     @MessageBody('id') id: number,
@@ -178,6 +191,7 @@ export class MessagesGateway
     );
     // console.log('room in gateway : ');
     // console.log(room);
+    console.log('user: ' + id + ' joined the chat');
     if (room) {
       client.join('chat_' + room.id_chat);
       console.log('user: ' + id + ' joined the chat');
@@ -206,6 +220,68 @@ export class MessagesGateway
     return room;
   }
 
+  @SubscribeMessage('kick')
+  async kick(
+    @MessageBody('id') id: number,
+    @MessageBody('name') name: string,
+    @ConnectedSocket() client: Socket,
+  ) {
+    console.log('kick called ');
+    this.socketGateway.getClientSocket(id.toString())?.map((socketa) => {
+      // console.log('socketat');
+      // console.log(socketa.id);
+      // if (socketa.id !== client.id) {
+        console.log('socketat');
+        console.log(socketa.id);
+        // socketa.leave('chat_' + id);
+      // }
+    });
+    // Log all client IDs
+    const room = await this.messagesService.kick(id, name);
+    if (room) {
+      this.socketGateway.getServer().emit('onkick', room);
+      return room;
+    } else {
+      return false;
+    }
+  }
+
+@SubscribeMessage('ban')
+async ban(
+  @MessageBody('id') id: number,
+  @MessageBody('name') name: string,
+  @ConnectedSocket() client: Socket,
+) {
+
+
+  const room = await this.messagesService.ban(id, name);
+  if (room) {
+    this.socketGateway.getServer().emit('onban', room);
+    return room;
+  }
+  else {
+    return false;
+  }
+}
+
+@SubscribeMessage('mute')
+async mute(
+  @MessageBody('id') id: number,
+  @MessageBody('name') name: string,
+  @ConnectedSocket() client: Socket,
+) {
+
+  const room = await this.messagesService.mute(id, name);
+  if (room) {
+    this.socketGateway.getServer().emit('onmute', room);
+    return room;
+  }
+  else {
+    return false;
+  }
+}
+
+
   @SubscribeMessage('leave')
   async leave(
     @MessageBody('id') id: number,
@@ -215,6 +291,7 @@ export class MessagesGateway
     const room = await this.messagesService.leave(id, name);
     client.leave('chat_' + room.chatId);
     console.log('user: ' + id + ' left the chat');
+    this.socketGateway.getServer().emit('onleave', room);
     return room;
   }
 
