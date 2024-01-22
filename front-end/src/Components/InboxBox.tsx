@@ -74,7 +74,7 @@ import { useState } from 'react';
             {profilePicture(roomlogo)}
             <div className="message-style">
               <p className="text1">{props.room.name}</p>
-              {props.room.lastMessage && props.room.chatUser && (
+              {props.room.lastMessage && props.room.chatUser && !props.room.chatUser.isBanned && (
                 <p className="text2">
                   {props.room.lastMessage.user.username + ": " + props.room.lastMessage.message}
                 </p>
