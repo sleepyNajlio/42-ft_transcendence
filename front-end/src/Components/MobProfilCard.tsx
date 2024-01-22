@@ -20,9 +20,9 @@ function PofilCard(props: {user: user}){
     <div className="left-div desktop">
       <div className="ptest desktop">
         <div className="left-content profil__card">
-          <ProfilStat user_stats={props.user.user_stats} cercle={cercle} stats_names={Mstats_names}></ProfilStat>
+          <ProfilStat  user_stats={props.user.user_stats} cercle={cercle} stats_names={Mstats_names}></ProfilStat>
         </div>
-        <ProfilInfo name={props.user.username} rank={props.user.rank} image={props.user.avatar}></ProfilInfo>
+        <ProfilInfo state={props.user.friend} name={props.user.username} rank={props.user.rank} image={props.user.avatar}></ProfilInfo>
       </div>
     </div>
     <ProfilAch winsRat={props.user.user_stats.winsRat} wins={props.user.user_stats.wins} total_matches={props.user.user_stats.total_matches}></ProfilAch>

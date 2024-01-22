@@ -19,6 +19,7 @@ export type user = {
   avatar: string;
   achievement: number;
   user_stats: user_stats;
+  friend?: string;
   // Add other properties as needed
 };
 

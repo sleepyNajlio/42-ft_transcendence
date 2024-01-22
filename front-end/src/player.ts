@@ -48,6 +48,7 @@ export async function getUserInfo(id?: number): Promise<user | null> {
             avatar: res.user.avatar,
             achievement: achievement,
             user_stats: stats,
+            friend: res.state,
         };
         return user;
     } else {

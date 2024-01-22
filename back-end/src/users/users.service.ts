@@ -13,7 +13,6 @@ export class UsersService {
   ) {}
 
   async GetUserByToken(token: string) {
-    
     // console.log("token:", "'", token, "'");
     const payload = this.jwt.verify(token.trim());
     // console.log("payload: ", payload);

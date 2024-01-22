@@ -30,8 +30,13 @@ export class MessagesService {
           equals: name,
         },
       } as ChatWhereInput,
+      include: {
+        bannedUsers: true, // Include bannedUsers in the query result
+      },
     });
 
+    // Check if the bannedUsers include the player with id_player equal to id
+    const isBanned = existingChat.bannedUsers.some((user) => user.id_player === id);
     // console.log('id: ' + id + ' user: ' + name + ' is trying to join the chat');
     if (existingChat.type === 'PROTECTED') {
       chatUSers = await this.prisma.chatUser.findFirst({
@@ -45,17 +50,30 @@ export class MessagesService {
         return false;
       }
       if (chatUSers) {
-        // console.log('id: ' + id + ' user: ' + name + ' already joined the chat');
         return existingChat;
       } else {
-        chatUSers = await this.prisma.chatUser.create({
-          data: {
-            chatId: existingChat.id_chat,
-            userId: id,
-          },
-        });
+        if (isBanned)
+        {
+          console.log('user was Banned in the room before');
+          chatUSers = await this.prisma.chatUser.create({
+            data: {
+              chatId: existingChat.id_chat,
+              userId: id,
+              isBanned: true,
+            },
+          });
+        }
+        else{
+          chatUSers = await this.prisma.chatUser.create({
+            data: {
+              chatId: existingChat.id_chat,
+              userId: id,
+            },
+          });
+        }
       }
-    } else {
+    }
+    else {
       chatUSers = await this.prisma.chatUser.findFirst({
         where: {
           chatId: existingChat.id_chat,
@@ -63,15 +81,40 @@ export class MessagesService {
         },
       });
       if (chatUSers) {
-        // console.log('id: ' + id + ' user: ' + name + ' already joined the chat');
+        // chatUSers = await this.prisma.chatUser.update({
+        //   where: {
+        //     id_chat_user: chatUSers.id_chat_user,
+        //   },
+        //   data: {
+        //     joinedAt: new Date(),
+        //   },
+        // });
         return existingChat;
       } else {
-        chatUSers = await this.prisma.chatUser.create({
-          data: {
-            chatId: existingChat.id_chat,
-            userId: id,
-          },
-        });
+        if (isBanned)
+        {
+          console.log('user was Banned in the room before');
+          chatUSers = await this.prisma.chatUser.create({
+            data: {
+              chatId: existingChat.id_chat,
+              userId: id,
+              isBanned: true,
+            },
+          });
+        }
+        else{
+          chatUSers = await this.prisma.chatUser.create({
+            data: {
+              chatId: existingChat.id_chat,
+              userId: id,
+            },
+          });
+        }
+        console.log('chatUser that just joined in jooiin the chat is: ');
+        console.log(chatUSers);
+        console.log('-------------------');
+        console.log('jooooined at : ');
+        console.log(chatUSers.joinedAt);
       }
     }
     // console.log('id: ' + id + ' user: ' + name + ' joined the chat');
@@ -244,6 +287,8 @@ export class MessagesService {
     }
   }
 
+  //////////////////////// CREATE CHANNEL /////////////////////////
+
   async createChannel(
     id: number,
     name: string,
@@ -302,6 +347,9 @@ export class MessagesService {
   getClientName(clientId: string) {
     return this.clients[clientId];
   }
+
+  //////////////////////// CREATE MESSAGE /////////////////////////
+
   async create(
     createMessageDto: CreateMessageDto,
     clientId: string,
@@ -322,8 +370,16 @@ export class MessagesService {
           name: message.name,
         },
       });
-      // console.log('chat that user want to send msg in : ');
-      // console.log(chat);
+      const chatUser = await this.prisma.chatUser.findFirst({
+        where: {
+          userId: id,
+          chatId: chat.id_chat,
+        },
+      });
+      if (chatUser.isBanned || chatUser.isMuted) {
+        console.log('user is banned or muted');
+        return false;
+      }
 
       createdChatMessage = await this.prisma.chatMessage.create({
         data: {
@@ -407,32 +463,98 @@ export class MessagesService {
 
     return createdChatMessage;
   }
-  async findAll(name: string, id: number, username: string) {
+
+  /////////////// find Room Messages /////////////////////////
+
+  async findAllMessages(name: string, id: number) {
+
+    let Messages : any = null;
+
+    const chat = await this.prisma.chat.findFirst({
+      where: {
+        name: name,
+      },
+    });
+    const chatUser = await this.prisma.chatUser.findFirst({
+      where: {
+        userId: id,
+        chatId: chat.id_chat,
+      },
+    });
+
+    // console.log('chat user isssssss : ');
+    // console.log(chatUser);
+    // console.log('is chatUser banned : ');
+    // console.log(chatUser.isBanned);
+
+    if ((chatUser && chatUser.isBanned) || (chatUser && chatUser.isMuted )) {
+
+       Messages = await this.prisma.chatMessage.findMany({
+        where: {
+          AND: [
+            { chatId: chat.id_chat },
+            { sentAt: { gte: chatUser.joinedAt } },
+            { sentAt: { lt: chatUser.updatedAt } },
+
+          ],
+      },
+      include: {
+        user: {
+          select: {
+            username: true,
+            avatar: true,
+          },
+        },
+        chat: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
+  } 
+  else {
+    console.log('chat user got in findmsgs is: ');
+    if (chatUser)
+    console.log(chatUser);
+    console.log('chat user joined in find msgs at is: ');
+    if (chatUser)
+    console.log(chatUser.joinedAt);
+     Messages = await this.prisma.chatMessage.findMany({
+      where: {
+        AND: [
+          { chatId: chat.id_chat },
+          { sentAt: { gt: chatUser.joinedAt } },
+        ],
+      },
+      include: {
+        user: {
+          select: {
+            username: true,
+            avatar: true,
+          },
+        },
+        chat: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
+  }
+
+    // console.log('messages are: ');
+    // console.log(Messages);
+    return Messages;
+  }
+
+///////////////////// find Dm Messages /////////////////////////
+
+  async findAllDm(name: string, id: number, username: string) {
     // console.log('name: ');
     // console.log(name);
-    let messages = null;
-    if (username === null && id === 0) {
-      messages = await this.prisma.chatMessage.findMany({
-        where: {
-          chat: {
-            name: name,
-          },
-        },
-        include: {
-          user: {
-            select: {
-              username: true,
-              avatar: true,
-            },
-          },
-          chat: {
-            select: {
-              name: true,
-            },
-          },
-        },
-      });
-    } else {
+    let Messages = null;
+   
       const user = await this.prisma.player.findFirst({
         where: {
           username: name,
@@ -452,7 +574,7 @@ export class MessagesService {
         } as ChatWhereInput,
       });
       if (chat) {
-        messages = await this.prisma.chatMessage.findMany({
+        Messages = await this.prisma.chatMessage.findMany({
           where: {
             chatId: chat.id_chat,
           },
@@ -466,8 +588,7 @@ export class MessagesService {
           },
         });
       }
-    }
-    return messages;
+      return Messages;
   }
   async findRoom(name: string) {
     const chat = await this.prisma.chat.findFirst({
@@ -478,6 +599,8 @@ export class MessagesService {
 
     return chat;
   }
+
+  //////////////////////// GET USERS /////////////////////////
 
   async getUsers(id: number) {
     const users = await this.prisma.player.findMany({
@@ -574,10 +697,8 @@ export class MessagesService {
       const chatUser = chatUsers.find(
         (chatUser) =>
           chatUser.chatId === room.id_chat && chatUser.userId === id,
-      );
-      const lastMessage = lastMessages.find(
-        (message) => message.chatId === room.id_chat,
-      );
+      ); 
+      const lastMessage = lastMessages.find((message) => message.chatId === room.id_chat)
       return {
         ...room,
         chatUser: chatUser,
@@ -585,6 +706,8 @@ export class MessagesService {
       };
     });
   }
+
+  //////////////LEAVE/////////////////////
 
   async leave(id: number, name: string) {
     const chat = await this.prisma.chat.findFirst({
@@ -617,6 +740,231 @@ export class MessagesService {
     });
     return chatUserDeleted;
   }
+
+  ///////////////////// Ban ///////////////////////
+
+  async ban(id: number, name: string) {
+    let player = await this.prisma.player.findFirst({
+      where: {
+        id_player: id,
+      },
+    });
+    const chat = await this.prisma.chat.findFirst({
+      where: {
+        name: name,
+      },
+    });
+    const chatUser = await this.prisma.chatUser.findFirst({
+      where: {
+        userId: id,
+        chatId: chat.id_chat,
+        isBanned: false,
+        isMuted: false,
+      },
+      include: {
+        user: {
+          select: {
+            username: true,
+          },
+        },
+        chat: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
+    if (!chatUser) {
+      console.log('user is not in the chat or already banned');
+      return false;
+    }
+    if (chatUser.role === 'ADMIN') {
+    const bannedChatUser = await this.prisma.chatUser.update({
+      where: {
+        id_chat_user: chatUser.id_chat_user,
+      },
+      data: {
+        isBanned: true,
+        role: 'MEMBER',
+        
+      },
+      include: {
+        user: {
+          select: {
+            username: true,
+          },
+        },
+        chat: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
+    await this.prisma.chat.update({
+      where: {
+        id_chat: chat.id_chat,
+      },
+      data: {
+        bannedUsers: {
+          connect: {
+            id_player: player.id_player,
+        },
+      },
+    }
+    });
+      return bannedChatUser;
+  } else {
+    const bannedChatUser = await this.prisma.chatUser.update({
+      where: {
+        id_chat_user: chatUser.id_chat_user,
+      },
+      data: {
+        isBanned: true,
+      },
+      include: {
+        user: {
+          select: {
+            username: true,
+          },
+        },
+        chat: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
+    await this.prisma.chat.update({
+      where: {
+        id_chat: chat.id_chat,
+      },
+      data: {
+        bannedUsers: {
+          connect: {
+            id_player: player.id_player,
+        },
+      },
+    }
+    });
+    
+    return bannedChatUser;
+  }
+}
+
+////////////////////////// MUTE /////////////////////////
+
+async mute(id: number, name: string) {
+
+  const chat = await this.prisma.chat.findFirst({
+    where: {
+      name: name,
+    },
+  });
+  const chatUser = await this.prisma.chatUser.findFirst({
+    where: {
+      userId: id,
+      chatId: chat.id_chat,
+      isMuted: false,
+      isBanned: false,
+    },
+    include: {
+      user: {
+        select: {
+          username: true,
+        },
+      },
+      chat: {
+        select: {
+          name: true,
+        },
+      },
+    },
+  });
+  if (!chatUser) {
+    console.log('user is not in the chat or already muted');
+    return false;
+  }
+  let mutedChatUser : any = null;
+  if (chatUser.role === 'ADMIN') {
+    mutedChatUser = await this.prisma.chatUser.update({
+    where: {
+      id_chat_user: chatUser.id_chat_user,
+    },
+    data: {
+      isMuted: true,
+      role: 'MEMBER',
+    },
+    include: {
+      user: {
+        select: {
+          username: true,
+        },
+      },
+      chat: {
+        select: {
+          name: true,
+        },
+      },
+    },
+  });
+}
+  else {
+  mutedChatUser = await this.prisma.chatUser.update({
+    where: {
+      id_chat_user: chatUser.id_chat_user,
+    },
+    data: {
+      isMuted: true,
+    },
+    include: {
+      user: {
+        select: {
+          username: true,
+        },
+      },
+      chat: {
+        select: {
+          name: true,
+        },
+      },
+    },
+  });
+  }
+  setTimeout(async () => {
+    // Check if the user still exists in the chat
+    const existingUser = await this.prisma.chatUser.findUnique({
+      where: {
+        id_chat_user: mutedChatUser.id_chat_user,
+      },
+    });
+  
+    if (existingUser) {
+      // User still exists, update the mute status
+      console.log('User still exists in the chat.');
+
+      
+      mutedChatUser = await this.prisma.chatUser.update({
+        where: {
+          id_chat_user: mutedChatUser.id_chat_user,
+        },
+        data: {
+          isMuted: false,
+        },
+      });
+      console.log('User is no longer muted.');
+      console.log(mutedChatUser);
+    } else {
+      // User no longer exists, handle accordingly (e.g., log a message)
+      console.log('User no longer exists in the chat.');
+    }
+  }, 5 * 12 * 1000); // 5 minutes in milliseconds
+  return mutedChatUser;
+}
+
+
+
+///////////////////////// UPDATE ROOM /////////////////////////
 
   async updateRoom(
     id: number,

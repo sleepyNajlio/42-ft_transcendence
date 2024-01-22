@@ -163,7 +163,7 @@ const ChatHeaderComponent: React.FC = (props : any) => {
       // navigate(`/Profile/${props.friendName}`);
   }
     
-  // console.log("users in seting : " , props.chatUsers);
+  console.log("users in seting : " , props.chatUsers);
 
   if (props.showRoom && !props.isOwner && !props.isAdmin)
   {
@@ -221,7 +221,7 @@ const ChatHeaderComponent: React.FC = (props : any) => {
             {setAdmin && Array.isArray(props.chatUsers) && !props.chatUsers.some((user: any) => user.role === 'ADMIN') && (
             <div className="profil">
               {props.chatUsers.map((user: any) => (
-                user && user.role === 'MEMBER' && (
+                user && user.role === 'MEMBER' && !user.isBanned && !user.isMuted && (
                   <button key={user.userId} className="admin-button" onClick={() => handleAdmin(user.user.username)}>
                     <img src={user.user.avatar} alt={user.user.username} />
                     {user.user.username}
