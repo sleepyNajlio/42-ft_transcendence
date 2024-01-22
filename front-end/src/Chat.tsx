@@ -324,47 +324,34 @@ export function Chat() { // get values from data base
         // console.log("user" + user?.id + " is listening on update in front");
         // console.log("listening on update in front");
         socket?.on('update', (response : any) => {
-            // console.log("room in update : ");
-            // console.log(response);
-            // console.log(Rooms);
-            setRooms((prevRooms: Room[] | null) => {
-                if (prevRooms === null) {
-                    return null;
-                }
-                return prevRooms.map((room) => {
-                    console.log("in room ", response);
-                    if (room.id_chat === response.id) {
-                        // console.log("user " + user?.id + " will update the room " + room.id_chat + " with room " + response.id);
-                        return {
-                            ...room,
-                            password: response.newPass,
-                            type: response.type
-                        };
+                let id : number = Number(user?.id);
+                console.log("user " + user?.id + " will add the room " + response.name + " with room " + response.id);
+                socket?.emit('DisplayRoom', {id},  (response : Room[]) => {
+                    setRooms(response);
+                });
+                if (user?.id != response.userId)
+                {
+                    if (selectedRoom && selectedRoom.id_chat === response.id)
+                    {
+                        setSelectedRoom((prevRoom: Room | null) => {
+                            if (prevRoom === null) {
+                                return null;
+                                }
+                                return {
+                                    ...prevRoom,
+                                    password: response.newPass,
+                                    type: response.type
+                                    
+                                };
+                        });
                     }
-                    return room;
-                });
-            });
-            if (selectedRoom && selectedRoom.id_chat === response.id)
-            {
-                setSelectedRoom((prevRoom: Room | null) => {
-                    if (prevRoom === null) {
-                        return null;
-                        }
-                        return {
-                            ...prevRoom,
-                            password: response.newPass,
-                            type: response.type
-                            
-                        };
-                });
-            }
-            // setDisplayRoom(!DisplayRoom);
-            // setDisplayRoom(!DisplayRoom);
+                }
         });
 
         return () => {
 
             socket?.off('update');
+            // socket?.off('rooms');
         };
     });
 

@@ -14,10 +14,12 @@ import { ChatType } from '@prisma/client';
 import { subscribe } from 'diagnostics_channel';
 
 type updatedRoom = {
+  name: string;
   newPass: string | null;
   type: string;
   id: number;
   Role: string;
+  userId : number;
 };
 
 @WebSocketGateway({
@@ -85,10 +87,13 @@ export class MessagesGateway
     );
 
     const room: updatedRoom = {
+      name: Room.name,
       newPass: Room.password ? Room.password : null,
       type: Room.type,
       id: Room.id_chat,
       Role: Room.users[0].role,
+      userId : id,
+
     };
     // console.log('rooooooom in gateway : ');
     // console.log(room);

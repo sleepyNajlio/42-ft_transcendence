@@ -487,7 +487,7 @@ export class MessagesService {
     // console.log('is chatUser banned : ');
     // console.log(chatUser.isBanned);
 
-    if ((chatUser && chatUser.isBanned) || (chatUser && chatUser.isMuted )) {
+    if ((chatUser && chatUser.isBanned)) {
 
        Messages = await this.prisma.chatMessage.findMany({
         where: {
@@ -512,7 +512,33 @@ export class MessagesService {
         },
       },
     });
-  } 
+  }
+  // else if((chatUser && chatUser.isMuted ))
+  // {
+  //   Messages = await this.prisma.chatMessage.findMany({
+  //     where: {
+  //       AND: [
+  //         { chatId: chat.id_chat },
+  //         { sentAt: { gte: chatUser.joinedAt } },
+
+  //       ],
+  //   },
+  //   include: {
+  //     user: {
+  //       select: {
+  //         username: true,
+  //         avatar: true,
+  //       },
+  //     },
+  //     chat: {
+  //       select: {
+  //         name: true,
+  //       },
+  //     },
+  //   },
+  // });
+
+  // }
   else {
     console.log('chat user got in findmsgs is: ');
     if (chatUser)
