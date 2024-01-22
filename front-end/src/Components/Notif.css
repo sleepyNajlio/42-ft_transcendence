@@ -29,9 +29,10 @@
     margin-right: 10px;
 }
 
-.notification-name {
+.notification-name, .notification-text {
     font-weight: bold;
     margin-right: 10px;
+    color: #45a049;
 }
 
 .notification-button {

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import '../styles/css/chatui.css';
 import ChatHeaderComponent from './ChatHeaderComponent.tsx';
 import Messageco from './Messageco.tsx'
@@ -8,6 +8,26 @@ import ftlogo from '/ftlogo.png';
 
 
 const Leftchat: React.FC = (props: any) => {
+
+  // console.log("Messages isssss : ", props.messages);
+
+  // const MessageRef = useRef(null);
+
+  const handleMenuOptionClick = (option: string, name : string, userId : number) => {
+    // Perform actions based on the selected option
+    if (option === 'kick') {
+      console.log("user want to kick in " + name + "user with id : " + userId);
+      props.handleKick(name, userId);
+    } else if (option === 'ban') {
+      console.log("user want to ban in " + name + "user with id : " + userId);
+      props.handleBan(name, userId);
+
+    } else if (option === 'mute') {
+      console.log("user want to mute in " + name + "user with id : " + userId);
+      props.handleMute(name, userId);
+    }
+  };
+
 
   // console.log("user is owner : " + props.isOwner);
 
@@ -27,6 +47,14 @@ const Leftchat: React.FC = (props: any) => {
             text={message.message}
             profileImageUrl={message.user.avatar}
             isOwnMessage={message.userId === props.userid ? true : false}
+            onMenuOptionClick = {handleMenuOptionClick}
+            users={props.chatUsers}
+            room={props.room}
+            message_userId = {message.userId}
+            message_id = {message.id3_chat_message}
+
+
+
             />
         ))}
             </div>

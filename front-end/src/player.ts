@@ -5,11 +5,22 @@ let player: user | null;
 let history: History[] | null;
 let stats: user_stats | null;
 
-async function getUserInfo(): Promise<user | null> {
-    const response = await fetch("http://localhost:3000/profile", {
-        credentials: "include",
-        method: "GET",
-    });
+export async function getUserInfo(id?: number): Promise<user | null> {
+    let response;
+    console.log("id: ", id);
+    if (!id) {
+        response = await fetch("http://localhost:3000/profile", {
+            credentials: "include",
+            method: "GET",
+        });
+    }
+    else
+    {
+        response = await fetch(`http://localhost:3000/profile/friend/${id}`, {
+            credentials: "include",
+            method: "GET",
+        });
+    }
     if (response.ok) {
         const res = await response.json();
         const stats: user_stats = {
@@ -64,7 +75,7 @@ export async function getAchievement(): Promise<number>
     return player?.user_stats.achievement || 0;
 }
 
-async function getMatchHistory(id: number): Promise<History[] | null> {
+export async function getMatchHistory(id: number): Promise<History[] | null> {
 
     return new Promise<History[] | null>((resolve, reject) => {
         axios.get(`http://localhost:3000/profile/history/${id}`, { withCredentials: true })

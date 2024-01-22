@@ -11,23 +11,27 @@ import { get } from 'svg.js';
 
 
 export function TwoFA(props: any) {
-  const navigate = useNavigate();
+  const {onDone} = props;
+  const [error, setError] = useState<string>('');
+
     const [inputKolo, setInputKolo] = useState('');
     const [isntValidKolo, setIsntValidKolo] = useState<boolean>(false);
     useEffect(() => {
       if (inputKolo.length === 6) {
         // // Assuming you want to navigate when the input length is 6
-        // axios.post(`http://localhost:3000/auth/twofa/verify`, { id: props.userpre.id, twofa: { twoFaCode: inputKolo } }, { withCredentials: true })
-        //   .then((res) => {
-        //     console.log('msssssssggegggg infro',res.data.message);
-        //     if (res.data.message === 'TwoFa enabled') {
-        //       navigate("/Profile");
-        //     }
-        //     else
-        //     {
-        //       setIsntValidKolo(true);
-        //     }
-        //   });
+        console.log(inputKolo);
+        axios.post(`http://localhost:3000/auth/twofa/turn-on`, {"twoFaCode":inputKolo}, { withCredentials: true })
+        .then(response => {
+          console.log(response.data);
+          if (response.data.success) {
+            onDone();
+          } else {
+            setError("Wrong code");
+          }
+        })
+        .catch(error => {
+          setError("Enter a valid code");
+        });
       }
     }, [inputKolo]);
   const handleKeyPress = (
@@ -41,10 +45,10 @@ export function TwoFA(props: any) {
           nextTextbox = currentTextbox - 1;
           if (nextTextbox >= 1 && nextTextbox <= 6) {
             var currentInput = document.querySelector(
-              "input:nth-child(" + currentTextbox + ")"
+              ".TFnumbers input:nth-child(" + currentTextbox + ")"
             );
             var nextInput = document.querySelector(
-              "input:nth-child(" + nextTextbox + ")"
+              ".TFnumbers input:nth-child(" + nextTextbox + ")"
             );
       
             (nextInput as HTMLInputElement)?.focus();
@@ -59,10 +63,10 @@ export function TwoFA(props: any) {
             //   console.log("6666666666666666666");
             // }
             var currentInput = document.querySelector(
-              "input:nth-child(" + currentTextbox + ")"
+              ".TFnumbers input:nth-child(" + currentTextbox + ")"
             );
             var nextInput = document.querySelector(
-              "input:nth-child(" + nextTextbox + ")"
+              ".TFnumbers input:nth-child(" + nextTextbox + ")"
             );
       
             (nextInput as HTMLInputElement)?.focus();
@@ -73,17 +77,17 @@ export function TwoFA(props: any) {
           setInputKolo(inputKolo.slice(0, -1));
           nextTextbox = currentTextbox - 1;
           var currentInput = document.querySelector(
-            "input:nth-child(" + currentTextbox + ")"
+            ".TFnumbers input:nth-child(" + currentTextbox + ")"
           );
           if (currentInput) {
             const currentInput = document.querySelector(
-              "input:nth-child(" + currentTextbox + ")"
+              ".TFnumbers input:nth-child(" + currentTextbox + ")"
             ) as HTMLInputElement;
             currentInput.value = "";
           }
           if (nextTextbox >= 1 && nextTextbox <= 6) {
             var nextInput = document.querySelector(
-              "input:nth-child(" + nextTextbox + ")"
+              ".TFnumbers input:nth-child(" + nextTextbox + ")"
             );
       
             (nextInput as HTMLInputElement)?.focus();
@@ -93,12 +97,12 @@ export function TwoFA(props: any) {
         } else if (event.keyCode === 46) {
           nextTextbox = currentTextbox + 1;
           var currentInput = document.querySelector(
-            "input:nth-child(" + currentTextbox + ")"
+            ".TFnumbers input:nth-child(" + currentTextbox + ")"
           );
           (currentInput as HTMLInputElement).value = "";
           if (nextTextbox >= 1 && nextTextbox <= 6) {
             var nextInput = document.querySelector(
-              "input:nth-child(" + nextTextbox + ")"
+              ".TFnumbers input:nth-child(" + nextTextbox + ")"
             );
       
             (nextInput as HTMLInputElement)?.focus();
@@ -131,7 +135,7 @@ export function TwoFA(props: any) {
           nextTextbox = currentTextbox + 1;
           
           var currentInput = document.querySelector(
-            "input:nth-child(" + currentTextbox + ")"
+            ".TFnumbers input:nth-child(" + currentTextbox + ")"
             );
             var key = event.keyCode || event.which;
             var isKeypad = key >= 96 && key <= 105;
@@ -147,9 +151,8 @@ export function TwoFA(props: any) {
                 console.log("6666666666666666666");
               }
             var nextInput = document.querySelector(
-              "input:nth-child(" + nextTextbox + ")"
+              ".TFnumbers input:nth-child(" + nextTextbox + ")"
             );
-      
             if (currentInput && (currentInput as HTMLInputElement).value.length === 1) {
               (nextInput as HTMLInputElement)?.focus();
             }
@@ -158,7 +161,7 @@ export function TwoFA(props: any) {
           return false;
         } else {
           var currentInput = document.querySelector(
-            "input:nth-child(" + currentTextbox + ")"
+            ".TFnumbers input:nth-child(" + currentTextbox + ")"
           );
           if (currentInput && !(currentInput as HTMLInputElement).value) {
             (currentInput as HTMLInputElement).value = "";
@@ -172,7 +175,8 @@ export function TwoFA(props: any) {
     <>
       <div className="lll">
         {/* <div className="cercle"></div> */}
-        <img src={`http://localhost:3000/auth/twofa/generate/${props.userpre.id}/${ props.userpre.email}`} alt="Profile"/>
+        { error && <p className="error">{error}</p> }
+        <img src={`http://localhost:3000/auth/twofa/generate`} alt="Profile"/>
         {/* <input type="number" placeholder="Enter your phone number.." /> */}
         <div className="TFnumbers" style={{display: 'flex', flexDirection: 'row', gap: '10px', alignItems: 'center', justifyContent: 'center', width: '20%'}}>
         {inputRefs.map((ref, index) => (
@@ -183,8 +187,8 @@ export function TwoFA(props: any) {
         />
       ))}
         </div>
-          <Button msg= "Next"/>
-          <Link to="/profile"> <Button msg= "Skip"/> </Link>
+        {/* <Button msg="Next" onClick={verify2Fa}/> */}
+        <Button msg="Skip" onClick={() => onDone()}/>
       </div>
     </>
   )

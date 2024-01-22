@@ -11,7 +11,7 @@ import axios from 'axios';
 import { UserContext } from './UserProvider.tsx';
 
 
-export function Play({ setInPlay, inviter, setboardWidth }: { setInPlay: any, inviter: any, setboardWidth: React.Dispatch<React.SetStateAction<number | null>> }){
+export function Play({ setHistory, setProfile, setInPlay, inviter, setboardWidth }: { setHistory:any, setProfile: any, setInPlay: any, inviter: any, setboardWidth: React.Dispatch<React.SetStateAction<number | null>> }){
   const { user, socket, updateStats, updatehistory } = useContext(UserContext);
   // const {setInPlay, inviter} = props;
     const isDocumentVisible = useDocumentVisible();
@@ -47,6 +47,7 @@ export function Play({ setInPlay, inviter, setboardWidth }: { setInPlay: any, in
           adv_id: player_id.toString(),
           userId: user?.id.toString(),
           username: user?.username,
+          avatar: user?.avatar,
           width: componentRef.current?.offsetWidth > 750 ? componentRef.current?.offsetWidth * 0.8 : componentRef.current?.offsetWidth,
           difficulty: 3,
           padl: currentPad,
@@ -61,45 +62,6 @@ export function Play({ setInPlay, inviter, setboardWidth }: { setInPlay: any, in
         });
       }
     };
-    
-    // const inviteResp = async (resp: Boolean, inviter: any) => {
-    //   if (socket)
-    //   {
-    //     socket.emit('inviteResp', {
-    //       accepted: resp,
-    //       userId: inviter.id.toString(),
-    //       adv_id: user?.id.toString(),
-    //       username: user?.username,
-    //     }, async (response: any) => {
-    //       console.log('Received acknowledgement from server:', response);
-    //       if (!response) {
-    //         console.log('error');
-    //         // setInvite(inviteStatus.ABORTED);
-    //         // setInviter(null);
-    //         return;
-    //       }
-    //       // setInvite(inviteStatus.ACCEPTED);
-    //       let gameId = await axios.get(`http://localhost:3000/game/${inviter.id}/getgame/SEARCHING`, { withCredentials: true });
-    //       console.log('gameId: ', gameId);
-    //       gameId = gameId.data.id_game;
-    //       console.log('gameId: ', gameId);
-    //       await axios.post(`http://localhost:3000/game/${gameId}/joinGame`, {userId: user?.id},  { withCredentials: true });
-    //       await axios.post(`http://localhost:3000/game/${gameId}/updateGame`, {status: 'PLAYING'},  { withCredentials: true });
-    //     });
-    //   }
-    // };
-
-    // useEffect(() => {
-    //   console.log('effect invite: ', invite);
-      
-    //   if (invite === inviteStatus.ACCEPTED) {
-    //     inviteResp(true, inviter);
-    //   }
-    //   if (invite === inviteStatus.DECLINED) {
-    //     inviteResp(false, inviter);
-    //   }
-    // }, [invite]);
-
 
     const handleMatchClick = async () => {
       let resp: {id: string | null} = {id: null};
@@ -111,7 +73,7 @@ export function Play({ setInPlay, inviter, setboardWidth }: { setInPlay: any, in
       // here we set a state for the game id
       console.log('currentPad: ', currentPad);
       if (socket && componentRef.current)
-      socket.emit('matchmaking', { id: socket.id, width: componentRef.current?.offsetWidth > 750 ? componentRef.current?.offsetWidth * 0.8 : componentRef.current?.offsetWidth, difficulty: 3, padl: currentPad, username: user?.username }, async (response: any) => {
+      socket.emit('matchmaking', { id: socket.id, width: componentRef.current?.offsetWidth > 750 ? componentRef.current?.offsetWidth * 0.8 : componentRef.current?.offsetWidth, difficulty: 3, padl: currentPad, username: user?.username, avatar:user?.avatar }, async (response: any) => {
         console.log('Received acknowledgement from server:', response);
         resp = response;
         if (!resp) {
@@ -175,17 +137,6 @@ export function Play({ setInPlay, inviter, setboardWidth }: { setInPlay: any, in
         return {inGame: true};
         // axios.delete(`http://localhost:3000/game/${user?.id}/deletegame/SEARCHING`, { withCredentials: true }).then
       });
-
-      // socket.on('invited', (data: any) => {
-      //   axios.get(`http://localhost:3000/profile/${data}`, { withCredentials: true }).then
-      //   ((res) => {
-      //     console.log("invited by ", data);
-      //     setInviter(res.data);
-      //     setInvite(inviteStatus.INVITED);
-      //   }).catch((err) => {
-      //     console.log('err: ', err);
-      //   });
-      // });
 
       socket.on('rejected', () => {
         console.log("rejected");
@@ -298,6 +249,8 @@ export function Play({ setInPlay, inviter, setboardWidth }: { setInPlay: any, in
                   isLoading = {isLoading} // Pass the loading state to the loading component
                   inGame = {inGame}
                   // invite = {invite}
+                  setProfile = {setProfile}
+                  setHistory = {setHistory}
                   error = {error}
                   inviter = {inviter}
                   handleMatchClick={handleMatchClick}

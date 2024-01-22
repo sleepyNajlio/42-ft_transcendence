@@ -2,8 +2,7 @@
 {
     background: linear-gradient(65.87deg, #173256 20.93%, #0F597B 92.75%);
     display: flex;
-box-sizing: border-box;
-
+    box-sizing: border-box;
     flex-direction: column;
     text-align: center;
     justify-content: center;
@@ -59,7 +58,6 @@ input {
 
 .Config button
 {
-
   background-color: rgba(15, 89, 123, 1);
   border: none;
   text-align: center;
@@ -78,3 +76,5 @@ input {
    background-color: rgba(28, 136, 145, 1);
    box-shadow: rgba(0, 0, 0, 0.4) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;
 }
+
+

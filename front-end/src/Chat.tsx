@@ -1,5 +1,6 @@
 import  './styles/css/chat.css'
 import { useState, useEffect, useContext} from 'react';
+import { useToasts } from 'react-toast-notifications';
 import { UserContext } from './UserProvider.tsx';
 import Leftchat from './Components/Leftchat.tsx';
 import Rightchat from './Components/Rightchat.tsx';
@@ -63,7 +64,11 @@ export function Chat() { // get values from data base
     const [passjoin, setPassjoin] = useState(true);
     const [chatUsers, setChatUsers] = useState<userChat | null>(null);
     const [isAdmin, setIsAdmin] = useState(false);
+    const [toRefresh, setToRefresh] = useState(false);
+    const [showNotif, setShownotif] = useState(false);
+    const [lastNotification, setLastNotification] = useState("");
 
+    const { addToast } = useToasts();
 
 
     // const handlejoinpass = () => {
@@ -77,7 +82,7 @@ export function Chat() { // get values from data base
         if (!joined || !selectedRoom) return;
 
         console.log("use effect called in join with rooms : ");
-        console.log(Rooms);
+        // console.log(Rooms);
         let id : number;
         id = Number(user?.id);
         socket?.emit('join', { 
@@ -105,6 +110,8 @@ export function Chat() { // get values from data base
             // console.log(messages);
         });
         socket?.on('message', (message) => {
+            // console.log("message in frontttttttt : ");
+            // console.log(message.chat.users);
             if (message.chat.id_chat === selectedRoom?.id_chat) {
                 setMessages((prevMessages) => [...prevMessages, message]);
             }
@@ -171,7 +178,7 @@ export function Chat() { // get values from data base
             // console.log(messages);
         });
         socket?.on('message', (message) => {
-            console.log("id chat of the message is: ");
+            // console.log("id chat of the message is: ");
             // console.log(message);
             if ((message.user.username === username || message.user.username === name) && message.chat.name ===  null && message.chat.type === 'PRIVATE')
             {
@@ -256,8 +263,8 @@ export function Chat() { // get values from data base
         let id : number;
         id = Number(user?.id);
         socket?.emit('DisplayRoom', { id },  (response : Room[]) => {
-            console.log('rooms in display room :')
-            console.log(response);
+            // console.log('rooms in display room :')
+            // console.log(response);
             setRooms(response);
             // setIsOwner(true);
             // setDisplayDms(false);
@@ -266,7 +273,7 @@ export function Chat() { // get values from data base
         });
         
             socket?.on('rooms', (room) => {
-            console.log("from front rooms: ", room);
+            // console.log("from front rooms: ", room);
             setRooms((prevRooms: Room[] | null) => {
                 if (prevRooms === null) {
                         return [room];
@@ -322,12 +329,12 @@ export function Chat() { // get values from data base
         });
     }
 
-    useEffect(() => {
-        console.log("user" + user?.id + " is listening on update in front");
-        console.log("listening on update in front");
+    useEffect( () => {
+        // console.log("user" + user?.id + " is listening on update in front");
+        // console.log("listening on update in front");
         socket?.on('update', (response : any) => {
-            console.log("room in update : ");
-            console.log(response);
+            // console.log("room in update : ");
+            // console.log(response);
             // console.log(Rooms);
             setRooms((prevRooms: Room[] | null) => {
                 if (prevRooms === null) {
@@ -336,7 +343,7 @@ export function Chat() { // get values from data base
                 return prevRooms.map((room) => {
                     console.log("in room ", response);
                     if (room.id_chat === response.id) {
-                        console.log("user " + user?.id + " will update the room " + room.id_chat + " with room " + response.id);
+                        // console.log("user " + user?.id + " will update the room " + room.id_chat + " with room " + response.id);
                         return {
                             ...room,
                             password: response.newPass,
@@ -346,55 +353,149 @@ export function Chat() { // get values from data base
                     return room;
                 });
             });
-
-            socket?.on('Admin', (response) => {
-           console.log("user" + user?.id + " is listening on Admin in front");
-
-                console.log("response got in Admin: ");
-                console.log(response);
-                if (response.userId === user?.id)
-                {
-                    console.log("user " + user?.id + " listen to him being admin " + response.chatId);
-                    setRooms((prevRooms: Room[] | null) => {
-                        if (prevRooms === null) {
-                            return null;
+            if (selectedRoom && selectedRoom.id_chat === response.id)
+            {
+                setSelectedRoom((prevRoom: Room | null) => {
+                    if (prevRoom === null) {
+                        return null;
                         }
-                        return prevRooms.map((room) => {
-                            console.log("in room ", response);
-                            if (room.id_chat === response.chatId) {
-                                console.log("user " + user?.id + " listen to him being admin " + room.id_chat + " with room " + response.chatId);
-                                return {
-                                    ...room,
-                                    role: response.role
-                                };
-                            }
-                            return room;
-                        });
-                    });
-                }
-            
-            });
-            // setRooms(...room, {passwrd: room.});
-            // setRooms(room);
-            
+                        return {
+                            ...prevRoom,
+                            password: response.newPass,
+                            type: response.type
+                            
+                        };
+                });
+            }
+            // setDisplayRoom(!DisplayRoom);
+            // setDisplayRoom(!DisplayRoom);
         });
 
         return () => {
-        console.log("off listening on update in front");
-        console.log("off listening on Admin in front");
-
 
             socket?.off('update');
-            socket?.off('Admin');
         };
-    },);
+    });
 
+    useEffect(() => {
+
+        socket?.on('Admin', (response) => {
+            // console.log("user" + user?.id + " is listening on Admin in front");
+ 
+            //      console.log("response got in Admin: ");
+            //      console.log(response);
+            //      console.log("user id : " + user?.id);
+                    // console.log("response user id : " + response.userId);
+                 if (response.userId === user?.id)
+                 {
+                    //  console.log("user " + user?.id + " listen to him being admin " + response.chatId);
+                     setRooms((prevRooms: Room[] | null) => {
+                         if (prevRooms === null) {
+                             return null;
+                         }
+                         return prevRooms.map((room) => {
+                            //  console.log("in room ", response);
+                            //  console.log("room id chat : " + room.id_chat);
+                            //     console.log("response chat id : " + response.chatId);
+                             if (room.id_chat === response.chatId) {
+                                //  console.log("++++++ user " + user?.id + " listen to him being admin " + room.id_chat + " with room " + response.chatId);
+                                 
+                                    return {
+                                        ...room,
+                                        chatUser: {
+                                            ...room.chatUser,
+                                            role: response.role
+                                        },
+                                    };
+                             }
+                             return room;
+                         });
+                     });
+                     setSelectedRoom((prevRoom: Room | null) => {
+                        if (prevRoom === null) {
+                            return null;
+                            }
+                            return {
+                                ...prevRoom,
+                                chatUser: {
+                                    ...prevRoom.chatUser,
+                                    role: response.role
+                                },
+                                
+                        };
+                    });
+                }
+                // console.log("chatUserss in Adminn : ", chatUsers);
+                // console.log("response in Adminm : ");
+                // console.log(response);
+                // if (chatUsers && Array.isArray(chatUsers) && chatUsers.some((user: { userId: number; role: string; chatId: number; }) => user.chatId === response.chatId && user.role !== 'OWNER'))
+                // {
+                //     console.log("user " + user?.id + "update the chatUserssss in ADMIn");
+                //     setChatUsers((prevChatUsers: any | null) => {
+                //         if (prevChatUsers === null) {
+                //             return null;
+                //         }
+                //         return { ...prevChatUsers, role: response.role }; 
+                //     });
+                // }
+             
+             });
+             // setRooms(...room, {passwrd: room.});
+             // setRooms(room);
+             
+             return () => {
+                //  console.log("off listening on Admin in front");
+                 socket?.off('Admin');
+                }
+    });
+
+    useEffect(() => {
+        socket?.on('onleave', (response) => {
+            // console.log("user" + user?.id + " is listening on leave in front");
+            // console.log("response got in leave: ");
+            // console.log(response);
+            setRooms((prevRooms: Room[] | null) => {
+                if (prevRooms === null) {
+                    return null;
+                }
+                return prevRooms.filter((room) => {
+                    if (room.id_chat !== response.id) {
+                        return room;
+                    }
+                    return null;
+                });
+            });
+
+            if (selectedRoom?.name === response.chat.name) {
+                console.log("User " + user?.id + "entered to change chatUserss in leave");
+
+                setChatUsers((prevChatUsers: any | null) => {
+                    if (prevChatUsers === null) {
+                        return null;
+                    }
+                    const updatedChatUsers = { ...prevChatUsers };
+                    delete updatedChatUsers[response.userId];
+                    return updatedChatUsers;
+                });
+            }
+            // getChatUsers(selectedRoom?.name ?? null);
+            // if (selectedRoom && selectedRoom.id_chat === response.id)
+            // {
+            //     console.log("user " + user?.id + "update the chatUserssss in leave");
+            // }
+        });
+        return () => {
+            // console.log("off listening on leave in front");
+            socket?.off('leave');
+        }
+    });
+    
     const handleleave = () => {
-        console.log("handle leave called in front");
+        // console.log("handle leave called in front");
 
         socket?.emit('leave', { id: user?.id, name: selectedRoom?.name }, (response: any) => {
-            console.log("response got in leave: ");
-            console.log(response);
+            // console.log("response got in leave: ");
+            // console.log(response);
             setRooms((prevRooms: Room[] | null) => {
                 if (prevRooms === null) {
                     return null;
@@ -407,8 +508,15 @@ export function Chat() { // get values from data base
                 });
             });
             setSelectedRoom(null);
-            // setDisplayRoom(false);
-            // setwelcomeMsg(true);
+
+            // setChatUsers((prevChatUsers: any | null) => {
+            //     if (prevChatUsers === null) {
+            //         return null;
+            //     }
+            //     const updatedChatUsers = { ...prevChatUsers };
+            //     delete updatedChatUsers[response.userId];
+            //     return updatedChatUsers;
+            // });    
         });
         if (DisplayDms)
             setDisplayDms(!DisplayDms);
@@ -421,10 +529,80 @@ export function Chat() { // get values from data base
         setwelcomeMsg(true);
     }
 
+    useEffect(() => {
+        console.log("use effect called in show notifff");
+        if (showNotif)
+        addToast(`You were kicked from the room ${lastNotification}`, {
+            appearance: 'error',
+            autoDismiss: true,
+            autoDismissTimeout: 10000,
+          });
+        
+          setShownotif(false);
+    }, [showNotif]);
+
+    useEffect(() => {
+      
+        socket?.on('onkick', (response) => {
+        //   console.log("user" + user?.id + " is listening on kick in front");
+        //   console.log("response got in kick: ");
+        //   console.log(response);
+      
+          setRooms((prevRooms: Room[] | null) => {
+            if (prevRooms === null) {
+              return null;
+            }
+      
+            return prevRooms.filter((room) => {
+              if (room.id_chat !== response.id) {
+                return room;
+              }
+              return null;
+            });
+          });
+          if (user?.id === response.userId && lastNotification !== response.chat.name && !showNotif) {
+            //   console.log("user " + user?.id + "sees him kicked from the room " + response.chat.name);
+            //   console.log("selected room that the user is in ", selectedRoom);
+              if (selectedRoom && selectedRoom.name === response.chat.name) {
+                // console.log("selectedRoom.name " + selectedRoom.name + " ==== " + response.chat.name);
+                setSelectedRoom(null);
+        
+                if (DisplayDms) setDisplayDms(!DisplayDms);
+                if (DisplayRoom) setDisplayRoom(!DisplayRoom);
+                if (ShowDm) setShowDm(!ShowDm);
+                if (showRoom) setShowRoom(!showRoom);
+                setwelcomeMsg(true);
+                setShownotif(true);
+                setLastNotification(response.chat.name);
+              }
+            //   else
+            //   {
+            //     console.log("user " + user?.id + " sees him kicked from the room but he is not in it " + response.chat.name);
+            //   }
+      
+          }
+        });
+      
+        return () => {
+          // console.log("off listening on kick in front");
+          socket?.off('kick');
+
+        };
+      },);
+      
+
+    const handleKick = (name : string, userId : number) => {
+        // console.log("handle kick called in front");
+        socket?.emit('kick', { id: userId,  name: name}, (response: any) => {
+           if (!response)
+                alert("user already not in the room");
+        });
+    }
+
     const handleUpdateRoom = (newPass : string, modifypass : boolean, setPass : boolean, removepass : boolean) => {
 
         socket?.emit('updateRoom', {id: user?.id, name: selectedRoom?.name, type: selectedRoom?.type, newPass: newPass, modifypass: modifypass, setPass: setPass, removepass: removepass }, (response: any) => {
-            console.log("response got in update room: ");
+            // console.log("response got in update room: ");
             // console.log(response);
             
             setRooms((prevRooms: Room[] | null) => {
@@ -452,6 +630,7 @@ export function Chat() { // get values from data base
                         ...prevRoom,
                         password: response.newPass,
                         type: response.type
+                        
                         };
             });
         });
@@ -461,17 +640,18 @@ export function Chat() { // get values from data base
     }
     
     const handleAdmin = (username : string) => {
-        console.log("handle admin called in front");
-        console.log("username : " + username);
+        // console.log("handle admin called in front");
+        // console.log("username : " + username);
         socket?.emit('setAdmin', { id: user?.id, username: username, name: selectedRoom?.name }, (response: any) => {
-            console.log("response got in set admin: ");
-            console.log(response);
+            // console.log("response got in set admin: ");
+            // console.log(response);
             setChatUsers((prevChatUsers: any | null) => {
                 if (prevChatUsers === null) {
                     return null;
                 }
                 return { ...prevChatUsers, role: response.role }; 
             });
+
             // setDisplayRoom(!DisplayRoom);
             // setDisplayRoom(!DisplayRoom);
         });
@@ -498,7 +678,7 @@ export function Chat() { // get values from data base
 
     }
     
-    const getChatUsers = (name: string) => {
+    const getChatUsers = (name: string | null) => {
         socket?.emit('getChatUsers', { name, id : user?.id }, (response: userChat) => {
             // console.log("response got in getChatUsers: ", response.userChat);
             // console.log("hahahaa", response.id_chat);
@@ -542,59 +722,59 @@ export function Chat() { // get values from data base
     // for joining room
     const handleRoomClick = (room: Room) => {
         socket?.off('message');
-        console.log('room clickedddd with :');
-        console.log(room.id_chat);
-        console.log(room.name + " ===== " + room.type + " " );
-        console.log("with pass = " + selectedPswd);
+        // console.log('room clickedddd with :');
+        // console.log(room.id_chat);
+        // console.log(room.name + " ===== " + room.type + " " );
+        // console.log("with pass = " + selectedPswd);
 
         getChatUsers(room.name);
         if (room.chatUser && room.chatUser.role === 'OWNER') {
-            console.log("is owner is set to true");
+            // console.log("is owner is set to true");
           setIsOwner(true);
         } else {
           setIsOwner(false);
         }
         if (room.chatUser && room.chatUser.role === 'ADMIN') {
-            console.log("is admin is set to true");
+            // console.log("is admin is set to true");
           setIsAdmin(true);
         } else {
           setIsAdmin(false);
         }
 
         if (room.type === 'PUBLIC') {
-            console.log("room is publicccccc");
+            // console.log("room is publicccccc");
             setSelectedRoom(room);
             setJoined(true);
             return;
         }
 
         if (room.type === 'PROTECTED' && room.chatUser) {
-            console.log("the Room prtected and chat user is true");
+            // console.log("the Room prtected and chat user is true");
             setSelectedRoom(room);
             setJoined(true);
             return;
         }
         if (room.type === 'PROTECTED' && selectedPswd ===  room.password) {
-            console.log("room protected and it's modified");
+            // console.log("room protected and it's modified");
             setSelectedRoom(room);
             setShowRoom(false);
             setwelcomeMsg(true);
             return;
         }
         if (room.type === 'PROTECTED' && !selectedPswd && !room.chatUser) {
-            console.log("welcome msg is set to truuuue");
+            // console.log("welcome msg is set to truuuue");
             // console.log("show passjoin is : " + passjoin);
             setPassjoin(true);
-            console.log(room);
+            // console.log(room);
             setSelectedRoom(room);
             setShowRoom(false);
             setwelcomeMsg(true);
             return;
         }
         if (room.type === 'PROTECTED' && selectedPswd !==  room.password && !room.chatUser) {
-            console.log("selected pswd is : " + selectedPswd + " and room pswd is : " + room.password);
-            console.log("welcome msg is set to true");
-            console.log("show passjoin is : " + passjoin);
+            // console.log("selected pswd is : " + selectedPswd + " and room pswd is : " + room.password);
+            // console.log("welcome msg is set to true");
+            // console.log("show passjoin is : " + passjoin);
             setPassjoin(true);
             setSelectedRoom(room);
             setShowRoom(false);
@@ -602,7 +782,7 @@ export function Chat() { // get values from data base
             return;
         }
         if (room.type === 'PRIVATE') {
-            console.log("room is privateeeeee");
+            // console.log("room is privateeeeee");
             setSelectedRoom(room);
             setJoined(true);
             return;
@@ -654,7 +834,7 @@ export function Chat() { // get values from data base
                 <div className="gauche">
                     {showRoom && <Leftchat userid={user?.id} showRoom={showRoom}messages={messages} name={selectedRoom?.name} sendMessage={sendMessage} isOwner={isOwner}
                      Roomtype={selectedRoom?.type} handleUpdateRoom={handleUpdateRoom} handleAdmin={handleAdmin} HandleDisplayRoom={HandleDisplayRoom} DisplayRoom={DisplayRoom} room={selectedRoom}
-                     getChatUsers={getChatUsers} isAdmin={isAdmin} chatUsers={chatUsers} handleleave={handleleave}/> }
+                     getChatUsers={getChatUsers} isAdmin={isAdmin} chatUsers={chatUsers} handleleave={handleleave} handleKick={handleKick}/> }
                     {ShowDm && <Leftchat userid={user?.id} showDm={ShowDm} messages={messages} name={name}sendMessageDm={sendMessageDm} Friends={Friends}/> }
                     
                 {welcomeMsg && 

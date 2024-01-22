@@ -8,12 +8,12 @@ import { Play } from '../Play'
 import { Profile } from '../Profile'
 import { Settings } from '../Settings'
 import { TwoFA } from '../TwoFA'
-import { Verify2FA } from '../Verify2FA'
+// import { Verify2FA } from '../Verify2FA'
 
 const AuthRoutes = [
     <Route key='Config' path='/Config' element={<AuthGuard component={<Config />} />} />,
     <Route key='TwoFA' path='/TwoFA' element={<AuthGuard component={<TwoFA />} />} />,
-    <Route key='Verify2FA' path='/Verify2FA' element={<AuthGuard component={<Verify2FA />} />} />,
+    // <Route key='Verify2FA' path='/Verify2FA' element={<AuthGuard component={<Verify2FA />} />} />,
     <Route key='Profile' path='/Profile' element={<AuthGuard component={<Profile />} />} />,
     <Route key='Play' path='/Play' element={<AuthGuard component={<Play />} />} />,
     <Route key='Chat' path='/Chat' element={<AuthGuard component={<Chat />} />} />,

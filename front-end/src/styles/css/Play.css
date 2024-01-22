@@ -263,3 +263,47 @@ box-sizing: border-box;
     height: 100px;
     border-radius: 20px;
   }
+  .user_rec {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    height: 60px;
+    background-color: rgba(9, 36, 75, 0.03);
+    margin-top: auto;
+    box-shadow: inset 0px 1px 0px #F2F4F6;
+  }
+  .user_rec .image {
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+    background-size: cover;
+  }
+  .user_rec .text {
+    /* width: 100%; */
+    height: 100%;
+    display: flex;
+    color: black;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: flex-start;
+    padding-left: 20px;
+  }
+
+  .user_rec .text .name {
+    font-size: 20px;
+    font-weight: 500;
+  }
+  .user_rec .text .score {
+    font-size: 16px;
+    font-weight: 400;
+  }
+
+  .user_rec .buttons {
+    width: 100px;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+  }

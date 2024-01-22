@@ -9,6 +9,7 @@ import {
   Post,
   UseInterceptors,
   UploadedFile,
+  HttpCode
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { Request, Response } from 'express';
@@ -17,6 +18,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { editFilename } from './AvatarTools';
 import { imageFileFilter } from './AvatarTools';
+import { error } from 'console';
 
 @Controller('user')
 export class UsersController {
@@ -26,6 +28,24 @@ export class UsersController {
   ) {}
 
   @SetMetadata('isPublic', true)
+  @Get()
+  async GetProfileData(@Req() req: Request) {
+    // console.log("GetProfileData begin");
+    if (req.cookies['TWOFA']) {
+      return { twoFA: true };
+    }
+    if (req.cookies['JWT_TOKEN']) {
+      const user = await this.UsersService.GetUserByToken(
+        req.cookies['JWT_TOKEN'],
+      );
+      return user;
+    } else if (req.cookies['USER']) {
+      const user = await this.UsersService.GetUserByToken(req.cookies['USER']);
+      return user;
+    } else return {msg: "no cookies"};
+  }
+
+  // @SetMetadata('isPublic', true)
   @Post('avatar')
   @UseInterceptors(
     FileInterceptor('file', {
@@ -56,20 +76,6 @@ export class UsersController {
     return 'madazsh';
   }
 
-  @SetMetadata('isPublic', true)
-  @Get()
-  async GetProfileData(@Req() req: Request) {
-    // console.log("GetProfileData begin");
-    if (req.cookies['JWT_TOKEN']) {
-      const user = await this.UsersService.GetUserByToken(
-        req.cookies['JWT_TOKEN'],
-      );
-      return user;
-    } else if (req.cookies['USER']) {
-      const user = await this.UsersService.GetUserByToken(req.cookies['USER']);
-      return user;
-    } else throw new HttpException('No Cookies', HttpStatus.UNAUTHORIZED);
-  }
 
   // @Get('/:id')
   // async getUserById(@Param() { id }: { id: string }) {

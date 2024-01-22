@@ -11,6 +11,10 @@ box-sizing: border-box;
     height: inherit;
     width: inherit;
 }
+.wrapper .lll
+{
+    flex:none;
+}
 
 .sbox {
     display: flex;
@@ -151,6 +155,7 @@ box-sizing: border-box;
 box-sizing: border-box;
     align-items: center;
     text-align: center;
+    transition: all 0.3s ease-in-out;
 
     color: #FFFFFF;
 }
