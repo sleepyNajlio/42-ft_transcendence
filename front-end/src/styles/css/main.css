@@ -11,6 +11,10 @@ box-sizing: border-box;
     height: inherit;
     width: inherit;
 }
+.wrapper .lll
+{
+    flex:none;
+}
 
 .sbox {
     display: flex;
@@ -486,15 +490,16 @@ box-sizing: border-box;
 
 .achivements_cells
 {
+    justify-content: space-around;
     display: flex;
-box-sizing: border-box;
+    box-sizing: border-box;
     flex-flow: row wrap;
     gap: 10px;
 }
 .achivements_cells .cell
 {
     width: 170px;
-    height: 130px;
+    height: 170px;
     justify-content: center;
     align-items: center;
     display: flex;

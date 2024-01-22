@@ -87,7 +87,7 @@ export class AuthController {
   @Post('twofa/turn-on')
   @SetMetadata('isPublic', true)
   async turnOnTwoFa(@Req() req: Request, @Body() twofa: Update2faDTO) {
-    console.log('turnOnTwoFa controller');
+    console.log('turnOnTwoFa controller', twofa);
     const user = await this.user.GetUserByToken(req.cookies['USER'] || req.cookies['JWT_TOKEN']);
     const isCodeValid = await this.twofaService.verifyTwoFaToken(
       twofa.twoFaCode,

@@ -119,4 +119,12 @@ export class UsersService {
     });
     return user;
   }
+
+  async getSecretWithId(id: number) {
+    const twofasec = await this.prisma.player.findUnique({
+      where: { id_player: id },
+      select: { twoFASecret: true },
+    });
+    return twofasec?.twoFASecret;
+  }
 }

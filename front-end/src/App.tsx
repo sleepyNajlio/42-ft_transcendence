@@ -188,7 +188,7 @@ function App()
                             <>
                                 <Routes>
                                 <Route key='Config' path='/Config' caseSensitive={true} element={<Config />} />
-                                <Route key='TwoFA' path='/TwoFA' caseSensitive={true} element={<TwoFA />} />
+                                <Route key='TwoFA' path='/TwoFA' caseSensitive={true} element={<TwoFA  />} />
                                 <Route key='testchat' path='/Testchat' caseSensitive={true} element={<TestChat />} />
                                 <Route key='Verify2FA' path='/Verify2FA' caseSensitive={true} element={<Verify2FA />} />
                                 <Route key='Profile' path='/Profile' caseSensitive={true} element={<Profile freind={profile} fhistory={history} />} />
