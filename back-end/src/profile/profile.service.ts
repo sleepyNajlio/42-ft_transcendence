@@ -53,6 +53,20 @@ export class ProfileService {
             OR: [
               {
                 friendshipAsked: {
+                  none: {
+                    OR: [{ userId: id }, { friendId: id }],
+                  },
+                },
+              },
+              {
+                friendshipReceived: {
+                  none: {
+                    OR: [{ userId: id }, { friendId: id }],
+                  },
+                },
+              },
+              {
+                friendshipAsked: {
                   some: {
                     AND: [
                       {

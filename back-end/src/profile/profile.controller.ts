@@ -39,7 +39,7 @@ export class ProfileController {
       Number(id),
       Number(owuser['id_player']),
     );
-    return { user, state: friendStatus.status };
+    return { user, state: friendStatus?.status };
   }
 
   @Get('/notfriend')
