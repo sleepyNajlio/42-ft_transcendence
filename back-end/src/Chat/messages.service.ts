@@ -639,11 +639,49 @@ export class MessagesService {
   //////////////////////// GET USERS /////////////////////////
 
   async getUsers(id: number) {
+
+    const friends = await this.prisma.friendShip.findMany({
+      
+      where: {
+        OR: [
+          { userId: id },
+          { friendId: id },
+        ],
+        status: 'ACCEPTED',
+      },
+      include: {
+        user: {
+          select: {
+            id_player: true,
+            username: true,
+          },
+        },
+        friend: {
+          select: {
+            id_player: true,
+            username: true,
+          },
+        },
+      },
+    
+    });
+
+    const friendsIds = friends.map((friend) => {
+      if (friend.userId === id) {
+        return friend.friendId;
+      }
+      return friend.userId;
+    });
+
+    console.log('friends aaare: ', friends);
+
+    console.log('friends ids are: ', friendsIds);
+
+
+
     const users = await this.prisma.player.findMany({
       where: {
-        NOT: {
-          id_player: id,
-        },
+          id_player: { in: friendsIds },
       },
     });
     const chats = await this.prisma.chat.findMany({
