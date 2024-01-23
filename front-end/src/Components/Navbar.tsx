@@ -67,7 +67,6 @@ export default function Navbar(props: any) {
 
     const handleOnBlur = () => {
         setTimeout(() => {
-            setSearch(false);
         }, 200);
     };
 
@@ -75,12 +74,12 @@ export default function Navbar(props: any) {
     if (users.length === 0)
         getPlayers();
 
-    setSearch(true);
     };
 
     useEffect(() => {
         if (searchQuery.length === 0) {
             getPlayers();
+            setSearch(false);
             return;
         }
         setUsers(
@@ -88,6 +87,8 @@ export default function Navbar(props: any) {
                 return user.username.toLowerCase().includes(searchQuery.toLowerCase());
             } )
         );
+        setSearch(true);
+
     }, [searchQuery]);
 
     useEffect(() => {
@@ -95,6 +96,7 @@ export default function Navbar(props: any) {
     }, [props.profile]);
 
     function searchPlayer(id_player: string): void {
+        setSearch(!search);
         console.log("id_player: ", id_player);
         getMatchHistory(Number(id_player)).then (res => {
           console.log("history: ", res);
@@ -138,13 +140,10 @@ export default function Navbar(props: any) {
         <div className="players">
             {
                 search && users.map((player : any) => (
-                    <div className="user_rec">
+                    <div className="user_rec" onClick={() => searchPlayer(player.id_player)} >
                         <div className="image" style={{ backgroundImage: `url(${player.avatar})` }}></div>
                         <span className="text">{player.username}</span>
-                        <div className="buttons">
-                            <button className="buttons">Invite</button>
-                            <button className="buttons" onClick={() => searchPlayer(player.id_player)}>Profile</button>
-                        </div>
+
                     </div>
                 ))
             }

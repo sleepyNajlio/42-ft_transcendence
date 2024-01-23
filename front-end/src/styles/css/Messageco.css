@@ -37,6 +37,7 @@
   backdrop-filter: blur(20px);
   /* border: 1.5px solid #000001; */
   box-shadow: 0 10px 10px rgba(0, 0, 0, 0.1);
+  z-index: 999;
 }
 .message-menu:hover{
   /* background-color: #bab9b9; */

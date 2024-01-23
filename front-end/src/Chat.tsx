@@ -38,12 +38,11 @@ interface Room {
     // lastMessage: string;
 }
 
-export function Chat() { // get values from data base
+export function Chat(props : any) { // get values from data base
     const [joined, setJoined] = useState(false);
     const { user, socket } = useContext(UserContext);
     const [name, setName] = useState('');
     const [messages, setMessages] = useState<any[]>([]);
-    const [typingDisplay, setTypingDisplay] = useState('');
     const [created, setCreated] = useState(false);
     const [roomType, setRoomType] = useState("");
     const [roomPassword, setRoomPassword] = useState("");
@@ -72,6 +71,7 @@ export function Chat() { // get values from data base
     const [MuteisOver, setMuteisOver] = useState(false);
     const [userAdded, setUserAdded] = useState(false);
     const [RoomAdded, setRoomAdded] = useState("");
+    const [timeoutId, setTimeoutid] = useState<NodeJS.Timeout | null > (null);
 
     const { addToast } = useToasts();
 
@@ -638,7 +638,7 @@ export function Chat() { // get values from data base
             console.log("use effect called in mute is over");
             if (MuteisOver)
             addToast(`Your mute for 5 min in room ${MuteNotification} is over`, {
-                appearance: 'error',
+                appearance: 'success',
                 autoDismiss: true,
                 autoDismissTimeout: 10000,
                 });
@@ -703,10 +703,10 @@ export function Chat() { // get values from data base
                 if (response.isMuted){
                     setMuteNotification(response.chat.name);
                     setShownotifMute(true);
-                    setTimeout(() => {
-                        setMuteisOver(true);
-                        setMuteNotification(response.chat.name);
-                    }, 5 * 12 * 1000);
+                    setTimeoutid(setTimeout(() => {
+                            setMuteisOver(true);
+                            setMuteNotification(response.chat.name);
+                    }, 5 * 6 * 1000));
                 }
                 if (selectedRoom?.name === response.chat.name) {
                     setSelectedRoom((prevRoom: Room | null) => {
@@ -747,6 +747,15 @@ export function Chat() { // get values from data base
                 });
                 setUserAdded(true);
                 setRoomAdded(response.chat.name);
+                if (timeoutId)
+                {
+                    console.log("timeout id is not null ", timeoutId);
+                    clearTimeout(timeoutId);
+                }
+                else
+                {
+                    console.log("timeout id is null");
+                }
             }
         });
         return () => {
@@ -1031,14 +1040,14 @@ export function Chat() { // get values from data base
     };
     return (
         <>
-        
             <div className="conteneur">
                 <div className="gauche">
                     {showRoom && <Leftchat userid={user?.id} showRoom={showRoom}messages={messages} name={selectedRoom?.name} sendMessage={sendMessage} isOwner={isOwner}
                      Roomtype={selectedRoom?.type} handleUpdateRoom={handleUpdateRoom} handleAdmin={handleAdmin} HandleDisplayRoom={HandleDisplayRoom} DisplayRoom={DisplayRoom} room={selectedRoom}
                      getChatUsers={getChatUsers} isAdmin={isAdmin} chatUsers={chatUsers} handleleave={handleleave} handleKick={handleKick}
                      handleBan={handleBan} handleMute={handleMute} Friends={Friends} handleAddUser={handleAddUser}/> }
-                    {ShowDm && <Leftchat userid={user?.id} showDm={ShowDm} messages={messages} name={name}sendMessageDm={sendMessageDm} Friends={Friends}/> }
+                    {ShowDm && <Leftchat userid={user?.id} showDm={ShowDm} messages={messages} name={name} sendMessageDm={sendMessageDm} Friends={Friends} setProfile={props.setProfile} setHistory={props.setHistory}
+                    inviteTogame={props.inviteTogame} setInviter={props.setInviter}/> }
                     
                 {welcomeMsg && 
                     <div className="welcome-message-container">
@@ -1059,7 +1068,7 @@ export function Chat() { // get values from data base
                      selectedPswd={selectedPswd} selectedRoom={selectedRoom} setSelectedRoom={setSelectedRoom} 
                      Friends={Friends} setDisplayDms={setDisplayDms} setDisplayRoom={setDisplayRoom} DisplayDms={DisplayDms} DisplayRoom={DisplayRoom}
                      HandleDisplayDms={HandleDisplayDms} HandleDisplayRoom={HandleDisplayRoom} joindDm={joinDm}
-                     messages={messages} lastMessage={lastMessage} isOwner={isOwner} passjoin={passjoin} />}
+                     messages={messages} isOwner={isOwner} passjoin={passjoin} />}
                 </div>            
                 </div>
         </>

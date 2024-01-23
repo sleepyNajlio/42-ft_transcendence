@@ -63,9 +63,10 @@ CREATE TABLE "ChatUser" (
     "role" "ChatRole" NOT NULL DEFAULT 'MEMBER',
     "userId" INTEGER NOT NULL,
     "chatId" INTEGER NOT NULL,
-    "isBanned" BOOLEAN NOT NULL DEFAULT false,
-    "isMuted" BOOLEAN NOT NULL DEFAULT false,
+    "isBanned" BOOLEAN DEFAULT false,
+    "isMuted" BOOLEAN DEFAULT false,
     "joinedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "ChatUser_pkey" PRIMARY KEY ("id_chat_user")
 );
@@ -93,6 +94,12 @@ CREATE TABLE "ChatMessage" (
     CONSTRAINT "ChatMessage_pkey" PRIMARY KEY ("id3_chat_message")
 );
 
+-- CreateTable
+CREATE TABLE "_bannedUsers" (
+    "A" INTEGER NOT NULL,
+    "B" INTEGER NOT NULL
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "Player_username_key" ON "Player"("username");
 
@@ -110,6 +117,12 @@ CREATE UNIQUE INDEX "UserGame_userId_gameId_key" ON "UserGame"("userId", "gameId
 
 -- CreateIndex
 CREATE UNIQUE INDEX "ChatUser_userId_chatId_key" ON "ChatUser"("userId", "chatId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "_bannedUsers_AB_unique" ON "_bannedUsers"("A", "B");
+
+-- CreateIndex
+CREATE INDEX "_bannedUsers_B_index" ON "_bannedUsers"("B");
 
 -- AddForeignKey
 ALTER TABLE "FriendShip" ADD CONSTRAINT "FriendShip_userId_fkey" FOREIGN KEY ("userId") REFERENCES "Player"("id_player") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -134,3 +147,9 @@ ALTER TABLE "ChatMessage" ADD CONSTRAINT "ChatMessage_userId_fkey" FOREIGN KEY (
 
 -- AddForeignKey
 ALTER TABLE "ChatMessage" ADD CONSTRAINT "ChatMessage_chatId_fkey" FOREIGN KEY ("chatId") REFERENCES "Chat"("id_chat") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_bannedUsers" ADD CONSTRAINT "_bannedUsers_A_fkey" FOREIGN KEY ("A") REFERENCES "Chat"("id_chat") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_bannedUsers" ADD CONSTRAINT "_bannedUsers_B_fkey" FOREIGN KEY ("B") REFERENCES "Player"("id_player") ON DELETE CASCADE ON UPDATE CASCADE;

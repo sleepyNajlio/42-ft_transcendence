@@ -1,10 +1,10 @@
 // ChatHeaderComponent.tsx
 import React from 'react';
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import PofilCard from './PofilCard.tsx';
 import MobProfilCard from './MobProfilCard.tsx';
 import { Profile } from '../Profile.tsx';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import game from '../assets/PlayIcon.png'
 import block from '../assets/BlockIcon.png'
 import profil from '../assets/ProfilIcon.png'
@@ -14,6 +14,7 @@ import leave from '../assets/fire-exit.png'
 import  Setting from '../assets/setting.png';
 import set_admin from '../assets/set_admin.png';
 import '../styles/css/ChatHeaderComponent.css'; // You can create a CSS file for styling
+import { UserContext } from '../UserProvider.tsx';
 // import block from '../assets/blockchat.png'
 // import './ChatHeaderComponent.css'; // You can create a CSS file for styling
 
@@ -123,6 +124,9 @@ const ChatHeaderComponent: React.FC = (props : any) => {
   const [setAdmin, setsetAdmin] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [DisplayUsers, setDisplayUsers] = useState(false);
+  const { user, getUserById, getMatchHistory } = useContext(UserContext);
+  const navigate = useNavigate();
+
 
   // const navigate = useNavigate();
   // console.log("chatUsers got in chatHeeder : " , props.chatUsers);
@@ -136,6 +140,18 @@ const ChatHeaderComponent: React.FC = (props : any) => {
 
   // console.log("isAdmin is : " , props.isAdmin);
   // console.log("isOwner is : " , props.isOwner);
+  function searchPlayer(id_player: string): void {
+    console.log("id_player: ", id_player);
+    getMatchHistory(Number(id_player)).then (res => {
+      console.log("history: ", res);
+      props.setHistory(res);
+    } );
+    getUserById(Number(id_player)).then (res => {
+      console.log("player: ", res);
+      props.setProfile(res);
+    });
+    navigate("/Profile")
+  }
 
   const handleSettings = () => {
     setShowSettings(!showSettings);
@@ -195,13 +211,19 @@ const ChatHeaderComponent: React.FC = (props : any) => {
     if (setAdmin)
       setsetAdmin(!setAdmin);
   }
+  const inviteTogame = () => {
+    props.setInviter(props.friendId);
+    navigate(`/Play`);
+  }
 
     const UserProfile = () => {
-      setShowProfile(!showProfile);
+
+      // setShowProfile(!showProfile);
+      searchPlayer(props.friendId.toString());
       // navigate(`/Profile/${props.friendName}`);
   }
     
-  console.log("friend in setting : " , props.friends);
+  // console.log("room type setting : " , props.room.type);
 
   if (props.showRoom && !props.isOwner && !props.isAdmin)
   {
@@ -247,14 +269,8 @@ const ChatHeaderComponent: React.FC = (props : any) => {
           {showSettings && <SettingsComponent  Roomtype={props.Roomtype} setShowSettings={setShowSettings}
               showSettings={showSettings} handleUpdateRoom={props.handleUpdateRoom}
               handleDisplayRoom={props.handleDisplayRoom}/>}
-          <div className='blank'>
-          </div>
-          <div className='profil' onClick={handlesetAdmin}>
-            <img title="Set Admin" src={set_admin} width='20' height='20' alt="leave" />
-          </div>
-          <div className='blank'>
-          </div>
-          {props.room.type === 'PRIVATE' || props.room.type === 'PROTECTED' &&
+          <div className='blank'> </div>
+          {(props.room.type === 'PRIVATE' || props.room.type === 'PROTECTED') &&
             <div className='profil' onClick={AddUser}>
               <img title="Add user" src={adduser} width='22' height='22' alt="leave" />
               {DisplayUsers && (
@@ -271,6 +287,8 @@ const ChatHeaderComponent: React.FC = (props : any) => {
             
             </div>
           }
+          <div className='profil' onClick={handlesetAdmin}>
+            <img title="Set Admin" src={set_admin} width='20' height='20' alt="leave" />
           {setAdmin && Array.isArray(props.chatUsers) && !props.chatUsers.some((user: any) => user.role === 'ADMIN') && (
           <div className="user-list-dropdown">
             {props.chatUsers.map((user: any) => (
@@ -284,8 +302,8 @@ const ChatHeaderComponent: React.FC = (props : any) => {
           </div>
 
         )}
-          <div className='blank'>
           </div>
+          <div className='blank'> </div>
           <div className='profil'onClick={handleleave} >
             <img title="Leave" src={leave} width='20' height='20' alt="leave" />
           </div>
@@ -339,7 +357,7 @@ const ChatHeaderComponent: React.FC = (props : any) => {
       <div className="friend-name">{props.friendName}</div>
     </div>
     <div className="icons-container">
-      <div className='game'>
+      <div className='game' onClick={inviteTogame}>
         <img title="invite to game" src={game} alt="Icon1" />
       </div>
       <div className='blank'>

@@ -47,6 +47,7 @@ function App()
     const [profile, setProfile] = useState<user | null>(null);
     const [history, setHistory] = useState<History[] | null>(null);
     const { user, initialize,  socket } = useContext(UserContext);
+    const [inviter, setInviter] = useState<number | null>(null);
 
     const checkIfMediumPlus = useMediaPredicate(
         '(min-width: 994px)'
@@ -225,6 +226,7 @@ function App()
     };
     const handleRmInvite = (data: any) => {
         console.log("invite removed ", data);
+        console.log("inviters ", inviters);
         setInviters(prevInviters => prevInviters.filter((inviter) => inviter.user_id !== data));
     };
     const componentRef = useRef<HTMLDivElement>(null);
@@ -260,8 +262,8 @@ function App()
                                 <Route key='testchat' path='/Testchat' caseSensitive={true} element={<TestChat />} />
                                 <Route key='Verify2FA' path='/Verify2FA' caseSensitive={true} element={<Verify2FA />} />
                                 <Route key='Profile' path='/Profile' caseSensitive={true} element={<Profile setFriend={setProfile} freind={profile} fhistory={history} />} />
-                                <Route key='Play' path='/Play' caseSensitive={true} element={<Play setHistory={setHistory} setProfile={setProfile} setInPlay={setInPlay} inviter={inviters} setboardWidth={setboardWidth} />} />
-                                <Route key='Chat' path='/Chat' caseSensitive={true} element={<Chat />} />
+                                <Route key='Play' path='/Play' caseSensitive={true} element={<Play setInPlay={setInPlay} inviter={inviter} setInviter={setInviter}/>} />
+                                <Route key='Chat' path='/Chat' caseSensitive={true} element={<Chat setProfile={setProfile} setHistory={setHistory} setInviter={setInviter}/>} />
                                 <Route key='Chat' path='/test' caseSensitive={true} element={<ButtonsComponent />} />
                                 <Route key='Settings' path='/Settings' caseSensitive={true} element={<Settings />} />
                                 <Route key='Leaderboard' path='/Leaderboard' caseSensitive={true} element={<Leaderboard />} />

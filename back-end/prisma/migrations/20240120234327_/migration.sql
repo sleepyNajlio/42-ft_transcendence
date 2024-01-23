@@ -1,3 +1,0 @@
--- AlterTable
-ALTER TABLE "ChatUser" ALTER COLUMN "isBanned" DROP NOT NULL,
-ALTER COLUMN "isMuted" DROP NOT NULL;

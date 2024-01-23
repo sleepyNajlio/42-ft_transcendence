@@ -27,6 +27,7 @@ model Player {
   games    UserGame[]
   messages ChatMessage[]
   bannedFromChats Chat[] @relation("bannedUsers")
+  mutedFromChats  Chat[] @relation("mutedUsers")
   friendshipAsked    FriendShip[] @relation(name: "requester")
   friendshipReceived FriendShip[] @relation(name: "receiver")
 }
@@ -86,6 +87,7 @@ model Chat {
   messages   ChatMessage[]
   users      ChatUser[]
   bannedUsers Player[]  @relation("bannedUsers")
+  mutedUsers  Player[]  @relation("mutedUsers")
 
   createdAt  DateTime @default(now())
   UpdatedAt  DateTime @updatedAt

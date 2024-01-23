@@ -23,7 +23,6 @@ export default function Sbox(props: any) {
     const boardRef = useRef<Rect | null>(null);
     const {setCurrentBoard, setCurrentPad}  = props;
     const {currentPad, currentBoard, isLoading} = props;
-    const { getUserById, getMatchHistory } = useContext(UserContext);
 
     
     const handlePrevClick = (slide: number) => {
@@ -94,17 +93,6 @@ export default function Sbox(props: any) {
         psvgRef.current?.remove();
       }
     }, [isLoading]);
-  function searchPlayer(id_player: string): void {
-    const history = getMatchHistory(Number(id_player)).then (res => {
-      console.log("history: ", res);
-      props.setHistory(res);
-    } );
-    const player = getUserById(Number(id_player)).then (res => {
-      console.log("player: ", res);
-      props.setProfile(res);
-    });
-    navigate("/Profile")
-  }
 
     return (
         <>
@@ -124,7 +112,7 @@ export default function Sbox(props: any) {
                                 <h1 className="btitle" style={{color: "red"}}>Error</h1>
                             </div>
                         )}
-                        {Players && (
+                        {Players && !props.inviter && (
                           <div className="players">
                             {users.map((user) => (
                                 <div key={user.id_player} className="player">
@@ -143,10 +131,13 @@ export default function Sbox(props: any) {
                           </div>
                         )}
                         <div className="sbox__btn">
-                            <button className="trans bt" onClick={()=> props.handleMatchClick()}>
+                          {!props.inviter ?
+
+                            (<button className="trans bt" onClick={()=> props.handleMatchClick()}>
                                 {props.rb}
-                            </button>
-                            <button className="filled bt" onClick={getPlayers}>{props.lb}</button>
+                            </button>) :
+                          (<button className="filled bt" onClick={() => props.handleFriendClick(props.inviter)}>{props.lb}</button>)
+                          }
                         </div>
                         <div className="settings">
                           <div className="boardslider">

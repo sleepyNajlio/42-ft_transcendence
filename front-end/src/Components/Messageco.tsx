@@ -15,9 +15,7 @@ interface MessageComponentProps {
   message_userId : number;
   message_id : number;
   onMenuOptionClick: (option: string, name : string, userId : number) => void;
-  handleBoxClose: () => void;
-  handleButtonClick: (event: React.MouseEvent<HTMLDivElement>) => void; // Update the type here
-  isVisible: boolean;
+  openMenuRef: any;
 }
 
 const MessageComponent: React.FC<MessageComponentProps> = ({
@@ -29,14 +27,10 @@ const MessageComponent: React.FC<MessageComponentProps> = ({
   room,
   message_userId,
   message_id,
-  handleBoxClose,
-  handleButtonClick,
-  isVisible,
+  openMenuRef,
 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [lastClickedmessage_Id, setLastClickedmessage_Id] = useState<number | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
-  const [wasopen, setWasopen] = useState(false);
 
 
   const isUserOwner =
@@ -44,31 +38,40 @@ const MessageComponent: React.FC<MessageComponentProps> = ({
     users.some((user: { userId: number; role: string }) => user.userId === message_userId && user.role === 'OWNER');
 
   const handleMenuToggle = () => {
-    setIsMenuOpen((prevvIsMenuOpen) => !prevvIsMenuOpen);
-    setWasopen(true);
+    // setIsMenuOpen((prevvIsMenuOpen) => !prevvIsMenuOpen);
+    // setWasopen(true);
+    if (openMenuRef.current) {
+      openMenuRef.current.closeMenu();
+    }
+
+    setIsMenuOpen(!isMenuOpen);
+    openMenuRef.current = {
+      closeMenu: () => setIsMenuOpen(false),
+    };
   };
+
+  useEffect(() => {
+    // Add event listener to close menu on click outside
+    const handleClickOutside = (event: MouseEvent) => {
+
+      if (menuRef.current && !menuRef.current?.contains(event.target as Node)) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+
+    // Cleanup event listener
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, []);
 
   const handleMenuOptionClick = (option: string, name: string, userId: number) => {
-    handleBoxClose();
     onMenuOptionClick(option, name, userId);
-  };
-  
-  const handleClickOutside = (event: MouseEvent) => {
-    console.log("last clicked message id : " + lastClickedmessage_Id);
-
-    if (menuRef.current && !menuRef.current.contains(event.target as Node) && lastClickedmessage_Id !== message_id) {
-      setLastClickedmessage_Id(prevLastClickedmessage_Id => prevLastClickedmessage_Id === message_id ? null : message_id);
-    }
+    setIsMenuOpen(!isMenuOpen);
   };
 
-
-    useEffect(() => {
-      document.addEventListener('click', handleClickOutside);
-
-      return () => {
-        document.removeEventListener('click', handleClickOutside);
-      };
-    }, [handleClickOutside]);
 
 
   return (
@@ -83,8 +86,7 @@ const MessageComponent: React.FC<MessageComponentProps> = ({
     {text}
   </div>
   {!isOwnMessage && room && room.chatUser && room.chatUser.role === 'OWNER' && (
-    <div className='menu-click' onClick={handleMenuToggle} onFocus={()=> console.log("on focuuus")
-      } onBlur={()=> console.log("on bluuuur")}>
+    <div className='menu-click' onClick={handleMenuToggle} ref={menuRef}>
       <img title="options" src={threedots} width='20' height='20' alt="leave" />
       {isMenuOpen && (
         <div className="message-menu">
@@ -105,9 +107,9 @@ const MessageComponent: React.FC<MessageComponentProps> = ({
   )}
   {!isOwnMessage && room && room.chatUser && room.chatUser.role === 'ADMIN' && !isUserOwner &&
      !room.chatUser.isBanned && (
-    <div className='menu-click' onClick={handleButtonClick}>
+    <div className='menu-click' onClick={handleMenuToggle}>
     <img title="options" src={threedots} width='20' height='20' alt="leave" />
-    {isVisible && (
+    {isMenuOpen && (
       <div className="message-menu">
         <div className="menu-option" onClick={() => handleMenuOptionClick('kick', room.name, message_userId)}>
           Kick
