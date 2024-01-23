@@ -60,7 +60,7 @@ async function getPreAuthData() {
 }
 
 export function Config() {
-  const { user, initialize } = useContext(UserContext);
+  const { initialize } = useContext(UserContext);
   const[twoFA, setTwoFa] = useState(false);
   const [userpre, setUserpre] = useState<{id: String, email: string, username: string, avatar: string}>({id : "" ,email: "", username: "", avatar: ""});
   const navigate = useNavigate();
@@ -71,7 +71,7 @@ export function Config() {
     const fetchData = async () => {
       await getPreAuthData().then(res => {
         if (res) {
-          console.log("username set to: ", res.username);
+          console.log("username set to: ", res);
           setUserpre ({id : res.id_player, email: res.email, username: res.username, avatar: res.avatar});
           setUsername(res.username);
         }
@@ -112,7 +112,7 @@ return (
         {
           !twoFA && (
           <div className="lll">
-            <UploadAndDisplayImage davatar={user?.avatar} onFileChange={handleFileChange} width={200}></UploadAndDisplayImage>
+            <UploadAndDisplayImage davatar={userpre?.avatar} onFileChange={handleFileChange} width={200}></UploadAndDisplayImage>
             {/* <div className="cercle" >
             </div> */}
             <form onSubmit={(e) => e.preventDefault()} style={{display: 'flex', flexDirection: 'column', gap: '30px', alignItems: 'center'}}>
