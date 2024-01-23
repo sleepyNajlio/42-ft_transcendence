@@ -25,7 +25,7 @@ export class SocketGateway
 
   handleConnection(client: Socket) {
     console.log(
-      `Client ${client.id} connected. ${client.handshake.query.userId}}`,
+      `Client ${client.id} connected. ${client.handshake.query.userId}`,
     );
 
     // Extract user ID from query parameter
@@ -36,6 +36,7 @@ export class SocketGateway
       this.userSockets.set(userId, []);
     }
     this.userSockets.get(userId).push(client);
+    // console.log('userSockets', this.userSockets);
   }
 
   handleDisconnect(client: Socket) {
@@ -86,7 +87,9 @@ export class SocketGateway
     return this.server;
   }
   getClientSocket(playerId: string): Socket[] | undefined {
+    console.log('zbiiiiiiiii', playerId);
     const userSockets = this.userSockets.get(playerId);
+    console.log('getClientSocket userSockets', userSockets);
     return userSockets ? userSockets : undefined;
   }
 }

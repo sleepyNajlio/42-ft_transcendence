@@ -4,7 +4,7 @@ import { ProfilInfo } from './ProfilInfo';
 import { ProfilStat } from './ProfilStat';
 import { user, cercle} from './types.ts';
 
-function PofilCard(props: {user: user}){
+function PofilCard(props: {user: user, setFriend: React.Dispatch<React.SetStateAction<user | null>>}){
   let cercle = {
     x: 90,
     y: 90,
@@ -17,7 +17,7 @@ function PofilCard(props: {user: user}){
     <>
     <div className={`left-div`}>
       <div className={`ptest`}>
-        <ProfilInfo state={props.user.friend} name={props.user.username} rank={props.user.rank} image={props.user.avatar}></ProfilInfo>
+        <ProfilInfo setFriend={props.setFriend} id={props.user.id} state={props.user.friend} name={props.user.username} rank={props.user.rank} image={props.user.avatar}></ProfilInfo>
         <div className={`left-content profil__card`}>
           <ProfilStat user_stats={props.user.user_stats} cercle={cercle} stats_names={Dstats_names}></ProfilStat>
         </div>

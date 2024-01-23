@@ -8,7 +8,7 @@ import { UserContext } from './UserProvider.tsx';
 import { History } from './Components/types.ts';
 
 
-export function Profile(props: {freind?: user | null, fhistory: History[] | null }) {
+export function Profile(props: {setFriend: React.Dispatch<React.SetStateAction<user | null>> ,freind?: user | null, fhistory: History[] | null }) {
   const { user, history } = useContext(UserContext);
 
   const [tempuser, setTempuser] = useState({
@@ -65,7 +65,7 @@ export function Profile(props: {freind?: user | null, fhistory: History[] | null
             <h1 className="ptitle">Profile</h1>
         </div>
         {user && (checkIfMediumPlus ? (
-            <PofilCard user={props.freind || tempuser}></PofilCard>
+            <PofilCard setFriend={props.setFriend} user={props.freind || tempuser}></PofilCard>
             ) : (
             <MobProfilCard user={props.freind || tempuser}></MobProfilCard>
         ))}

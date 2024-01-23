@@ -25,6 +25,8 @@ enum NotifType {
   MESSAGE = 'MESSAGE',
   INVITE = 'INVITE',
   GAME = 'GAME',
+  BLOCKED = 'BLOCKED',
+  ACCEPTED = 'ACCEPTED',
 }
 
 enum gameStatus {
@@ -64,7 +66,21 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private readonly gameService: GameService,
   ) {}
 
-  async handleConnection() {}
+  async handleConnection() {
+    // set an interval of 20 sec to remove the notifs that exceed 20 sec
+    // setInterval(() => {
+    //   for (const key in this.notifs) {
+    //     console.log('notifs', this.notifs);
+    //     this.notifs[key] = this.notifs[key].filter(
+    //       (notif) => notif.time === 0 || Date.now() - notif.time < 20000,
+    //     );
+    //     if (this.notifs[key].length === 0) {
+    //       delete this.notifs[key];
+    //     }
+    //     console.log('notifs2', this.notifs);
+    //   }
+    // }, 20000);
+  }
 
   handleDisconnect(client: Socket) {
     this.logger.log(`Client disconnected from game`);
@@ -407,6 +423,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       avatar: this.players[data.userId].avatar,
       username: this.players[data.userId].username,
       // board: this.players[data.userId].board,
+      time: 0,
       paddle: this.players[data.userId].padl,
     };
     this.notifs[data.adv_id] = [...this.notifs[data.adv_id], newNotification];
@@ -417,6 +434,85 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     });
     this.socketGateway.getClientSocket(data.adv_id).map((socketa) => {
       socketa.emit('invited', newNotification);
+    });
+    return true;
+  }
+
+  @SubscribeMessage('addFriend')
+  handelFriendInvite(client: Socket, data: any) {
+    console.log('invite to', data.frId, 'by ', data.id);
+    if (!this.notifs[data.frId]) {
+      this.notifs[data.frId] = [];
+    }
+    const newNotification = {
+      user_id: data.id,
+      type: NotifType.INVITE, // Replace with the actual type
+      avatar: data.avatar,
+      time: 0,
+      username: data.username,
+    };
+    this.notifs[data.frId] = [...this.notifs[data.frId], newNotification];
+    this.logger.log(`emiting request to ${data.username}`);
+    this.logger.log(this.notifs);
+    this.socketGateway.getClientSocket(data.frId.toString()).map((socketa) => {
+      socketa.emit('invited', newNotification);
+    });
+    return true;
+  }
+
+  @SubscribeMessage('block')
+  handelBlock(client: Socket, data: any) {
+    console.log(data.frId, 'block ', data.id);
+    if (!this.notifs[data.frId]) {
+      this.notifs[data.frId] = [];
+    } else {
+      // remove if there is an invite
+      this.notifs[data.frId] = this.notifs[data.frId].filter(
+        (player) =>
+          player.user_id !== data.id && player.type !== NotifType.INVITE,
+      );
+    }
+    const newNotification = {
+      user_id: data.id,
+      type: NotifType.BLOCKED, // Replace with the actual type
+      avatar: data.avatar,
+      time: Date.now(),
+      username: data.username,
+    };
+    this.notifs[data.frId] = [...this.notifs[data.frId], newNotification];
+    this.logger.log(`emiting block to ${data.username}`);
+    this.logger.log(this.notifs);
+    this.socketGateway.getClientSocket(data.frId.toString()).map((socketa) => {
+      socketa.emit('blocked', newNotification);
+    });
+    return true;
+  }
+
+  @SubscribeMessage('acceptFriend')
+  handelAcceptFriend(client: Socket, data: any) {
+    console.log(data.frId, 'accepted ', data.id);
+    if (!this.notifs[data.frId]) {
+      this.notifs[data.frId] = [];
+    }
+    this.notifs[data.frId] = this.notifs[data.frId].filter(
+      (player) =>
+        player.user_id !== data.id && player.type !== NotifType.INVITE,
+    );
+    const newNotification = {
+      user_id: data.id,
+      type: NotifType.ACCEPTED, // Replace with the actual type
+      avatar: data.avatar,
+      time: Date.now(),
+      username: data.username,
+    };
+    this.notifs[data.frId] = [...this.notifs[data.frId], newNotification];
+    this.logger.log(`emiting accept to ${data.username}`);
+    this.logger.log(this.notifs);
+    this.socketGateway.getClientSocket(data.frId.toString()).map((socketa) => {
+      socketa.emit('accepted', newNotification);
+    });
+    this.socketGateway.getClientSocket(data.id.toString()).map((socketa) => {
+      socketa.emit('rminvite', data.frId);
     });
     return true;
   }

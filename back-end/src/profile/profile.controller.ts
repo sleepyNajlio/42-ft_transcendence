@@ -39,7 +39,32 @@ export class ProfileController {
       Number(id),
       Number(owuser['id_player']),
     );
-    return { user, state: friendStatus?.status };
+    return { user, state: friendStatus };
+  }
+  @Post('/friend')
+  async addFriend(@Req() req: Request, @Body() { id }: { id: string }) {
+    const owuser = req.user;
+    await this.profileService.addFriend(
+      Number(id),
+      Number(owuser['id_player']),
+    );
+    return { message: 'Friend request sent' };
+  }
+
+  @Post('/update/friend')
+  async blockFriend(
+    @Req() req: Request,
+    @Body() { id, status }: { id: string; status: string },
+  ) {
+    const owuser = req.user;
+    console.log(owuser);
+    console.log(id);
+    await this.profileService.updateStatus(
+      Number(id),
+      Number(owuser['id_player']),
+      status,
+    );
+    return { message: 'Friend is blocked' };
   }
 
   @Get('/notfriend')

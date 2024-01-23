@@ -1,5 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { RelationStatus } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -23,6 +24,43 @@ export class ProfileService {
       return user;
     } catch (error) {
       throw new HttpException('invalid Token', HttpStatus.OK); // Handle token verification errors
+    }
+  }
+
+  async addFriend(id: number, invId: number) {
+    const zbi = await this.prisma.friendShip.create({
+      data: {
+        userId: id,
+        friendId: invId,
+      },
+    });
+    return zbi;
+  }
+
+  async updateStatus(id: number, invId: number, statusStr: string) {
+    const status = await this.getFriendStatus(id, invId);
+    if (!status && statusStr !== 'ACCEPTED') {
+      const zbi = await this.prisma.friendShip.create({
+        data: {
+          userId: id,
+          friendId: invId,
+          status: statusStr as RelationStatus, // Cast statusStr to RelationStatus
+        },
+      });
+      return zbi;
+    } else {
+      const zbi = await this.prisma.friendShip.update({
+        where: {
+          userId_friendId: {
+            userId: status.userId,
+            friendId: status.friendId,
+          },
+        },
+        data: {
+          status: statusStr as RelationStatus,
+        },
+      });
+      return zbi;
     }
   }
 
@@ -52,42 +90,50 @@ export class ProfileService {
           {
             OR: [
               {
-                friendshipAsked: {
-                  none: {
-                    OR: [{ userId: id }, { friendId: id }],
-                  },
-                },
-              },
-              {
-                friendshipReceived: {
-                  none: {
-                    OR: [{ userId: id }, { friendId: id }],
-                  },
-                },
-              },
-              {
-                friendshipAsked: {
-                  some: {
-                    AND: [
-                      {
+                AND: [
+                  {
+                    friendshipAsked: {
+                      none: {
                         OR: [{ userId: id }, { friendId: id }],
                       },
-                      { NOT: { status: 'BLOCKED' } },
-                    ],
+                    },
                   },
-                },
-              },
-              {
-                friendshipReceived: {
-                  some: {
-                    AND: [
-                      {
+                  {
+                    friendshipReceived: {
+                      none: {
                         OR: [{ userId: id }, { friendId: id }],
                       },
-                      { NOT: { status: 'BLOCKED' } },
-                    ],
+                    },
                   },
-                },
+                ],
+              },
+              {
+                OR: [
+                  {
+                    friendshipAsked: {
+                      some: {
+                        AND: [
+                          {
+                            OR: [{ userId: id }, { friendId: id }],
+                          },
+                          { NOT: { status: 'BLOCKED' } },
+                        ],
+                      },
+                    },
+                  },
+                  {
+                    friendshipReceived: {
+                      some: {
+                        AND: [
+                          {
+                            OR: [{ userId: id }, { friendId: id }],
+                          },
+                          { NOT: { status: 'BLOCKED' } },
+                        ],
+                      },
+                    },
+                  },
+                ],
               },
             ],
           },
