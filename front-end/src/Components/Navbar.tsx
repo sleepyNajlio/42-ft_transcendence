@@ -90,6 +90,10 @@ export default function Navbar(props: any) {
         );
     }, [searchQuery]);
 
+    useEffect(() => {
+        getPlayers();
+    }, [props.profile]);
+
     function searchPlayer(id_player: string): void {
         console.log("id_player: ", id_player);
         getMatchHistory(Number(id_player)).then (res => {

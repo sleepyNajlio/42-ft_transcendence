@@ -14,6 +14,9 @@ interface MessageComponentProps {
   message_userId : number;
   message_id : number;
   onMenuOptionClick: (option: string, name : string, userId : number) => void;
+  handleBoxClose: () => void;
+  handleButtonClick: (event: React.MouseEvent<HTMLDivElement>) => void; // Update the type here
+  isVisible: boolean;
 }
 
 const MessageComponent: React.FC<MessageComponentProps> = ({
@@ -25,6 +28,9 @@ const MessageComponent: React.FC<MessageComponentProps> = ({
   room,
   message_userId,
   message_id,
+  handleBoxClose,
+  handleButtonClick,
+  isVisible,
 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [lastClickedmessage_Id, setLastClickedmessage_Id] = useState<number | null>(null);
@@ -35,34 +41,11 @@ const MessageComponent: React.FC<MessageComponentProps> = ({
     Array.isArray(users) &&
     users.some((user: { userId: number; role: string }) => user.userId === message_userId && user.role === 'OWNER');
 
-  const handleMenuToggle = () => {
-    setIsMenuOpen(!isMenuOpen);
-    setLastClickedmessage_Id(isMenuOpen ? null : message_id);
-  };
 
   const handleMenuOptionClick = (option: string, name: string, userId: number) => {
+    handleBoxClose();
     onMenuOptionClick(option, name, userId);
-    setIsMenuOpen(false);
   };
-
- 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-
-      if (menuRef.current && !menuRef.current.contains(event.target as Node) && lastClickedmessage_Id !== message_id) {
-        setIsMenuOpen(false);
-        setLastClickedmessage_Id(message_id);
-      }
-    };
-
-    document.addEventListener('click', handleClickOutside);
-
-    return () => {
-      document.removeEventListener('click', handleClickOutside);
-      setLastClickedmessage_Id(null);
-    };
-  }, []);
-
 
   return (
     <div className={`message-container ${isOwnMessage ? 'own-message' : 'friend-message'}`}>
@@ -76,9 +59,9 @@ const MessageComponent: React.FC<MessageComponentProps> = ({
     {text}
   </div>
   {!isOwnMessage && room && room.chatUser && room.chatUser.role === 'OWNER' && (
-    <div className='menu-click' onClick={handleMenuToggle}>
+    <div className='menu-click' onClick={handleButtonClick}>
       <img title="options" src={threedots} width='20' height='20' alt="leave" />
-      {isMenuOpen && lastClickedmessage_Id === message_id && (
+      {isVisible && (
         <div className="message-menu">
           <div className="menu-option" onClick={() => handleMenuOptionClick('kick', room.name, message_userId)}>
             Kick
@@ -97,9 +80,9 @@ const MessageComponent: React.FC<MessageComponentProps> = ({
   )}
   {!isOwnMessage && room && room.chatUser && room.chatUser.role === 'ADMIN' && !isUserOwner &&
      !room.chatUser.isBanned && (
-    <div className='menu-click' onClick={handleMenuToggle}>
+    <div className='menu-click' onClick={handleButtonClick}>
     <img title="options" src={threedots} width='20' height='20' alt="leave" />
-    {isMenuOpen && (
+    {isVisible && (
       <div className="message-menu">
         <div className="menu-option" onClick={() => handleMenuOptionClick('kick', room.name, message_userId)}>
           Kick
