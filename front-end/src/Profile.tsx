@@ -9,7 +9,7 @@ import { History } from './Components/types.ts';
 
 
 export function Profile(props: {setFriend: React.Dispatch<React.SetStateAction<user | null>> ,freind?: user | null, fhistory: History[] | null }) {
-  const { user, history } = useContext(UserContext);
+  const { user, history, initialize } = useContext(UserContext);
 
   const [tempuser, setTempuser] = useState({
     id: "1",
@@ -48,7 +48,7 @@ export function Profile(props: {setFriend: React.Dispatch<React.SetStateAction<u
   );
   useEffect(() => {
     console.log("mounted");
-
+    initialize();
     return () => {
       console.log("unmounted");
     };
