@@ -22,20 +22,78 @@ export class ProfileController {
   constructor(private profileService: ProfileService) {}
 
   @Get()
-  @SetMetadata("isPublic", true)
+  @SetMetadata('isPublic', true)
   async getUserInfo(@Req() req: Request) {
-    const token = req.cookies['JWT_TOKEN'] || req.cookies["USER"]; // Get the JWT from cookies
+    const token = req.cookies['JWT_TOKEN'] || req.cookies['USER']; // Get the JWT from cookies
     if (!token) {
-      throw new HttpException("no token", HttpStatus.OK);
+      throw new HttpException('no token', HttpStatus.OK);
     }
     const user = await this.profileService.getUserInfoFromToken(token);
     return { user: user };
   }
   @Get('/friend/:id')
-  async getUserById(@Param() { id }: { id: string }) {
+  async getUserById(@Req() req: Request, @Param() { id }: { id: string }) {
+    const owuser = req.user;
+    const { user } = await this.profileService.getUserById(Number(id));
+    const friendStatus = await this.profileService.getFriendStatus(
+      Number(id),
+      Number(owuser['id_player']),
+    );
+    return { user, state: friendStatus };
+  }
+  @Post('/friend')
+  async addFriend(@Req() req: Request, @Body() { id }: { id: string }) {
+    const owuser = req.user;
+    await this.profileService.addFriend(
+      Number(id),
+      Number(owuser['id_player']),
+    );
+    return { message: 'Friend request sent' };
+  }
+
+  @Post('/update/friend')
+  async blockFriend(
+    @Req() req: Request,
+    @Body() { id, status }: { id: string; status: string },
+  ) {
+    const owuser = req.user;
+    console.log(owuser);
     console.log(id);
-    const user = await this.profileService.getUserById(Number(id));
-    return user;
+    await this.profileService.updateStatus(
+      Number(id),
+      Number(owuser['id_player']),
+      status,
+    );
+    return { message: 'Friend is blocked' };
+  }
+
+  @Get('/notfriend')
+  async getNotFriend(@Req() req: Request) {
+    const owuser = req.user;
+    const users = await this.profileService.getNotFriend(
+      Number(owuser['id_player']),
+    );
+    return { users: users };
+  }
+
+  @Get('/block')
+  async getBockedUsers(@Req() req: Request) {
+    const owuser = req.user;
+    /* get all blocked users */
+    const users = await this.profileService.getBockedUsers(
+      Number(owuser['id_player']),
+    );
+    return { users: users };
+  }
+
+  @Get('/notBlocked')
+  async getNotBockedUsers(@Req() req: Request) {
+    const owuser = req.user;
+    /* get all blocked users */
+    const users = await this.profileService.getNotBockedUsers(
+      Number(owuser['id_player']),
+    );
+    return { users: users };
   }
 
   @Get('/all')
@@ -62,8 +120,6 @@ export class ProfileController {
 
   @Get('/ranks')
   async getUsersRank() {
-    // console.log('====================rank');
-    // return 'rank';
     const users = await this.profileService.getUsersRank();
     return users;
   }

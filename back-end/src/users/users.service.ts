@@ -13,7 +13,6 @@ export class UsersService {
   ) {}
 
   async GetUserByToken(token: string) {
-    
     // console.log("token:", "'", token, "'");
     const payload = this.jwt.verify(token.trim());
     // console.log("payload: ", payload);
@@ -119,5 +118,13 @@ export class UsersService {
       },
     });
     return user;
+  }
+
+  async getSecretWithId(id: number) {
+    const twofasec = await this.prisma.player.findUnique({
+      where: { id_player: id },
+      select: { twoFASecret: true },
+    });
+    return twofasec?.twoFASecret;
   }
 }

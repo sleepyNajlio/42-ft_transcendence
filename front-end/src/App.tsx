@@ -20,6 +20,7 @@ import { TestChat } from './Testchat.tsx';
 import axios from 'axios';
 import { History } from './Components/types.ts';
 import { ToastProvider } from 'react-toast-notifications';
+import ButtonsComponent from './ButtonsComponent.tsx';
 
 interface inviters
 {
@@ -32,6 +33,8 @@ enum NotifType {
     MESSAGE = 'MESSAGE',
     INVITE = 'INVITE',
     GAME = 'GAME',
+    BLOCKED = 'BLOCKED',
+    ACCEPTED = 'ACCEPTED',
   }
 
 function App()
@@ -120,7 +123,7 @@ function App()
         // socket.emit('playOpen', { id: socket.id });
         }
         return () => {
-        isMounted.current = false;
+            isMounted.current = false;
         };
     } , []);
     useEffect(() => {
@@ -139,6 +142,8 @@ function App()
             });
             socket.on('invited', (data: any) => handleInvited(data));
             socket.on('rminvite', (data: any) => handleRmInvite(data));
+            socket.on('blocked', (data: any) => handleBlocked(data));
+            socket.on('accepted', (data: any) => handleAccepted(data));
         }
         else
             console.log('no socket');
@@ -146,18 +151,81 @@ function App()
         return () => {
             socket?.off('invited', handleInvited);
             socket?.off('rminvite', handleRmInvite);
+            socket?.off('blocked', handleBlocked);
+            socket?.off('accepted', handleAccepted);
         };
     }, [socket]);
     const handleInvited = (data: any) => {
+        setInviters(prevInviters => [...prevInviters, {user_id: data.user_id, avatar: data.avatar, username: data.username, type: data.type, paddle: data.paddle}]);
+        if (data.type === NotifType.INVITE)
+        {
+            setProfile((prevProfile: user | null) => {
+                if (!prevProfile) {
+                    return prevProfile;
+                }
+                return {
+                    ...prevProfile,
+                    friend: {
+                        ...prevProfile.friend,
+                        status: "PENDING",
+                    },
+                };
+            });
+        }
         if (inPlay)
             return;
-        console.log("invited by ", data);
-        setInviters(prevInviters => [...prevInviters, {user_id: data.user_id, avatar: data.avatar, username: data.username, type: NotifType.GAME, paddle: data.paddle}]);
+        setInvite(inviteStatus.INVITED);
+    };
+    const handleBlocked = (data: any) => {
+        setInviters(prevInviters => prevInviters.filter((inviter) => inviter.user_id !== data.user_id && inviter.type !== NotifType.INVITE));
+        setInviters(prevInviters => [...prevInviters, {user_id: data.user_id, avatar: data.avatar, username: data.username, type: data.type, paddle: data.paddle}]);
+        setProfile(null);
+        if (data.type === NotifType.BLOCKED)
+        {
+            setProfile((prevProfile: user | null) => {
+                if (!prevProfile) {
+                    return prevProfile;
+                }
+                return {
+                    ...prevProfile,
+                    friend: {
+                        ...prevProfile.friend,
+                        status: "BLOCKED",
+                    },
+                };
+            });
+        }
+        if (inPlay)
+            return;
+        setInvite(inviteStatus.INVITED);
+    };
+
+    const handleAccepted = (data: any) => {
+        // filter out previous inviters with same user_id and type === NotifType.INVITE
+        setInviters(prevInviters => prevInviters.filter((inviter) => inviter.user_id !== data.user_id && inviter.type !== NotifType.INVITE));
+        setInviters(prevInviters => [...prevInviters, {user_id: data.user_id, avatar: data.avatar, username: data.username, type: data.type, paddle: data.paddle}]);
+        if (data.type === NotifType.ACCEPTED)
+        {
+            setProfile((prevProfile: user | null) => {
+                if (!prevProfile) {
+                    return prevProfile;
+                }
+                return {
+                    ...prevProfile,
+                    friend: {
+                        ...prevProfile.friend,
+                        status: "ACCEPTED",
+                    },
+                };
+            });
+        }
+        if (inPlay)
+            return;
         setInvite(inviteStatus.INVITED);
     };
     const handleRmInvite = (data: any) => {
-        setInviters(prevInviters => prevInviters.filter((inviter) => inviter.user_id !== data));
         console.log("invite removed ", data);
+        setInviters(prevInviters => prevInviters.filter((inviter) => inviter.user_id !== data));
     };
     const componentRef = useRef<HTMLDivElement>(null);
     const [boardWidth, setboardWidth] = useState<number | null>(null);
@@ -182,18 +250,19 @@ function App()
                     <ToastProvider>
                     <>
                         {location.pathname != "/" && location.pathname != "/Config" && location.pathname != "/TwoFA" && location.pathname != "/Verify2FA" && 
-                        (<Navbar setProfile={setProfile} setHistory={setHistory} invite={invite} inviters={inviters} inviteResp={inviteResp} setInvite={setInvite}/>)
+                        (<Navbar profile={profile} setProfile={setProfile} setHistory={setHistory} invite={invite} inviters={inviters} inviteResp={inviteResp} setInvite={setInvite}/>)
                         }
                         {
                             <>
                                 <Routes>
                                 <Route key='Config' path='/Config' caseSensitive={true} element={<Config />} />
-                                <Route key='TwoFA' path='/TwoFA' caseSensitive={true} element={<TwoFA />} />
+                                <Route key='TwoFA' path='/TwoFA' caseSensitive={true} element={<TwoFA  />} />
                                 <Route key='testchat' path='/Testchat' caseSensitive={true} element={<TestChat />} />
                                 <Route key='Verify2FA' path='/Verify2FA' caseSensitive={true} element={<Verify2FA />} />
-                                <Route key='Profile' path='/Profile' caseSensitive={true} element={<Profile freind={profile} fhistory={history} />} />
+                                <Route key='Profile' path='/Profile' caseSensitive={true} element={<Profile setFriend={setProfile} freind={profile} fhistory={history} />} />
                                 <Route key='Play' path='/Play' caseSensitive={true} element={<Play setHistory={setHistory} setProfile={setProfile} setInPlay={setInPlay} inviter={inviters} setboardWidth={setboardWidth} />} />
                                 <Route key='Chat' path='/Chat' caseSensitive={true} element={<Chat />} />
+                                <Route key='Chat' path='/test' caseSensitive={true} element={<ButtonsComponent />} />
                                 <Route key='Settings' path='/Settings' caseSensitive={true} element={<Settings />} />
                                 <Route key='Leaderboard' path='/Leaderboard' caseSensitive={true} element={<Leaderboard />} />
                                 <Route path='*' element={<Navigate to='/Profile' />} />

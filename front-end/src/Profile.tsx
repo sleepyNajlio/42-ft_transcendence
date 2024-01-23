@@ -8,7 +8,7 @@ import { UserContext } from './UserProvider.tsx';
 import { History } from './Components/types.ts';
 
 
-export function Profile(props: {freind?: user | null, fhistory: History[] | null }) {
+export function Profile(props: {setFriend: React.Dispatch<React.SetStateAction<user | null>> ,freind?: user | null, fhistory: History[] | null }) {
   const { user, history } = useContext(UserContext);
 
   const [tempuser, setTempuser] = useState({
@@ -20,16 +20,8 @@ export function Profile(props: {freind?: user | null, fhistory: History[] | null
       total_matches: 1,
       wins: 1,
       winsRat: 1,
-      achievement: 1,
     },
-    achievement: [
-        {name: "First win", description: "Win your first game", progress: 1, max: 1},
-        {name: "Win 10 games", description: "Win 10 games", progress: 10, max: 10},
-        {name: "Win 100 games", description: "Win 100 games", progress: 99, max: 100},
-        {name: "default", description: "Win 100 games", progress: 0, max: 100},
-        {name: "default", description: "Win 100 games", progress: 0, max: 100},
-        {name: "default", description: "Win 100 games", progress: 0, max: 100},
-    ],
+    achievement: 0,
   } as user);
   useEffect(() => {
     if (user && !props.freind) {
@@ -40,6 +32,7 @@ export function Profile(props: {freind?: user | null, fhistory: History[] | null
         avatar: user.avatar,
         user_stats: user.user_stats,
         rank: user.rank,
+        achievement: user.achievement,
       }));
       console.log("hstoire: ");
       console.log(history);
@@ -72,7 +65,7 @@ export function Profile(props: {freind?: user | null, fhistory: History[] | null
             <h1 className="ptitle">Profile</h1>
         </div>
         {user && (checkIfMediumPlus ? (
-            <PofilCard user={props.freind || tempuser}></PofilCard>
+            <PofilCard setFriend={props.setFriend} user={props.freind || tempuser}></PofilCard>
             ) : (
             <MobProfilCard user={props.freind || tempuser}></MobProfilCard>
         ))}

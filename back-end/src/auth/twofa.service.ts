@@ -5,6 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { UserDTO } from 'src/users/dto/SignUp.dto';
 import { Response } from 'express';
 import { toFileStream } from 'qrcode';
+import { Console } from 'console';
 
 @Injectable()
 export class TwofaService {
@@ -23,7 +24,6 @@ export class TwofaService {
     await this.usersService.updateTwoFaSecret(id_player, secret);
     return otpauth;
   }
-
   async pipeQrCodeStream(stream: Response, otpauth: string) {
     return toFileStream(stream, otpauth);
   }

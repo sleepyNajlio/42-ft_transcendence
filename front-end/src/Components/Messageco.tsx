@@ -15,6 +15,9 @@ interface MessageComponentProps {
   message_userId : number;
   message_id : number;
   onMenuOptionClick: (option: string, name : string, userId : number) => void;
+  handleBoxClose: () => void;
+  handleButtonClick: (event: React.MouseEvent<HTMLDivElement>) => void; // Update the type here
+  isVisible: boolean;
 }
 
 const MessageComponent: React.FC<MessageComponentProps> = ({
@@ -26,6 +29,9 @@ const MessageComponent: React.FC<MessageComponentProps> = ({
   room,
   message_userId,
   message_id,
+  handleBoxClose,
+  handleButtonClick,
+  isVisible,
 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [lastClickedmessage_Id, setLastClickedmessage_Id] = useState<number | null>(null);
@@ -43,8 +49,8 @@ const MessageComponent: React.FC<MessageComponentProps> = ({
   };
 
   const handleMenuOptionClick = (option: string, name: string, userId: number) => {
+    handleBoxClose();
     onMenuOptionClick(option, name, userId);
-    setIsMenuOpen(false);
   };
   
   const handleClickOutside = (event: MouseEvent) => {
@@ -99,9 +105,9 @@ const MessageComponent: React.FC<MessageComponentProps> = ({
   )}
   {!isOwnMessage && room && room.chatUser && room.chatUser.role === 'ADMIN' && !isUserOwner &&
      !room.chatUser.isBanned && (
-    <div className='menu-click' onClick={handleMenuToggle}>
+    <div className='menu-click' onClick={handleButtonClick}>
     <img title="options" src={threedots} width='20' height='20' alt="leave" />
-    {isMenuOpen && (
+    {isVisible && (
       <div className="message-menu">
         <div className="menu-option" onClick={() => handleMenuOptionClick('kick', room.name, message_userId)}>
           Kick

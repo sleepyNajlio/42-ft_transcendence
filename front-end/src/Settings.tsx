@@ -75,7 +75,7 @@ export function Settings() {
 
     return (
         <>
-            <main className="wrapper">
+            <main className="wrapper Config">
                 {!twoFA &&  <div className="sbox ">
                     <div className="sbox__title">
                         <h1 className="btitle">Settings</h1>
