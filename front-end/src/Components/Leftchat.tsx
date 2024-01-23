@@ -39,7 +39,8 @@ const Leftchat: React.FC = (props: any) => {
       <div className="composant-gauche">
         <ChatHeaderComponent friendName={props.name} showRoom={props.showRoom} isOwner={props.isOwner} isAdmin={props.isAdmin} profileImageUrl={ftlogo}
           Roomtype={props.Roomtype} handleAdmin={props.handleAdmin}getChatUsers={props.getChatUsers} chatUsers={props.chatUsers} handleUpdateRoom={props.handleUpdateRoom} handleDisplayRoom={props.HandleDisplayRoom}
-          room={props.room} handleleave={props.handleleave}/>
+          room={props.room} handleleave={props.handleleave} friends={props.Friends}
+          handleAddUser={props.handleAddUser}  />
         <div className="msg-section">
         {props.messages.map((message: any, index: any) => (
             <Messageco 

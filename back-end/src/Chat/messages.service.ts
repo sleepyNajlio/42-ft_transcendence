@@ -110,11 +110,11 @@ export class MessagesService {
             },
           });
         }
-        console.log('chatUser that just joined in jooiin the chat is: ');
-        console.log(chatUSers);
-        console.log('-------------------');
-        console.log('jooooined at : ');
-        console.log(chatUSers.joinedAt);
+        // console.log('chatUser that just joined in jooiin the chat is: ');
+        // console.log(chatUSers);
+        // console.log('-------------------');
+        // console.log('jooooined at : ');
+        // console.log(chatUSers.joinedAt);
       }
     }
     // console.log('id: ' + id + ' user: ' + name + ' joined the chat');
@@ -704,6 +704,7 @@ export class MessagesService {
     const lastMessages = await this.prisma.chatMessage.findMany({
       where: {
         chatId: { in: rooms.map((room) => room.id_chat) },
+        sentAt: { gte: chatUsers.find((chatUser) => chatUser.userId === id)?.joinedAt },
       },
       include: {
         user: {
@@ -716,15 +717,18 @@ export class MessagesService {
         sentAt: 'desc',
       },
     });
-    // console.log('last Messages is: ');
 
-    // console.log(lastMessages);
     return rooms.map((room) => {
       const chatUser = chatUsers.find(
-        (chatUser) =>
-          chatUser.chatId === room.id_chat && chatUser.userId === id,
-      ); 
-      const lastMessage = lastMessages.find((message) => message.chatId === room.id_chat)
+        (chatUser) => chatUser.chatId === room.id_chat && chatUser.userId === id
+      );
+      const lastMessage = lastMessages.find(
+        (message) =>
+          message.chatId === room.id_chat &&
+          message.sentAt >= chatUser?.joinedAt // Filter messages sent after chatUser joined
+      );
+      console.log('last Messages got to user : ' + id);
+      console.log(lastMessage);
       return {
         ...room,
         chatUser: chatUser,
@@ -987,7 +991,50 @@ async mute(id: number, name: string) {
   }, 5 * 12 * 1000); // 5 minutes in milliseconds
   return mutedChatUser;
 }
+/////////////////////Add User ///////////////////////
 
+async addUser(id : number, username : string, name : string)
+{
+  const chat = await this.prisma.chat.findFirst({
+    where: {
+      name: name,
+    },
+  });
+  const user = await this.prisma.player.findFirst({
+    where: {
+      username: username,
+    },
+  });
+  const chatUser = await this.prisma.chatUser.findFirst({
+    where: {
+      userId: user.id_player,
+      chatId: chat.id_chat,
+    },
+  });
+  if (chatUser) {
+    console.log('user already in the chat');
+    return false;
+  }
+  const newChatUser = await this.prisma.chatUser.create({
+    data: {
+      chatId: chat.id_chat,
+      userId: user.id_player,
+    },
+    include: {
+      user: {
+        select: {
+          username: true,
+        },
+      },
+      chat: {
+        select: {
+          name: true,
+        },
+      },
+    },
+  });
+  return newChatUser;
+}
 
 
 ///////////////////////// UPDATE ROOM /////////////////////////

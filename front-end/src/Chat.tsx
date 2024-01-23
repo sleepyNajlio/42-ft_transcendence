@@ -10,6 +10,7 @@ import './styles/css/Simpleco.css';
 import './styles/css/Switchgrpdm.css';
 import './styles/css/ChatHeaderComponent.css';
 import './styles/css/chatui.css';
+import { Use } from '@svgdotjs/svg.js';
 // import { off } from '@svgdotjs/svg.js';
 // import { user } from './Components/types.ts';
 
@@ -69,6 +70,8 @@ export function Chat() { // get values from data base
     const [showNotifMute, setShownotifMute] = useState(false);
     const [MuteNotification, setMuteNotification] = useState("");
     const [MuteisOver, setMuteisOver] = useState(false);
+    const [userAdded, setUserAdded] = useState(false);
+    const [RoomAdded, setRoomAdded] = useState("");
 
     const { addToast } = useToasts();
 
@@ -642,6 +645,18 @@ export function Chat() { // get values from data base
                 setMuteisOver(false);
         
             }, [MuteisOver]);
+    
+    useEffect(() => {
+        console.log("use effect called in userAdded");
+        if (userAdded)
+        addToast(`Your were Added in room ${RoomAdded}`, {
+            appearance: 'success',
+            autoDismiss: true,
+            autoDismissTimeout: 10000,
+            });
+            setUserAdded(false);
+    
+    }, [userAdded]);
 
     useEffect(() => {
 
@@ -719,6 +734,27 @@ export function Chat() { // get values from data base
         }
 
     });
+
+    useEffect(() => {
+
+        socket?.on('onadd', (response) => {
+            if (user?.id === response.userId)
+            {
+                let id : number = Number(user?.id);
+                console.log("user " + response.user.username + " will add the room " + response.chat.name);
+                socket?.emit('DisplayRoom', {id},  (response : Room[]) => {
+                    setRooms(response);
+                });
+                setUserAdded(true);
+                setRoomAdded(response.chat.name);
+            }
+        });
+        return () => {
+            socket?.off('onadd');
+        }
+    });
+
+
       
     const handleMute = (name : string, userId : number) => {
 
@@ -782,10 +818,6 @@ export function Chat() { // get values from data base
         return () => {
         }
     }
-
-    
-    
-
     const handleAdmin = (username : string) => {
         // console.log("handle admin called in front");
         // console.log("username : " + username);
@@ -803,9 +835,18 @@ export function Chat() { // get values from data base
             // setDisplayRoom(!DisplayRoom);
         });
         return () => {
-            // socket?.off('update');
         }
     }
+
+    const handleAddUser = (username : string) => {
+        socket?.emit('addUser', { id: user?.id, username: username, name: selectedRoom?.name }, (response: any) => {
+            // console.log("response got in add user: ");
+            // console.log(response);
+            if (!response)
+                alert("user already in the room");
+        });
+    }
+
 
 
     const sendMessage = (messageText: string) => {
@@ -996,7 +1037,7 @@ export function Chat() { // get values from data base
                     {showRoom && <Leftchat userid={user?.id} showRoom={showRoom}messages={messages} name={selectedRoom?.name} sendMessage={sendMessage} isOwner={isOwner}
                      Roomtype={selectedRoom?.type} handleUpdateRoom={handleUpdateRoom} handleAdmin={handleAdmin} HandleDisplayRoom={HandleDisplayRoom} DisplayRoom={DisplayRoom} room={selectedRoom}
                      getChatUsers={getChatUsers} isAdmin={isAdmin} chatUsers={chatUsers} handleleave={handleleave} handleKick={handleKick}
-                     handleBan={handleBan} handleMute={handleMute}/> }
+                     handleBan={handleBan} handleMute={handleMute} Friends={Friends} handleAddUser={handleAddUser}/> }
                     {ShowDm && <Leftchat userid={user?.id} showDm={ShowDm} messages={messages} name={name}sendMessageDm={sendMessageDm} Friends={Friends}/> }
                     
                 {welcomeMsg && 

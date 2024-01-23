@@ -4,6 +4,7 @@ import { useState } from 'react';
 import threedots from '../assets/three-dots.png';
 
 import '../styles/css/Messageco.css';
+import { Prev } from 'react-bootstrap/esm/PageItem';
 
 interface MessageComponentProps {
   text: string;
@@ -29,6 +30,7 @@ const MessageComponent: React.FC<MessageComponentProps> = ({
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [lastClickedmessage_Id, setLastClickedmessage_Id] = useState<number | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
+  const [wasopen, setWasopen] = useState(false);
 
 
   const isUserOwner =
@@ -36,32 +38,31 @@ const MessageComponent: React.FC<MessageComponentProps> = ({
     users.some((user: { userId: number; role: string }) => user.userId === message_userId && user.role === 'OWNER');
 
   const handleMenuToggle = () => {
-    setIsMenuOpen(!isMenuOpen);
-    setLastClickedmessage_Id(isMenuOpen ? null : message_id);
+    setIsMenuOpen((prevvIsMenuOpen) => !prevvIsMenuOpen);
+    setWasopen(true);
   };
 
   const handleMenuOptionClick = (option: string, name: string, userId: number) => {
     onMenuOptionClick(option, name, userId);
     setIsMenuOpen(false);
   };
+  
+  const handleClickOutside = (event: MouseEvent) => {
+    console.log("last clicked message id : " + lastClickedmessage_Id);
 
- 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    if (menuRef.current && !menuRef.current.contains(event.target as Node) && lastClickedmessage_Id !== message_id) {
+      setLastClickedmessage_Id(prevLastClickedmessage_Id => prevLastClickedmessage_Id === message_id ? null : message_id);
+    }
+  };
 
-      if (menuRef.current && !menuRef.current.contains(event.target as Node) && lastClickedmessage_Id !== message_id) {
-        setIsMenuOpen(false);
-        setLastClickedmessage_Id(message_id);
-      }
-    };
 
-    document.addEventListener('click', handleClickOutside);
+    useEffect(() => {
+      document.addEventListener('click', handleClickOutside);
 
-    return () => {
-      document.removeEventListener('click', handleClickOutside);
-      setLastClickedmessage_Id(null);
-    };
-  }, []);
+      return () => {
+        document.removeEventListener('click', handleClickOutside);
+      };
+    }, [handleClickOutside]);
 
 
   return (
@@ -76,9 +77,10 @@ const MessageComponent: React.FC<MessageComponentProps> = ({
     {text}
   </div>
   {!isOwnMessage && room && room.chatUser && room.chatUser.role === 'OWNER' && (
-    <div className='menu-click' onClick={handleMenuToggle}>
+    <div className='menu-click' onClick={handleMenuToggle} onFocus={()=> console.log("on focuuus")
+      } onBlur={()=> console.log("on bluuuur")}>
       <img title="options" src={threedots} width='20' height='20' alt="leave" />
-      {isMenuOpen && lastClickedmessage_Id === message_id && (
+      {isMenuOpen && (
         <div className="message-menu">
           <div className="menu-option" onClick={() => handleMenuOptionClick('kick', room.name, message_userId)}>
             Kick

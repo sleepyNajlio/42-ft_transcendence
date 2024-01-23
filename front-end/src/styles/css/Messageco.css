@@ -33,15 +33,24 @@
   padding-bottom: 0px;
   padding-top: 0px;
   padding-right: 1px;
-  background-color: rgb(255, 255, 255);
-  border: 0.5px solid #000001;
+  background-color: rgba(255, 255, 255, 0.9); /* Adjust the alpha value for transparency */
+  backdrop-filter: blur(20px);
+  /* border: 1.5px solid #000001; */
+  box-shadow: 0 10px 10px rgba(0, 0, 0, 0.1);
+}
+.message-menu:hover{
+  /* background-color: #bab9b9; */
+  border-radius: 8px;
+  /* border: 1.5px solid #000001; */
 }
 
 
 
 .menu-option{
+  font-family: 'inter';
+  font-size: medium;
   display: flex;
-  align-items: center;
+  align-items: stretch;
   padding: 4px;
   cursor: pointer;
   transition: background-color 0.3s;
@@ -49,7 +58,7 @@
 }
 
 .menu-option:hover{
-  background-color: #bab9b9;
+  background-color: rgb(199, 199, 199);
   border-radius: 8px;
 }
 .option-5min{

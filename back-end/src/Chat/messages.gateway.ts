@@ -225,6 +225,22 @@ export class MessagesGateway
     return room;
   }
 
+  @SubscribeMessage('addUser')
+  async addUser(
+    @MessageBody('id') id: number,
+    @MessageBody('username') username: string,
+    @MessageBody('name') name: string,
+  ) {
+    const room = await this.messagesService.addUser(id, username, name);
+    if (room)
+    {
+      this.socketGateway.getServer().emit('onadd', room);
+      return room;
+    }
+    else
+      return false;
+  }
+
   @SubscribeMessage('kick')
   async kick(
     @MessageBody('id') id: number,

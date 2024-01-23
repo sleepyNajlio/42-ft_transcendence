@@ -8,6 +8,8 @@ import { useNavigate } from 'react-router-dom';
 import game from '../assets/PlayIcon.png'
 import block from '../assets/BlockIcon.png'
 import profil from '../assets/ProfilIcon.png'
+import '../styles/css/Messageco.css';
+import adduser from '../assets/adduser.png'
 import leave from '../assets/fire-exit.png'
 import  Setting from '../assets/setting.png';
 import set_admin from '../assets/set_admin.png';
@@ -65,6 +67,7 @@ const SettingsComponent = (props: any) => {
     // Reset state or take necessary actions
   };
 
+
   // console.log("room type in settings : " + props.Roomtype);
 
   return (
@@ -99,12 +102,27 @@ const SettingsComponent = (props: any) => {
   );
 };
 
+// const UserListDropdown = ({ users, handleItemClick }) => {
+//   return (
+//     <div className="user-list-dropdown">
+//       {users.map((user) => (
+//         <button key={user.userId} className="admin-button" onClick={() => handleItemClick(user.user.username)}>
+//           <img src={user.user.avatar} alt={user.user.username} />
+//           {user.user.username}
+//         </button>
+//       ))}
+//     </div>
+//   );
+// };
+
+
 const ChatHeaderComponent: React.FC = (props : any) => {
   
   const [showSettings, setShowSettings] = useState(false);
   const [leaveRoom, setLeaveRoom] = useState(false);
   const [setAdmin, setsetAdmin] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
+  const [DisplayUsers, setDisplayUsers] = useState(false);
 
   // const navigate = useNavigate();
   // console.log("chatUsers got in chatHeeder : " , props.chatUsers);
@@ -125,6 +143,8 @@ const ChatHeaderComponent: React.FC = (props : any) => {
       setsetAdmin(!setAdmin);
     if (leaveRoom)
       setLeaveRoom(!leaveRoom);
+    if (DisplayUsers)
+      setDisplayUsers(!DisplayUsers);
 
   }
   const handleleave = () => {
@@ -133,6 +153,8 @@ const ChatHeaderComponent: React.FC = (props : any) => {
       setsetAdmin(!setAdmin);
     if (showSettings)
       setShowSettings(!showSettings);
+    if (DisplayUsers)
+      setDisplayUsers(!DisplayUsers);
     
 
     // props.handleleave();
@@ -143,6 +165,8 @@ const ChatHeaderComponent: React.FC = (props : any) => {
       setShowSettings(!showSettings);
     if (leaveRoom)
       setLeaveRoom(!leaveRoom);
+    if (DisplayUsers)
+      setDisplayUsers(!DisplayUsers);
     // setShowSettings(!showSettings);
     // setLeaveRoom(!leaveRoom);
     props.getChatUsers(props.friendName);
@@ -153,9 +177,23 @@ const ChatHeaderComponent: React.FC = (props : any) => {
     props.handleAdmin(username);
   }
 
+  const handleAddUser = (username : string) => {
+    setDisplayUsers(!DisplayUsers);
+    props.handleAddUser(username);
+  }
+
   const LeaveRoom = () => {
     props.handleleave();
     setLeaveRoom(!leaveRoom);
+  }
+  const AddUser = () => {
+    setDisplayUsers(!DisplayUsers);
+    if (showSettings)
+      setShowSettings(!showSettings);
+    if (leaveRoom)
+      setLeaveRoom(!leaveRoom);
+    if (setAdmin)
+      setsetAdmin(!setAdmin);
   }
 
     const UserProfile = () => {
@@ -163,7 +201,7 @@ const ChatHeaderComponent: React.FC = (props : any) => {
       // navigate(`/Profile/${props.friendName}`);
   }
     
-  console.log("users in seting : " , props.chatUsers);
+  console.log("friend in setting : " , props.friends);
 
   if (props.showRoom && !props.isOwner && !props.isAdmin)
   {
@@ -204,7 +242,7 @@ const ChatHeaderComponent: React.FC = (props : any) => {
           <div className='blank'>
           </div>
           <div className='profil' onClick={handleSettings}>
-            <img title="Settings" src={Setting} width='20' height='20' alt="Settings" />
+            <img title="Settings" src={Setting} width='20' height='20' style={{ marginLeft: '30px' }} alt="Settings" />
           </div>
           {showSettings && <SettingsComponent  Roomtype={props.Roomtype} setShowSettings={setShowSettings}
               showSettings={showSettings} handleUpdateRoom={props.handleUpdateRoom}
@@ -212,24 +250,45 @@ const ChatHeaderComponent: React.FC = (props : any) => {
           <div className='blank'>
           </div>
           <div className='profil' onClick={handlesetAdmin}>
-            <img title="Set Admin" src={set_admin} width='20' height='20' alt="leave" style={{ marginRight: '19px' }} />
+            <img title="Set Admin" src={set_admin} width='20' height='20' alt="leave" />
+          </div>
+          <div className='blank'>
+          </div>
+          {props.room.type === 'PRIVATE' || props.room.type === 'PROTECTED' &&
+            <div className='profil' onClick={AddUser}>
+              <img title="Add user" src={adduser} width='22' height='22' alt="leave" />
+              {DisplayUsers && (
+                  <div className="user-list-dropdown">
+                    {props.friends.map((friend: any) => (
+                        <button key={friend.id_player} className="admin-button" onClick={() => handleAddUser(friend.username)}>
+                          <img src={friend.avatar} alt={friend.username} />
+                          {friend.username}
+                        </button>
+                    ))}
+                  </div>
+                )
+              }
+            
+            </div>
+          }
+          {setAdmin && Array.isArray(props.chatUsers) && !props.chatUsers.some((user: any) => user.role === 'ADMIN') && (
+          <div className="user-list-dropdown">
+            {props.chatUsers.map((user: any) => (
+              user && user.role === 'MEMBER' && !user.isBanned && !user.isMuted && (
+                <button key={user.userId} className="admin-button" onClick={() => handleAdmin(user.user.username)}>
+                  <img src={user.user.avatar} alt={user.user.username} />
+                  {user.user.username}
+                </button>
+              )
+            ))}
+          </div>
+
+        )}
+          <div className='blank'>
           </div>
           <div className='profil'onClick={handleleave} >
             <img title="Leave" src={leave} width='20' height='20' alt="leave" />
           </div>
-      
-            {setAdmin && Array.isArray(props.chatUsers) && !props.chatUsers.some((user: any) => user.role === 'ADMIN') && (
-            <div className="profil">
-              {props.chatUsers.map((user: any) => (
-                user && user.role === 'MEMBER' && !user.isBanned && !user.isMuted && (
-                  <button key={user.userId} className="admin-button" onClick={() => handleAdmin(user.user.username)}>
-                    <img src={user.user.avatar} alt={user.user.username} />
-                    {user.user.username}
-                  </button>
-                )
-              ))}
-            </div>
-          )}
           {leaveRoom &&
             <div className="leave-box">
               <div className="leave-input">
@@ -239,6 +298,7 @@ const ChatHeaderComponent: React.FC = (props : any) => {
               <button onClick={handleleave}>No</button>
             </div>
           }
+          
         </div>
       </div>
         );
@@ -284,15 +344,9 @@ const ChatHeaderComponent: React.FC = (props : any) => {
       </div>
       <div className='blank'>
       </div>
-      <div className='block'>
-        <img title="block" src={block} alt="Icon2" />
-      </div>
-      <div className='blank'>
-      </div>
       <div className='profil' onClick={UserProfile}>
         <img title="view profile" src={profil} alt="Icon2" />
       </div>
-      {showProfile && <Profile />}
     </div>
   </div>
     );

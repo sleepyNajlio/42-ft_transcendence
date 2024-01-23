@@ -11,11 +11,35 @@
 
 .admin-button {
   display: flex;
-  flex-direction: row;
   align-items: center;
-  margin-left: 10px;
+  padding: 4px;
   cursor: pointer;
+  transition: background-color 0.3s;
   border: 1px solid #166386;
+}
+
+.user-list-dropdown {
+  position: absolute;
+  top: calc(-100% - 20px);
+  left: 0;
+  background-color: black;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  border: 0px solid #555;
+  border-radius: 10px;
+  padding: 9px;
+  padding-top: 9px;
+  padding-bottom: 9px;
+  padding-left: 1px;
+  padding-bottom: 0px;
+  padding-top: 0px;
+  padding-right: 1px;
+  background-color: rgb(255, 255, 255);
+  border: 0.5px solid #000001;
+  top : 50px;
+
+
 }
 
 .admin-box {
@@ -79,8 +103,9 @@
   .profil
   {
     cursor: pointer;
+    position: relative;
   }
   .blank
   {
-    width: 15px;
+    width: 5px;
   }
