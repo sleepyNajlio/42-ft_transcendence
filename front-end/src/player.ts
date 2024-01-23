@@ -29,18 +29,18 @@ export async function getUserInfo(id?: number): Promise<user | null> {
             achievement:Number(0),
             total_matches: Number(res.user.wins) + Number(res.user.loses),
         };
-        if(stats.winsRat <= 0.1 && stats.winsRat >= 0.01)
+        if(stats.total_matches >= 1)
             stats.achievement += 1;
-        if(stats.total_matches >= 5)
+        if(stats.total_matches >= 3)
             stats.achievement += 1;
-        if(res.user.wins >= 10)
+        if(res.user.wins >= 3)
             stats.achievement += 1;
-        if(res.user.wins >= 1)
+        if(stats.winsRat === 1 && stats.total_matches >= 5)
             stats.achievement += 1;
-        const achievement : number = res.user.wins;
+        const achievement : number = stats.achievement;
         const rank: number = (await axios.get(`http://localhost:3000/profile/rank/${res.user.id_player}`, { withCredentials: true })).data;
         console.log("rank: ", rank);
-        console.log("achie: ", achievement);
+        // console.log("achie: ", achievement);
         const user: user = {
             id: res.user.id_player,
             username: res.user.username,

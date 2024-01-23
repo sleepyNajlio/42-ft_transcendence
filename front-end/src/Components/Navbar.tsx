@@ -193,11 +193,13 @@ export default function Navbar(props: any) {
                     <div className="cercle_profile" style={{ backgroundImage: `url(${user && user.avatar})` }}></div>
                     <span className="name">{user && user.username}</span>
                 </div>
-                <a href="http://localhost:3000/user/logout">
-                <div>
-                    <img width="40" height="40" src={exit} alt="Search Icon"/>
+                <div style={{ flexDirection: 'row-reverse', display: 'flex' }}>
+                    <a href="http://localhost:3000/user/logout">
+                    <div style={{ display: 'flex', flexDirection: 'row-reverse' }}>
+                        <img width="40" height="40" src={exit} alt="Search Icon"/>
+                    </div>
+                    </a>
                 </div>
-                </a>
             </div>
     </section>
     </>

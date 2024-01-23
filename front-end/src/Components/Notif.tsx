@@ -46,7 +46,7 @@ useEffect(() => {
                         )
                     }
                     <button className="notification-button" onClick={()=> {inviteResp(true, inviter); navigate('/Play')}} >Accept</button>
-                    <button className="notification-button" onClick={()=> {inviteResp(false, inviter)}}>Decline</button>
+                    <button className="notification-button-decline" onClick={()=> {inviteResp(false, inviter)}}>Decline</button>
                 </div>
             ))}
         </div>
