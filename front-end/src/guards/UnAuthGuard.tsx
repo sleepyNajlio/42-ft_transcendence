@@ -31,6 +31,10 @@ const UnAuthGuard = ({ component }: { component: ReactNode }) => {
 				setStatus(true);
 				navigate('/Config');
 			}
+			else if (res.data.isAuthenticated == true) {
+				setStatus(true);
+				navigate('/Profile');
+			}
 			else {
 				setStatus(true);
 				navigate('/');

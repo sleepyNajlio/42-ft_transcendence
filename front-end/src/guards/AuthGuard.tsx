@@ -18,16 +18,22 @@ const AuthGuard = ({ component }: { component: ReactNode }) => {
 	const checkToken = async () => {
 		await axios.get('http://localhost:3000/user', { withCredentials: true })
 		.then(res => {
-			if (res.data.isAuthenticated == false) {
+			if (res.data.twoFA == true) {
+				// console.log("verify azzbi ", res.data);
+				setStatus(true);
+				navigate('/Verify2FA');
+			}
+			else if (res.data.isAuthenticated == false) {
 				setStatus(true);
 				navigate('/Config');
 			}
-			else if (res.data.msg === "no cookies") {
+			else if (res.data.isAuthenticated == true) {
+				setStatus(true);
+			}
+			else {
+				setStatus(true);
 				navigate('/');
 			}
-			else
-				setStatus(true);
-			console.log('AuthGuard');
 		}).catch(() => {
 			// console.error(error.response.data.message);
 			setStatus(false);
