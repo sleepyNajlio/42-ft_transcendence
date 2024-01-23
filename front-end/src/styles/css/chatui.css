@@ -80,4 +80,5 @@
     display: flex;
     overflow-y: scroll;
     max-height: 100vh;
+    height: 100%;
   }

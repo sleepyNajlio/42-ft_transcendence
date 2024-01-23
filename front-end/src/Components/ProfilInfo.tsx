@@ -46,8 +46,11 @@ export function ProfilInfo(props : {setFriend:React.Dispatch<React.SetStateActio
 
   useEffect(() => {
     setstatus(props.state?.status)
-    console.log("state ",props.state, "status ", status);
-  } , [props.state?.status]);
+    console.log("state ",props.state, "status ", status, "newRequest ", newRequest);
+    return () => {
+      setstatus("")
+    }
+  } , [props.id]);
 
   const acceptFriend = async () => {
     if(socket)
@@ -79,7 +82,7 @@ export function ProfilInfo(props : {setFriend:React.Dispatch<React.SetStateActio
             (!status) ? (
               <div className="bt">
                 <button className="bt profil__button add" onClick={addFriend}>ADD</button>
-                <button className="bt profil__button block" onClick={blockFriend}>Blockb</button>
+                <button className="bt profil__button block" onClick={blockFriend}>Block</button>
               </div>
             ) : (status === "PENDING") ? (
               ((props.state?.friendId === Number(user?.id))) || newRequest ?
@@ -91,7 +94,7 @@ export function ProfilInfo(props : {setFriend:React.Dispatch<React.SetStateActio
               ):(
                 <div className="bt">
                 <button className="bt profil__button add" onClick={acceptFriend}>ACCEPT</button>
-                  <button className="bt profil__button block" onClick={blockFriend}>Blocka</button>
+                  <button className="bt profil__button block" onClick={blockFriend}>Block</button>
                 </div>
               )
             ) : (status === "BLOCKED") ? (

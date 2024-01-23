@@ -8,6 +8,7 @@ box-sizing: border-box;
   justify-content: start;
   align-items: center;
   row-gap: 20px;
+  position: relative;
 }
 
 .plogo img
@@ -244,8 +245,13 @@ box-sizing: border-box;
   }
 
   .players {
-    display: flex;
-    justify-content: space-between;
+    
+    position: absolute;
+    top: 229px;
+    width: 90%;
+    z-index: 101;
+    box-shadow: inset 5px 1px 0px #F2F4F6;
+    border-radius: 10px;
   }
   
   .player {
@@ -264,14 +270,13 @@ box-sizing: border-box;
     border-radius: 20px;
   }
   .user_rec {
+    cursor: pointer;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    width: 100%;
     height: 60px;
-    background-color: rgba(9, 36, 75, 0.03);
+    background-color: #F2F4F6;
     margin-top: auto;
-    box-shadow: inset 0px 1px 0px #F2F4F6;
+    border-radius: 10px;
   }
   .user_rec .image {
     width: 50px;

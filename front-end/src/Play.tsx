@@ -11,7 +11,7 @@ import axios from 'axios';
 import { UserContext } from './UserProvider.tsx';
 
 
-export function Play({ setHistory, setProfile, setInPlay, inviter, setboardWidth }: { setHistory:any, setProfile: any, setInPlay: any, inviter: any, setboardWidth: React.Dispatch<React.SetStateAction<number | null>> }){
+export function Play({ setInPlay, inviter, setInviter}: { setInPlay: any , inviter: number | null, setInviter : any}){
   const { user, socket, updateStats, updatehistory } = useContext(UserContext);
   // const {setInPlay, inviter} = props;
     const isDocumentVisible = useDocumentVisible();
@@ -59,6 +59,7 @@ export function Play({ setHistory, setProfile, setInPlay, inviter, setboardWidth
             return;
           }
           setIsLoading(true);
+          setInviter(null)
         });
       }
     };
@@ -179,16 +180,16 @@ export function Play({ setHistory, setProfile, setInPlay, inviter, setboardWidth
     }, [isDocumentVisible]);
     const componentRef = useRef<HTMLDivElement>(null);
   
-    useEffect(() => {
-      if (!isMounted.current || !socket)
-      {
-        return;
-      }
-      if (componentRef.current) {
-        const width = componentRef.current.offsetWidth;
-        setboardWidth(width);
-      }
-    }, []);
+    // useEffect(() => {
+    //   if (!isMounted.current || !socket)
+    //   {
+    //     return;
+    //   }
+    //   if (componentRef.current) {
+    //     const width = componentRef.current.offsetWidth;
+    //     setboardWidth(width);
+    //   }
+    // }, []);
     
     const inita = async () => {
       setIsLoading(false); // Set loading to false when the game starts
@@ -248,11 +249,8 @@ export function Play({ setHistory, setProfile, setInPlay, inviter, setboardWidth
                   rb="Matchmaking"
                   isLoading = {isLoading} // Pass the loading state to the loading component
                   inGame = {inGame}
-                  // invite = {invite}
-                  setProfile = {setProfile}
-                  setHistory = {setHistory}
-                  error = {error}
                   inviter = {inviter}
+                  error = {error}
                   handleMatchClick={handleMatchClick}
                   handleFriendClick={handleFriendClick}
                   setCurrentPad={setCurrentPad}
