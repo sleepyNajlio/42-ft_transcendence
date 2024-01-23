@@ -7,6 +7,7 @@ import { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from './UserProvider';
 import { TwoFA } from './TwoFA';
+import UploadAndDisplayImage from './Components/uploadimage';
 
 async function finishSignup(email: string, username: string, avatar: string): Promise<any> {
   try {
@@ -64,6 +65,7 @@ export function Config() {
   const [userpre, setUserpre] = useState<{id: String, email: string, username: string, avatar: string}>({id : "" ,email: "", username: "", avatar: ""});
   const navigate = useNavigate();
   const [newUsername, setUsername] = useState<string>("kkkk");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   
   useEffect(() => {
     const fetchData = async () => {
@@ -94,6 +96,12 @@ export function Config() {
       // Handle the error or return false if needed
     }
   };
+
+  const handleFileChange = (selectedFile: File | null) => {
+    // You can now use the selectedFile in the parent component as needed.
+    console.log('Selected File:', selectedFile);
+    setSelectedFile(selectedFile);
+};
   
 
 
@@ -104,8 +112,9 @@ return (
         {
           !twoFA && (
           <div className="lll">
-            <div className="cercle" style={{ backgroundImage: `url(${userpre.avatar})` }}>
-            </div>
+            <UploadAndDisplayImage davatar={user?.avatar} onFileChange={handleFileChange} width={200}></UploadAndDisplayImage>
+            {/* <div className="cercle" >
+            </div> */}
             <form onSubmit={(e) => e.preventDefault()} style={{display: 'flex', flexDirection: 'column', gap: '30px', alignItems: 'center'}}>
               <input
                   required

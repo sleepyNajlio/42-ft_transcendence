@@ -9,6 +9,7 @@ import {
   Post,
   UseInterceptors,
   UploadedFile,
+  Body,
   HttpCode
 } from '@nestjs/common';
 import { UsersService } from './users.service';
@@ -19,6 +20,7 @@ import { diskStorage } from 'multer';
 import { editFilename } from './AvatarTools';
 import { imageFileFilter } from './AvatarTools';
 import { error } from 'console';
+import { UpdateUsernameDTO } from './dto/SignUp.dto';
 
 @Controller('user')
 export class UsersController {
@@ -61,12 +63,8 @@ export class UsersController {
     @Req() request: Request,
     @UploadedFile() file: Express.Multer.File,
   ) {
-    let user: any;
-    if (request.cookies['JWT_TOKEN'])
-      user = await this.UsersService.GetUserByToken(
-        request.cookies['JWT_TOKEN'],
-      );
-    else user = await this.UsersService.GetUserByToken(request.cookies['USER']);
+    const user = await this.UsersService.GetUserByToken(
+      request.cookies['JWT_TOKEN']|| request.cookies['USER'],);
     await this.UsersService.UploadAvatar(user.id_player, file);
     // if upload is successful
     if (file) {
@@ -75,6 +73,18 @@ export class UsersController {
     }
     return 'madazsh';
   }
+
+  @Post("updateUsername")
+  async updateUsername(@Req() req: Request, @Body() dto: UpdateUsernameDTO) {
+    console.log("username update ", req.user)
+    console.log("username", dto)
+    const user = await this.UsersService.GetUserByToken(
+      req.cookies['JWT_TOKEN'] || req.cookies['USER'],
+    );
+    const newUser = await this.UsersService.updateUsername(user.id_player, dto.username);
+    return { user: newUser};
+  }
+
 
 
   // @Get('/:id')
