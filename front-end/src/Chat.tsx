@@ -10,6 +10,7 @@ import './styles/css/Simpleco.css';
 import './styles/css/Switchgrpdm.css';
 import './styles/css/ChatHeaderComponent.css';
 import './styles/css/chatui.css';
+import { Use } from '@svgdotjs/svg.js';
 // import { off } from '@svgdotjs/svg.js';
 // import { user } from './Components/types.ts';
 
@@ -37,12 +38,11 @@ interface Room {
     // lastMessage: string;
 }
 
-export function Chat() { // get values from data base
+export function Chat(props : any) { // get values from data base
     const [joined, setJoined] = useState(false);
     const { user, socket } = useContext(UserContext);
     const [name, setName] = useState('');
     const [messages, setMessages] = useState<any[]>([]);
-    const [typingDisplay, setTypingDisplay] = useState('');
     const [created, setCreated] = useState(false);
     const [roomType, setRoomType] = useState("");
     const [roomPassword, setRoomPassword] = useState("");
@@ -69,6 +69,9 @@ export function Chat() { // get values from data base
     const [showNotifMute, setShownotifMute] = useState(false);
     const [MuteNotification, setMuteNotification] = useState("");
     const [MuteisOver, setMuteisOver] = useState(false);
+    const [userAdded, setUserAdded] = useState(false);
+    const [RoomAdded, setRoomAdded] = useState("");
+    const [timeoutId, setTimeoutid] = useState<NodeJS.Timeout | null > (null);
 
     const { addToast } = useToasts();
 
@@ -324,47 +327,34 @@ export function Chat() { // get values from data base
         // console.log("user" + user?.id + " is listening on update in front");
         // console.log("listening on update in front");
         socket?.on('update', (response : any) => {
-            // console.log("room in update : ");
-            // console.log(response);
-            // console.log(Rooms);
-            setRooms((prevRooms: Room[] | null) => {
-                if (prevRooms === null) {
-                    return null;
-                }
-                return prevRooms.map((room) => {
-                    console.log("in room ", response);
-                    if (room.id_chat === response.id) {
-                        // console.log("user " + user?.id + " will update the room " + room.id_chat + " with room " + response.id);
-                        return {
-                            ...room,
-                            password: response.newPass,
-                            type: response.type
-                        };
+                let id : number = Number(user?.id);
+                console.log("user " + user?.id + " will add the room " + response.name + " with room " + response.id);
+                socket?.emit('DisplayRoom', {id},  (response : Room[]) => {
+                    setRooms(response);
+                });
+                if (user?.id != response.userId)
+                {
+                    if (selectedRoom && selectedRoom.id_chat === response.id)
+                    {
+                        setSelectedRoom((prevRoom: Room | null) => {
+                            if (prevRoom === null) {
+                                return null;
+                                }
+                                return {
+                                    ...prevRoom,
+                                    password: response.newPass,
+                                    type: response.type
+                                    
+                                };
+                        });
                     }
-                    return room;
-                });
-            });
-            if (selectedRoom && selectedRoom.id_chat === response.id)
-            {
-                setSelectedRoom((prevRoom: Room | null) => {
-                    if (prevRoom === null) {
-                        return null;
-                        }
-                        return {
-                            ...prevRoom,
-                            password: response.newPass,
-                            type: response.type
-                            
-                        };
-                });
-            }
-            // setDisplayRoom(!DisplayRoom);
-            // setDisplayRoom(!DisplayRoom);
+                }
         });
 
         return () => {
 
             socket?.off('update');
+            // socket?.off('rooms');
         };
     });
 
@@ -648,13 +638,25 @@ export function Chat() { // get values from data base
             console.log("use effect called in mute is over");
             if (MuteisOver)
             addToast(`Your mute for 5 min in room ${MuteNotification} is over`, {
-                appearance: 'error',
+                appearance: 'success',
                 autoDismiss: true,
                 autoDismissTimeout: 10000,
                 });
                 setMuteisOver(false);
         
             }, [MuteisOver]);
+    
+    useEffect(() => {
+        console.log("use effect called in userAdded");
+        if (userAdded)
+        addToast(`Your were Added in room ${RoomAdded}`, {
+            appearance: 'success',
+            autoDismiss: true,
+            autoDismissTimeout: 10000,
+            });
+            setUserAdded(false);
+    
+    }, [userAdded]);
 
     useEffect(() => {
 
@@ -701,10 +703,10 @@ export function Chat() { // get values from data base
                 if (response.isMuted){
                     setMuteNotification(response.chat.name);
                     setShownotifMute(true);
-                    setTimeout(() => {
-                        setMuteisOver(true);
-                        setMuteNotification(response.chat.name);
-                    }, 5 * 12 * 1000);
+                    setTimeoutid(setTimeout(() => {
+                            setMuteisOver(true);
+                            setMuteNotification(response.chat.name);
+                    }, 5 * 6 * 1000));
                 }
                 if (selectedRoom?.name === response.chat.name) {
                     setSelectedRoom((prevRoom: Room | null) => {
@@ -732,6 +734,51 @@ export function Chat() { // get values from data base
         }
 
     });
+
+    useEffect(() => {
+
+        socket?.on('blocked', (response : any) => {
+            let id = Number(user?.id);
+            socket?.emit('Friends', { id },  (response : any) => {
+                console.log('friendsssss in show Dms :')
+                console.log(response);
+                setFriends(response);
+                setDisplayDms(!DisplayDms);
+                setShowDm(!ShowDm);
+                setwelcomeMsg(true);
+            });
+        });
+    });
+
+    useEffect(() => {
+
+        socket?.on('onadd', (response) => {
+            if (user?.id === response.userId)
+            {
+                let id : number = Number(user?.id);
+                console.log("user " + response.user.username + " will add the room " + response.chat.name);
+                socket?.emit('DisplayRoom', {id},  (response : Room[]) => {
+                    setRooms(response);
+                });
+                setUserAdded(true);
+                setRoomAdded(response.chat.name);
+                if (timeoutId)
+                {
+                    console.log("timeout id is not null ", timeoutId);
+                    clearTimeout(timeoutId);
+                }
+                else
+                {
+                    console.log("timeout id is null");
+                }
+            }
+        });
+        return () => {
+            socket?.off('onadd');
+        }
+    });
+
+
       
     const handleMute = (name : string, userId : number) => {
 
@@ -795,10 +842,6 @@ export function Chat() { // get values from data base
         return () => {
         }
     }
-
-    
-    
-
     const handleAdmin = (username : string) => {
         // console.log("handle admin called in front");
         // console.log("username : " + username);
@@ -816,9 +859,20 @@ export function Chat() { // get values from data base
             // setDisplayRoom(!DisplayRoom);
         });
         return () => {
-            // socket?.off('update');
         }
     }
+
+    const handleAddUser = (username : string) => {
+        socket?.emit('addUser', { id: user?.id, username: username, name: selectedRoom?.name }, (response: any) => {
+            // console.log("response got in add user: ");
+            // console.log(response);
+            if (!response)
+                alert("user already in the room");
+        });
+    }
+
+
+
 
 
     const sendMessage = (messageText: string) => {
@@ -1003,14 +1057,14 @@ export function Chat() { // get values from data base
     };
     return (
         <>
-        
             <div className="conteneur">
                 <div className="gauche">
                     {showRoom && <Leftchat userid={user?.id} showRoom={showRoom}messages={messages} name={selectedRoom?.name} sendMessage={sendMessage} isOwner={isOwner}
                      Roomtype={selectedRoom?.type} handleUpdateRoom={handleUpdateRoom} handleAdmin={handleAdmin} HandleDisplayRoom={HandleDisplayRoom} DisplayRoom={DisplayRoom} room={selectedRoom}
                      getChatUsers={getChatUsers} isAdmin={isAdmin} chatUsers={chatUsers} handleleave={handleleave} handleKick={handleKick}
-                     handleBan={handleBan} handleMute={handleMute}/> }
-                    {ShowDm && <Leftchat userid={user?.id} showDm={ShowDm} messages={messages} name={name}sendMessageDm={sendMessageDm} Friends={Friends}/> }
+                     handleBan={handleBan} handleMute={handleMute} Friends={Friends} handleAddUser={handleAddUser}/> }
+                    {ShowDm && <Leftchat userid={user?.id} showDm={ShowDm} messages={messages} name={name} sendMessageDm={sendMessageDm} Friends={Friends} setProfile={props.setProfile} setHistory={props.setHistory}
+                    inviteTogame={props.inviteTogame} setInviter={props.setInviter}/> }
                     
                 {welcomeMsg && 
                     <div className="welcome-message-container">
@@ -1031,7 +1085,7 @@ export function Chat() { // get values from data base
                      selectedPswd={selectedPswd} selectedRoom={selectedRoom} setSelectedRoom={setSelectedRoom} 
                      Friends={Friends} setDisplayDms={setDisplayDms} setDisplayRoom={setDisplayRoom} DisplayDms={DisplayDms} DisplayRoom={DisplayRoom}
                      HandleDisplayDms={HandleDisplayDms} HandleDisplayRoom={HandleDisplayRoom} joindDm={joinDm}
-                     messages={messages} lastMessage={lastMessage} isOwner={isOwner} passjoin={passjoin} />}
+                     messages={messages} isOwner={isOwner} passjoin={passjoin} />}
                 </div>            
                 </div>
         </>

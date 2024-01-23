@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import '../styles/css/chatui.css';
 import ChatHeaderComponent from './ChatHeaderComponent.tsx';
 import Messageco from './Messageco.tsx'
@@ -8,6 +8,8 @@ import ftlogo from '/ftlogo.png';
 
 
 const Leftchat: React.FC = (props: any) => {
+
+  const openMenuRef = useRef(null);
 
   // console.log("Messages isssss : ", props.messages);
 
@@ -27,42 +29,7 @@ const Leftchat: React.FC = (props: any) => {
       props.handleMute(name, userId);
     }
   };
-  const [activeButton, setActiveButton] = useState<number | null>(null);
-  const [boxVisibility, setBoxVisibility] = useState<{ [key: number]: boolean }>({});
 
-  const buttonRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const handleButtonClick = (buttonIndex: number) => {
-    setActiveButton(buttonIndex);
-    setBoxVisibility((prevVisibility: any) => ({
-      ...Object.fromEntries(Object.keys(prevVisibility).map((key) => [key, false])),
-      [buttonIndex]: true,
-    }));
-    if (activeButton === buttonIndex)
-    {
-      console.log(activeButton, buttonIndex);
-      handleBoxClose();
-    }
-  };
-  const handleBoxClose = () => {
-    setActiveButton(null);
-    setBoxVisibility({});
-  };
-
-  const handleOutsideClick = (event: MouseEvent) => {
-    // Check if the click is outside the buttons and boxes
-    console.log("clicked");
-    if (buttonRefs.current.some((buttonRef) => buttonRef && buttonRef.isSameNode(event.target as Node))) {
-      handleBoxClose();
-    }
-  };
-
-  useEffect(() => {
-    document.addEventListener('click', handleOutsideClick);
-
-    return () => {
-      document.removeEventListener('click', handleOutsideClick);
-    };
-  }, [boxVisibility]);
 
   // console.log("user is owner : " + props.isOwner);
 
@@ -74,25 +41,24 @@ const Leftchat: React.FC = (props: any) => {
       <div className="composant-gauche">
         <ChatHeaderComponent friendName={props.name} showRoom={props.showRoom} isOwner={props.isOwner} isAdmin={props.isAdmin} profileImageUrl={ftlogo}
           Roomtype={props.Roomtype} handleAdmin={props.handleAdmin}getChatUsers={props.getChatUsers} chatUsers={props.chatUsers} handleUpdateRoom={props.handleUpdateRoom} handleDisplayRoom={props.HandleDisplayRoom}
-          room={props.room} handleleave={props.handleleave}/>
+          room={props.room} handleleave={props.handleleave} friends={props.Friends}
+          handleAddUser={props.handleAddUser}  />
         <div className="msg-section">
         {props.messages.map((message: any, index: any) => (
-          <div ref={(ref) => (buttonRefs.current[index] = ref)}>
-              <Messageco 
-              isVisible={boxVisibility[index]} 
-              handleButtonClick={() => handleButtonClick(index)}
-              handleBoxClose={handleBoxClose}
-              key={index}
-              text={message.message}
-              profileImageUrl={message.user.avatar}
-              isOwnMessage={message.userId === props.userid ? true : false}
-              onMenuOptionClick = {handleMenuOptionClick}
-              users={props.chatUsers}
-              room={props.room}
-              message_userId = {message.userId}
-              message_id = {message.id3_chat_message}
-              />
-            </div>
+            <Messageco 
+            key={index}
+            text={message.message}
+            profileImageUrl={message.user.avatar}
+            isOwnMessage={message.userId === props.userid ? true : false}
+            onMenuOptionClick = {handleMenuOptionClick}
+            users={props.chatUsers}
+            room={props.room}
+            message_userId = {message.userId}
+            message_id = {message.id3_chat_message}
+
+            openMenuRef= {openMenuRef}
+
+            />
         ))}
             </div>
         <Sendmessage onSendMessage={props.sendMessage}/>
@@ -105,7 +71,9 @@ const Leftchat: React.FC = (props: any) => {
     // console.log("name : " +  props.name);
     return (
       <div className="composant-gauche">
-        <ChatHeaderComponent friendName={props.name} showDm={props.showDm} profileImageUrl={props.Friends.find((friend: any) => friend.username === props.name)?.avatar || ftlogo} />
+        <ChatHeaderComponent friendName={props.name} showDm={props.showDm} profileImageUrl={props.Friends.find((friend: any) => friend.username === props.name)?.avatar || ftlogo}
+        setProfile={props.setProfile} setHistory={props.setHistory} friendId={props.Friends.find((friend: any) => friend.username === props.name)?.id_player}
+        setInviter={props.setInviter}/>
         <div className="msg-section">
         {props.messages.map((message: any, index: any) => (
             <Messageco 
@@ -113,6 +81,12 @@ const Leftchat: React.FC = (props: any) => {
             text={message.message}
             profileImageUrl={message.user.avatar}
             isOwnMessage={message.userId === props.userid ? true : false}
+            onMenuOptionClick = {handleMenuOptionClick}
+            users={props.chatUsers}
+            room={props.room}
+            message_userId = {message.userId}
+            message_id = {message.id3_chat_message}
+            openMenuRef= {openMenuRef}
             />
         ))}
             </div>
