@@ -501,8 +501,8 @@ box-sizing: border-box;
 
 .achivements_cells .cell
 {
-    width: 229px;
-    height: 229px;
+    width: 200px;
+    height: 200px;
     justify-content: center;
     align-items: center;
     display: flex;
@@ -587,7 +587,6 @@ box-sizing: border-box;
 }
 .profil__info img
 {
-    flex: 1.5;
     margin-top: 30px;
     height: 180px;
     object-fit: contain;
