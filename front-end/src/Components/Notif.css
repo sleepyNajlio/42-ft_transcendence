@@ -1,10 +1,10 @@
 .notif-container
 {
+    z-index: 2;
     position: absolute;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
     transition: transform 0.3s ease-in-out;
-    top: 20%;
-    left: 28%;
+    top: 59%;
+    left: 18%;
     transform: translate(-50%, -50%);
     z-index: 999;
 }
@@ -12,10 +12,10 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 10px;
+    padding: 6px;
     background-color: #f2f2f2;
     border: 1px solid #ccc;
-    border-radius: 5px;
+    border-radius: 20px;
     margin-bottom: 10px;
 }
 
@@ -40,7 +40,7 @@
     background-color: #4CAF50;
     color: white;
     border: none;
-    padding: 5px 10px;
+    padding: 6px;
     border-radius: 3px;
     cursor: pointer;
     margin-right: 5px;
@@ -48,5 +48,19 @@
 
 .notification-button:hover {
     background-color: #45a049;
+    transform: scale(1.05);
+}
+.notification-button-decline {
+    background-color:  #ff4040;
+    color: white;
+    border: none;
+    padding: 6px;
+    border-radius: 3px;
+    cursor: pointer;
+    margin-right: 5px;
 }
 
+.notification-button-decline:hover {
+    background-color: red;
+    transform: scale(1.05);
+}
