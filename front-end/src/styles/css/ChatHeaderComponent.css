@@ -75,7 +75,7 @@
   .friend-name {
     font-size: 18px;
     font-weight: bold;
-    max-width: 800px;
+    max-width: 300px;
     white-space: nowrap; /* Prevents text wrapping */
     overflow: hidden; /* Hides overflow text */
     text-overflow: ellipsis; /* Adds an ellipsis (...) at the end of the text if it overflows the container */

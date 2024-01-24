@@ -298,8 +298,8 @@ export function Chat(props : any) { // get values from data base
         let id : number;
         id = Number(user?.id);
         socket?.emit('Friends', { id },  (response : any) => {
-            // console.log('friends in show Dms :')
-            // console.log(response);
+            console.log('friends in DisplayDms Dms :')
+            console.log(response);
             setFriends(response);
             // setDisplayDms(true);
             // setDisplayRoom(false);
@@ -739,15 +739,30 @@ export function Chat(props : any) { // get values from data base
 
         socket?.on('blocked', (response : any) => {
             let id = Number(user?.id);
-            socket?.emit('Friends', { id },  (response : any) => {
-                console.log('friendsssss in show Dms :')
-                console.log(response);
-                setFriends(response);
-                setDisplayDms(!DisplayDms);
-                setShowDm(!ShowDm);
-                setwelcomeMsg(true);
+            socket?.emit('Friends', { id },  (friends : any) => {
+                console.log('response got in blocked: ', response);
+
+                console.log('user: ' , user?.username + 'is in the dm with ' , name , ' and blocked by ', response.username);
+                // console.log('friendss after blocked :')
+                if (name && name === response.username)
+                {
+                    console.log("user is and the dm that he is blocked from");
+                    setFriends(friends.filter((friend : any) => friend.username !== response.username));
+                    // setDisplayDms(!DisplayDms);
+                    setShowDm(!ShowDm);
+                    setwelcomeMsg(true);
+                }
+                else
+                {
+                    setFriends(friends.filter((friend : any) => friend.username !== response.username));
+                }
+
+                // console.log(friends);
             });
         });
+        return () => {
+            socket?.off('blocked');
+        }
     });
 
     useEffect(() => {
