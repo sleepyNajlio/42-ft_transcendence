@@ -50,7 +50,7 @@ export function ProfilInfo(props : {setFriend:React.Dispatch<React.SetStateActio
     return () => {
       setstatus("")
     }
-  } , [props.id]);
+  } , [props.id, props.state?.status]);
 
   const acceptFriend = async () => {
     if(socket)

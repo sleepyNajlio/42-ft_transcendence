@@ -48,6 +48,7 @@ function App()
     const [history, setHistory] = useState<History[] | null>(null);
     const { user, initialize,  socket } = useContext(UserContext);
     const [inviter, setInviter] = useState<number | null>(null);
+    const [ auth, setauth ] = useState<boolean>(false);
 
     const checkIfMediumPlus = useMediaPredicate(
         '(min-width: 994px)'
@@ -118,8 +119,19 @@ function App()
         }
     } , [isMediumPlus, isMedium, isSmall] );
     useEffect(() => {
+        const paths = ['/Testchat', '/Profile', '/Play', '/Chat', '/test', '/Settings', '/Leaderboard']; // replace with the paths you're interested in
+        if (paths.includes(location.pathname) && isMounted.current) {
+            console.log("3awd initializa zbi");
+            initialize();
+          }
+        return () => {
+            console.log('isMounted: ', isMounted.current);
+            isMounted.current = false;
+        }
+      }, [location.pathname]);
+
+    useEffect(() => {
         if (isMounted.current) {
-        initialize();
         console.log('isMounted: ', isMounted.current);
         // socket.emit('playOpen', { id: socket.id });
         }
@@ -127,8 +139,8 @@ function App()
             isMounted.current = false;
         };
     } , []);
+
     useEffect(() => {
-        // Listen for 'invited' event
         if (socket)
         {
             console.log('listening socket: invited');
@@ -145,30 +157,35 @@ function App()
             socket.on('rminvite', (data: any) => handleRmInvite(data));
             socket.on('blocked', (data: any) => handleBlocked(data));
             socket.on('accepted', (data: any) => handleAccepted(data));
+            return () => {
+                socket.off('invited', handleInvited);
+                socket.off('rminvite', handleRmInvite);
+                socket.off('blocked', handleBlocked);
+                socket.off('accepted', handleAccepted);
+            };
         }
         else
             console.log('no socket');
         // Clean up the event listener on unmount
-        return () => {
-            socket?.off('invited', handleInvited);
-            socket?.off('rminvite', handleRmInvite);
-            socket?.off('blocked', handleBlocked);
-            socket?.off('accepted', handleAccepted);
-        };
     }, [socket]);
+
     const handleInvited = (data: any) => {
         setInviters(prevInviters => [...prevInviters, {user_id: data.user_id, avatar: data.avatar, username: data.username, type: data.type, paddle: data.paddle}]);
         if (data.type === NotifType.INVITE)
         {
             setProfile((prevProfile: user | null) => {
-                if (!prevProfile) {
+                if (!prevProfile ) {
+                    console.log("invited ", data);
                     return prevProfile;
                 }
+                console.log("inviteeeeeeeeeeeeeeeeeeeeeeeeed ", data);
                 return {
                     ...prevProfile,
                     friend: {
                         ...prevProfile.friend,
                         status: "PENDING",
+                        userId: prevProfile.friend?.userId || 0, // Set a default value of 0 if userId is undefined
+                        friendId: prevProfile.friend?.friendId || 0, // Set a default value of 0 if userId is undefined
                     },
                 };
             });
@@ -178,6 +195,7 @@ function App()
         setInvite(inviteStatus.INVITED);
     };
     const handleBlocked = (data: any) => {
+        console.log("blocked ", data);
         setInviters(prevInviters => prevInviters.filter((inviter) => inviter.user_id !== data.user_id && inviter.type !== NotifType.INVITE));
         setInviters(prevInviters => [...prevInviters, {user_id: data.user_id, avatar: data.avatar, username: data.username, type: data.type, paddle: data.paddle}]);
         setProfile(null);
@@ -192,9 +210,12 @@ function App()
                     friend: {
                         ...prevProfile.friend,
                         status: "BLOCKED",
+                        userId: prevProfile.friend?.userId || 0, // Set a default value of 0 if userId is undefined
+                        friendId: prevProfile.friend?.friendId || 0, // Set a default value of 0 if userId is undefined
                     },
                 };
             });
+
         }
         if (inPlay)
             return;
@@ -216,6 +237,8 @@ function App()
                     friend: {
                         ...prevProfile.friend,
                         status: "ACCEPTED",
+                        userId: prevProfile.friend?.userId || 0, // Set a default value of 0 if userId is undefined
+                        friendId: prevProfile.friend?.friendId || 0, // Set a default value of 0 if userId is undefined
                     },
                 };
             });
@@ -250,7 +273,6 @@ function App()
             element={
                 <AuthGuard
                     component={
-                        <UserProvider>
                         <ToastProvider>
                         <>
                             {location.pathname != "/" && location.pathname != "/Config" && location.pathname != "/TwoFA" && location.pathname != "/Verify2FA" && 
@@ -273,7 +295,6 @@ function App()
                             
                         </>
                         </ToastProvider>
-                    </UserProvider>
                     }
                 />
             }
