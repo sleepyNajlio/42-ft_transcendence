@@ -106,17 +106,39 @@ export function Chat(props : any) { // get values from data base
           });
           
         let isUserBanned: boolean;
-        let isUserMuted: boolean;
+        let friendshipStatus : any;
+        let friendshipStatus1 : any;
+        let isBlocked : boolean ;
         socket?.on('message', (message) => {
-            // console.log("message in frontttttttt : ");
-            // console.log(message);
+            console.log("message is from ", message.userId);
+            console.log("the one listening is ", user?.id);
             if (message.chat.id_chat === selectedRoom?.id_chat) {
+                    
+                    if (message.user.friendshipAsked.length > 0)
+                    {
+                        friendshipStatus = message.user.friendshipAsked.find((friendship: any) => (friendship.userId === user?.id && friendship.friendId === message.userId) || (friendship.friendId === user?.id && friendship.userId === message.userId));
+                        console.log("Friendship status between", user?.id, "and", message.userId, ":",  friendshipStatus?.status);
+                        // console.log("FriendShips that", user?.id + "have : ", message.user.friendshipAsked);
+                    }
+                    else
+                        friendshipStatus = null;
+                    if (message.user.friendshipReceived.length > 0)
+                    {
+                        friendshipStatus1 = message.user.friendshipReceived.find((friendship: any) => (friendship.userId === user?.id && friendship.friendId === message.userId) || (friendship.friendId === user?.id && friendship.userId === message.userId));
+                        console.log("Friendship status between", user?.id, "and", message.userId, ":",  friendshipStatus1?.status);
+                    }
+                    else
+                        friendshipStatus1 = null;
+                    // const friendshipStatuss = message.user.friendshipReceived.find((friendshipp: any) => (friendshipp.userId === user?.id && friendshipp.friendId === message.userId) || (friendshipp.friendId === user?.id && friendshipp.userId === message.userId));
+    
+                    // console.log("Friendship status between", user?.id, "and", message.userId, ":", friendshipStatuss);
                 // console.log("usrersss : ");
                 // console.log(message.chat.users);
                 isUserBanned = message.chat.users.some((usertmp : any) => usertmp.userId === user?.id && usertmp.isBanned);
-                isUserMuted = message.chat.users.some((usertmp : any) => usertmp.userId === user?.id && usertmp.isMuted);
+                isBlocked = (friendshipStatus?.status === 'BLOCKED' || friendshipStatus1?.status === 'BLOCKED')
+                console.log("user  " + message.userId + " is blocked : " + isBlocked);
                 // console.log("is user banned : " + isUserBanned);
-                if (!isUserBanned)
+                if (!isUserBanned && !isBlocked)
                     setMessages((prevMessages) => [...prevMessages, message]);
             }
             setRooms((prevRooms) => {

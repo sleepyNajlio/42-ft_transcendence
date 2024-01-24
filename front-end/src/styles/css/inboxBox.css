@@ -54,7 +54,7 @@
     font-weight: bold;
     margin-bottom: 6px;
     margin-left: 10px ;
-    max-width: 300px;
+    max-width: 150px;
     white-space: nowrap; /* Prevents text wrapping */
     overflow: hidden; /* Hides overflow text */
     text-overflow: ellipsis;
@@ -65,7 +65,7 @@
     color: #888;
     font-size: 12px;
     margin-bottom: 0;
-    max-width: 300px;
+    max-width: 150px;
     text-align: left;
     white-space: nowrap; /* Prevents text wrapping */
     overflow: hidden; /* Hides overflow text */
