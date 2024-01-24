@@ -10,9 +10,9 @@ import { UserProvider } from './UserProvider.tsx';
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <BrowserRouter>
-      {/* <UserProvider> */}
+      <UserProvider>
         <App />
-      {/* </UserProvider> */}
+      </UserProvider>
     </BrowserRouter>
   </React.StrictMode>,
 )

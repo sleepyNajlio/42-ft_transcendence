@@ -19,7 +19,7 @@ export type user = {
   avatar: string;
   achievement: number;
   user_stats: user_stats;
-  friend: {userId: number, friendId: number, status: "PENDING" | "ACCEPTED" | "REJECTED" | "BLOCKED"; };
+  friend?: {userId: number, friendId: number, status: "PENDING" | "ACCEPTED" | "REJECTED" | "BLOCKED"; };
   // Add other properties as needed
 };
 

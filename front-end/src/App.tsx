@@ -178,6 +178,7 @@ function App()
         setInvite(inviteStatus.INVITED);
     };
     const handleBlocked = (data: any) => {
+        console.log("blocked ", data);
         setInviters(prevInviters => prevInviters.filter((inviter) => inviter.user_id !== data.user_id && inviter.type !== NotifType.INVITE));
         setInviters(prevInviters => [...prevInviters, {user_id: data.user_id, avatar: data.avatar, username: data.username, type: data.type, paddle: data.paddle}]);
         setProfile(null);

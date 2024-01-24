@@ -48,7 +48,6 @@ export function Profile(props: {setFriend: React.Dispatch<React.SetStateAction<u
   );
   useEffect(() => {
     console.log("mounted");
-    initialize();
     return () => {
       console.log("unmounted");
     };

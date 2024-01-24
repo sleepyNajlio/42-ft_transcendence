@@ -483,9 +483,12 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.logger.log(`emiting block to ${data.username}`);
     this.logger.log(this.notifs);
     this.socketGateway.getClientSocket(data.frId.toString()).map((socketa) => {
+      console.log('emiting block to ', socketa.id);
       socketa.emit('blocked', newNotification);
     });
     this.socketGateway.getClientSocket(data.id.toString()).map((socketa) => {
+      console.log('emiting rm to ', socketa.id);
+
       socketa.emit('rminvite', data.frId);
     });
     return true;

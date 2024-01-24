@@ -120,55 +120,59 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
 
 
   const initialize = async () => {
-    await initializeUser().then(res => {
-      // console.log("User: initialize", res);
-      if (res) {
-        getUser().then(res => {
-          if (res) {
-            setUser(res);
-            getHistory().then(res => {
-              if (res) {
-                setHistory(res);
-              } else {
-                console.error("Failed to get history: ", res);
-              }
-            } ).catch(error => {
-              console.error("Failed to get history: ", error);
-              return false;
-            } );
-            getRanks().then(res => {
-              setLeadboard(res);
-            } ).catch(error => {
-              console.error("Failed to get leaderboard: ", error);
-              return false;
-            } );
-            // console.log("User: set", res);
-          }
-          initializeSocket(res.id, getSessionCookies()).then(res => {
+    if (!hasInitialized.current) {
+      await initializeUser().then(res => {
+        // console.log("User: initialize", res);
+        if (res) {
+          getUser().then(res => {
             if (res) {
-              // console.log("Socket: set", res);
-              setSocket(res);
-            } else {
-              console.error("Failed to initialize socket: ", res);
+              setUser(res);
+              getHistory().then(res => {
+                if (res) {
+                  setHistory(res);
+                } else {
+                  console.error("Failed to get history: ", res);
+                }
+              } ).catch(error => {
+                console.error("Failed to get history: ", error);
+                return false;
+              } );
+              getRanks().then(res => {
+                setLeadboard(res);
+              } ).catch(error => {
+                console.error("Failed to get leaderboard: ", error);
+                return false;
+              } );
+              // console.log("User: set", res);
             }
+            if(!socket){
+              initializeSocket(res.id, getSessionCookies()).then(res => {
+                if (res) {
+                  console.log("Socket: set", res);
+                  setSocket(res);
+                } else {
+                  console.error("Failed to initialize socket: ", res);
+                }
+              } ).catch(error => {
+                console.error("Failed to initialize socket: ", error);
+                return false;
+              } );
+            }
+            console.log("User: provider", res);
+            
           } ).catch(error => {
-            console.error("Failed to initialize socket: ", error);
+            console.error("Failed to get user: ", error);
             return false;
-          } );
-          console.log("User: provider", res);
-          
-        } ).catch(error => {
-          console.error("Failed to get user: ", error);
-          return false;
-        });
-        hasInitialized.current = true;
-        return true;
-      }
-    } ).catch(error => {
-      console.error("Failed to get user: ", error);
-      return false;
-    } );
-    console.log("User: provider");
+          });
+          hasInitialized.current = true;
+          return true;
+        }
+      } ).catch(error => {
+        console.error("Failed to get user: ", error);
+        return false;
+      } );
+      console.log("User: provider");
+    }
   }
 
   return (

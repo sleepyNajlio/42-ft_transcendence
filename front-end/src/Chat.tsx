@@ -737,6 +737,21 @@ export function Chat(props : any) { // get values from data base
 
     useEffect(() => {
 
+        socket?.on('blocked', (response : any) => {
+            let id = Number(user?.id);
+            socket?.emit('Friends', { id },  (response : any) => {
+                console.log('friendsssss in show Dms :')
+                console.log(response);
+                setFriends(response);
+                setDisplayDms(!DisplayDms);
+                setShowDm(!ShowDm);
+                setwelcomeMsg(true);
+            });
+        });
+    });
+
+    useEffect(() => {
+
         socket?.on('onadd', (response) => {
             if (user?.id === response.userId)
             {
@@ -855,6 +870,8 @@ export function Chat(props : any) { // get values from data base
                 alert("user already in the room");
         });
     }
+
+
 
 
 
