@@ -87,9 +87,7 @@ export class SocketGateway
     return this.server;
   }
   getClientSocket(playerId: string): Socket[] | undefined {
-    console.log('zbiiiiiiiii', playerId);
     const userSockets = this.userSockets.get(playerId);
-    console.log('getClientSocket userSockets', userSockets);
     return userSockets ? userSockets : undefined;
   }
 }

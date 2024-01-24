@@ -4,7 +4,6 @@ import { initializeSocket, getSocket } from './socket';
 import { User, user, user_stats, History } from './Components/types';
 import { Socket } from 'socket.io-client';
 import axios from 'axios';
-import { get } from 'svg.js';
 
 interface UserContextProps {
   user: user | null;

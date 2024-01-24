@@ -21,7 +21,6 @@ export class AuthGuard implements CanActivate {
       context.getHandler(),
     );
     if (isPublic) return true;
-    console.log('AuthGuard canActivate begin');
     const req = context.switchToHttp().getRequest();
     if (!req.cookies || !req.cookies['JWT_TOKEN']) return false;
     try {
@@ -50,7 +49,6 @@ export class AuthGuard implements CanActivate {
       console.log("error!!");
       return false;
     }
-    console.log('AuthGuard canActivate end');
     return true;
   }
 }

@@ -90,6 +90,16 @@ export class UsersService {
     return user;
   }
 
+  async updateUsername(id: number, username: string) {
+    const user = await this.prisma.player.update({
+      where: { id_player: id },
+      data: {
+        username: username,
+      },
+    });
+    return user;
+  }
+
   async UploadAvatar(id: number, file: Express.Multer.File) {
     const user = await this.prisma.player.update({
       where: { id_player: id },

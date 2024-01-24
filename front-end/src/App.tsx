@@ -11,7 +11,7 @@ import { Leaderboard } from './Leaderboard.tsx'
 import { Profile } from './Profile.tsx'
 import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import Navbar from './Components/Navbar.tsx';
-import { UserContext } from './UserProvider.tsx';
+import { UserContext, UserProvider } from './UserProvider.tsx';
 import AuthGuard from './guards/AuthGuard.tsx';
 import UnAuthGuard from './guards/UnAuthGuard.tsx';
 import { useMediaPredicate, useMedia } from 'react-media-hook';
@@ -237,9 +237,10 @@ function App()
         <div className={`container ` + (checkIfMediumPlus ? "default" : "one")}>
         
         <Routes>
-            <Route key='Login' path='/' element={<UnAuthGuard component={<Login />}  />}>
-                {' '}
-            </Route>
+            <Route key='Login' path='/' element={<UnAuthGuard component={<Login />}  />}/>
+            <Route key='Config' path='/Config' element={<UnAuthGuard component={<Config />}  />}/>
+            <Route key='Verify2FA' path='/Verify2FA' caseSensitive={true} element={<UnAuthGuard component={<Verify2FA />} />} />
+
             {/* <Route key='Login' path='*' element={<UnAuthGuard component={<Navigate to='/' />}  />}>
                 {' '}
             </Route> */}
@@ -249,36 +250,35 @@ function App()
             element={
                 <AuthGuard
                     component={
-                    <ToastProvider>
-                    <>
-                        {location.pathname != "/" && location.pathname != "/Config" && location.pathname != "/TwoFA" && location.pathname != "/Verify2FA" && 
-                        (<Navbar profile={profile} setProfile={setProfile} setHistory={setHistory} invite={invite} inviters={inviters} inviteResp={inviteResp} setInvite={setInvite}/>)
-                        }
-                        {
-                            <>
-                                <Routes>
-                                <Route key='Config' path='/Config' caseSensitive={true} element={<Config />} />
-                                <Route key='TwoFA' path='/TwoFA' caseSensitive={true} element={<TwoFA  />} />
-                                <Route key='testchat' path='/Testchat' caseSensitive={true} element={<TestChat />} />
-                                <Route key='Verify2FA' path='/Verify2FA' caseSensitive={true} element={<Verify2FA />} />
-                                <Route key='Profile' path='/Profile' caseSensitive={true} element={<Profile setFriend={setProfile} freind={profile} fhistory={history} />} />
-                                <Route key='Play' path='/Play' caseSensitive={true} element={<Play setInPlay={setInPlay} inviter={inviter} setInviter={setInviter}/>} />
-                                <Route key='Chat' path='/Chat' caseSensitive={true} element={<Chat setProfile={setProfile} setHistory={setHistory} setInviter={setInviter}/>} />
-                                <Route key='Chat' path='/test' caseSensitive={true} element={<ButtonsComponent />} />
-                                <Route key='Settings' path='/Settings' caseSensitive={true} element={<Settings />} />
-                                <Route key='Leaderboard' path='/Leaderboard' caseSensitive={true} element={<Leaderboard />} />
-                                <Route path='*' element={<Navigate to='/Profile' />} />
-                                </Routes>
-                            </>
-                        }
-                        
-                    </>
-                    </ToastProvider>
+                        <UserProvider>
+                        <ToastProvider>
+                        <>
+                            {location.pathname != "/" && location.pathname != "/Config" && location.pathname != "/TwoFA" && location.pathname != "/Verify2FA" && 
+                            (<Navbar profile={profile} setProfile={setProfile} setHistory={setHistory} invite={invite} inviters={inviters} inviteResp={inviteResp} setInvite={setInvite}/>)
+                            }
+                            {
+                                <>
+                                    <Routes>
+                                    <Route key='testchat' path='/Testchat' caseSensitive={true} element={<TestChat />} />
+                                    <Route key='Profile' path='/Profile' caseSensitive={true} element={<Profile setFriend={setProfile} freind={profile} fhistory={history} />} />
+                                    <Route key='Play' path='/Play' caseSensitive={true} element={<Play setInPlay={setInPlay} inviter={inviter} setInviter={setInviter}/>} />
+                                    <Route key='Chat' path='/Chat' caseSensitive={true} element={<Chat setProfile={setProfile} setHistory={setHistory} setInviter={setInviter}/>} />
+                                    <Route key='Chat' path='/test' caseSensitive={true} element={<ButtonsComponent />} />
+                                    <Route key='Settings' path='/Settings' caseSensitive={true} element={<Settings />} />
+                                    <Route key='Leaderboard' path='/Leaderboard' caseSensitive={true} element={<Leaderboard />} />
+                                    <Route path='*' element={<Navigate to='/Profile' />} />
+                                    </Routes>
+                                </>
+                            }
+                            
+                        </>
+                        </ToastProvider>
+                    </UserProvider>
                     }
                 />
             }
             />
-      </Routes>
+        </Routes>
     </div>
     );
 }

@@ -49,3 +49,9 @@ export class Update2faDTO {
   @IsNotEmpty()
   twoFaCode: string;
 }
+
+export class UpdateUsernameDTO {
+  @IsString()
+  @IsNotEmpty()
+  username: string;
+}

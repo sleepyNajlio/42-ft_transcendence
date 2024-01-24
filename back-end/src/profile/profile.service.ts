@@ -363,7 +363,7 @@ export class ProfileService {
       ...player,
       ratio: player.wins / player.loses,
     }));
-    console.log('rankkk', rankedPlayers);
+    // console.log('rankkk', rankedPlayers);
     return rankedPlayers;
   }
   async updateUser(id: number, avatar: string, username: string) {

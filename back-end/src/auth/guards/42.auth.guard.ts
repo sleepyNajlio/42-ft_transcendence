@@ -6,4 +6,5 @@ export class FTAuthGuard extends AuthGuard('42') {
   canActivate(context: ExecutionContext) {
     return super.canActivate(context);
   }
+
 }
