@@ -98,6 +98,7 @@ export function Chat(props : any) { // get values from data base
           }, (response: any[]) => {
             if (response) {
               socket?.emit('findAllMessages', { name: selectedRoom?.name, id: user?.id }, (response: any[]) => {
+                
                 setMessages(response);
               });
             } else {

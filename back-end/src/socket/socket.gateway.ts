@@ -15,7 +15,10 @@ export class SocketGateway
 {
   private server: Server;
   private userSockets: Map<string, Socket[]> = new Map();
-  constructor(private prisma: PrismaService, private socketService : SocketService) {}
+  constructor(
+    private prisma: PrismaService,
+    private socketService: SocketService,
+  ) {}
 
   afterInit(server: Server) {
     this.server = server;
@@ -29,11 +32,12 @@ export class SocketGateway
     console.log(
       `Client ${client.id} connected. ${client.handshake.query.userId}`,
     );
-    const userSockets = this.userSockets.get(client.handshake.query.userId as string);
     // if (userSockets?.length >= 1) {
     // if (!client.handshake.query.userId) {
-    this.socketService.updateUserStatus(Number(client.handshake.query.userId), 'ONLINE');
-  
+    this.socketService.updateUserStatus(
+      Number(client.handshake.query.userId),
+      'ONLINE',
+    );
 
     // Extract user ID from query parameter
     const userId = client.handshake.query.userId as string;
@@ -58,8 +62,11 @@ export class SocketGateway
         userSockets.splice(index, 1);
         // If no more sockets are associated with the user, remove the user entry
         if (userSockets.length === 0) {
-          this.userSockets.delete(userId);  
-          this.socketService.updateUserStatus(Number(client.handshake.query.userId), 'OFFLINE');
+          this.userSockets.delete(userId);
+          this.socketService.updateUserStatus(
+            Number(client.handshake.query.userId),
+            'OFFLINE',
+          );
         }
         console.log('userSockets', this.userSockets);
       }

@@ -15,7 +15,7 @@ export class SocketService {
   //   // Handle other events and messages from the client
   // }
   // Add more methods for handling events, messages, etc.
-  async updateUserStatus(id: number, status : string) {
+  async updateUserStatus(id: number, status: string) {
     console.log('updateUserStatus called : ', id, status);
     await this.prisma.player.update({
       where: {
@@ -27,5 +27,3 @@ export class SocketService {
     });
   }
 }
-
-

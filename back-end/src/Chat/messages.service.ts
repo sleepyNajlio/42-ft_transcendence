@@ -32,13 +32,17 @@ export class MessagesService {
       } as ChatWhereInput,
       include: {
         bannedUsers: true,
-        mutedUsers : true // Include bannedUsers in the query result
+        mutedUsers: true, // Include bannedUsers in the query result
       },
     });
 
     // Check if the bannedUsers include the player with id_player equal to id
-    const isBanned = existingChat.bannedUsers.some((user) => user.id_player === id);
-    const isMuted = existingChat.mutedUsers.some((user) => user.id_player === id);
+    const isBanned = existingChat.bannedUsers.some(
+      (user) => user.id_player === id,
+    );
+    const isMuted = existingChat.mutedUsers.some(
+      (user) => user.id_player === id,
+    );
 
     // console.log('id: ' + id + ' user: ' + name + ' is trying to join the chat');
     if (existingChat.type === 'PROTECTED') {
@@ -55,20 +59,18 @@ export class MessagesService {
       if (chatUSers) {
         return existingChat;
       } else {
-        if (isBanned || isMuted)
-        {
+        if (isBanned || isMuted) {
           console.log('user was Banned or muted in the room before');
           chatUSers = await this.prisma.chatUser.create({
             data: {
               chatId: existingChat.id_chat,
               userId: id,
-              
+
               isBanned: isBanned ? true : false,
               isMuted: isMuted ? true : false,
             },
           });
-        }
-        else{
+        } else {
           console.log('user was not Banned in the room before');
           chatUSers = await this.prisma.chatUser.create({
             data: {
@@ -78,9 +80,7 @@ export class MessagesService {
           });
         }
       }
-
-    }
-    else {
+    } else {
       chatUSers = await this.prisma.chatUser.findFirst({
         where: {
           chatId: existingChat.id_chat,
@@ -98,20 +98,18 @@ export class MessagesService {
         // });
         return existingChat;
       } else {
-        if (isBanned || isMuted)
-        {
+        if (isBanned || isMuted) {
           console.log('user was Banned or muted in the room before');
           chatUSers = await this.prisma.chatUser.create({
             data: {
               chatId: existingChat.id_chat,
               userId: id,
-              
+
               isBanned: isBanned,
               isMuted: isMuted,
             },
           });
-        }
-        else{
+        } else {
           console.log('user was not Banned in the room before');
           chatUSers = await this.prisma.chatUser.create({
             data: {
@@ -216,8 +214,8 @@ export class MessagesService {
       },
     });
     if (!chatUser) {
-        console.log('user is not in the chat');
-        return false;
+      console.log('user is not in the chat');
+      return false;
     }
     const newChatUser = await this.prisma.chatUser.update({
       where: {
@@ -479,8 +477,20 @@ export class MessagesService {
   /////////////// find Room Messages /////////////////////////
 
   async findAllMessages(name: string, id: number) {
+    let Messages: any = null;
 
-    let Messages : any = null;
+    const user = await this.prisma.player.findFirst({
+      where: {
+        id_player: id,
+      },
+    });
+
+    const blocked = await this.prisma.friendShip.findMany({
+      where: {
+        OR: [{ userId: id }, { friendId: id }],
+        status: 'BLOCKED',
+      },
+    });
 
     const chat = await this.prisma.chat.findFirst({
       where: {
@@ -499,134 +509,141 @@ export class MessagesService {
     // console.log('is chatUser banned : ');
     // console.log(chatUser.isBanned);
 
-    if ((chatUser && chatUser.isBanned)) {
-
-       Messages = await this.prisma.chatMessage.findMany({
+    if (chatUser && chatUser.isBanned) {
+      Messages = await this.prisma.chatMessage.findMany({
         where: {
           AND: [
             { chatId: chat.id_chat },
             { sentAt: { gte: chatUser.joinedAt } },
             { sentAt: { lt: chatUser.updatedAt } },
-
           ],
-      },
-      include: {
-        user: {
-          select: {
-            username: true,
-            avatar: true,
+        },
+        include: {
+          user: {
+            select: {
+              username: true,
+              avatar: true,
+            },
+          },
+          chat: {
+            select: {
+              name: true,
+            },
           },
         },
-        chat: {
-          select: {
-            name: true,
-          },
-        },
-      },
-    });
-  }
-  // else if((chatUser && chatUser.isMuted ))
-  // {
-  //   Messages = await this.prisma.chatMessage.findMany({
-  //     where: {
-  //       AND: [
-  //         { chatId: chat.id_chat },
-  //         { sentAt: { gte: chatUser.joinedAt } },
+      });
+    }
+    // else if((chatUser && chatUser.isMuted ))
+    // {
+    //   Messages = await this.prisma.chatMessage.findMany({
+    //     where: {
+    //       AND: [
+    //         { chatId: chat.id_chat },
+    //         { sentAt: { gte: chatUser.joinedAt } },
 
-  //       ],
-  //   },
-  //   include: {
-  //     user: {
-  //       select: {
-  //         username: true,
-  //         avatar: true,
-  //       },
-  //     },
-  //     chat: {
-  //       select: {
-  //         name: true,
-  //       },
-  //     },
-  //   },
-  // });
+    //       ],
+    //   },
+    //   include: {
+    //     user: {
+    //       select: {
+    //         username: true,
+    //         avatar: true,
+    //       },
+    //     },
+    //     chat: {
+    //       select: {
+    //         name: true,
+    //       },
+    //     },
+    //   },
+    // });
 
-  // }
-  else {
-    console.log('chat user got in findmsgs is: ');
-    if (chatUser)
-    console.log(chatUser);
-    console.log('chat user joined in find msgs at is: ');
-    if (chatUser)
-    console.log(chatUser.joinedAt);
-     Messages = await this.prisma.chatMessage.findMany({
-      where: {
-        AND: [
-          { chatId: chat.id_chat },
-          { sentAt: { gt: chatUser.joinedAt } },
-        ],
-      },
-      include: {
-        user: {
-          select: {
-            username: true,
-            avatar: true,
+    // }
+    else {
+      console.log('chat user got in findmsgs is: ');
+      if (chatUser) console.log(chatUser);
+      console.log('chat user joined in find msgs at is: ');
+      if (chatUser) console.log(chatUser.joinedAt);
+      Messages = await this.prisma.chatMessage.findMany({
+        where: {
+          AND: [
+            { chatId: chat.id_chat },
+            { sentAt: { gt: chatUser.joinedAt } },
+            {
+              OR: [
+                { userId: id },
+                {
+                  AND: [
+                    { userId: { notIn: blocked.map((user) => user.userId) } },
+                    { userId: { notIn: blocked.map((user) => user.friendId) } },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+        include: {
+          user: {
+            select: {
+              username: true,
+              avatar: true,
+            },
+          },
+          chat: {
+            select: {
+              name: true,
+            },
           },
         },
-        chat: {
-          select: {
-            name: true,
-          },
-        },
-      },
-    });
-  }
+      });
+    }
 
     // console.log('messages are: ');
     // console.log(Messages);
     return Messages;
   }
 
-///////////////////// find Dm Messages /////////////////////////
+  ///////////////////// find Dm Messages /////////////////////////
 
   async findAllDm(name: string, id: number, username: string) {
     // console.log('name: ');
     // console.log(name);
     let Messages = null;
-   
-      const user = await this.prisma.player.findFirst({
+
+    const user = await this.prisma.player.findFirst({
+      where: {
+        username: name,
+      },
+    });
+    const chat = await this.prisma.chat.findFirst({
+      where: {
+        AND: [
+          { type: 'PRIVATE' },
+          {
+            users: { some: { userId: id } },
+          },
+          {
+            users: { some: { userId: user.id_player } },
+          },
+        ],
+      } as ChatWhereInput,
+    });
+    if (chat) {
+      Messages = await this.prisma.chatMessage.findMany({
         where: {
-          username: name,
+          chatId: chat.id_chat,
+        },
+        include: {
+          user: {
+            select: {
+              username: true,
+              avatar: true,
+            },
+          },
         },
       });
-      const chat = await this.prisma.chat.findFirst({
-        where: {
-          AND: [
-            { type: 'PRIVATE' },
-            {
-              users: { some: { userId: id } },
-            },
-            {
-              users: { some: { userId: user.id_player } },
-            },
-          ],
-        } as ChatWhereInput,
-      });
-      if (chat) {
-        Messages = await this.prisma.chatMessage.findMany({
-          where: {
-            chatId: chat.id_chat,
-          },
-          include: {
-            user: {
-              select: {
-                username: true,
-                avatar: true,
-              },
-            },
-          },
-        });
-      }
-      return Messages;
+    }
+    return Messages;
   }
   async findRoom(name: string) {
     const chat = await this.prisma.chat.findFirst({
@@ -641,14 +658,9 @@ export class MessagesService {
   //////////////////////// GET USERS /////////////////////////
 
   async getUsers(id: number) {
-
     const friends = await this.prisma.friendShip.findMany({
-      
       where: {
-        OR: [
-          { userId: id },
-          { friendId: id },
-        ],
+        OR: [{ userId: id }, { friendId: id }],
         status: 'ACCEPTED',
       },
       include: {
@@ -665,7 +677,6 @@ export class MessagesService {
           },
         },
       },
-    
     });
 
     const friendsIds = friends.map((friend) => {
@@ -678,7 +689,6 @@ export class MessagesService {
     console.log('friends aaare: ', friends);
 
     console.log('friends ids are: ', friendsIds);
-
 
     const chats = await this.prisma.chat.findMany({
       where: {
@@ -753,7 +763,9 @@ export class MessagesService {
     const lastMessages = await this.prisma.chatMessage.findMany({
       where: {
         chatId: { in: rooms.map((room) => room.id_chat) },
-        sentAt: { gte: chatUsers.find((chatUser) => chatUser.userId === id)?.joinedAt },
+        sentAt: {
+          gte: chatUsers.find((chatUser) => chatUser.userId === id)?.joinedAt,
+        },
       },
       include: {
         user: {
@@ -769,12 +781,13 @@ export class MessagesService {
 
     return rooms.map((room) => {
       const chatUser = chatUsers.find(
-        (chatUser) => chatUser.chatId === room.id_chat && chatUser.userId === id
+        (chatUser) =>
+          chatUser.chatId === room.id_chat && chatUser.userId === id,
       );
       const lastMessage = lastMessages.find(
         (message) =>
           message.chatId === room.id_chat &&
-          message.sentAt >= chatUser?.joinedAt // Filter messages sent after chatUser joined
+          message.sentAt >= chatUser?.joinedAt, // Filter messages sent after chatUser joined
       );
       // console.log('last Messages got to user : ' + id);
       // console.log(lastMessage);
@@ -823,7 +836,7 @@ export class MessagesService {
   ///////////////////// Ban ///////////////////////
 
   async ban(id: number, name: string) {
-    let bannedChatUser : any = null;
+    let bannedChatUser: any = null;
     let player = await this.prisma.player.findFirst({
       where: {
         id_player: id,
@@ -859,14 +872,245 @@ export class MessagesService {
       return false;
     }
     if (chatUser.role === 'ADMIN') {
-     bannedChatUser = await this.prisma.chatUser.update({
+      bannedChatUser = await this.prisma.chatUser.update({
+        where: {
+          id_chat_user: chatUser.id_chat_user,
+        },
+        data: {
+          isBanned: true,
+          role: 'MEMBER',
+        },
+        include: {
+          user: {
+            select: {
+              username: true,
+            },
+          },
+          chat: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      });
+      await this.prisma.chat.update({
+        where: {
+          id_chat: chat.id_chat,
+        },
+        data: {
+          bannedUsers: {
+            connect: {
+              id_player: player.id_player,
+            },
+          },
+        },
+      });
+      return bannedChatUser;
+    } else {
+      bannedChatUser = await this.prisma.chatUser.update({
+        where: {
+          id_chat_user: chatUser.id_chat_user,
+        },
+        data: {
+          isBanned: true,
+        },
+        include: {
+          user: {
+            select: {
+              username: true,
+            },
+          },
+          chat: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      });
+    }
+    await this.prisma.chat.update({
       where: {
-        id_chat_user: chatUser.id_chat_user,
+        id_chat: chat.id_chat,
       },
       data: {
-        isBanned: true,
-        role: 'MEMBER',
-        
+        bannedUsers: {
+          connect: {
+            id_player: player.id_player,
+          },
+        },
+      },
+    });
+
+    return bannedChatUser;
+  }
+
+  ////////////////////////// MUTE /////////////////////////
+
+  async mute(id: number, name: string) {
+    let player = await this.prisma.player.findFirst({
+      where: {
+        id_player: id,
+      },
+    });
+
+    const chat = await this.prisma.chat.findFirst({
+      where: {
+        name: name,
+      },
+    });
+    const chatUser = await this.prisma.chatUser.findFirst({
+      where: {
+        userId: id,
+        chatId: chat.id_chat,
+        isMuted: false,
+        isBanned: false,
+      },
+      include: {
+        user: {
+          select: {
+            username: true,
+          },
+        },
+        chat: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
+    if (!chatUser) {
+      console.log('user is not in the chat or already muted');
+      return false;
+    }
+    let mutedChatUser: any = null;
+    if (chatUser.role === 'ADMIN') {
+      mutedChatUser = await this.prisma.chatUser.update({
+        where: {
+          id_chat_user: chatUser.id_chat_user,
+        },
+        data: {
+          isMuted: true,
+          role: 'MEMBER',
+        },
+        include: {
+          user: {
+            select: {
+              username: true,
+            },
+          },
+          chat: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      });
+    } else {
+      mutedChatUser = await this.prisma.chatUser.update({
+        where: {
+          id_chat_user: chatUser.id_chat_user,
+        },
+        data: {
+          isMuted: true,
+        },
+        include: {
+          user: {
+            select: {
+              username: true,
+            },
+          },
+          chat: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      });
+    }
+    await this.prisma.chat.update({
+      where: {
+        id_chat: chat.id_chat,
+      },
+      data: {
+        mutedUsers: {
+          connect: {
+            id_player: player.id_player,
+          },
+        },
+      },
+    });
+    setTimeout(
+      async () => {
+        // Check if the user still exists in the chat
+        const existingUser = await this.prisma.chatUser.findFirst({
+          where: {
+            userId: id,
+            chatId: chat.id_chat,
+          },
+        });
+
+        if (existingUser) {
+          // User still exists, update the mute status
+          console.log('User still exists in the chat.');
+
+          mutedChatUser = await this.prisma.chatUser.update({
+            where: {
+              id_chat_user: existingUser.id_chat_user,
+            },
+            data: {
+              isMuted: false,
+            },
+          });
+          console.log('User is no longer muted.');
+          console.log(mutedChatUser);
+        } else {
+          // User no longer exists, handle accordingly (e.g., log a message)
+          console.log('User no longer exists in the chat.');
+        }
+        await this.prisma.chat.update({
+          where: {
+            id_chat: chat.id_chat,
+          },
+          data: {
+            mutedUsers: {
+              disconnect: {
+                id_player: player.id_player,
+              },
+            },
+          },
+        });
+      },
+      5 * 6 * 1000,
+    );
+    return mutedChatUser;
+  }
+  /////////////////////Add User ///////////////////////
+
+  async addUser(id: number, username: string, name: string) {
+    const chat = await this.prisma.chat.findFirst({
+      where: {
+        name: name,
+      },
+    });
+    const user = await this.prisma.player.findFirst({
+      where: {
+        username: username,
+      },
+    });
+    const chatUser = await this.prisma.chatUser.findFirst({
+      where: {
+        userId: user.id_player,
+        chatId: chat.id_chat,
+      },
+    });
+    if (chatUser) {
+      console.log('user already in the chat');
+      return false;
+    }
+    const newChatUser = await this.prisma.chatUser.create({
+      data: {
+        chatId: chat.id_chat,
+        userId: user.id_player,
       },
       include: {
         user: {
@@ -887,250 +1131,16 @@ export class MessagesService {
       },
       data: {
         bannedUsers: {
-          connect: {
-            id_player: player.id_player,
-        },
-      },
-    }
-    });
-      return bannedChatUser;
-  } else {
-     bannedChatUser = await this.prisma.chatUser.update({
-      where: {
-        id_chat_user: chatUser.id_chat_user,
-      },
-      data: {
-        isBanned: true,
-      },
-      include: {
-        user: {
-          select: {
-            username: true,
-          },
-        },
-        chat: {
-          select: {
-            name: true,
-          },
-        },
-      },
-    });
-  }
-  await this.prisma.chat.update({
-    where: {
-      id_chat: chat.id_chat,
-    },
-    data: {
-      bannedUsers: {
-        connect: {
-          id_player: player.id_player,
-      },
-    },
-  }
-  });
-    
-  return bannedChatUser;
-}
-
-////////////////////////// MUTE /////////////////////////
-
-async mute(id: number, name: string) {
-  let player = await this.prisma.player.findFirst({
-    where: {
-      id_player: id,
-    },
-  });
-
-  const chat = await this.prisma.chat.findFirst({
-    where: {
-      name: name,
-    },
-  });
-  const chatUser = await this.prisma.chatUser.findFirst({
-    where: {
-      userId: id,
-      chatId: chat.id_chat,
-      isMuted: false,
-      isBanned: false,
-    },
-    include: {
-      user: {
-        select: {
-          username: true,
-        },
-      },
-      chat: {
-        select: {
-          name: true,
-        },
-      },
-    },
-  });
-  if (!chatUser) {
-    console.log('user is not in the chat or already muted');
-    return false;
-  }
-  let mutedChatUser : any = null;
-  if (chatUser.role === 'ADMIN') {
-    mutedChatUser = await this.prisma.chatUser.update({
-    where: {
-      id_chat_user: chatUser.id_chat_user,
-    },
-    data: {
-      isMuted: true,
-      role: 'MEMBER',
-    },
-    include: {
-      user: {
-        select: {
-          username: true,
-        },
-      },
-      chat: {
-        select: {
-          name: true,
-        },
-      },
-    },
-  });
-
-}
-  else {
-  mutedChatUser = await this.prisma.chatUser.update({
-    where: {
-      id_chat_user: chatUser.id_chat_user,
-    },
-    data: {
-      isMuted: true,
-    },
-    include: {
-      user: {
-        select: {
-          username: true,
-        },
-      },
-      chat: {
-        select: {
-          name: true,
-        },
-      },
-    },
-  });
-  }
-  await this.prisma.chat.update({
-    where: {
-      id_chat: chat.id_chat,
-    },
-    data: {
-      mutedUsers: {
-        connect: {
-          id_player: player.id_player,
-      },
-    },
-  }});
-  setTimeout(async () => {
-
-    // Check if the user still exists in the chat
-    const existingUser = await this.prisma.chatUser.findFirst({
-      where: {
-        userId: id,
-        chatId: chat.id_chat
-      },
-    });
-  
-    if (existingUser) {
-      // User still exists, update the mute status
-      console.log('User still exists in the chat.');
-
-      
-      mutedChatUser = await this.prisma.chatUser.update({
-        where: {
-          id_chat_user: existingUser.id_chat_user,
-        },
-        data: {
-          isMuted: false,
-        },
-      });
-      console.log('User is no longer muted.');
-      console.log(mutedChatUser);
-    } else {
-      // User no longer exists, handle accordingly (e.g., log a message)
-      console.log('User no longer exists in the chat.');
-    }
-    await this.prisma.chat.update({
-      where: {
-        id_chat: chat.id_chat,
-      },
-      data: {
-        mutedUsers: {
           disconnect: {
-            id_player: player.id_player,
+            id_player: user.id_player,
+          },
         },
       },
-    }});
-  }, 5 * 6 * 1000); 
-  return mutedChatUser;
-}
-/////////////////////Add User ///////////////////////
-
-async addUser(id : number, username : string, name : string)
-{
-  const chat = await this.prisma.chat.findFirst({
-    where: {
-      name: name,
-    },
-  });
-  const user = await this.prisma.player.findFirst({
-    where: {
-      username: username,
-    },
-  });
-  const chatUser = await this.prisma.chatUser.findFirst({
-    where: {
-      userId: user.id_player,
-      chatId: chat.id_chat,
-    },
-  });
-  if (chatUser) {
-    console.log('user already in the chat');
-    return false;
+    });
+    return newChatUser;
   }
-  const newChatUser = await this.prisma.chatUser.create({
-    data: {
-      chatId: chat.id_chat,
-      userId: user.id_player,
-    },
-    include: {
-      user: {
-        select: {
-          username: true,
-        },
-      },
-      chat: {
-        select: {
-          name: true,
-        },
-      },
-    },
-  });
-  await this.prisma.chat.update({
-    where : {
-      id_chat : chat.id_chat,
-    },
-    data: {
-      bannedUsers: {
-        disconnect: {
-          id_player: user.id_player,
-        },
-      },
-    },
-  
-  });
-  return newChatUser;
-}
 
-
-///////////////////////// UPDATE ROOM /////////////////////////
+  ///////////////////////// UPDATE ROOM /////////////////////////
 
   async updateRoom(
     id: number,
