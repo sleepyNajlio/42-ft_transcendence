@@ -18,7 +18,7 @@ const UnAuthGuard = ({ component }: { component: ReactNode }) => {
 
 	const checkToken = async () => {
 		console.log('checkToken');
-		axios.get('http://localhost:3000/user', { withCredentials: true })
+		axios.get(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/user`, { withCredentials: true })
 		.then((res) => {
 			console.log("unauth guarddd: ", res.data);
 			// msg: no cookies

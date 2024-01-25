@@ -12,11 +12,12 @@ async function bootstrap() {
     origin: config.get('FRONTEND_URL'),
     credentials: true,
     methods: [RequestMethod.ALL.toString()],
+    allowedHeaders: 'Origin, X-Requested-With, Content-Type, Accept',
   });
   app.use(cookieParser());
   app.use(passport.initialize());
   app.useGlobalPipes(new ValidationPipe());
-  await app.listen(3000, '0.0.0.0');
+  await app.listen(3001, '0.0.0.0');
 }
 
 bootstrap();

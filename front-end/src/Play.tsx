@@ -36,9 +36,9 @@ export function Play({ setInPlay, inviter, setInviter}: { setInPlay: any , invit
     const handleFriendClick = async (player_id: number) => {
       if (socket && componentRef.current?.offsetWidth)
       {
-        const gameResponse = await axios.get('http://localhost:3000/game/creategame',  { withCredentials: true });
+        const gameResponse = await axios.get(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/game/creategame`,  { withCredentials: true });
         const gameId = gameResponse.data.id_game;
-        await axios.post(`http://localhost:3000/game/${gameId}/joinGame`, {userId: user?.id},  { withCredentials: true });
+        await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/game/${gameId}/joinGame`, {userId: user?.id},  { withCredentials: true });
         setGameId(gameId);
         console.log('game', gameId, " created");
         socket.emit('invite', 
@@ -81,20 +81,20 @@ export function Play({ setInPlay, inviter, setInviter}: { setInPlay: any , invit
           console.log('error');
         }
         else if (!resp.id) {
-          const gameResponse = await axios.get('http://localhost:3000/game/creategame',  { withCredentials: true });
+          const gameResponse = await axios.get(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/game/creategame`,  { withCredentials: true });
           const gameId = gameResponse.data.id_game;
           setGameId(gameId);
-          await axios.post(`http://localhost:3000/game/${gameId}/joinGame`, {userId: userId},  { withCredentials: true });
+          await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/game/${gameId}/joinGame`, {userId: userId},  { withCredentials: true });
           setIsLoading(true);
         }
         else {
           // got the players ratio
-          const gameResponse = await axios.get(`http://localhost:3000/game/${resp.id}/getgame/SEARCHING`, { withCredentials: true });
+          const gameResponse = await axios.get(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/game/${resp.id}/getgame/SEARCHING`, { withCredentials: true });
           const gameId = gameResponse.data.id_game;
           setGameId(gameId);
           console.log('gameId: ', gameId);
-          await axios.post(`http://localhost:3000/game/${gameId}/joinGame`, {userId: userId},  { withCredentials: true });
-          await axios.post(`http://localhost:3000/game/${gameId}/updateGame`, {status: 'PLAYING'},  { withCredentials: true });
+          await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/game/${gameId}/joinGame`, {userId: userId},  { withCredentials: true });
+          await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/game/${gameId}/updateGame`, {status: 'PLAYING'},  { withCredentials: true });
         }
       });
     };
@@ -102,7 +102,7 @@ export function Play({ setInPlay, inviter, setInviter}: { setInPlay: any , invit
     useEffect(() => {
       if (!socket || !isMounted.current || !user)
         return;
-      axios.get(`http://localhost:3000/game/${user.id}/getgame/PLAYING`, { withCredentials: true }).then
+      axios.get(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/game/${user.id}/getgame/PLAYING`, { withCredentials: true }).then
       ((res) => {
         if (res.data.id_game) {
           setInGame(true);
@@ -111,7 +111,7 @@ export function Play({ setInPlay, inviter, setInviter}: { setInPlay: any , invit
       }).catch((err) => {
         console.log('err: ', err);
       });
-      axios.get(`http://localhost:3000/game/${user.id}/getgame/SEARCHING`, { withCredentials: true }).then
+      axios.get(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/game/${user.id}/getgame/SEARCHING`, { withCredentials: true }).then
       ((res) => {
         if (res.data.id_game) {
           setInGame(true);
@@ -136,7 +136,7 @@ export function Play({ setInPlay, inviter, setInviter}: { setInPlay: any , invit
         setIsLoading(true); // Set loading to false when the game starts
         console.log("game alreadyInQueue");
         return {inGame: true};
-        // axios.delete(`http://localhost:3000/game/${user?.id}/deletegame/SEARCHING`, { withCredentials: true }).then
+        // axios.delete(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/game/${user?.id}/deletegame/SEARCHING`, { withCredentials: true }).then
       });
 
       socket.on('rejected', () => {

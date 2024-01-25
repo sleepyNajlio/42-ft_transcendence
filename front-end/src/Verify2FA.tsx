@@ -12,7 +12,7 @@ export function Verify2FA() {
   const [isntValidKolo, setIsntValidKolo] = useState<boolean>(false);
 
   function Verify() {
-    axios.post('http://localhost:3000/auth/twofa/verify', {
+    axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/auth/twofa/verify`, {
       twoFaCode: inputKolo,
     }, { withCredentials: true })
       .then((res) => {

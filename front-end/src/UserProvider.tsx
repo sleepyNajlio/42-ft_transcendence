@@ -70,7 +70,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
 
   const updatehistory = async (gameId: number) => {
     // const newHistory: History = history;
-    await axios.get(`http://localhost:3000/profile/game/${gameId}`, { withCredentials: true }).then(res => {
+    await axios.get(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/profile/game/${gameId}`, { withCredentials: true }).then(res => {
       const newusergames: any[] = res.data;
       const newHistory: History = {} as History;
       newHistory.score1 = newusergames.find(game => game.userId === user?.id)?.score;

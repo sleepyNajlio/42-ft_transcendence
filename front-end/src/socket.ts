@@ -5,7 +5,7 @@ let socket: Socket;
 export const initializeSocket = async (userId: string, sessionCookies: string) : Promise<Socket> => {
     console.log("userId", userId);
     // console.log("sessionCookies", sessionCookies);
-  socket = io("http://localhost:3000", {
+  socket = io(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}`, {
     auth: {
       sessionCookies,
     },

@@ -9,7 +9,7 @@ import { TwoFA } from './TwoFA.tsx';
 import { UserProvider } from './UserProvider.tsx';
 
 export async function turnOffTwoFactorAuth() {
-    await axios.get('http://localhost:3000/auth/twofa/turn-off', { withCredentials: true })
+    await axios.get(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/auth/twofa/turn-off`, { withCredentials: true })
     .then(response => {
       console.log(response.data);
     })
@@ -35,7 +35,7 @@ export function Settings() {
 
     const onSubmitSettings = async () => {
 
-        axios.post('http://localhost:3000/user/updateUsername', { username }, {withCredentials: true})
+        axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/user/updateUsername`, { username }, {withCredentials: true})
         .then((response) => {
             // console.log("helloo", response.data.user);
             updateUser(response.data.user);
@@ -47,7 +47,7 @@ export function Settings() {
     }
     const checkTwoFactorAuth = async () => {
         // Replace with your actual API endpoint
-        await axios.get('http://localhost:3000/auth/twofa/check', {withCredentials: true})
+        await axios.get(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/auth/twofa/check`, {withCredentials: true})
         .then((response) => {
             // console.log('2FA enabled:', response.data);
             setTwoFactorAuthEnabled(response.data.isTwoFaEnabled);
