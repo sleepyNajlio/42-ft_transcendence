@@ -35,6 +35,7 @@ export default function Navbar(props: any) {
     const { user, getUserById, getMatchHistory } = useContext(UserContext);
     const [search, setSearch] = useState(false);
     const [users, setUsers] = useState([]);
+    
     // const [Players, setPlayers] = useState(false);
     const navigate = useNavigate();
 
@@ -108,25 +109,51 @@ export default function Navbar(props: any) {
         });
         navigate("/Profile")
       }
-    
-
-    function popNotifs() {
-        console.log("hhhhh\n");
-        if(props.invite === inviteStatus.NONE){
-         setNotifs(!Notifs);
-        }
-         props.setInvite(inviteStatus.NONE);
-
-    }
+      const [NotifContainer, setNotifContainer] = useState('');
+    //   let flag = true;
     const [Notifs, setNotifs] = useState<Boolean>(false);
+      function popNotifs() {
+          console.log("hhhhh\n");
+          if(props.invite === inviteStatus.NONE){
+              setNotifs(!Notifs);
+            //   flag = false;
+            }
+            props.setInvite(inviteStatus.NONE);
+        }
+        useEffect(() => {
+            console.log("YOOOOOOO", NotifContainer);
+        }, [NotifContainer, Notifs]);
+    
+        useEffect(() => {
+            console.log("Notifs Clicked", NotifContainer, Notifs);
+            if (Notifs) {
+            setNotifContainer("notif-container");
+            console.log("Notifs appear", NotifContainer);
+        }
+        else if (NotifContainer === "notif-container") 
+        {
+            setNotifContainer("notifmacontainer");
+            console.log("Notifs disappear", NotifContainer);
+            setTimeout(() => {
+                setNotifContainer("notif-container");
+            } , 450);
+        }
+      }, [Notifs]);
   return (
     <>
     {
-        (props.invite === inviteStatus.INVITED || Notifs) &&
+        (props.invite === inviteStatus.INVITED || (Notifs && NotifContainer === "notif-container") || (!Notifs && NotifContainer === "notifmacontainer")) && 
         (
-        <Notification inviters={props.inviters} inviteResp={props.inviteResp} inviteStatus={props.inviteStatus}  />
+        <Notification
+            inviters={props.inviters}
+            inviteResp={props.inviteResp}
+            inviteStatus={props.inviteStatus}
+            Notifs={Notifs}
+            NotifContainer={NotifContainer}
+            setNotifContainer={setNotifContainer} // Add setNotifContainer as a prop
+        />
         )
-
+        
     }
     <input type="checkbox" id="menu-toggle"/>
       <label htmlFor="menu-toggle" className="menu-icon">

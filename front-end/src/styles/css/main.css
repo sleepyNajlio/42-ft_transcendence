@@ -517,7 +517,6 @@ box-sizing: border-box;
     /* background-image: url('/bsk.png'); */
     background-color: transparent;
     background-size: cover;
-    filter: blur(5px); /* Add a blur effect */
     z-index: 0; /* Place it behind the lock image */
     transition: filter 0.3s ease; /* Add transition for smooth effect */
 }
@@ -685,7 +684,7 @@ box-sizing: border-box;
     stroke-width: 14px;
     stroke-linecap: round;
     stroke-dasharray: 500;
-    stroke-dashoffset: 400;
+    stroke-dashoffset: 500;
   }
 
   .ptitle{
