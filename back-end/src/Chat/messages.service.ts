@@ -402,6 +402,8 @@ export class MessagesService {
             select: {
               username: true,
               avatar: true,
+              friendshipAsked: true,
+              friendshipReceived: true,
             },
           },
           chat: {
@@ -678,16 +680,15 @@ export class MessagesService {
     console.log('friends ids are: ', friendsIds);
 
 
-
-    const users = await this.prisma.player.findMany({
-      where: {
-          id_player: { in: friendsIds },
-      },
-    });
     const chats = await this.prisma.chat.findMany({
       where: {
         type: 'PRIVATE',
         name: null,
+      },
+    });
+    const users = await this.prisma.player.findMany({
+      where: {
+        id_player: { in: friendsIds },
       },
     });
     const chatUsers = await this.prisma.chatUser.findMany({
