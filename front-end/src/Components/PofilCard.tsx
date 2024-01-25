@@ -19,7 +19,7 @@ function PofilCard(props: {user: user, setFriend: React.Dispatch<React.SetStateA
       <div className={`ptest`}>
         <ProfilInfo setFriend={props.setFriend} id={props.user.id} state={props.user.friend} name={props.user.username} rank={props.user.rank} image={props.user.avatar}></ProfilInfo>
         <div className={`left-content profil__card`}>
-          <ProfilStat user_stats={props.user.user_stats} cercle={cercle} stats_names={Dstats_names}></ProfilStat>
+          <ProfilStat user_stats={props.user.user_stats} cercle={cercle} stats_names={Dstats_names} dasharray={500}></ProfilStat>
         </div>
       </div>
         <ProfilAch winsRat={props.user.user_stats.winsRat} wins={props.user.user_stats.wins} total_matches={props.user.user_stats.total_matches}></ProfilAch>

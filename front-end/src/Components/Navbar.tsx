@@ -109,7 +109,7 @@ export default function Navbar(props: any) {
         });
         navigate("/Profile")
       }
-      const [NotifContainer, setNotifContainer] = useState('');
+    const [NotifContainer, setNotifContainer] = useState('notif-container');
     //   let flag = true;
     const [Notifs, setNotifs] = useState<Boolean>(false);
       function popNotifs() {

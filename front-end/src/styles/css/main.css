@@ -722,6 +722,9 @@ box-sizing: border-box;
   
   /* Medium screens (577px to 768px) */
   @media (max-width: 768px) {
+    #progress {
+        stroke-dasharray: 250;
+    }
     .sbox .settings {
         /* position: relative; */
         flex-direction: column;

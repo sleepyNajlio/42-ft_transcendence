@@ -1,7 +1,7 @@
 import '../styles/css/Login.css';
 import { user_stats, cercle } from './types.ts';
 
-export function ProfilStat(props : { user_stats: user_stats, cercle: cercle, stats_names: string[] }){
+export function ProfilStat(props : { user_stats: user_stats, cercle: cercle, stats_names: string[], dasharray: number }){
     return (
     <>
     <div className="profil__stats">
@@ -9,7 +9,7 @@ export function ProfilStat(props : { user_stats: user_stats, cercle: cercle, sta
         <h3>{(props.user_stats.winsRat * 100).toFixed(0) }%</h3>
         <h6>Ratio</h6>
         <svg>
-          <circle id="progress" cx={props.cercle.x} cy={props.cercle.y} r={props.cercle.r} style={{strokeDashoffset : (1 - props.user_stats.winsRat) * 500}}></circle>
+          <circle id="progress" cx={props.cercle.x} cy={props.cercle.y} r={props.cercle.r} style={{strokeDashoffset : (1 - props.user_stats.winsRat) * props.dasharray}}></circle>
         </svg>
       </div>
       <div className="profil__stats__info">

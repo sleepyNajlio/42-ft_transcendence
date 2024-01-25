@@ -8,10 +8,10 @@ import { user, cercle } from './types.ts';
 
 
 
-function PofilCard(props: {user: user}){
+function PofilCard(props: {user: user, setFriend: any}){
   let cercle = {
-    x: 40,
-    y: 40,
+    x: 44,
+    y: 44,
     r:  40,
   } as cercle;
   let Mstats_names = ["T M", "W", "Ac"];
@@ -20,9 +20,9 @@ function PofilCard(props: {user: user}){
     <div className="left-div desktop">
       <div className="ptest desktop">
         <div className="left-content profil__card">
-          <ProfilStat  user_stats={props.user.user_stats} cercle={cercle} stats_names={Mstats_names}></ProfilStat>
+          <ProfilStat  user_stats={props.user.user_stats} cercle={cercle} stats_names={Mstats_names} dasharray={250}></ProfilStat>
         </div>
-        <ProfilInfo state={props.user.friend} name={props.user.username} rank={props.user.rank} image={props.user.avatar}></ProfilInfo>
+        <ProfilInfo setFriend={props.setFriend} id={props.user.id} state={props.user.friend} name={props.user.username} rank={props.user.rank} image={props.user.avatar}></ProfilInfo>
       </div>
     </div>
     <ProfilAch winsRat={props.user.user_stats.winsRat} wins={props.user.user_stats.wins} total_matches={props.user.user_stats.total_matches}></ProfilAch>

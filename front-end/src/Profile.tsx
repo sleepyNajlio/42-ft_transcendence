@@ -66,7 +66,7 @@ export function Profile(props: {setFriend: React.Dispatch<React.SetStateAction<u
         {user && (checkIfMediumPlus ? (
             <PofilCard setFriend={props.setFriend} user={props.freind || tempuser}></PofilCard>
             ) : (
-            <MobProfilCard user={props.freind || tempuser}></MobProfilCard>
+            <MobProfilCard setFriend={props.setFriend} user={props.freind || tempuser}></MobProfilCard>
         ))}
         <div className="right-div">
               <h1 className="rank__title">History</h1>
