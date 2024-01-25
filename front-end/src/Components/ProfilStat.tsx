@@ -9,7 +9,7 @@ export function ProfilStat(props : { user_stats: user_stats, cercle: cercle, sta
         <h3>{(props.user_stats.winsRat * 100).toFixed(0) }%</h3>
         <h6>Ratio</h6>
         <svg>
-          <circle id="progress" cx={props.cercle.x} cy={props.cercle.y} r={props.cercle.r}></circle>
+          <circle id="progress" cx={props.cercle.x} cy={props.cercle.y} r={props.cercle.r} style={{strokeDashoffset : (1 - props.user_stats.winsRat) * 500}}></circle>
         </svg>
       </div>
       <div className="profil__stats__info">

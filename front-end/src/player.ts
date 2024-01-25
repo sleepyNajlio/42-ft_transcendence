@@ -201,19 +201,28 @@ export async function getRanks() : Promise<user[]> {
     const res = await axios.get("http://localhost:3000/profile/ranks", { withCredentials: true });
     console.log("ranks: ", res.data);
     const ranks: user[] = [];
+    let achi: number = 0;
     res.data.forEach((rank: any) => {
         const stats: user_stats = {
             winsRat: Number(rank.wins) ? Number(rank.wins) / (Number(rank.wins) + Number(rank.loses)): 0,
             wins: Number(rank.wins),
-            achievement: 1,
+            achievement: 0,
             total_matches: Number(rank.wins) + Number(rank.loses),
         };
+        if(stats.total_matches >= 1)
+            stats.achievement += 1;
+        if(stats.total_matches >= 3)
+            stats.achievement += 1;
+        if(stats.wins >= 3)
+            stats.achievement += 1;
+        if(stats.winsRat === 1 && rank.total_matches >= 5)
+            stats.achievement += 1;
         const user: user = {
             id: rank.id_player,
             username: rank.username,
             rank: rank.rank,
             avatar: rank.avatar,
-            achievement: 0,
+            achievement: achi,
             user_stats: stats,
         };
         ranks.push(user);

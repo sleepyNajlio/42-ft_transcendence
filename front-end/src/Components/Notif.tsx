@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import './Notif.css';
 import GamePattern from './Pattern.tsx';
 import { useNavigate } from 'react-router-dom';
@@ -24,10 +24,14 @@ interface NotificationProps {
     inviteResp : (resp: Boolean, inviter: any) => void;
     inviteStatus :(resp : any) => void;
     setProfile : React.Dispatch<React.SetStateAction<user | null>>
+    Notifs: Boolean;
+    NotifContainer : string;
+    setNotifContainer : (resp : string) => void;
     // adders : adders[];
 }
 
-const Notification: React.FC<NotificationProps> = ({inviters, inviteResp, inviteStatus, setProfile }) => {
+const Notification: React.FC<NotificationProps> = ({inviters, inviteResp, inviteStatus, Notifs, NotifContainer, setNotifContainer, setProfile}) => {
+    // setNotifContainer('notif-container');
     const psvgRef = useRef<HTMLDivElement>(null); // Declare psvgRef using useRef hook
     useEffect(() => {
         console.log("inviters: ", inviters);
@@ -72,9 +76,9 @@ const Notification: React.FC<NotificationProps> = ({inviters, inviteResp, invite
 
 
     return (
-        <div className="notif-container">
+        <div className={NotifContainer} >
             {inviters.map((inviter:inviters, index : number) => (                
-                    <div className="notification" key={index}>
+                <div className="notification" key={index}>
                     <img src={inviter.avatar} alt="Profile" className="notification-image" />
                     <span className="notification-name">{inviter.username}</span>
                     {

@@ -36,7 +36,7 @@ export function Leaderboard() {
                             <span className="statname">Ratio</span>
                         </div>
                         <div className="stats">
-                            <span className="statval">{user.achievement.length}</span>
+                            <span className="statval">{user.user_stats.achievement}</span>
                             <span className="statname">Achievements</span>
                         </div>
                     </div>
