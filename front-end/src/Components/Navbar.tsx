@@ -124,7 +124,7 @@ export default function Navbar(props: any) {
     {
         (props.invite === inviteStatus.INVITED || Notifs) &&
         (
-        <Notification inviters={props.inviters} inviteResp={props.inviteResp} inviteStatus={props.inviteStatus}  />
+        <Notification setProfile={props.setProfile} inviters={props.inviters} inviteResp={props.inviteResp} inviteStatus={props.inviteStatus}  />
         )
 
     }

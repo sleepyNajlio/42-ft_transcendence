@@ -35,6 +35,7 @@ enum NotifType {
     GAME = 'GAME',
     BLOCKED = 'BLOCKED',
     ACCEPTED = 'ACCEPTED',
+    REJECTED = 'REJECTED',
   }
 
 function App()
@@ -157,10 +158,12 @@ function App()
             socket.on('rminvite', (data: any) => handleRmInvite(data));
             socket.on('blocked', (data: any) => handleBlocked(data));
             socket.on('accepted', (data: any) => handleAccepted(data));
+            socket.on('rejected', (data: any) => handleRejected(data));
             return () => {
                 socket.off('invited', handleInvited);
                 socket.off('rminvite', handleRmInvite);
                 socket.off('blocked', handleBlocked);
+                socket.off('rejected', handleRejected);
                 socket.off('accepted', handleAccepted);
             };
         }
@@ -168,14 +171,37 @@ function App()
             console.log('no socket');
         // Clean up the event listener on unmount
     }, [socket]);
-
+    const handleRejected = (data: any) => {
+        setInviters(prevInviters => prevInviters.filter((inviter) => inviter.user_id !== data.user_id && inviter.type !== NotifType.INVITE));
+        setInviters(prevInviters => [...prevInviters, {user_id: data.user_id, avatar: data.avatar, username: data.username, type: data.type, paddle: data.paddle}]);
+        if (data.type === NotifType.REJECTED)
+        {
+            setProfile((prevProfile: user | null) => {
+                if (!prevProfile) {
+                    return prevProfile;
+                }
+                return {
+                    ...prevProfile,
+                    friend: {
+                        ...prevProfile.friend,
+                        status: "REJECTED",
+                        userId: prevProfile.friend?.userId || 0, // Set a default value of 0 if userId is undefined
+                        friendId: prevProfile.friend?.friendId || 0, // Set a default value of 0 if userId is undefined
+                    },
+                };
+            });
+        }
+        if (inPlay)
+            return;
+        setInvite(inviteStatus.INVITED);
+    }
     const handleInvited = (data: any) => {
         setInviters(prevInviters => [...prevInviters, {user_id: data.user_id, avatar: data.avatar, username: data.username, type: data.type, paddle: data.paddle}]);
         if (data.type === NotifType.INVITE)
         {
             setProfile((prevProfile: user | null) => {
                 if (!prevProfile ) {
-                    console.log("invited ", data);
+                    console.log("invited1 ", data);
                     return prevProfile;
                 }
                 console.log("inviteeeeeeeeeeeeeeeeeeeeeeeeed ", data);
@@ -184,8 +210,8 @@ function App()
                     friend: {
                         ...prevProfile.friend,
                         status: "PENDING",
-                        userId: prevProfile.friend?.userId || 0, // Set a default value of 0 if userId is undefined
-                        friendId: prevProfile.friend?.friendId || 0, // Set a default value of 0 if userId is undefined
+                        userId: prevProfile.friend?.userId !== data.user_id ? prevProfile.friend?.userId : data.user_id,
+                        friendId: prevProfile.friend?.friendId === data.user_id ? prevProfile.friend?.friendId : data.user_id,
                     },
                 };
             });
@@ -250,7 +276,7 @@ function App()
     const handleRmInvite = (data: any) => {
         console.log("invite removed ", data);
         console.log("inviters ", inviters);
-        setInviters(prevInviters => prevInviters.filter((inviter) => inviter.user_id !== data));
+        setInviters(prevInviters => prevInviters.filter((inviter) => inviter.user_id !== data || (inviter.user_id === data  && inviter.type === NotifType.BLOCKED)));
     };
     const componentRef = useRef<HTMLDivElement>(null);
     const [boardWidth, setboardWidth] = useState<number | null>(null);

@@ -2,6 +2,8 @@ import React, { useEffect, useRef } from 'react';
 import './Notif.css';
 import GamePattern from './Pattern.tsx';
 import { useNavigate } from 'react-router-dom';
+import { user } from './types.ts';
+import { rejectFriend, addFriend, blockFriend, acceptFriend } from '../player';
 
 
 interface inviters
@@ -21,15 +23,54 @@ interface NotificationProps {
     inviters : inviters[];
     inviteResp : (resp: Boolean, inviter: any) => void;
     inviteStatus :(resp : any) => void;
+    setProfile : React.Dispatch<React.SetStateAction<user | null>>
     // adders : adders[];
 }
 
-const Notification: React.FC<NotificationProps> = ({inviters, inviteResp, inviteStatus }) => {
+const Notification: React.FC<NotificationProps> = ({inviters, inviteResp, inviteStatus, setProfile }) => {
     const psvgRef = useRef<HTMLDivElement>(null); // Declare psvgRef using useRef hook
-useEffect(() => {
-    console.log("inviters: ", inviters);
-} , [inviters]);
+    useEffect(() => {
+        console.log("inviters: ", inviters);
+    } , [inviters]);
     const navigate = useNavigate();
+    
+    const HandleAccept = async (id: number) => {
+        setProfile((prevProfile: user | null) => {
+            if (!prevProfile) {
+                return prevProfile;
+            }
+            return {
+                ...prevProfile,
+                friend: {
+                    ...prevProfile.friend,
+                    status: "ACCEPTED",
+                    userId: prevProfile.friend?.userId || 0, // Set a default value of 0 if userId is undefined
+                    friendId: prevProfile.friend?.friendId || 0, // Set a default value of 0 if userId is undefined
+                },
+            };
+        });
+        acceptFriend(id);
+    }
+
+    const HandleReject = async (id: number) => {
+        setProfile((prevProfile: user | null) => {
+            if (!prevProfile) {
+                return prevProfile;
+            }
+            return {
+                ...prevProfile,
+                friend: {
+                    ...prevProfile.friend,
+                    status: "REJECTED",
+                    userId: prevProfile.friend?.userId || 0, // Set a default value of 0 if userId is undefined
+                    friendId: prevProfile.friend?.friendId || 0, // Set a default value of 0 if userId is undefined
+                },
+            };
+        });
+        rejectFriend(id)
+    }
+
+
     return (
         <div className="notif-container">
             {inviters.map((inviter:inviters, index : number) => (                
@@ -38,23 +79,24 @@ useEffect(() => {
                     <span className="notification-name">{inviter.username}</span>
                     {
                         inviter.type === "GAME" ? (
+                            <>
                             <GamePattern pad={inviter.paddle} board={0} width={100} height={50} cx={50} cy={25} />
+                            <button className="notification-button" onClick={()=> {inviteResp(true, inviter); navigate('/Play')}} >Accept</button>
+                            <button className="notification-button" onClick={()=> {inviteResp(false, inviter)}}>Decline</button>
+                            </>
                         ) : inviter.type === "INVITE" ? (
+                            <>
                             <span className="notification-text">Sent you a request</span>
+                            <button className="notification-button" onClick={()=> HandleAccept(Number(inviter.user_id)) } >Accept</button>
+                            <button className="notification-button" onClick={()=> HandleReject(Number(inviter.user_id)) }>Decline</button>
+                            </>
                         ) : inviter.type === "BLOCKED" ? (
                             <span className="notification-text">Blocked you</span>
-                        ) : inviter.type === "ACCEPTED" && (
+                        ) : inviter.type === "ACCEPTED" ? (
                             <span className="notification-text">Accepted your request</span>
+                        ) : inviter.type === "REJECTED" && (
+                            <span className="notification-text">Rejected your request</span>
                         )
-                    }
-                    {
-                    (inviter.type === "GAME" || inviter.type === "INVITE") &&
-                    (
-                        <div>
-                        <button className="notification-button" onClick={()=> {inviteResp(true, inviter); navigate('/Play')}} >Accept</button>
-                        <button className="notification-button" onClick={()=> {inviteResp(false, inviter)}}>Decline</button>
-                        </div>
-                    ) 
                     }
                 </div>
             ))}

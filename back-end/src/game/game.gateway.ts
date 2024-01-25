@@ -27,6 +27,7 @@ enum NotifType {
   GAME = 'GAME',
   BLOCKED = 'BLOCKED',
   ACCEPTED = 'ACCEPTED',
+  REJECTED = 'REJECTED',
 }
 
 enum gameStatus {
@@ -472,6 +473,13 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
           player.user_id !== data.id && player.type !== NotifType.INVITE,
       );
     }
+    if (this.notifs[data.id]) {
+      // remove if there is an invite
+      this.notifs[data.id] = this.notifs[data.id].filter(
+        (player) =>
+          player.user_id !== data.frId && player.type !== NotifType.INVITE,
+      );
+    }
     const newNotification = {
       user_id: data.id,
       type: NotifType.BLOCKED, // Replace with the actual type
@@ -485,10 +493,10 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.socketGateway.getClientSocket(data.frId.toString()).map((socketa) => {
       console.log('emiting block to ', socketa.id);
       socketa.emit('blocked', newNotification);
+      socketa.emit('rminvite', data.id);
     });
     this.socketGateway.getClientSocket(data.id.toString()).map((socketa) => {
       console.log('emiting rm to ', socketa.id);
-
       socketa.emit('rminvite', data.frId);
     });
     return true;
@@ -499,11 +507,18 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     console.log(data.frId, 'accepted ', data.id);
     if (!this.notifs[data.frId]) {
       this.notifs[data.frId] = [];
+    } else {
+      this.notifs[data.frId] = this.notifs[data.frId].filter(
+        (player) =>
+          player.user_id !== data.id && player.type !== NotifType.INVITE,
+      );
     }
-    this.notifs[data.frId] = this.notifs[data.frId].filter(
-      (player) =>
-        player.user_id !== data.id && player.type !== NotifType.INVITE,
-    );
+    if (this.notifs[data.id]) {
+      this.notifs[data.id] = this.notifs[data.id].filter(
+        (player) =>
+          player.user_id !== data.frId && player.type !== NotifType.INVITE,
+      );
+    }
     const newNotification = {
       user_id: data.id,
       type: NotifType.ACCEPTED, // Replace with the actual type
@@ -516,6 +531,42 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.logger.log(this.notifs);
     this.socketGateway.getClientSocket(data.frId.toString()).map((socketa) => {
       socketa.emit('accepted', newNotification);
+    });
+    this.socketGateway.getClientSocket(data.id.toString()).map((socketa) => {
+      socketa.emit('rminvite', data.frId);
+    });
+    return true;
+  }
+
+  @SubscribeMessage('rejectedFriend')
+  handleRejectFriend(client: Socket, data: any) {
+    console.log(data.frId, 'rejected ', data.id);
+    if (!this.notifs[data.frId]) {
+      this.notifs[data.frId] = [];
+    } else {
+      this.notifs[data.frId] = this.notifs[data.frId].filter(
+        (player) =>
+          player.user_id !== data.id && player.type !== NotifType.INVITE,
+      );
+    }
+    if (this.notifs[data.id]) {
+      this.notifs[data.id] = this.notifs[data.id].filter(
+        (player) =>
+          player.user_id !== data.frId && player.type !== NotifType.INVITE,
+      );
+    }
+    const newNotification = {
+      user_id: data.id,
+      type: NotifType.REJECTED, // Replace with the actual type
+      avatar: data.avatar,
+      time: Date.now(),
+      username: data.username,
+    };
+    this.notifs[data.frId] = [...this.notifs[data.frId], newNotification];
+    this.logger.log(`emiting reject to ${data.username}`);
+    this.logger.log(this.notifs);
+    this.socketGateway.getClientSocket(data.frId.toString()).map((socketa) => {
+      socketa.emit('rejected', newNotification);
     });
     this.socketGateway.getClientSocket(data.id.toString()).map((socketa) => {
       socketa.emit('rminvite', data.frId);

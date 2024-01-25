@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { Player, User, user,  user_stats, History } from './Components/types.ts';
+import { getSocket } from './socket.ts'
 
 let player: user | null;
 let history: History[] | null;
@@ -109,6 +110,74 @@ export async function initializeUser() : Promise<Boolean>  {
     } catch (err) {
         console.log(err);
         return false;
+    }
+}
+
+export async function addFriend (id: number) {
+    const socket = getSocket();
+    if(socket)
+    {
+      socket.emit('addFriend', {id: Number(player?.id), frId: id, username: player?.username, avatar: player?.avatar});
+    }
+    try {
+      const response = await axios.post('http://localhost:3000/profile/friend', {
+        id, // replace this with the friend's id
+      }, { withCredentials: true });
+      console.log(response.data.message);
+    } catch (error : any) {
+      console.error(error.response.data);
+    }
+}
+
+export async function blockFriend (id: number) {
+    const socket = getSocket();
+    if(socket)
+    {
+    socket.emit('block', {id: Number(player?.id), frId: id, username: player?.username, avatar: player?.avatar});
+    }
+    try {
+    const response = await axios.post('http://localhost:3000/profile/update/friend', {
+        id, // replace this with the friend's id
+        status: "BLOCKED"
+    }, { withCredentials: true });
+    console.log(response.data.message);
+    } catch (error : any) {
+    console.error(error.response.data);
+    }
+}
+
+export async function acceptFriend (id: number) {
+    const socket = getSocket();
+    if(socket)
+    {
+        socket.emit('acceptFriend', {id: Number(player?.id), frId: id, username: player?.username, avatar: player?.avatar});
+    }
+    try {
+      const response = await axios.post('http://localhost:3000/profile/update/friend', {
+        id,
+        status: "ACCEPTED" // replace this with the friend's id
+      }, { withCredentials: true });
+      console.log(response.data.message);
+    } catch (error : any) {
+      console.error(error.response.data);
+    }
+}
+
+export async function rejectFriend (id: number) {
+    const socket = getSocket();
+    if(socket)
+    {
+        socket.emit('rejectedFriend', {id: Number(player?.id), frId: id, username: player?.username, avatar: player?.avatar});
+    }
+    try {
+      const response = await axios.post('http://localhost:3000/profile/update/friend', {
+        id, // replace this with the friend's id
+        status: "REJECTED"
+      }, { withCredentials: true });
+      console.log(response.data.message);
+      // props.setFriend(null);
+    } catch (error : any) {
+      console.error(error.response.data);
     }
 }
 

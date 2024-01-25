@@ -28,17 +28,39 @@ export class ProfileService {
   }
 
   async addFriend(id: number, invId: number) {
-    const zbi = await this.prisma.friendShip.create({
-      data: {
-        userId: id,
-        friendId: invId,
-      },
-    });
-    return zbi;
+    const status = await this.getFriendStatus(id, invId);
+    if (!status) {
+      const zbi = await this.prisma.friendShip.create({
+        data: {
+          userId: id,
+          friendId: invId,
+        },
+      });
+      return zbi;
+    } else if (status.status === 'REJECTED') {
+      const zbi = await this.prisma.friendShip.update({
+        where: {
+          userId_friendId: {
+            userId: status.userId,
+            friendId: status.friendId,
+          },
+        },
+        data: {
+          userId: id,
+          friendId: invId,
+          status: 'PENDING',
+        },
+      });
+      return zbi;
+    }
   }
 
   async updateStatus(id: number, invId: number, statusStr: string) {
     const status = await this.getFriendStatus(id, invId);
+    console.log(
+      'waaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+      status,
+    );
     if (!status && statusStr !== 'ACCEPTED') {
       const zbi = await this.prisma.friendShip.create({
         data: {
