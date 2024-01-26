@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { TwoFA } from './TwoFA.tsx';
 import { UserProvider } from './UserProvider.tsx';
 
+
 export async function turnOffTwoFactorAuth() {
     await axios.get('http://localhost:3000/auth/twofa/turn-off', { withCredentials: true })
     .then(response => {
@@ -98,7 +99,9 @@ export function Settings() {
                             <label htmlFor="input">Choose a Nickname </label>
                             <input type="text" id="input" name="input" placeholder='ex: John Doe' onChange={(e) => setUsername(e.target.value)} />
                         </div>
-                        <button value="Save" className="filled bt" onClick={onSubmitSettings}> Done </button>
+                        <div className="bt">
+                            <a onClick={onSubmitSettings}> Done </a>
+                        </div>
                     </div>
                 </div> }
                 {twoFA && <TwoFA user={user} onDone={TwofaDone} />}

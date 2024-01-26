@@ -58,7 +58,7 @@ input {
 
 .Config button
 {
-  background-color: rgba(15, 89, 123, 1);
+  /* background-color: rgba(15, 89, 123, 1); */
   border: none;
   text-align: center;
   font-family: 'Raleway-Regular';
@@ -71,10 +71,10 @@ input {
   border-radius: 10px;
 }
 
-.Config button:hover
+/* .Config button:hover
 {
    background-color: rgba(28, 136, 145, 1);
    box-shadow: rgba(0, 0, 0, 0.4) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;
-}
+} */
 
 

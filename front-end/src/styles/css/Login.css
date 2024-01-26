@@ -36,7 +36,7 @@ box-sizing: border-box;
 }
 
 
-.signin button
+/* .signin button
 {
   color: white;
   background-color: rgba(15, 89, 123, 1);
@@ -48,7 +48,7 @@ box-sizing: border-box;
   width: 242px;
   height: 52px;
   border-radius: 10px;
-}
+} */
 
 .signin
 {
@@ -63,11 +63,11 @@ box-sizing: border-box;
 
 }
 
-.signin button:hover
+/* .signin button:hover
 {
    background-color: rgba(28, 136, 145, 1);
    box-shadow: rgba(0, 0, 0, 0.4) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;
-}
+} */
 
 
 .raketa {

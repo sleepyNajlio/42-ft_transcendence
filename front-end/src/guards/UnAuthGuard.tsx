@@ -20,10 +20,7 @@ const UnAuthGuard = ({ component }: { component: ReactNode }) => {
 		console.log('checkToken');
 		axios.get('http://localhost:3000/user', { withCredentials: true })
 		.then((res) => {
-			console.log("unauth guarddd: ", res.data);
-			// msg: no cookies
 			if (res.data.twoFA == true) {
-				console.log("verify azzbi ", res.data);
 				setStatus(true);
 				navigate('/Verify2FA');
 			}
