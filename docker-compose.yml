@@ -1,15 +1,49 @@
-version: '2.4'
+version: '3.8'
 services:
-  frontend:
-    build:
-      context: ./front-end
+  dev-db:
+    image: postgres:13
     ports:
-      - "5173:5173"  # Adjust the ports as needed
-    depends_on:
-      - backend  # This ensures that the backend service starts before the frontend service
+      - 5432:5432
+    env_file: ./back-end/.env
+    container_name: db-container
+    networks:
+      - ft_transcendence
 
-  backend:
+
+  back-end:
+    depends_on:
+        - dev-db
     build:
       context: ./back-end
     ports:
-      - "3000:3000"  # Adjust the ports as needed
+      - 3001:3001
+      - 5555:5555
+      - 8000:8000
+
+    container_name: nest-container
+    volumes:
+       - ./back-end:/back-end
+       - /back-end/node_modules
+    networks:
+      - ft_transcendence
+
+  front-end:
+    depends_on:
+      - dev-db
+      - back-end
+    build:
+      context: ./front-end
+    ports:
+      - 3000:3000
+      - 5556:5556
+      - 8001:8001
+    container_name: react-container
+    volumes:
+       - ./front-end:/front-end
+       - /front-end/node_modules
+    networks:
+      - ft_transcendence
+
+networks:
+  ft_transcendence:
+    driver: bridge

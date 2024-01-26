@@ -10,14 +10,14 @@ export async function getUserInfo(id?: number): Promise<user | null> {
     let response;
     console.log("id: ", id);
     if (!id) {
-        response = await fetch("http://localhost:3000/profile", {
+        response = await fetch(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/profile`, {
             credentials: "include",
             method: "GET",
         });
     }
     else
     {
-        response = await fetch(`http://localhost:3000/profile/friend/${id}`, {
+        response = await fetch(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/profile/friend/${id}`, {
             credentials: "include",
             method: "GET",
         });
@@ -39,7 +39,7 @@ export async function getUserInfo(id?: number): Promise<user | null> {
         if(stats.winsRat === 1 && stats.total_matches >= 5)
             stats.achievement += 1;
         const achievement : number = stats.achievement;
-        const rank: number = (await axios.get(`http://localhost:3000/profile/rank/${res.user.id_player}`, { withCredentials: true })).data;
+        const rank: number = (await axios.get(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/profile/rank/${res.user.id_player}`, { withCredentials: true })).data;
         console.log("rank: ", rank);
         // console.log("achie: ", achievement);
         const user: user = {
@@ -63,7 +63,7 @@ export async function getUserInfo(id?: number): Promise<user | null> {
 
 export async function getRank(): Promise<number> {
     if (player){
-        const rank: number = (await axios.get(`http://localhost:3000/profile/rank/${player?.id}`, { withCredentials: true })).data;
+        const rank: number = (await axios.get(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/profile/rank/${player?.id}`, { withCredentials: true })).data;
         player.rank = rank;
     }
     return player?.rank || 0;
@@ -72,7 +72,7 @@ export async function getRank(): Promise<number> {
 export async function getAchievement(): Promise<number> 
 {
     if (player){
-        const achievement: number = (await axios.get(`http://localhost:3000/profile/achievement/${player?.id}`, { withCredentials: true })).data;
+        const achievement: number = (await axios.get(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/profile/achievement/${player?.id}`, { withCredentials: true })).data;
         player.user_stats.achievement = achievement;
     }
     return player?.user_stats.achievement || 0;
@@ -81,7 +81,7 @@ export async function getAchievement(): Promise<number>
 export async function getMatchHistory(id: number): Promise<History[] | null> {
 
     return new Promise<History[] | null>((resolve, reject) => {
-        axios.get(`http://localhost:3000/profile/history/${id}`, { withCredentials: true })
+        axios.get(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/profile/history/${id}`, { withCredentials: true })
             .then((res) => {
                 const matches: History[] = [];
                 res.data.forEach((match: any) => {
@@ -121,7 +121,7 @@ export async function addFriend (id: number) {
       socket.emit('addFriend', {id: Number(player?.id), frId: id, username: player?.username, avatar: player?.avatar});
     }
     try {
-      const response = await axios.post('http://localhost:3000/profile/friend', {
+      const response = await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/profile/friend`, {
         id, // replace this with the friend's id
       }, { withCredentials: true });
       console.log(response.data.message);
@@ -137,7 +137,7 @@ export async function blockFriend (id: number) {
     socket.emit('block', {id: Number(player?.id), frId: id, username: player?.username, avatar: player?.avatar});
     }
     try {
-    const response = await axios.post('http://localhost:3000/profile/update/friend', {
+    const response = await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/profile/update/friend`, {
         id, // replace this with the friend's id
         status: "BLOCKED"
     }, { withCredentials: true });
@@ -154,7 +154,7 @@ export async function acceptFriend (id: number) {
         socket.emit('acceptFriend', {id: Number(player?.id), frId: id, username: player?.username, avatar: player?.avatar});
     }
     try {
-      const response = await axios.post('http://localhost:3000/profile/update/friend', {
+      const response = await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/profile/update/friend`, {
         id,
         status: "ACCEPTED" // replace this with the friend's id
       }, { withCredentials: true });
@@ -171,7 +171,7 @@ export async function rejectFriend (id: number) {
         socket.emit('rejectedFriend', {id: Number(player?.id), frId: id, username: player?.username, avatar: player?.avatar});
     }
     try {
-      const response = await axios.post('http://localhost:3000/profile/update/friend', {
+      const response = await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/profile/update/friend`, {
         id, // replace this with the friend's id
         status: "REJECTED"
       }, { withCredentials: true });
@@ -199,7 +199,7 @@ export async function getHistory() : Promise<History[]> {
 }
 
 export async function getRanks() : Promise<user[]> {
-    const res = await axios.get("http://localhost:3000/profile/ranks", { withCredentials: true });
+    const res = await axios.get(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/profile/ranks`, { withCredentials: true });
     console.log("ranks: ", res.data);
     const ranks: user[] = [];
     let achi: number = 0;

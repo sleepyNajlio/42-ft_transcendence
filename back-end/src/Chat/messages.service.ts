@@ -134,6 +134,15 @@ export class MessagesService {
   }
 
   async getChatUsers(name: string, id: number) {
+
+    const blocked = await this.prisma.friendShip.findMany({
+      where: {
+        OR: [{ userId: id }, { friendId: id }],
+        status: 'BLOCKED',
+      },
+    });
+
+
     const chat = await this.prisma.chat.findFirst({
       where: {
         name: name,
@@ -144,6 +153,14 @@ export class MessagesService {
         NOT: {
           userId: id,
         },
+        OR: [
+          {
+            AND: [
+              { userId: { notIn: blocked.map((user) => user.userId) } },
+              { userId: { notIn: blocked.map((user) => user.friendId) } },
+            ],
+          },
+        ],
         chatId: chat.id_chat,
       },
       include: {

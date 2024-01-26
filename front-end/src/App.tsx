@@ -90,12 +90,12 @@ function App()
                     return;
                 }
                 setInvite(inviteStatus.ACCEPTED);
-                let gameId = await axios.get(`http://localhost:3000/game/${inviter.user_id}/getgame/SEARCHING`, { withCredentials: true });
+                let gameId = await axios.get(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/game/${inviter.user_id}/getgame/SEARCHING`, { withCredentials: true });
                 console.log('gameId: ', gameId);
                 gameId = gameId.data.id_game;
-                console.log('gameId: ', gameId);
-                await axios.post(`http://localhost:3000/game/${gameId}/joinGame`, {userId: user?.id},  { withCredentials: true });
-                await axios.post(`http://localhost:3000/game/${gameId}/updateGame`, {status: 'PLAYING'},  { withCredentials: true });
+                console.log('gameId: ', gameId);                
+                await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/game/${gameId}/joinGame`, {userId: user?.id},  { withCredentials: true });
+                await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/game/${gameId}/updateGame`, {status: 'PLAYING'},  { withCredentials: true });
             });
         }
     };

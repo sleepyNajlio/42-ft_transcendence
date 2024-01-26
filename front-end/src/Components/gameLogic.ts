@@ -351,14 +351,14 @@ export default function game(socket: Socket, dificulty: number = 10, gameId: num
       pGuest.score = data.playerRight;
       scoreLeft.text(pHost.score.toString())
       scoreRight.text(pGuest.score.toString())
-      // let gameId : any = await axios.get(`http://localhost:3000/game/${user.id_player}/getgame/PLAYING`, { withCredentials: true });
+      // let gameId : any = await axios.get(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/game/${user.id_player}/getgame/PLAYING`, { withCredentials: true });
       // if (gameId && gameId.data && !Number.isNaN(gameId.data.id_game))
       // {
       //   gameId = gameId.data.id_game;
       //   console.log("sending gameId", gameId);
-      //   await axios.post(`http://localhost:3000/game/${gameId}/updateGame`,{status: "FINISHED"}, { withCredentials: true });
-      //   await axios.post(`http://localhost:3000/game/${gameId}/${data.winnerId}/updateUserGame`,{win : 1, score: Math.max(pHost.score, pGuest.score)}, { withCredentials: true });
-      //   await axios.post(`http://localhost:3000/game/${gameId}/${data.loserId}/updateUserGame`,{win : 0, score: Math.min(pHost.score, pGuest.score)}, { withCredentials: true });
+      //   await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/game/${gameId}/updateGame`,{status: "FINISHED"}, { withCredentials: true });
+      //   await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/game/${gameId}/${data.winnerId}/updateUserGame`,{win : 1, score: Math.max(pHost.score, pGuest.score)}, { withCredentials: true });
+      //   await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/game/${gameId}/${data.loserId}/updateUserGame`,{win : 0, score: Math.min(pHost.score, pGuest.score)}, { withCredentials: true });
       // }
       console.log("winnerId", data.winnerId);
       console.log("loserId", data.loserId);

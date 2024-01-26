@@ -16,7 +16,7 @@ const AuthGuard = ({ component }: { component: ReactNode }) => {
 	
 	
 	const checkToken = async () => {
-		await axios.get('http://localhost:3000/user', { withCredentials: true })
+		await axios.get(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/user`, { withCredentials: true })
 		.then(res => {
 			if (res.data.twoFA == true) {
 				// console.log("verify azzbi ", res.data);

@@ -11,7 +11,7 @@ import UploadAndDisplayImage from './Components/uploadimage';
 
 async function finishSignup(email: string, username: string, avatar: string): Promise<any> {
   try {
-    const response = await fetch("http://localhost:3000/auth/finish_signup", {
+    const response = await fetch(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/auth/finish_signup`, {
       credentials: "include",
       method: "POST",
       headers: {
@@ -40,7 +40,7 @@ async function finishSignup(email: string, username: string, avatar: string): Pr
 
 async function getPreAuthData() {
   const cookie = Cookies.get(); // Get all cookies
-  const response = await fetch("http://localhost:3000/user", {
+  const response = await fetch(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/user`, {
     credentials: "include",
     method: "GET",
     headers: {

@@ -16,19 +16,6 @@ import { inviteStatus } from './types.ts';
 import UserInfo from './UserInfo.tsx';
 import { get } from 'svg.js';
 
-async function logout() {
-    axios.get('http://localhost:3001/auth/logout', { withCredentials: true })
-    .then((res) => {
-        console.log(res);
-        window.location.reload();
-    })
-    .catch((err) => {
-        console.log(err);
-    })
-
-    }
-
-
 
 export default function Navbar(props: any) {
     const [searchQuery, setSearchQuery] = useState('');
@@ -42,7 +29,7 @@ export default function Navbar(props: any) {
 
     const getPlayers = async () => {
         try {
-          const response = await fetch('http://localhost:3000/profile/notblocked', {
+          const response = await fetch(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/profile/notblocked`, {
             credentials: "include",
             method: "GET",
           });
@@ -225,7 +212,7 @@ export default function Navbar(props: any) {
                     <span className="name">{user && user.username}</span>
                 </div>
                 <div style={{ flexDirection: 'row-reverse', display: 'flex' }}>
-                    <a href="http://localhost:3000/user/logout">
+                    <a href={`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/user/logout`}>
                     <div style={{ display: 'flex', flexDirection: 'row-reverse' }}>
                         <img width="40" height="40" src={exit} alt="Search Icon"/>
                     </div>

@@ -147,11 +147,11 @@ export function Chat(props : any) { // get values from data base
                     return null;
                 }
                 const updatedRooms = prevRooms.map((room) => {
-                    if (room.id_chat === message.chatId && !isUserBanned) {
+                    if (room.id_chat === message.chatId && !isUserBanned && !isBlocked) {
                         return {
                             ...room,
                             lastMessage: room.lastMessage
-                                ? {
+                                  ? {
                                       ...room.lastMessage,
                                       message: message.message,
                                       user: {
@@ -160,6 +160,7 @@ export function Chat(props : any) { // get values from data base
                                       },
                                   }
                                 : {
+
                                       message: message.message,
                                       user: {
                                           username: message.user.username,

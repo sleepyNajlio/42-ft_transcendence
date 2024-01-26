@@ -13,7 +13,7 @@ const UploadAndDisplayImage = (props: any) => {
         formData.append('file', file);
     
         try {
-            const response = await axios.post('http://localhost:3000/user/avatar', formData, {
+            const response = await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/user/avatar`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 },

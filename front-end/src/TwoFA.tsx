@@ -20,7 +20,7 @@ export function TwoFA(props: any) {
       if (inputKolo.length === 6) {
         // // Assuming you want to navigate when the input length is 6
         console.log(inputKolo);
-        axios.post(`http://localhost:3000/auth/twofa/turn-on`, {"twoFaCode":inputKolo}, { withCredentials: true })
+        axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/auth/twofa/turn-on`, {"twoFaCode":inputKolo}, { withCredentials: true })
         .then(response => {
           console.log(response.data);
           if (response.data.success) {
@@ -176,7 +176,7 @@ export function TwoFA(props: any) {
       <div className="lll">
         {/* <div className="cercle"></div> */}
         { error && <p className="error">{error}</p> }
-        <img src={`http://localhost:3000/auth/twofa/generate`} alt="Profile"/>
+        <img src={`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/auth/twofa/generate`} alt="Profile"/>
         {/* <input type="number" placeholder="Enter your phone number.." /> */}
         <div className="TFnumbers" style={{display: 'flex', flexDirection: 'row', gap: '10px', alignItems: 'center', justifyContent: 'center', width: '20%'}}>
         {inputRefs.map((ref, index) => (
