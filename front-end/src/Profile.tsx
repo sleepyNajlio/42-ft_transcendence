@@ -9,8 +9,7 @@ import { History } from './Components/types.ts';
 
 
 export function Profile(props: {setFriend: React.Dispatch<React.SetStateAction<user | null>> ,freind?: user | null, fhistory: History[] | null }) {
-  const { user, history, initialize } = useContext(UserContext);
-
+  const { user, history } = useContext(UserContext);
   const [tempuser, setTempuser] = useState({
     id: "1",
     username: "Buffalo",
@@ -37,7 +36,7 @@ export function Profile(props: {setFriend: React.Dispatch<React.SetStateAction<u
       console.log("hstoire: ");
       console.log(history);
     }
-    // console.log("user: ");
+    console.log("user updated: ");
     // console.log(user);
     // console.log("tempuser: ");
     // console.log(tempuser);
@@ -47,9 +46,9 @@ export function Profile(props: {setFriend: React.Dispatch<React.SetStateAction<u
     '(min-width: 769px)'
   );
   useEffect(() => {
-    console.log("mounted");
+    console.log("profile mounted");
     return () => {
-      console.log("unmounted");
+      console.log("profile unmounted");
     };
   } , []);
   // const [user1, setUser] = useState<User | null>(null);

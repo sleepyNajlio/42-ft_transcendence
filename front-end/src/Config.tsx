@@ -125,7 +125,7 @@ return (
                     setUsername(e.target.value);
                   }}
               ></input>
-              <button value="/profile" type="submit" onClick={() => submitForm('/profile')}> Done </button>
+              <button value="/profile" type="submit" onClick={() => submitForm('/Profile')}> Done </button>
               <Button value="/TwoFA" link="#" msg="Enable 2FA" onClick={() => setTwoFa(true)}/>
             </form>
           </div>
