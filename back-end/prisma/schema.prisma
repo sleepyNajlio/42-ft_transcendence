@@ -127,6 +127,7 @@ enum GameStatus {
 enum PlayerStatus {
   ONLINE
   OFFLINE
+  INGAME
 }
 
 enum RelationStatus {

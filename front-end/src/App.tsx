@@ -159,18 +159,34 @@ function App()
             socket.on('blocked', (data: any) => handleBlocked(data));
             socket.on('accepted', (data: any) => handleAccepted(data));
             socket.on('rejected', (data: any) => handleRejected(data));
+            socket.on('status', (data: any) => handleStatus(data));
             return () => {
                 socket.off('invited', handleInvited);
                 socket.off('rminvite', handleRmInvite);
                 socket.off('blocked', handleBlocked);
                 socket.off('rejected', handleRejected);
                 socket.off('accepted', handleAccepted);
+                socket.off('status', handleStatus);
             };
         }
         else
             console.log('no socket');
         // Clean up the event listener on unmount
     }, [socket]);
+    const handleStatus = (data: {id_player: number, status: string}) => {
+        console.log("status ", data);
+        setProfile((prevProfile: user | null) => {
+            console.log("prevProfile ", prevProfile);
+            if (!prevProfile || Number(prevProfile.id) !== data.id_player) {
+                console.log("didn't find profile", prevProfile?.id,);
+                return prevProfile;
+            }
+            return {
+                ...prevProfile,
+                status: data.status,
+            };
+        });
+    }
     const handleRejected = (data: any) => {
         setInviters(prevInviters => prevInviters.filter((inviter) => inviter.user_id !== data.user_id && inviter.type !== NotifType.INVITE));
         setInviters(prevInviters => [...prevInviters, {user_id: data.user_id, avatar: data.avatar, username: data.username, type: data.type, paddle: data.paddle}]);

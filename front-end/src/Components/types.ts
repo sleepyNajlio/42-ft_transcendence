@@ -20,6 +20,7 @@ export type user = {
   achievement: number;
   user_stats: user_stats;
   friend?: {userId: number, friendId: number, status: "PENDING" | "ACCEPTED" | "REJECTED" | "BLOCKED"; };
+  status: string;
   // Add other properties as needed
 };
 

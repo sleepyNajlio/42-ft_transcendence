@@ -380,6 +380,8 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         bball: this.games[gameId].ball,
         gameId: null,
       });
+      this.socketGateway.updateStatus(Number(player1.userId), 'INGAME');
+      this.socketGateway.updateStatus(Number(player2.userId), 'INGAME');
       return { id: player1.userId == userId ? player2.userId : player1.userId };
     } else return { id: null };
   }
@@ -664,6 +666,8 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         bball: this.games[gameId].ball,
         gameId: this.players[data.userId].gameId,
       });
+      this.socketGateway.updateStatus(Number(data.userId), 'INGAME');
+      this.socketGateway.updateStatus(Number(data.adv_id), 'INGAME');
       this.notifs[data.userId]?.map((player) => {
         this.socketGateway.getClientSocket(player.user_id)?.map((socketa) => {
           socketa.emit('rminvite', data.adv_id);
@@ -940,6 +944,8 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
             loserId,
             gamed,
           });
+          this.socketGateway.updateStatus(Number(winnerId), 'ONLINE');
+          this.socketGateway.updateStatus(Number(loserId), 'ONLINE');
         }
       } else {
         // Emit the 'ballVel' event to players in the game to update the ball

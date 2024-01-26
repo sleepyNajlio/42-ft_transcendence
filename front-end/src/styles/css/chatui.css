@@ -8,10 +8,12 @@
   .gauche {
   flex: 1;
   background-color: white;
-
+  display: flex;
   max-width: 70%;
   border: 1px solid #ccc;
   border-radius: 4px 0 0 4px;
+  align-items: center;
+  justify-content: center;
   /* Apply a blur effect when welcomeMsg is true */
   /* backdrop-filter: blur(100vw); */
 }
@@ -21,9 +23,6 @@
   padding: 70px;
   border-radius: 33px;
   text-align: center;
-  margin-top: 426px;
-  margin-left: 165px;
-  margin-right: 165px;
   animation: slideIn 1s ease-in-out, pulse 2s infinite;
   color: #fcf9f9;
 }
@@ -64,7 +63,7 @@
     height: 100vh;
     display: flex;
     flex-direction: column;
-    max-width: 100%;
+    width: 100%;
     /* Ajoutez d'autres styles selon vos besoins pour la disposition verticale des enfants */
   }
   .messagate

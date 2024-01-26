@@ -50,6 +50,7 @@ export async function getUserInfo(id?: number): Promise<user | null> {
             achievement: achievement,
             user_stats: stats,
             friend: res.state,
+            status: res.user.status,
         };
         return user;
     } else {
@@ -224,6 +225,7 @@ export async function getRanks() : Promise<user[]> {
             avatar: rank.avatar,
             achievement: achi,
             user_stats: stats,
+            status: "",
         };
         ranks.push(user);
     });

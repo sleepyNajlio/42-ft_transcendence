@@ -4,7 +4,7 @@ import { UserContext } from '../UserProvider';
 import { user } from './types';
 import { rejectFriend, addFriend, blockFriend, acceptFriend } from '../player';
 
-export function ProfilInfo(props : {setFriend:React.Dispatch<React.SetStateAction<user | null>>, id: string | undefined ,state: {userId:number, friendId:number, status:string} | undefined, name: string, rank: number, image: string}){
+export function ProfilInfo(props : {status: string, setFriend:React.Dispatch<React.SetStateAction<user | null>>, id: string | undefined ,state: {userId:number, friendId:number, status:string} | undefined, name: string, rank: number, image: string}){
   const {user} = useContext(UserContext);
   const [status, setstatus] = useState(props.state?.status)
   const [newRequest, setNewRequest] = useState(false);
@@ -48,6 +48,7 @@ export function ProfilInfo(props : {setFriend:React.Dispatch<React.SetStateActio
       <div className="profil__user">
         <h4 className="profil__username">{props.name}</h4>
         <h6 className="profil__rank">#{props.rank}</h6>
+        <h2 className="profil__status">{props.status}</h2>
         {
           (props.name !== user?.username) && (
             (!status || status === "REJECTED") ? (

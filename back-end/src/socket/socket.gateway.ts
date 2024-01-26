@@ -41,7 +41,7 @@ export class SocketGateway
 
     // Extract user ID from query parameter
     const userId = client.handshake.query.userId as string;
-
+    this.updateStatus(Number(userId), 'ONLINE');
     // Associate the user with this socket
     if (!this.userSockets.has(userId)) {
       this.userSockets.set(userId, []);
@@ -63,14 +63,34 @@ export class SocketGateway
         // If no more sockets are associated with the user, remove the user entry
         if (userSockets.length === 0) {
           this.userSockets.delete(userId);
-          this.socketService.updateUserStatus(
-            Number(client.handshake.query.userId),
-            'OFFLINE',
-          );
+          this.updateStatus(Number(userId), 'OFFLINE');
         }
         console.log('userSockets', this.userSockets);
       }
     }
+  }
+
+  updateStatus(playerId: number, status: string) {
+    this.socketService.updateUserStatus(playerId, status).then((res) => {
+      this.socketService.getFriends(playerId).then((res) => {
+        res.map((friend) => {
+          const friendId =
+            friend.userId === playerId
+              ? friend.friendId.toString()
+              : friend.userId.toString();
+          const friendSockets = this.userSockets.get(friendId);
+          if (friendSockets) {
+            friendSockets.map((friendSocket) => {
+              friendSocket.emit('status', {
+                id_player: playerId,
+                status: status,
+              });
+            });
+          }
+        });
+      });
+      console.log('updateUserStatus', res);
+    });
   }
 
   // @SubscribeMessage('logedIn')
