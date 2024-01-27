@@ -158,6 +158,8 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
           gameStatus.ABORTED,
         );
         // remove the game from this.games
+        this.socketGateway.updateStatus(Number(userId), 'ONLINE');
+        this.socketGateway.updateStatus(Number(opponentId), 'ONLINE');
         this.socketGateway.getClientSocket(userId)?.map((socketa) => {
           if (socketa.id !== client.id) {
             socketa.emit('InitializeGame');
@@ -507,18 +509,14 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('acceptFriend')
   handelAcceptFriend(client: Socket, data: any) {
     console.log(data.frId, 'accepted ', data.id);
+    this.logger.log(this.notifs);
     if (!this.notifs[data.frId]) {
       this.notifs[data.frId] = [];
-    } else {
-      this.notifs[data.frId] = this.notifs[data.frId].filter(
-        (player) =>
-          player.user_id !== data.id && player.type !== NotifType.INVITE,
-      );
     }
     if (this.notifs[data.id]) {
       this.notifs[data.id] = this.notifs[data.id].filter(
-        (player) =>
-          player.user_id !== data.frId && player.type !== NotifType.INVITE,
+        (notif) =>
+          notif.user_id !== data.frId && notif.type !== NotifType.INVITE,
       );
     }
     const newNotification = {

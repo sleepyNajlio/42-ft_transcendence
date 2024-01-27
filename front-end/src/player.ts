@@ -116,14 +116,14 @@ export async function initializeUser() : Promise<Boolean>  {
 
 export async function addFriend (id: number) {
     const socket = getSocket();
-    if(socket)
-    {
-      socket.emit('addFriend', {id: Number(player?.id), frId: id, username: player?.username, avatar: player?.avatar});
-    }
     try {
-      const response = await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/profile/friend`, {
-        id, // replace this with the friend's id
-      }, { withCredentials: true });
+        const response = await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/profile/friend`, {
+            id, // replace this with the friend's id
+        }, { withCredentials: true });
+        if(socket)
+        {
+          socket.emit('addFriend', {id: Number(player?.id), frId: id, username: player?.username, avatar: player?.avatar});
+        }
       console.log(response.data.message);
     } catch (error : any) {
       console.error(error.response.data);
@@ -132,15 +132,15 @@ export async function addFriend (id: number) {
 
 export async function blockFriend (id: number) {
     const socket = getSocket();
-    if(socket)
-    {
-    socket.emit('block', {id: Number(player?.id), frId: id, username: player?.username, avatar: player?.avatar});
-    }
     try {
-    const response = await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/profile/update/friend`, {
-        id, // replace this with the friend's id
-        status: "BLOCKED"
-    }, { withCredentials: true });
+        const response = await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/profile/update/friend`, {
+            id, // replace this with the friend's id
+            status: "BLOCKED"
+        }, { withCredentials: true });
+        if(socket)
+        {
+        socket.emit('block', {id: Number(player?.id), frId: id, username: player?.username, avatar: player?.avatar});
+        }
     console.log(response.data.message);
     } catch (error : any) {
     console.error(error.response.data);
@@ -149,16 +149,16 @@ export async function blockFriend (id: number) {
 
 export async function acceptFriend (id: number) {
     const socket = getSocket();
-    if(socket)
-    {
-        socket.emit('acceptFriend', {id: Number(player?.id), frId: id, username: player?.username, avatar: player?.avatar});
-    }
     try {
-      const response = await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/profile/update/friend`, {
-        id,
-        status: "ACCEPTED" // replace this with the friend's id
-      }, { withCredentials: true });
-      console.log(response.data.message);
+        const response = await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/profile/update/friend`, {
+            id,
+            status: "ACCEPTED" // replace this with the friend's id
+        }, { withCredentials: true });
+        if(socket)
+        {
+            socket.emit('acceptFriend', {id: Number(player?.id), frId: id, username: player?.username, avatar: player?.avatar});
+        }
+        console.log(response.data.message);
     } catch (error : any) {
       console.error(error.response.data);
     }
@@ -166,15 +166,15 @@ export async function acceptFriend (id: number) {
 
 export async function rejectFriend (id: number) {
     const socket = getSocket();
-    if(socket)
-    {
-        socket.emit('rejectedFriend', {id: Number(player?.id), frId: id, username: player?.username, avatar: player?.avatar});
-    }
     try {
-      const response = await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/profile/update/friend`, {
-        id, // replace this with the friend's id
-        status: "REJECTED"
-      }, { withCredentials: true });
+        const response = await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/profile/update/friend`, {
+            id, // replace this with the friend's id
+            status: "REJECTED"
+        }, { withCredentials: true });
+        if(socket)
+        {
+            socket.emit('rejectedFriend', {id: Number(player?.id), frId: id, username: player?.username, avatar: player?.avatar});
+        }
       console.log(response.data.message);
       // props.setFriend(null);
     } catch (error : any) {

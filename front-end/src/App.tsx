@@ -41,7 +41,7 @@ enum NotifType {
 function App()
 {
     const location = useLocation();
-    
+
     const [invite, setInvite] = useState<inviteStatus>(inviteStatus.NONE);
     const [inviters, setInviters] = useState<{user_id:string, avatar: string, username: string, type: NotifType}[]>([]);
     const [inPlay, setInPlay] = useState(false);
@@ -266,7 +266,6 @@ function App()
 
     const handleAccepted = (data: any) => {
         // filter out previous inviters with same user_id and type === NotifType.INVITE
-        setInviters(prevInviters => prevInviters.filter((inviter) => inviter.user_id !== data.user_id && inviter.type !== NotifType.INVITE));
         setInviters(prevInviters => [...prevInviters, {user_id: data.user_id, avatar: data.avatar, username: data.username, type: data.type, paddle: data.paddle}]);
         if (data.type === NotifType.ACCEPTED)
         {
@@ -326,7 +325,7 @@ function App()
                                     <Route key='testchat' path='/Testchat' caseSensitive={true} element={<TestChat />} />
                                     <Route key='Profile' path='/Profile' caseSensitive={true} element={<Profile setFriend={setProfile} freind={profile} fhistory={history} />} />
                                     <Route key='Play' path='/Play' caseSensitive={true} element={<Play setInPlay={setInPlay} inviter={inviter} setInviter={setInviter}/>} />
-                                    <Route key='Chat' path='/Chat' caseSensitive={true} element={<Chat setProfile={setProfile} setHistory={setHistory} setInviter={setInviter}/>} />
+                                    <Route key='Chat' path='/Chat' caseSensitive={true} element={<Chat setProfile={setProfile} setHistory={setHistory} setInviter={setInviter} invite={invite} inviters={inviters}/>} />
                                     <Route key='Chat' path='/test' caseSensitive={true} element={<ButtonsComponent />} />
                                     <Route key='Settings' path='/Settings' caseSensitive={true} element={<Settings />} />
                                     <Route key='Leaderboard' path='/Leaderboard' caseSensitive={true} element={<Leaderboard />} />

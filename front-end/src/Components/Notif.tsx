@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import './Notif.css';
 import GamePattern from './Pattern.tsx';
 import { useNavigate } from 'react-router-dom';
-import { user } from './types.ts';
+import { inviteStatus, user } from './types.ts';
 import { rejectFriend, addFriend, blockFriend, acceptFriend } from '../player';
 
 
@@ -22,15 +22,15 @@ interface inviters
 interface NotificationProps {
     inviters : inviters[];
     inviteResp : (resp: Boolean, inviter: any) => void;
-    inviteStatus :(resp : any) => void;
     setProfile : React.Dispatch<React.SetStateAction<user | null>>
     Notifs: Boolean;
     NotifContainer : string;
     setNotifContainer : (resp : string) => void;
+    setInvite : React.Dispatch<React.SetStateAction<inviteStatus>>;
     // adders : adders[];
 }
 
-const Notification: React.FC<NotificationProps> = ({inviters, inviteResp, inviteStatus, Notifs, NotifContainer, setNotifContainer, setProfile}) => {
+const Notification: React.FC<NotificationProps> = ({setInvite, inviters, inviteResp, Notifs, NotifContainer, setNotifContainer, setProfile}) => {
     // setNotifContainer('notif-container');
     const psvgRef = useRef<HTMLDivElement>(null); // Declare psvgRef using useRef hook
     useEffect(() => {
@@ -53,7 +53,8 @@ const Notification: React.FC<NotificationProps> = ({inviters, inviteResp, invite
                 },
             };
         });
-        acceptFriend(id);
+        await acceptFriend(id);
+        setInvite(inviteStatus.ACCEPTED);
     }
 
     const HandleReject = async (id: number) => {

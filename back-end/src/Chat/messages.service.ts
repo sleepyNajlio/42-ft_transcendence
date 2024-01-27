@@ -134,14 +134,12 @@ export class MessagesService {
   }
 
   async getChatUsers(name: string, id: number) {
-
     const blocked = await this.prisma.friendShip.findMany({
       where: {
         OR: [{ userId: id }, { friendId: id }],
         status: 'BLOCKED',
       },
     });
-
 
     const chat = await this.prisma.chat.findFirst({
       where: {
@@ -711,16 +709,23 @@ export class MessagesService {
       where: {
         type: 'PRIVATE',
         name: null,
+        users: {
+          some: {
+            userId: id,
+          },
+        },
       },
     });
     const users = await this.prisma.player.findMany({
       where: {
         id_player: { in: friendsIds },
       },
-    });
-    const chatUsers = await this.prisma.chatUser.findMany({
-      where: {
-        chatId: { in: chats.map((room) => room.id_chat) },
+      include: {
+        chats: {
+          select: {
+            chatId: true,
+          },
+        },
       },
     });
     const lastMessages = await this.prisma.chatMessage.findMany({
@@ -740,18 +745,33 @@ export class MessagesService {
     });
     // console.log('last Messages is: ');
     // console.log(lastMessages);
+    const lastMesssage = [];
+    chats.map((chat) => {
+      lastMesssage.push(
+        lastMessages.find((message) => message.chatId === chat.id_chat),
+      );
+      console.log('last message from chatmap is: ');
+      console.log(lastMesssage);
+    });
 
     return users.map((user) => {
-      const chatUser = chatUsers.find(
-        (chatUser) =>
-          chatUser.userId === user.id_player || chatUser.userId === id,
-      );
-      const lastMessage = lastMessages.find(
-        (message) => message.userId === user.id_player || message.userId === id,
-      );
+      let lastMessage = null;
+      // console.log('chats are: ');
+      // console.log(chats);
+      lastMesssage.map((message) => {
+        if (message) {
+          if (
+            (message.userId === user.id_player || message.userId === id) &&
+            user.chats.find((chat) => chat.chatId === message.chatId)
+          ) {
+            lastMessage = message;
+          }
+        }
+      });
+      // console.log('last message is: ');
+      // console.log(lastMessage);
       return {
         ...user,
-        chatUser: chatUser,
         lastMessage: lastMessage,
       };
     });

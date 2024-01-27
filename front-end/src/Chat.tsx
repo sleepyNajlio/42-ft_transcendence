@@ -72,6 +72,7 @@ export function Chat(props : any) { // get values from data base
     const [userAdded, setUserAdded] = useState(false);
     const [RoomAdded, setRoomAdded] = useState("");
     const [timeoutId, setTimeoutid] = useState<NodeJS.Timeout | null > (null);
+    const [selectedDm, setSelectedDm] = useState("");
 
     const { addToast } = useToasts();
 
@@ -176,6 +177,7 @@ export function Chat(props : any) { // get values from data base
 
             setJoined(false);
             setShowRoom(true);
+            if (ShowDm) setShowDm(false);
             setwelcomeMsg(false);
             setDisplayRoom(true);
             // selectedPswd && setSelectedPswd("");
@@ -216,7 +218,7 @@ export function Chat(props : any) { // get values from data base
             }
             setFriends((prevFriends) => {
                 const updatedFriends = prevFriends.map((friend) => {
-                    if (friend.username === message.user.username || friend.username === message.user.username) {
+                    if (friend.username === message.user.username || (name && friend.username === name)) {
                         return {
                             ...friend,
                             lastMessage: {
@@ -291,13 +293,7 @@ export function Chat(props : any) { // get values from data base
         let id : number;
         id = Number(user?.id);
         socket?.emit('DisplayRoom', { id },  (response : Room[]) => {
-            // console.log('rooms in display room :')
-            // console.log(response);
             setRooms(response);
-            // setIsOwner(true);
-            // setDisplayDms(false);
-            // setDisplayRoom(true);
-            // DisplayRooms(response);
         });
         
             socket?.on('rooms', (room) => {
@@ -310,8 +306,6 @@ export function Chat(props : any) { // get values from data base
                 });
                 
             });
-            // setDisplayDms(true);
-            // setDisplayDms(false);
     return () => {
         socket?.off('rooms');
     };
@@ -319,6 +313,7 @@ export function Chat(props : any) { // get values from data base
 
     useEffect(() => {
         // console.log("use effect called in show Dms");
+        if (!DisplayDms) return;
         let id : number;
         id = Number(user?.id);
         socket?.emit('Friends', { id },  (response : any) => {
@@ -355,7 +350,7 @@ export function Chat(props : any) { // get values from data base
                 console.log("user " + user?.id + " will add the room " + response.name + " with room " + response.id);
                 socket?.emit('DisplayRoom', {id},  (response : Room[]) => {
                     setRooms(response);
-                });
+                }); 
                 if (user?.id != response.userId)
                 {
                     if (selectedRoom && selectedRoom.id_chat === response.id)
@@ -759,35 +754,35 @@ export function Chat(props : any) { // get values from data base
 
     });
 
-    useEffect(() => {
+    // useEffect(() => {
 
-        socket?.on('blocked', (response : any) => {
-            let id = Number(user?.id);
-            socket?.emit('Friends', { id },  (friends : any) => {
-                console.log('response got in blocked: ', response);
+    //     socket?.on('blocked', (response : any) => {
+    //         let id = Number(user?.id);
+    //         socket?.emit('Friends', { id },  (friends : any) => {
+    //             console.log('response got in blocked: ', response);
 
-                console.log('user: ' , user?.username + 'is in the dm with ' , name , ' and blocked by ', response.username);
-                // console.log('friendss after blocked :')
-                if (name && name === response.username)
-                {
-                    console.log("user is and the dm that he is blocked from");
-                    setFriends(friends.filter((friend : any) => friend.username !== response.username));
-                    // setDisplayDms(!DisplayDms);
-                    setShowDm(!ShowDm);
-                    setwelcomeMsg(true);
-                }
-                else
-                {
-                    setFriends(friends.filter((friend : any) => friend.username !== response.username));
-                }
+    //             console.log('user: ' , user?.username + 'is in the dm with ' , name , ' and blocked by ', response.username);
+    //             // console.log('friendss after blocked :')
+    //             if (name && name === response.username)
+    //             {
+    //                 console.log("user is and the dm that he is blocked from");
+    //                 setFriends(friends.filter((friend : any) => friend.username !== response.username));
+    //                 // setDisplayDms(!DisplayDms);
+    //                 setShowDm(!ShowDm);
+    //                 setwelcomeMsg(true);
+    //             }
+    //             else
+    //             {
+    //                 setFriends(friends.filter((friend : any) => friend.username !== response.username));
+    //             }
 
-                // console.log(friends);
-            });
-        });
-        return () => {
-            socket?.off('blocked');
-        }
-    });
+    //             // console.log(friends);
+    //         });
+    //     });
+    //     return () => {
+    //         socket?.off('blocked');
+    //     }
+    // });
 
     useEffect(() => {
 
@@ -983,7 +978,39 @@ export function Chat(props : any) { // get values from data base
         setRoomPassword(event.target.value);
     };
 
-
+    useEffect(() => {
+        if (props.inviters.length === 0) return;
+        const lastnotif = props.inviters[props.inviters.length - 1];
+        console.log("last notif is : ");
+        console.log(lastnotif);
+        socket?.emit('Friends', { id: user?.id },  (response : any) => {
+            console.log(response);
+            if (lastnotif?.type === 'BLOCKED')
+            {
+                console.log('friends in blocked: ')
+                if (name && name === lastnotif.username)
+                {
+                    console.log("user is and the dm that he is blocked from");
+                    setFriends(response.filter((friend : any) => friend.username !== response.username));
+                    // setDisplayDms(!DisplayDms);
+                    setShowDm(!ShowDm);
+                    setwelcomeMsg(true);
+                }
+                else
+                {
+                    setFriends(response.filter((friend : any) => friend.username !== response.username));
+                }
+            }
+            else
+            {
+                console.log('friends in accepted: ')
+                setFriends(response);
+            }
+        });
+        return () => {
+            // socket?.off('accepted');
+        }
+    }, [props.inviters, props.invite])
 
 
     // for joining room

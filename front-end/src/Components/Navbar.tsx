@@ -132,10 +132,10 @@ export default function Navbar(props: any) {
         (props.invite === inviteStatus.INVITED || (Notifs && NotifContainer === "notif-container") || (!Notifs && NotifContainer === "notifmacontainer")) && 
         (
         <Notification
+            setInvite={props.setInvite}
             setProfile={props.setProfile}
             inviters={props.inviters}
             inviteResp={props.inviteResp}
-            inviteStatus={props.inviteStatus}
             Notifs={Notifs}
             NotifContainer={NotifContainer}
             setNotifContainer={setNotifContainer} // Add setNotifContainer as a prop

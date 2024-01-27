@@ -1,23 +1,12 @@
-id
-ls -la
-
 chown -R node:node ./
 
-npm install
+su node -c 'sleep 2 && id'
+su node -c 'npm install'
+su node -c 'npx -y prisma generate'
+su node -c 'npx -y prisma migrate dev'
 
-npx -y prisma generate
+# Start the Nest.js application in the background as the node user
+su node -c 'npm run start:dev' &
 
-npx -y prisma migrate dev
-
-# NOTE:
-#
-# prisma studio is a simple tabular interface 
-# you can use it to have a look at the data of our local database
-# and check if the app is working correctly.
-# 
-# prisma studio service is exposed on port 5555
-# and allow direct read/write operation to the database
-# 
-npx prisma studio &
-
-npm run start:dev
+# Start Prisma Studio in the foreground as the node user
+su node -c 'npx prisma studio'

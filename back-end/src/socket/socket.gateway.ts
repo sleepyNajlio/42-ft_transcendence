@@ -32,18 +32,12 @@ export class SocketGateway
     console.log(
       `Client ${client.id} connected. ${client.handshake.query.userId}`,
     );
-    // if (userSockets?.length >= 1) {
-    // if (!client.handshake.query.userId) {
-    this.socketService.updateUserStatus(
-      Number(client.handshake.query.userId),
-      'ONLINE',
-    );
 
     // Extract user ID from query parameter
     const userId = client.handshake.query.userId as string;
-    this.updateStatus(Number(userId), 'ONLINE');
     // Associate the user with this socket
     if (!this.userSockets.has(userId)) {
+      this.updateStatus(Number(userId), 'ONLINE');
       this.userSockets.set(userId, []);
     }
     this.userSockets.get(userId).push(client);
