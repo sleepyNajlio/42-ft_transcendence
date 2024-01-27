@@ -21,6 +21,7 @@ import axios from 'axios';
 import { History } from './Components/types.ts';
 import { ToastProvider } from 'react-toast-notifications';
 import ButtonsComponent from './ButtonsComponent.tsx';
+import Notfound from './Components/Notfound.tsx';
 
 interface inviters
 {
@@ -41,7 +42,7 @@ enum NotifType {
 function App()
 {
     const location = useLocation();
-
+    const navigate = useNavigate();
     const [invite, setInvite] = useState<inviteStatus>(inviteStatus.NONE);
     const [inviters, setInviters] = useState<{user_id:string, avatar: string, username: string, type: NotifType}[]>([]);
     const [inPlay, setInPlay] = useState(false);
@@ -120,8 +121,9 @@ function App()
         }
     } , [isMediumPlus, isMedium, isSmall] );
     useEffect(() => {
+        console.log('pathname: ', location.pathname);
         const paths = ['/Testchat', '/Profile', '/Play', '/Chat', '/test', '/Settings', '/Leaderboard']; // replace with the paths you're interested in
-        if (paths.includes(location.pathname) && isMounted.current) {
+        if (paths.includes(location.pathname) && !isMounted.current) {
             console.log("3awd initializa zbi");
             initialize();
           }
@@ -316,20 +318,18 @@ function App()
                     component={
                         <ToastProvider>
                         <>
-                            {location.pathname != "/" && location.pathname != "/Config" && location.pathname != "/TwoFA" && location.pathname != "/Verify2FA" && 
+                            {(location.pathname === "/Profile" || location.pathname === "/Play" || location.pathname === "/Chat" || location.pathname === "/Settings" || location.pathname === "/Leaderboard") &&
                             (<Navbar profile={profile} setProfile={setProfile} setHistory={setHistory} invite={invite} inviters={inviters} inviteResp={inviteResp} setInvite={setInvite}/>)
                             }
                             {
                                 <>
                                     <Routes>
-                                    <Route key='testchat' path='/Testchat' caseSensitive={true} element={<TestChat />} />
                                     <Route key='Profile' path='/Profile' caseSensitive={true} element={<Profile setFriend={setProfile} freind={profile} fhistory={history} />} />
                                     <Route key='Play' path='/Play' caseSensitive={true} element={<Play setInPlay={setInPlay} inviter={inviter} setInviter={setInviter}/>} />
                                     <Route key='Chat' path='/Chat' caseSensitive={true} element={<Chat setProfile={setProfile} setHistory={setHistory} setInviter={setInviter} invite={invite} inviters={inviters}/>} />
-                                    <Route key='Chat' path='/test' caseSensitive={true} element={<ButtonsComponent />} />
                                     <Route key='Settings' path='/Settings' caseSensitive={true} element={<Settings />} />
                                     <Route key='Leaderboard' path='/Leaderboard' caseSensitive={true} element={<Leaderboard />} />
-                                    <Route path='*' element={<Navigate to='/Profile' />} />
+                                    <Route path='*' element={<Notfound />} />
                                     </Routes>
                                 </>
                             }

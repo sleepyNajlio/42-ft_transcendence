@@ -27,7 +27,9 @@ export function Login() {
         <div className="ftlogo">
           <img src={ftlogo} alt="ftlogo" />
         </div>
+        <div className="bt">
           <Button link={`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/auth/42`} msg= "Sign in with intra"/>
+        </div>
       </div>
     </section>
     <main className="cmain">
