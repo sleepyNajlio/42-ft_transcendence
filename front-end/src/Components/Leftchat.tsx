@@ -41,11 +41,11 @@ const Leftchat: React.FC = (props: any) => {
     // console.log("Show room called in left chat with " + props.Roomtype);
     // console.log(props.Roomtype);
     return (
-      <div className={`composant-gauche ${props.darkMode ? darkModeClass : lightModeClass}`}>
+      <div className="composant-gauche">
         <ChatHeaderComponent friendName={props.name} showRoom={props.showRoom} isOwner={props.isOwner} isAdmin={props.isAdmin} profileImageUrl={ftlogo}
           Roomtype={props.Roomtype} handleAdmin={props.handleAdmin}getChatUsers={props.getChatUsers} chatUsers={props.chatUsers} handleUpdateRoom={props.handleUpdateRoom} handleDisplayRoom={props.HandleDisplayRoom}
           room={props.room} handleleave={props.handleleave} friends={props.Friends}
-          handleAddUser={props.handleAddUser} darkMode={props.darkMode}  />
+          handleAddUser={props.handleAddUser} getFriends={props.getFriends} />
         <div className="msg-section">
         {props.messages.map((message: any, index: any) => (
             <Messageco 

@@ -11,7 +11,9 @@
 }
 
 .settings-navbar{
-
+  color: black;
+  background: rgb(212, 212, 212); 
+  text-decoration-color: black;
 }
 
 

@@ -58,7 +58,7 @@ const Rightchat: React.FC = (props: any) => {
     }, []);
 
     return (
-      <div className={`composant-droite ${props.darkMode ? darkModeClass : lightModeClass}`}>
+      <div className="composant-droite">
       <Simpleco text="Chats" />
       <UserInfo onSearch={handleSearch} />
       <Switchgrpdm
@@ -72,16 +72,16 @@ const Rightchat: React.FC = (props: any) => {
         <div className="messagate">
           {props.creating && (
             <div className="createPop">
-              <div className="sbox" ref={divRef} style={{ backgroundColor: '#0f597b' }}>
+              <div className="sbox" ref={divRef} style={{ backgroundColor: 'white' }}>
                 <div className="sbox__input">
-                  <label htmlFor="input"> channel name *</label>
+                  <label htmlFor="input" style={{ color: 'black' }}> channel name *</label>
                   <input
                     type="text"
                     id="name"
                     name={props.name}
                     onChange={props.changeName}
                     placeholder="ex: manini manini"
-                  />
+                    style={{ backgroundColor: '#F2F4F6' }}/>
                 </div>
                 <select className="room-type-select"
                   value={props.roomType}

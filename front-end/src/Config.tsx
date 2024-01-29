@@ -89,7 +89,6 @@ export function Config() {
     try {
       const res = await finishSignup(userpre.email, newUsername || "", userpre.avatar);
       console.log("sign up", res);
-      initialize();
       navigate(path);
     } catch (error) {
       console.error("Failed to finish signup: ", error);

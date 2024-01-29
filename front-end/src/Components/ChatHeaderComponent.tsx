@@ -73,7 +73,7 @@ const SettingsComponent = (props: any) => {
   // console.log("room type in settings : " + props.Roomtype);
 
   return (
-    <div className="settings-navbar" style={{color : 'black'}}>
+    <div className="settings-navbar">
       {props.Roomtype === 'PROTECTED' && (
         <>
           {!removePassword && < button onClick={handleModifyClick}>Modify Password</button>}
@@ -204,6 +204,7 @@ const ChatHeaderComponent: React.FC = (props : any) => {
     setLeaveRoom(!leaveRoom);
   }
   const AddUser = () => {
+    props.getFriends();
     setDisplayUsers(!DisplayUsers);
     if (showSettings)
       setShowSettings(!showSettings);

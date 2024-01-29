@@ -845,6 +845,14 @@ export function Chat(props : any) { // get values from data base
         });
     }
 
+    const getFriends = () => {
+        socket?.emit('Friends', { id: user?.id },  (response : any) => {
+            console.log('friends in getFriends: ')
+            console.log(response);
+            setFriends(response);
+        });
+    }
+
     const handleUpdateRoom = (newPass : string, modifypass : boolean, setPass : boolean, removepass : boolean) => {
 
         socket?.emit('updateRoom', {id: user?.id, name: selectedRoom?.name, type: selectedRoom?.type, newPass: newPass, modifypass: modifypass, setPass: setPass, removepass: removepass }, (response: any) => {
@@ -1135,9 +1143,9 @@ export function Chat(props : any) { // get values from data base
                     {showRoom && <Leftchat userid={user?.id} showRoom={showRoom}messages={messages} name={selectedRoom?.name} sendMessage={sendMessage} isOwner={isOwner}
                      Roomtype={selectedRoom?.type} handleUpdateRoom={handleUpdateRoom} handleAdmin={handleAdmin} HandleDisplayRoom={HandleDisplayRoom} DisplayRoom={DisplayRoom} room={selectedRoom}
                      getChatUsers={getChatUsers} isAdmin={isAdmin} chatUsers={chatUsers} handleleave={handleleave} handleKick={handleKick}
-                     handleBan={handleBan} handleMute={handleMute} Friends={Friends} handleAddUser={handleAddUser} darkMode={darkMode}/> }
+                     handleBan={handleBan} handleMute={handleMute} Friends={Friends} handleAddUser={handleAddUser} getFriends={getFriends}/> }
                     {ShowDm && <Leftchat userid={user?.id} showDm={ShowDm} messages={messages} name={name} sendMessageDm={sendMessageDm} Friends={Friends} setProfile={props.setProfile} setHistory={props.setHistory}
-                    inviteTogame={props.inviteTogame} setInviter={props.setInviter} darkMode={darkMode}/> }
+                    inviteTogame={props.inviteTogame} setInviter={props.setInviter}/> }
                     
                 {welcomeMsg && 
                     <div className="welcome-message-container">
