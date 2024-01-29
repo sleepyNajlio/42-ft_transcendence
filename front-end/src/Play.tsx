@@ -108,6 +108,7 @@ export function Play({ setInPlay, inviter, setInviter}: { setInPlay: any , invit
           // setInGame(true);
           socket.emit('playOpen', {  id: socket.id, userId: user?.id });
           console.log('res: ', res);
+          setGameId(res.data.id_game);
         }
       }).catch((err) => {
         console.log('err: ', err);

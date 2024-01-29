@@ -18,7 +18,7 @@ const animateText = (child: Text, text: string, index: number, width: number = 6
     // Schedule the next animation after a delay of 0.3 seconds
     setTimeout(() => {
       animateText(child, text, index + 1, width);
-    }, 300);
+    }, 100);
   }
 };
 
@@ -62,9 +62,9 @@ function endGame(width: number, height: number, message: string, nested: any, in
   setTimeout(() => {
     animateText(nested.children()[2] as Text, "Go Back to Lobby", 0, width)
     setTimeout(() => {
-      nested.children()[1].show().scale(-1, 1).animate(2000).cy(height - 120);
-    }, 3000);
-  }, 4000);
+      nested.children()[1].show().scale(-1, 1).animate(1000).cy(height - 120);
+    }, 1000);
+  }, 2000);
   console.log(message);
   nested.children()[1].off('click');
   nested.children()[1].click(function() {

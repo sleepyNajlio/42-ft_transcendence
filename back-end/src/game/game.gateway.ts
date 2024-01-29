@@ -994,6 +994,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       client.emit('startGame', {
         players: this.games[gameId].players,
         bball: this.games[gameId].ball,
+        gameId: this.players[data.userId].gameId,
       });
       client.to(gameId).emit('getFrame', data);
     } else {
