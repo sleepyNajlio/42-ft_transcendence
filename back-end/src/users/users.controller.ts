@@ -47,7 +47,7 @@ export class UsersController {
     } else return {msg: "no cookies"};
   }
 
-  // @SetMetadata('isPublic', true)
+  @SetMetadata('isPublic', true)
   @Post('avatar')
   @UseInterceptors(
     FileInterceptor('file', {
@@ -69,7 +69,7 @@ export class UsersController {
     // if upload is successful
     if (file) {
       console.log({ file });
-      return `${this.Config.get('BACKEND_URL')}` + file.path;
+      return `${this.Config.get('VITE_REACT_APP_BACKEND_URL')}/` + file.path;
     }
     return 'madazsh';
   }

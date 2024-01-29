@@ -3,7 +3,7 @@ import '../styles/css/Login.css';
 
 function Button(props : any){
     return (
-    <div onClick={!props.disabled && props.onClick} className="bt">
+    <div onClick={!props.disabled ? props.onClick : undefined} className="bt">
     <a href={props.link}>
         <button  value={props.value} type="submit">  
             {props.msg}

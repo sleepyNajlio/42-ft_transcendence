@@ -104,7 +104,7 @@ export class UsersService {
     const user = await this.prisma.player.update({
       where: { id_player: id },
       data: {
-        avatar: `${this.config.get('BACKEND_URL')}` + file.path,
+        avatar: `${this.config.get('VITE_REACT_APP_BACKEND_URL')}/` + file.path,
       },
     });
     return user;

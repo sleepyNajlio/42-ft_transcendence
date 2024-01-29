@@ -15,6 +15,7 @@ import  Setting from '../assets/setting.png';
 import set_admin from '../assets/set_admin.png';
 import '../styles/css/ChatHeaderComponent.css'; // You can create a CSS file for styling
 import { UserContext } from '../UserProvider.tsx';
+import { Color } from '@svgdotjs/svg.js';
 // import block from '../assets/blockchat.png'
 // import './ChatHeaderComponent.css'; // You can create a CSS file for styling
 
@@ -72,7 +73,7 @@ const SettingsComponent = (props: any) => {
   // console.log("room type in settings : " + props.Roomtype);
 
   return (
-    <div className="settings-navbar">
+    <div className="settings-navbar" style={{color : 'black'}}>
       {props.Roomtype === 'PROTECTED' && (
         <>
           {!removePassword && < button onClick={handleModifyClick}>Modify Password</button>}
@@ -229,7 +230,7 @@ const ChatHeaderComponent: React.FC = (props : any) => {
   if (props.showRoom && !props.isOwner && !props.isAdmin)
   {
     return (
-      <div className={`chat-header-container ${props.darkMode ? 'dark-mode' : 'light-mode'}}`}>
+      <div className="chat-header-container">
         <img className="profile-image" src={props.profileImageUrl} alt="Friend" />
         <div className="friend-info">
           <div className="friend-name">{props.friendName}</div>
@@ -256,7 +257,7 @@ const ChatHeaderComponent: React.FC = (props : any) => {
   if (props.showRoom && props.isOwner)
   {
     return (
-      <div className={`chat-header-container ${props.darkMode ? 'dark-mode' : 'light-mode'}}`}>
+      <div className="chat-header-container">
         <img className="profile-image" src={props.profileImageUrl} alt="Friend" />
         <div className="friend-info">
           <div className="friend-name">{props.friendName}</div>
@@ -325,7 +326,7 @@ const ChatHeaderComponent: React.FC = (props : any) => {
   if (props.showRoom && props.isAdmin)
   {
     return (
-      <div className={`chat-header-container ${props.darkMode ? 'dark-mode' : 'light-mode'}}`}>
+      <div className="chat-header-container">
         <img className="profile-image" src={props.profileImageUrl} alt="Friend" />
         <div className="friend-info">
           <div className="friend-name">{props.friendName}</div>
@@ -352,7 +353,7 @@ const ChatHeaderComponent: React.FC = (props : any) => {
   else if (props.showDm)
   {
     return (
-      <div className={`chat-header-container ${props.darkMode ? 'dark-mode' : 'light-mode'}}`}>
+      <div className="chat-header-container">
     <img className="profile-image" src={props.profileImageUrl} alt="Friend" />
     <div className="friend-info">
       <div className="friend-name">{props.friendName}</div>

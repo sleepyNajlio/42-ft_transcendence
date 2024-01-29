@@ -284,6 +284,7 @@ export function Chat(props : any) { // get values from data base
         setIsOwner(true);
         setDisplayRoom(true);
         setCreated(false);
+        setName("");
         // setShowT(false);
         return () => {
             // socket?.off('rooms');

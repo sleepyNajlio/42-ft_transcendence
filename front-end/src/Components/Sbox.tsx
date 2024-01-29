@@ -137,7 +137,9 @@ export default function Sbox(props: any) {
                             (
                             <Button link="#" msg={props.rb} onClick={()=> props.handleMatchClick()} value={props.rb} />
                             ) :
-                          (<button className="filled bt" onClick={() => props.handleFriendClick(props.inviter)}>{props.lb}</button>)
+                          (
+                            <Button link="#" msg={props.lb} onClick={()=> props.handleFriendClick(props.inviter)} value={props.lb} />
+                            )
                           }
                         </div>
                         <div className="settings">
