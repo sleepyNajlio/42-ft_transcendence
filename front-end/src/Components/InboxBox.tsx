@@ -65,7 +65,7 @@ import { useState } from 'react';
                           value={props.selectedPswd}
                           onChange={props.handleSelectedPassword}
                         />
-                       <button name={props.room.name} onClick={props.handleJoinWithPassword}>Join</button>
+                       <button name={props.room.name} onClick={props.handleJoinWithPassword}  style={{ color: 'black' }} >Join</button>
                       </div>
                     )}
                   </>

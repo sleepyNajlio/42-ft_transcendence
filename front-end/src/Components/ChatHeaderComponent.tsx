@@ -15,6 +15,7 @@ import  Setting from '../assets/setting.png';
 import set_admin from '../assets/set_admin.png';
 import '../styles/css/ChatHeaderComponent.css'; // You can create a CSS file for styling
 import { UserContext } from '../UserProvider.tsx';
+import { Color } from '@svgdotjs/svg.js';
 // import block from '../assets/blockchat.png'
 // import './ChatHeaderComponent.css'; // You can create a CSS file for styling
 
@@ -103,19 +104,6 @@ const SettingsComponent = (props: any) => {
   );
 };
 
-// const UserListDropdown = ({ users, handleItemClick }) => {
-//   return (
-//     <div className="user-list-dropdown">
-//       {users.map((user) => (
-//         <button key={user.userId} className="admin-button" onClick={() => handleItemClick(user.user.username)}>
-//           <img src={user.user.avatar} alt={user.user.username} />
-//           {user.user.username}
-//         </button>
-//       ))}
-//     </div>
-//   );
-// };
-
 
 const ChatHeaderComponent: React.FC = (props : any) => {
   
@@ -203,6 +191,7 @@ const ChatHeaderComponent: React.FC = (props : any) => {
     setLeaveRoom(!leaveRoom);
   }
   const AddUser = () => {
+    props.getFriends();
     setDisplayUsers(!DisplayUsers);
     if (showSettings)
       setShowSettings(!showSettings);
@@ -224,6 +213,7 @@ const ChatHeaderComponent: React.FC = (props : any) => {
   }
     
   // console.log("room type setting : " , props.room.type);
+  console.log("dark mode is : " , props.darkMode);
 
   if (props.showRoom && !props.isOwner && !props.isAdmin)
   {
@@ -244,8 +234,8 @@ const ChatHeaderComponent: React.FC = (props : any) => {
               <div className="leave-input">
                 <label htmlFor="input"> Are you sure ?</label>
               </div>
-              <button onClick={LeaveRoom}>Yes</button>
-              <button onClick={handleleave}>No</button>
+              <button onClick={LeaveRoom}  style={{ color: 'black' }}>Yes</button>
+              <button onClick={handleleave}  style={{ color: 'black' }}>No</button>
             </div>
           }
         </div>
@@ -312,8 +302,8 @@ const ChatHeaderComponent: React.FC = (props : any) => {
               <div className="leave-input">
                 <label htmlFor="input"> Are you sure ?</label>
               </div>
-              <button onClick={LeaveRoom}>Yes</button>
-              <button onClick={handleleave}>No</button>
+              <button onClick={LeaveRoom} style={{ color: 'black' }}>Yes</button>
+              <button onClick={handleleave}  style={{ color: 'black' }}>No</button>
             </div>
           }
           
@@ -340,8 +330,8 @@ const ChatHeaderComponent: React.FC = (props : any) => {
               <div className="leave-input">
                 <label htmlFor="input"> Are you sure ?</label>
               </div>
-              <button onClick={LeaveRoom}>Yes</button>
-              <button onClick={handleleave}>No</button>
+              <button onClick={LeaveRoom}  style={{ color: 'black' }}>Yes</button>
+              <button onClick={handleleave}  style={{ color: 'black' }}>No</button>
             </div>
           }
         </div>
@@ -351,7 +341,7 @@ const ChatHeaderComponent: React.FC = (props : any) => {
   else if (props.showDm)
   {
     return (
-  <div className="chat-header-container">
+      <div className="chat-header-container">
     <img className="profile-image" src={props.profileImageUrl} alt="Friend" />
     <div className="friend-info">
       <div className="friend-name">{props.friendName}</div>

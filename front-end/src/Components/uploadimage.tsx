@@ -21,7 +21,7 @@ const UploadAndDisplayImage = (props: any) => {
             });
 
             setSelectedImage(response.data);
-
+            props.setuserpre({...props.userpre, avatar: response.data});
             // Handle response here
             console.log(response.data);
         } catch (error) {

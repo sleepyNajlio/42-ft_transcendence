@@ -72,7 +72,13 @@ export function Chat(props : any) { // get values from data base
     const [userAdded, setUserAdded] = useState(false);
     const [RoomAdded, setRoomAdded] = useState("");
     const [timeoutId, setTimeoutid] = useState<NodeJS.Timeout | null > (null);
-    const [selectedDm, setSelectedDm] = useState("");
+    const [darkMode, setDarkMode] = useState(false);
+
+    const toggleDarkMode = () => {
+        console.log("toggle dark mode called");
+        setDarkMode(!darkMode);
+    };
+
 
     const { addToast } = useToasts();
 
@@ -278,6 +284,7 @@ export function Chat(props : any) { // get values from data base
         setIsOwner(true);
         setDisplayRoom(true);
         setCreated(false);
+        setName("");
         // setShowT(false);
         return () => {
             // socket?.off('rooms');
@@ -838,6 +845,14 @@ export function Chat(props : any) { // get values from data base
         });
     }
 
+    const getFriends = () => {
+        socket?.emit('Friends', { id: user?.id },  (response : any) => {
+            console.log('friends in getFriends: ')
+            console.log(response);
+            setFriends(response);
+        });
+    }
+
     const handleUpdateRoom = (newPass : string, modifypass : boolean, setPass : boolean, removepass : boolean) => {
 
         socket?.emit('updateRoom', {id: user?.id, name: selectedRoom?.name, type: selectedRoom?.type, newPass: newPass, modifypass: modifypass, setPass: setPass, removepass: removepass }, (response: any) => {
@@ -1128,7 +1143,7 @@ export function Chat(props : any) { // get values from data base
                     {showRoom && <Leftchat userid={user?.id} showRoom={showRoom}messages={messages} name={selectedRoom?.name} sendMessage={sendMessage} isOwner={isOwner}
                      Roomtype={selectedRoom?.type} handleUpdateRoom={handleUpdateRoom} handleAdmin={handleAdmin} HandleDisplayRoom={HandleDisplayRoom} DisplayRoom={DisplayRoom} room={selectedRoom}
                      getChatUsers={getChatUsers} isAdmin={isAdmin} chatUsers={chatUsers} handleleave={handleleave} handleKick={handleKick}
-                     handleBan={handleBan} handleMute={handleMute} Friends={Friends} handleAddUser={handleAddUser}/> }
+                     handleBan={handleBan} handleMute={handleMute} Friends={Friends} handleAddUser={handleAddUser} getFriends={getFriends}/> }
                     {ShowDm && <Leftchat userid={user?.id} showDm={ShowDm} messages={messages} name={name} sendMessageDm={sendMessageDm} Friends={Friends} setProfile={props.setProfile} setHistory={props.setHistory}
                     inviteTogame={props.inviteTogame} setInviter={props.setInviter}/> }
                     
@@ -1151,7 +1166,7 @@ export function Chat(props : any) { // get values from data base
                      selectedPswd={selectedPswd} selectedRoom={selectedRoom} setSelectedRoom={setSelectedRoom} 
                      Friends={Friends} setDisplayDms={setDisplayDms} setDisplayRoom={setDisplayRoom} DisplayDms={DisplayDms} DisplayRoom={DisplayRoom}
                      HandleDisplayDms={HandleDisplayDms} HandleDisplayRoom={HandleDisplayRoom} joindDm={joinDm}
-                     messages={messages} isOwner={isOwner} passjoin={passjoin} />}
+                     messages={messages} isOwner={isOwner} passjoin={passjoin} toggleDarkMode={toggleDarkMode} darkMode={darkMode}/>}
                 </div>            
                 </div>
         </>

@@ -52,22 +52,34 @@ export function ProfilInfo(props : {status: string, setFriend:React.Dispatch<Rea
         {
           (props.name !== user?.username) && (
             (!status || status === "REJECTED") ? (
+              <div className='btx'>
               <div className="bt">
-                <button className="bt profil__button add" onClick={() => addFriendb(Number(props.id))}>ADD</button>
-                <button className="bt profil__button block" onClick={() => blockFriendb(Number(props.id))}>Block</button>
+                <a className="add" onClick={() => addFriendb(Number(props.id))}>ADD</a>
+              </div>
+                <div className="bt">
+                  <a className="block" onClick={() => blockFriendb(Number(props.id))}>Block</a>
+                  </div>
               </div>
             ) : (status === "PENDING") ? (
               ((props.state?.friendId === Number(user?.id))) || newRequest ?
               (
+                <div className="btx">
+                  <span style={{ marginTop: '17px' }}>PENDING</span>
                 <div className="bt">
-                  <span>PENDING</span>
-                  <button className="bt profil__button block" onClick={() => blockFriendb(Number(props.id))}>Block</button>
+                  <a className="block" onClick={() => blockFriendb(Number(props.id))}>Block</a>
+                </div>
                 </div>
               ):(
+                <div className='btx'>
                 <div className="bt">
-                <button className="bt profil__button add" onClick={() => acceptFriendb(Number(props.id))}>ACCEPT</button>
-                <button className="bt profil__button block" onClick={() => rejectFriendb(Number(props.id))}>REJECT</button>
-                  <button className="bt profil__button block" onClick={() => blockFriendb(Number(props.id))}>Block</button>
+                <a className='accept' onClick={() => acceptFriendb(Number(props.id))}>ACCEPT</a>
+                </div>
+                <div className="bt">
+                <a className='reject' onClick={() => rejectFriendb(Number(props.id))}>REJECT</a>
+                </div>
+                <div className="bt">
+                  <a className='block' onClick={() => blockFriendb(Number(props.id))}>Block</a>
+                </div>
                 </div>
               )
             ) : (status === "BLOCKED") ? (
@@ -76,7 +88,7 @@ export function ProfilInfo(props : {status: string, setFriend:React.Dispatch<Rea
               </div>
             ) : (
               <div className="bt">
-                <button className="bt profil__button block" onClick={() => blockFriendb(Number(props.id))}>Block</button>
+                <a className='block' onClick={() => blockFriendb(Number(props.id))}>Block</a>
               </div>
             )
           )

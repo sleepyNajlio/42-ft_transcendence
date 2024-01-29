@@ -10,7 +10,25 @@
   z-index: 1;
 }
 
+.settings-navbar{
+  color: black;
+  background: rgb(212, 212, 212); 
+  text-decoration-color: black;
+}
 
+
+
+.light-mode {
+  /* Light mode styles */
+  background-color: white;
+  color: black;
+}
+
+.dark-mode {
+  /* Dark mode styles */
+  background-color: rgb(50, 49, 49);
+  color: white;
+}
 
 .user-list-dropdown {
   position: absolute;
@@ -40,6 +58,7 @@
   padding: 5px;
   cursor: pointer;
   font-family: 'inter', sans-serif;
+  color: black;
 }
 .admin-button button {
   background-color: transparent;
@@ -88,11 +107,6 @@
     margin-left: auto;
   }
   .game
-  {
-    cursor: pointer;
-  }
-
-  .block
   {
     cursor: pointer;
   }

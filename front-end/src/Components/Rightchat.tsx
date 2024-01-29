@@ -7,9 +7,21 @@ import InboxBox from './InboxBox.tsx';
 import Simpleco from './Simpleco.tsx'
 import Switchgrpdm from './Switchgrpdm.tsx';
 import Button from './Button.tsx';
+import SwitchMode from './SwitchMode.tsx';
+import { useEffect } from 'react';
+import { useRef } from 'react';
 
 const Rightchat: React.FC = (props: any) => {
   const [searchQuery, setSearchQuery] = useState('');
+  const divRef = useRef<HTMLDivElement | null>(null);;
+  // const [darkMode, setDarkMode] = useState(false);
+
+  const lightModeClass = "light-mode";
+  const darkModeClass = "dark-mode";
+
+  // console.log("Messages isssss : ", props.messages);
+
+  // const MessageRef = useRef(null);
 
   const handleSearch = (query : any) => {
     setSearchQuery(query);
@@ -27,65 +39,82 @@ const Rightchat: React.FC = (props: any) => {
       )
     : props.Friends;
 
-  return (
-    <div className="composant-droite">
+    useEffect(() => {
+      const handleClickOutside = (event : MouseEvent) => {
+        if (divRef.current && !divRef.current.contains(event.target as Node)) {
+          // Click outside the div, close or hide the div
+          // You can add your logic to close the div here
+          props.setCreating(false);
+        }
+      };
+  
+      // Attach the event listener to the document
+      document.addEventListener('mousedown', handleClickOutside);
+  
+      // Cleanup the event listener when the component is unmounted
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }, []);
+
+    return (
+      <div className="composant-droite">
       <Simpleco text="Chats" />
       <UserInfo onSearch={handleSearch} />
       <Switchgrpdm
         HandleDisplayDms={props.HandleDisplayDms}
         HandleDisplayRoom={props.HandleDisplayRoom}
+        setCreating={props.setCreating}
+        creating={props.creating}
+        DisplayRoom={props.DisplayRoom}
       />
       {props.DisplayRoom && (
         <div className="messagate">
-          {/* <button
-            className="filled bt"
-            onClick={() => props.setCreating(!props.creating)}
-          >
-            Create
-          </button> */}
-          <Button link="#" msg="Create" onClick={() => props.setCreating(!props.creating)} value="Create" />
           {props.creating && (
-            <div className="sbox" style={{ backgroundColor: '#0f597b' }}>
-              <div className="sbox__input">
-                <label htmlFor="input"> channel name *</label>
-                <input
-                  type="text"
-                  id="name"
-                  name={props.name}
-                  onChange={props.changeName}
-                  placeholder="ex: manini manini"
-                />
-              </div>
-              <select
-                value={props.roomType}
-                onChange={(e) => props.handleRoomType(e.target.value)}
-              >
-                <option disabled value="">
-                  Room Type
-                </option>
-                <option value="PUBLIC">Public</option>
-                <option value="PRIVATE">Private</option>
-                <option value="PROTECTED">Protected</option>
-              </select>
-              {props.roomType === 'PROTECTED' && (
-                <input
-                  type="text"
-                  placeholder="Password"
-                  value={props.roomPassword}
-                  onChange={props.handleRoomPassword}
-                />
-              )}
-              <button
-                onClick={props.create}
+            <div className="createPop">
+              <div className="sbox" ref={divRef} style={{ backgroundColor: 'white' }}>
+                <div className="sbox__input">
+                  <label htmlFor="input" style={{ color: 'black' }}> channel name *</label>
+                  <input
+                    type="text"
+                    id="name"
+                    name={props.name}
+                    onChange={props.changeName}
+                    placeholder="ex: manini manini"
+                    style={{ backgroundColor: '#F2F4F6' }}/>
+                </div>
+                <select className="room-type-select"
+                  value={props.roomType}
+                  onChange={(e) => props.handleRoomType(e.target.value)}
+                >
+                  <option disabled value="" className='disabled-option'>
+                    Room Type
+                  </option>
+                  <option value="PUBLIC">Public</option>
+                  <option value="PRIVATE">Private</option>
+                  <option value="PROTECTED">Protected</option>
+                </select>
+                {props.roomType === 'PROTECTED' && (
+                  <input
+                    type="text"
+                    placeholder="Password"
+                    value={props.roomPassword}
+                    onChange={props.handleRoomPassword}
+                  />
+                )}
+                <Button
                 disabled={
                   !props.name ||
                   (props.roomType !== 'PUBLIC' &&
                     props.roomType !== 'PRIVATE' &&
                     !props.roomPassword)
                 }
-              >
-                Create
-              </button>
+                  link="#"
+                  msg="Create"
+                  onClick={props.create}
+                  value="Create"
+                />
+              </div>
             </div>
           )}
           {filteredRooms.map((room: any, index: any) => (

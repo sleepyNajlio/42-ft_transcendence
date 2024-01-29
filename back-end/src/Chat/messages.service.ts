@@ -548,32 +548,6 @@ export class MessagesService {
         },
       });
     }
-    // else if((chatUser && chatUser.isMuted ))
-    // {
-    //   Messages = await this.prisma.chatMessage.findMany({
-    //     where: {
-    //       AND: [
-    //         { chatId: chat.id_chat },
-    //         { sentAt: { gte: chatUser.joinedAt } },
-
-    //       ],
-    //   },
-    //   include: {
-    //     user: {
-    //       select: {
-    //         username: true,
-    //         avatar: true,
-    //       },
-    //     },
-    //     chat: {
-    //       select: {
-    //         name: true,
-    //       },
-    //     },
-    //   },
-    // });
-
-    // }
     else {
       console.log('chat user got in findmsgs is: ');
       if (chatUser) console.log(chatUser);
@@ -790,19 +764,35 @@ export class MessagesService {
         ],
       },
     });
+    const blocked = await this.prisma.friendShip.findMany({
+      where: {
+        OR: [{ userId: id }, { friendId: id }],
+        status: 'BLOCKED',
+      },
+    });
 
     const chatUsers = await this.prisma.chatUser.findMany({
       where: {
         chatId: { in: rooms.map((room) => room.id_chat) },
       },
     });
-
     const lastMessages = await this.prisma.chatMessage.findMany({
       where: {
-        chatId: { in: rooms.map((room) => room.id_chat) },
-        sentAt: {
-          gte: chatUsers.find((chatUser) => chatUser.userId === id)?.joinedAt,
-        },
+        AND: [
+          { chatId: { in: rooms.map((room) => room.id_chat) } },
+          { sentAt: { gte: chatUsers.find((chatUser) => chatUser.userId === id)?.joinedAt } },
+          {
+            OR: [
+              { userId: id },
+              {
+                AND: [
+                  { userId: { notIn: blocked.map((user) => user.userId) } },
+                  { userId: { notIn: blocked.map((user) => user.friendId) } },
+                ],
+              },
+            ],
+          },
+        ],
       },
       include: {
         user: {
