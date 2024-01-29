@@ -72,7 +72,13 @@ export function Chat(props : any) { // get values from data base
     const [userAdded, setUserAdded] = useState(false);
     const [RoomAdded, setRoomAdded] = useState("");
     const [timeoutId, setTimeoutid] = useState<NodeJS.Timeout | null > (null);
-    const [selectedDm, setSelectedDm] = useState("");
+    const [darkMode, setDarkMode] = useState(false);
+
+    const toggleDarkMode = () => {
+        console.log("toggle dark mode called");
+        setDarkMode(!darkMode);
+    };
+
 
     const { addToast } = useToasts();
 
@@ -1128,9 +1134,9 @@ export function Chat(props : any) { // get values from data base
                     {showRoom && <Leftchat userid={user?.id} showRoom={showRoom}messages={messages} name={selectedRoom?.name} sendMessage={sendMessage} isOwner={isOwner}
                      Roomtype={selectedRoom?.type} handleUpdateRoom={handleUpdateRoom} handleAdmin={handleAdmin} HandleDisplayRoom={HandleDisplayRoom} DisplayRoom={DisplayRoom} room={selectedRoom}
                      getChatUsers={getChatUsers} isAdmin={isAdmin} chatUsers={chatUsers} handleleave={handleleave} handleKick={handleKick}
-                     handleBan={handleBan} handleMute={handleMute} Friends={Friends} handleAddUser={handleAddUser}/> }
+                     handleBan={handleBan} handleMute={handleMute} Friends={Friends} handleAddUser={handleAddUser} darkMode={darkMode}/> }
                     {ShowDm && <Leftchat userid={user?.id} showDm={ShowDm} messages={messages} name={name} sendMessageDm={sendMessageDm} Friends={Friends} setProfile={props.setProfile} setHistory={props.setHistory}
-                    inviteTogame={props.inviteTogame} setInviter={props.setInviter}/> }
+                    inviteTogame={props.inviteTogame} setInviter={props.setInviter} darkMode={darkMode}/> }
                     
                 {welcomeMsg && 
                     <div className="welcome-message-container">
@@ -1151,7 +1157,7 @@ export function Chat(props : any) { // get values from data base
                      selectedPswd={selectedPswd} selectedRoom={selectedRoom} setSelectedRoom={setSelectedRoom} 
                      Friends={Friends} setDisplayDms={setDisplayDms} setDisplayRoom={setDisplayRoom} DisplayDms={DisplayDms} DisplayRoom={DisplayRoom}
                      HandleDisplayDms={HandleDisplayDms} HandleDisplayRoom={HandleDisplayRoom} joindDm={joinDm}
-                     messages={messages} isOwner={isOwner} passjoin={passjoin} />}
+                     messages={messages} isOwner={isOwner} passjoin={passjoin} toggleDarkMode={toggleDarkMode} darkMode={darkMode}/>}
                 </div>            
                 </div>
         </>

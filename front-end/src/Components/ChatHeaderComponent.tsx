@@ -224,11 +224,12 @@ const ChatHeaderComponent: React.FC = (props : any) => {
   }
     
   // console.log("room type setting : " , props.room.type);
+  console.log("dark mode is : " , props.darkMode);
 
   if (props.showRoom && !props.isOwner && !props.isAdmin)
   {
     return (
-      <div className="chat-header-container">
+      <div className={`chat-header-container ${props.darkMode ? 'dark-mode' : 'light-mode'}}`}>
         <img className="profile-image" src={props.profileImageUrl} alt="Friend" />
         <div className="friend-info">
           <div className="friend-name">{props.friendName}</div>
@@ -255,7 +256,7 @@ const ChatHeaderComponent: React.FC = (props : any) => {
   if (props.showRoom && props.isOwner)
   {
     return (
-      <div className="chat-header-container">
+      <div className={`chat-header-container ${props.darkMode ? 'dark-mode' : 'light-mode'}}`}>
         <img className="profile-image" src={props.profileImageUrl} alt="Friend" />
         <div className="friend-info">
           <div className="friend-name">{props.friendName}</div>
@@ -324,7 +325,7 @@ const ChatHeaderComponent: React.FC = (props : any) => {
   if (props.showRoom && props.isAdmin)
   {
     return (
-      <div className="chat-header-container">
+      <div className={`chat-header-container ${props.darkMode ? 'dark-mode' : 'light-mode'}}`}>
         <img className="profile-image" src={props.profileImageUrl} alt="Friend" />
         <div className="friend-info">
           <div className="friend-name">{props.friendName}</div>
@@ -351,7 +352,7 @@ const ChatHeaderComponent: React.FC = (props : any) => {
   else if (props.showDm)
   {
     return (
-  <div className="chat-header-container">
+      <div className={`chat-header-container ${props.darkMode ? 'dark-mode' : 'light-mode'}}`}>
     <img className="profile-image" src={props.profileImageUrl} alt="Friend" />
     <div className="friend-info">
       <div className="friend-name">{props.friendName}</div>

@@ -6,9 +6,18 @@ import UserInfo from './UserInfo.tsx';
 import InboxBox from './InboxBox.tsx';
 import Simpleco from './Simpleco.tsx'
 import Switchgrpdm from './Switchgrpdm.tsx';
+import SwitchMode from './SwitchMode.tsx';
 
 const Rightchat: React.FC = (props: any) => {
   const [searchQuery, setSearchQuery] = useState('');
+  // const [darkMode, setDarkMode] = useState(false);
+
+  const lightModeClass = "light-mode";
+  const darkModeClass = "dark-mode";
+
+  // console.log("Messages isssss : ", props.messages);
+
+  // const MessageRef = useRef(null);
 
   const handleSearch = (query : any) => {
     setSearchQuery(query);
@@ -27,7 +36,8 @@ const Rightchat: React.FC = (props: any) => {
     : props.Friends;
 
   return (
-    <div className="composant-droite">
+    <div className={`composant-droite ${props.darkMode ? darkModeClass : lightModeClass}`}>
+      < SwitchMode toggleDarkMode={props.toggleDarkMode}/>
       <Simpleco text="Chats" />
       <UserInfo onSearch={handleSearch} />
       <Switchgrpdm
