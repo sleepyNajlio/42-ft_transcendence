@@ -39,12 +39,13 @@
     color: #fff;
   }
   
-  .button:active {
+  /* .button:active {
+    background-color: #0F597B;
     color: #fff;
     transform: scale(0.95);
-  }
+  } */
   
-  .button:focus {
+  .button.focused {
     background-color: #0F597B;
     color: #fff;
   }
