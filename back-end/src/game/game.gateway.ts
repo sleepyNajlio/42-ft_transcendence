@@ -979,11 +979,11 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('playOpen')
-  async handlePlayOpen(client: Socket) {
+  async handlePlayOpen(client: Socket, data: any) {
     // Extract the user ID from the client
     console.log('playOpen');
     const gameId = Object.keys(this.games).find(
-      (id) => this.games[id].players[client.id],
+      (id) => this.games[id].players[data.userId],
     );
 
     if (gameId) {
@@ -995,6 +995,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         players: this.games[gameId].players,
         bball: this.games[gameId].ball,
       });
+      client.to(gameId).emit('getFrame', data);
     } else {
       console.log('is not in game');
     }
