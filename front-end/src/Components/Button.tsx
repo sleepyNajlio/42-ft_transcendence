@@ -3,13 +3,13 @@ import '../styles/css/Login.css';
 
 function Button(props : any){
     return (
-    <>
-    <a href={props.link} className="">
-        <button value={props.value} type="submit" onClick={props.onClick}>  
+    <div onClick={props.onClick} className="bt">
+    <a href={props.link}>
+        <button value={props.value} type="submit">  
             {props.msg}
         </button>
     </a>
-    </>
+    </div>
     )
 }
 
