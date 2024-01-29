@@ -75,6 +75,7 @@
   padding: 5px;
   cursor: pointer;
   font-family: 'inter', sans-serif;
+  color: black;
 }
 .admin-button button {
   background-color: transparent;
@@ -123,11 +124,6 @@
     margin-left: auto;
   }
   .game
-  {
-    cursor: pointer;
-  }
-
-  .block
   {
     cursor: pointer;
   }

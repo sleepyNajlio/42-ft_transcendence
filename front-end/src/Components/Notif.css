@@ -29,7 +29,7 @@
   } */
 .notif-container
 {
-    position: fixed important!;
+    position: fixed !important ;
     transition: opacity 0.3s ease-in-out ;
     top: 10% ;
     left: 58% ;
