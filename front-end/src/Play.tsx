@@ -105,7 +105,7 @@ export function Play({ setInPlay, inviter, setInviter}: { setInPlay: any , invit
       axios.get(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/game/${user.id}/getgame/PLAYING`, { withCredentials: true }).then
       ((res) => {
         if (res.data.id_game) {
-          // setInGame(true);
+          setInGame(true);
           socket.emit('playOpen', {  id: socket.id, userId: user?.id });
           console.log('res: ', res);
           setGameId(res.data.id_game);
@@ -219,7 +219,7 @@ export function Play({ setInPlay, inviter, setInviter}: { setInPlay: any , invit
           console.log('gamila: ', gameId);
           let cleanup = () => {};
           if (gameId)
-            cleanup = game(socket, 6, gameId, currentBoard, players, bballRef.current, width > 750 ? width * 0.8 : width, guser, players[user.id].ratio, players[user.id].vxratio, inita, updateStats, updatehistory);
+            cleanup = game(inGame ,socket, 6, gameId, currentBoard, players, bballRef.current, width > 750 ? width * 0.8 : width, guser, players[user.id].ratio, players[user.id].vxratio, inita, updateStats, updatehistory);
           return () => {
             cleanup();
           };
@@ -250,7 +250,6 @@ export function Play({ setInPlay, inviter, setInviter}: { setInPlay: any , invit
                   lb="Play with friend"
                   rb="Matchmaking"
                   isLoading = {isLoading} // Pass the loading state to the loading component
-                  inGame = {inGame}
                   inviter = {inviter}
                   error = {error}
                   handleMatchClick={handleMatchClick}

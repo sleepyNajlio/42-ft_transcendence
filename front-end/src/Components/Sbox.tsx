@@ -99,13 +99,6 @@ export default function Sbox(props: any) {
         <>
             <main className="wrapper">
                 {isLoading && <LoadingComponent />} {/* Render the loading component when isLoading is true */}
-                {props.inGame && (
-                    <div className="game">
-                        <h1 className="btitle">ALREADY IN GAME</h1>
-                        <h3 className="stitle">check your tabs or devices</h3>
-                    </div>
-                )  
-                }
                 {!isLoading && !props.inGame && (
                     <div className="sbox">
                         {props.error && (

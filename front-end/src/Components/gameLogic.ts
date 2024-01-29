@@ -81,7 +81,7 @@ const reset = async (playerRight: number = 0, playerLeft: number = 0, width: num
 }
 
 
-export default function game(socket: Socket, dificulty: number = 10, gameId: number | null, Board: number, players: Players = {}, ball: Ball, width: number, user: User, ratio: number, vxratio: number, initia: () => void, updatestats: (win:Boolean) => void, updateHistory: (gameId: number) => void): () => void {
+export default function game(started: Boolean = false, socket: Socket, dificulty: number = 10, gameId: number | null, Board: number, players: Players = {}, ball: Ball, width: number, user: User, ratio: number, vxratio: number, initia: () => void, updatestats: (win:Boolean) => void, updateHistory: (gameId: number) => void): () => void {
     // define board size and create a svg board
     // console.log("game ratio ", ratio);
     let pHost: Player;
@@ -244,6 +244,9 @@ export default function game(socket: Socket, dificulty: number = 10, gameId: num
     })
     let chck = false;
     
+    if (started){
+      launchBall(socket, ball, pHost, ratio, dificulty);
+    }
     
     socket.on('winByAbort', (data:{gameId:number}) => {
       console.log("winByAbort", gameId);
