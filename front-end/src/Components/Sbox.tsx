@@ -11,6 +11,7 @@ import { padlPattern1, padlPattern2, padlPattern3, boardPattern1, boardPattern2,
 import GamePattern from './Pattern';
 import { Link, useNavigate } from 'react-router-dom';
 import { UserContext } from '../UserProvider';
+import Button from './Button';
 
 
 export default function Sbox(props: any) {
@@ -133,9 +134,9 @@ export default function Sbox(props: any) {
                         <div className="sbox__btn">
                           {!props.inviter ?
 
-                            (<button className="trans bt" onClick={()=> props.handleMatchClick()}>
-                                {props.rb}
-                            </button>) :
+                            (
+                            <Button link="#" msg={props.rb} onClick={()=> props.handleMatchClick()} value={props.rb} />
+                            ) :
                           (<button className="filled bt" onClick={() => props.handleFriendClick(props.inviter)}>{props.lb}</button>)
                           }
                         </div>

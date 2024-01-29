@@ -38,7 +38,7 @@ const MessageInput: React.FC<MessageInputProps> = ({ onSendMessage }) => {
         onChange={handleMessageChange}
         onKeyDown={enter}
       />
-      <button onClick={handleSendClick}>
+      <button className='button' onClick={handleSendClick}>
         <img src={send} alt="Icon2" />
       </button>
     </div>

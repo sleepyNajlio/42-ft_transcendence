@@ -6,6 +6,7 @@ import UserInfo from './UserInfo.tsx';
 import InboxBox from './InboxBox.tsx';
 import Simpleco from './Simpleco.tsx'
 import Switchgrpdm from './Switchgrpdm.tsx';
+import Button from './Button.tsx';
 import SwitchMode from './SwitchMode.tsx';
 
 const Rightchat: React.FC = (props: any) => {
@@ -46,12 +47,13 @@ const Rightchat: React.FC = (props: any) => {
       />
       {props.DisplayRoom && (
         <div className="messagate">
-          <button
+          {/* <button
             className="filled bt"
             onClick={() => props.setCreating(!props.creating)}
           >
             Create
-          </button>
+          </button> */}
+          <Button link="#" msg="Create" onClick={() => props.setCreating(!props.creating)} value="Create" />
           {props.creating && (
             <div className="sbox" style={{ backgroundColor: '#0f597b' }}>
               <div className="sbox__input">
