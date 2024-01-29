@@ -104,19 +104,6 @@ const SettingsComponent = (props: any) => {
   );
 };
 
-// const UserListDropdown = ({ users, handleItemClick }) => {
-//   return (
-//     <div className="user-list-dropdown">
-//       {users.map((user) => (
-//         <button key={user.userId} className="admin-button" onClick={() => handleItemClick(user.user.username)}>
-//           <img src={user.user.avatar} alt={user.user.username} />
-//           {user.user.username}
-//         </button>
-//       ))}
-//     </div>
-//   );
-// };
-
 
 const ChatHeaderComponent: React.FC = (props : any) => {
   
@@ -247,8 +234,8 @@ const ChatHeaderComponent: React.FC = (props : any) => {
               <div className="leave-input">
                 <label htmlFor="input"> Are you sure ?</label>
               </div>
-              <button onClick={LeaveRoom}>Yes</button>
-              <button onClick={handleleave}>No</button>
+              <button onClick={LeaveRoom}  style={{ color: 'black' }}>Yes</button>
+              <button onClick={handleleave}  style={{ color: 'black' }}>No</button>
             </div>
           }
         </div>
@@ -315,8 +302,8 @@ const ChatHeaderComponent: React.FC = (props : any) => {
               <div className="leave-input">
                 <label htmlFor="input"> Are you sure ?</label>
               </div>
-              <button onClick={LeaveRoom}>Yes</button>
-              <button onClick={handleleave}>No</button>
+              <button onClick={LeaveRoom} style={{ color: 'black' }}>Yes</button>
+              <button onClick={handleleave}  style={{ color: 'black' }}>No</button>
             </div>
           }
           
@@ -343,8 +330,8 @@ const ChatHeaderComponent: React.FC = (props : any) => {
               <div className="leave-input">
                 <label htmlFor="input"> Are you sure ?</label>
               </div>
-              <button onClick={LeaveRoom}>Yes</button>
-              <button onClick={handleleave}>No</button>
+              <button onClick={LeaveRoom}  style={{ color: 'black' }}>Yes</button>
+              <button onClick={handleleave}  style={{ color: 'black' }}>No</button>
             </div>
           }
         </div>

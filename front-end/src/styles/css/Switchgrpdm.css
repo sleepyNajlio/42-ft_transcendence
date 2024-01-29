@@ -26,9 +26,10 @@
 }
 .createico svg{
   padding: 6px;
-  background: rgb(211, 211, 211);
+  background: #F2F4F6;
   border-radius: 28px;
   cursor: pointer;
+  color: black;
 
 }
 
