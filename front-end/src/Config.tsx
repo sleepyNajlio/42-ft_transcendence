@@ -112,7 +112,7 @@ return (
         {
           !twoFA && (
           <div className="lll">
-            <UploadAndDisplayImage davatar={userpre?.avatar} onFileChange={handleFileChange} width={200}></UploadAndDisplayImage>
+            <UploadAndDisplayImage davatar={userpre?.avatar} onFileChange={handleFileChange} width={200} userpre={userpre} setuserpre={setUserpre} ></UploadAndDisplayImage>
             {/* <div className="cercle" >
             </div> */}
             <form onSubmit={(e) => e.preventDefault()} style={{display: 'flex', flexDirection: 'column', gap: '30px', alignItems: 'center'}}>
