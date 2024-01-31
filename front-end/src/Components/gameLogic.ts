@@ -245,7 +245,14 @@ export default function game(started: Boolean = false, socket: Socket, dificulty
     let chck = false;
     
     if (started){
-      launchBall(socket, ball, pHost, ratio, dificulty);
+      socket.emit('documentVisible', { id: socket.id, userId: user.id_player });
+      scoreRight.show();
+      scoreLeft.show();
+      nested.children()[0].hide();
+      nested.children()[1].hide();
+      pHost.paddle?.show();
+      pGuest.paddle?.show();
+      ball.cercle.show();
     }
     
     socket.on('winByAbort', (data:{gameId:number}) => {
@@ -257,11 +264,24 @@ export default function game(started: Boolean = false, socket: Socket, dificulty
       return cleanup;
     });
 
-    
     let isKeyDown = false;
-    socket.on('getFrame', (data) => {
+    socket.on('getFrame', (data, ack) => {
+      ack('Acknowledgement from server');
+      console.log("catched getFrame");
       if (pGuest && pGuest.paddle && pHost && pHost.paddle)
         socket.emit('paddlePos', { y1: pGuest.paddle.cy(), y2: pHost.paddle.cy(),  playerLeft: pHost.score, playerRight: pGuest.score, ball: {cx: ball.cx / ratio, cy: ball.cy, vx: ball.vx / vxratio, vy: ball.vy}, userId: pGuest.user_id});
+      return true;
+    });
+
+    socket.on('initFrame', (data: {ball: Ball, y1: number, y2: number, playerLeft: number, playerRight: number, id: string }) => {
+      nested.children()[1].show();
+      pHost.score = data.playerLeft;
+      pGuest.score = data.playerRight;
+      scoreLeft.text(data.playerLeft.toString())
+      scoreRight.text(data.playerRight.toString())
+      setTimeout(() => {
+        launchBall(socket, ball, pHost, ratio, dificulty);
+      }, 2000);
     });
 
     socket.on('updateFrame', (data: {ball: Ball, y1: number, y2: number, playerLeft: number, playerRight: number, id: string }) => {
@@ -304,6 +324,76 @@ export default function game(started: Boolean = false, socket: Socket, dificulty
       }
     });
 
+    let isMouseDown = false;
+
+    const element = document.getElementById("pong");
+    var supportsTouch = 'ontouchstart' in window || navigator.maxTouchPoints;
+    console.log("supportsTouch", supportsTouch);
+    element?.addEventListener("mousedown", handleMouseDown);
+    element?.addEventListener("mouseup", handleMouseUp);
+    element?.addEventListener("mousemove", handleMouseMove);
+    element?.addEventListener("touchstart", handleMouseDown);
+    element?.addEventListener("touchend", handleMouseUp);
+    element?.addEventListener("touchmove", handleMouseMove);
+
+
+    function handleMouseDown(event: MouseEvent | TouchEvent) {
+      // Check if it's a MouseEvent
+      if (event instanceof MouseEvent || event instanceof TouchEvent) {
+        isMouseDown = true;
+        handleMouseMove(event); // Call handleMouseMove to immediately process the event
+      }
+    }
+
+    function handleMouseUp(event: MouseEvent | TouchEvent) {
+      // Check if it's a MouseEvent
+      if (event instanceof MouseEvent || event instanceof TouchEvent) {
+        isMouseDown = false;
+        // Send the socket.emit event with paddleDirection set to 0
+        socket.emit('keydown', { ball: {cx: ball.cx / ratio, cy: ball.cy, vx: ball.vx / ratio, vy: ball.vy}, paddleDirection: 0, userId: user.id_player });
+      }
+    }
+
+    function handleMouseMove(event: MouseEvent | TouchEvent) {
+      // Check if it's a MouseEvent and the mouse button is held down
+      if ((event instanceof MouseEvent || event instanceof TouchEvent) && isMouseDown) {
+        const element = event.target as HTMLElement;
+        const rect = element.getBoundingClientRect();
+        const clientX = event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
+        const clientY = event instanceof MouseEvent ? event.clientY : event.touches[0].clientY;
+        const clickX = clientX - rect.left;
+        const clickY = clientY - rect.top;
+        console.log("clickX", clickX);
+
+        // Now mouseX and mouseY contain the mouse position relative to the element
+        // You can use these values to update your game state or perform other actions
+
+        if ((clickX >= 0 && clickX <= width) && (clickY >= 0 && clickY <= height)) {
+          if (pHost && pHost.paddle && pHost.user_id === user.id_player) {
+            if (pHost.paddle?.cy() > clickY) {
+              console.log("host go up");
+              socket.emit('keydown', { ball: {cx: ball.cx / ratio, cy: ball.cy, vx: ball.vx / ratio, vy: ball.vy}, paddleDirection: -1, userId: user.id_player });
+            } else if (pHost.paddle?.cy() < clickY) {
+              console.log("host go down");
+              socket.emit('keydown', { ball: {cx: ball.cx / ratio, cy: ball.cy, vx: ball.vx / ratio, vy: ball.vy}, paddleDirection: 1, userId: user.id_player });
+            }
+          } else if (pGuest && pGuest.paddle && pGuest.user_id === user.id_player) {
+            if (pGuest.paddle?.cy() > clickY) {
+              socket.emit('keydown', { ball: {cx: ball.cx / ratio, cy: ball.cy, vx: ball.vx / ratio, vy: ball.vy}, paddleDirection: -1, userId: user.id_player });
+              console.log("Guest go up");
+            } else if (pGuest.paddle?.cy() < clickY) {
+              socket.emit('keydown', { ball: {cx: ball.cx / ratio, cy: ball.cy, vx: ball.vx / ratio, vy: ball.vy}, paddleDirection: 1, userId: user.id_player });
+              console.log("Guest go down");
+            }
+          }
+        } else {
+          console.log("Clicked somewhere else on the element");
+        }
+        // socket.emit('keydown', { ball: {cx: ball.cx / ratio, cy: ball.cy, vx: ball.vx / ratio, vy: ball.vy}, paddleDirection: paddleDirection, userId: user.id_player });
+      }
+    }
+
+
     on(document, 'keyup', function (e: any) {
       // const { cercle, ...ballWithoutCercle } = ball;
       // ballWithoutCercle.cx = ballWithoutCercle.cx / ratio;
@@ -339,6 +429,9 @@ export default function game(started: Boolean = false, socket: Socket, dificulty
       pHost.paddle?.show();
       pGuest.paddle?.show();
       ball.cercle.show();
+      setTimeout(() => {
+        launchBall(socket, ball, pHost, ratio, dificulty);
+      }, 2000);
     });
 
 

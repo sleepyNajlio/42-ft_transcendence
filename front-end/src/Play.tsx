@@ -172,10 +172,10 @@ export function Play({ setInPlay, inviter, setInviter}: { setInPlay: any , invit
     useEffect(() => {
       if (!isMounted.current || !socket)
         return;
-      if (isDocumentVisible) {
-        console.log('isDocumentVisible: ', isDocumentVisible);
-        socket.emit('documentVisible', { id: socket.id, userId: user?.id });
-      }
+      // if (isDocumentVisible) {
+      //   console.log('isDocumentVisible: ', isDocumentVisible);
+      //   socket.emit('documentVisible', { id: socket.id, userId: user?.id });
+      // }
       // else {
       //   socket.emit('playClose', { id: socket.id });
       // }

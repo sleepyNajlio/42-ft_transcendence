@@ -35,6 +35,7 @@ enum gameStatus {
   ABORTED = 'ABORTED',
   FINISHED = 'FINISHED',
   SEARCHING = 'SEARCHING',
+  NONE = 'NONE',
 }
 
 @WebSocketGateway({
@@ -248,7 +249,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
           [player2.userId]: this.players[player2.userId],
         },
         ball: this.ball,
-        state: gameStatus.PLAYING,
+        state: gameStatus.NONE,
         update: true,
       };
 
@@ -618,7 +619,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
           [data.adv_id]: this.players[data.adv_id],
         },
         ball: this.ball,
-        state: gameStatus.PLAYING,
+        state: gameStatus.NONE,
         update: true,
       };
       this.games[gameId].players[data.adv_id].host = true;
@@ -882,7 +883,13 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
               vy: 0,
             },
           };
-          // Emit the 'reset' event to players in the game to reset the game
+          Object.values(this.games[gameId].players).find(
+            (player: any) => player.host,
+          ).score = data.playerLeft;
+          // check the other player
+          Object.values(this.games[gameId].players).find(
+            (player: any) => !player.host,
+          ).score = data.playerRight;
           this.logger.log(
             `score ${data.playerLeft} ${data.playerRight} ${this.games[gameId].ball.cx} ${client.id}}`,
           );
@@ -896,6 +903,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       } else if (data.action === 'start') {
         // Emit the 'start' event to players in the game to start the game
         this.games[gameId].update = true;
+        this.games[gameId].state = gameStatus.PLAYING;
         console.log('start');
         this.socketGateway
           .getServer()
@@ -971,10 +979,33 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const gameId = Object.keys(this.games).find(
       (id) => this.games[id].players[data.userId],
     );
-
     if (gameId) {
       // playeer is already in game
-      client.to(gameId).emit('getFrame', data);
+      client.to(gameId).emit('getFrame', data, (response: any) => {
+        // Handle the response here
+        console.log(response);
+        if (response instanceof Error) {
+          this.socketGateway
+            .getServer()
+            .to(gameId)
+            .emit('initFrame', {
+              ball: this.games[gameId].ball,
+              y1: data.y1,
+              y2: data.y2,
+              playerLeft: Object.values(this.games[gameId].players).find(
+                (player: any) => player.host,
+              ).score,
+              playerRight: Object.values(this.games[gameId].players).find(
+                (player: any) => !player.host,
+              ).score,
+              id: data.userId,
+            });
+          // Add additional error handling logic here
+        } else {
+          console.log('Response from getFrame:', response);
+          // Handle the successful response here
+        }
+      });
     }
   }
 
@@ -996,7 +1027,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         bball: this.games[gameId].ball,
         gameId: this.players[data.userId].gameId,
       });
-      client.to(gameId).emit('getFrame', data);
     } else {
       console.log('is not in game');
     }
@@ -1017,12 +1047,36 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const gameId = Object.keys(this.games).find(
       (id) => this.games[id].players[data.userId],
     );
-    this.logger.log(`emiting updateFrame`);
+    this.logger.log(
+      `emiting updateFrame ${gameId} ${data.userId} ${data.playerLeft} ${data.playerRight} ${data.ball.cy} `,
+    );
     if (gameId) {
       this.games[gameId].ball = {
         ...this.games[gameId].ball,
         ...data.ball,
       };
+      // if (
+      //   data.playerLeft === 0 &&
+      //   data.playerRight === 0 &&
+      //   this.games[gameId].state === gameStatus.PLAYING &&
+      //   data.ball.cy === 300
+      // ) {
+      //   this.socketGateway
+      //     .getServer()
+      //     .to(gameId)
+      //     .emit('initFrame', {
+      //       ball: this.games[gameId].ball,
+      //       y1: data.y1,
+      //       y2: data.y2,
+      //       playerLeft: Object.values(this.games[gameId].players).find(
+      //         (player: any) => player.host,
+      //       ).score,
+      //       playerRight: Object.values(this.games[gameId].players).find(
+      //         (player: any) => !player.host,
+      //       ).score,
+      //       id: data.userId,
+      //     });
+      // } else {
       // Emit the 'move' event to the other player in the game
       this.socketGateway.getServer().to(gameId).emit('updateFrame', {
         ball: this.games[gameId].ball,
@@ -1032,6 +1086,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         playerRight: data.playerRight,
         id: data.userId,
       });
+      // }
     }
   }
 }
