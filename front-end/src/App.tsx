@@ -121,16 +121,17 @@ function App()
     } , [isMediumPlus, isMedium, isSmall] );
     useEffect(() => {
         console.log('pathname: ', location.pathname);
+        location.pathname = location.pathname.replace(/(?!^\/)\/+/g, ''); // Replace all "/" except the first one
         const paths = ['/Testchat', '/Profile', '/Play', '/Chat', '/test', '/Settings', '/Leaderboard']; // replace with the paths you're interested in
         if (paths.includes(location.pathname) && !isMounted.current) {
             console.log("3awd initializa zbi");
             initialize();
-          }
+        }
         return () => {
             console.log('isMounted: ', isMounted.current);
             isMounted.current = false;
         }
-      }, [location.pathname]);
+    }, [location.pathname]);
 
     useEffect(() => {
         if (isMounted.current) {
@@ -210,7 +211,7 @@ function App()
         }
         if (inPlay)
             return;
-        setInvite(inviteStatus.REJECTED);
+        setInvite(inviteStatus.INVITED);
     }
     const handleInvited = (data: any) => {
         setInviters(prevInviters => [...prevInviters, {user_id: data.user_id, avatar: data.avatar, username: data.username, type: data.type, paddle: data.paddle}]);
@@ -271,7 +272,7 @@ function App()
         if (data.type === NotifType.ACCEPTED)
         {
             setProfile((prevProfile: user | null) => {
-                if (!prevProfile) {
+                if (!prevProfile || (Number(prevProfile.id) !== data.user_id)) {
                     return prevProfile;
                 }
                 return {

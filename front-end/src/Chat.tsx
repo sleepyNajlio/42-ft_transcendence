@@ -734,7 +734,7 @@ export default function Chat (props: any)  {
                     setTimeoutid(setTimeout(() => {
                             setMuteisOver(true);
                             setMuteNotification(response.chat.name);
-                    }, 5 * 6 * 1000));
+                    }, 5 * 60 * 1000));
                 }
                 if (selectedRoom?.name === response.chat.name) {
                     setSelectedRoom((prevRoom: Room | null) => {

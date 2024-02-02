@@ -7,6 +7,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { TwoFA } from './TwoFA.tsx';
 import { UserProvider } from './UserProvider.tsx';
+import { error } from 'console';
 
 
 export async function turnOffTwoFactorAuth() {
@@ -35,16 +36,16 @@ export function Settings() {
     };
 
     const onSubmitSettings = async () => {
-
         axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/user/updateUsername`, { username }, {withCredentials: true})
         .then((response) => {
             // console.log("helloo", response.data.user);
-            updateUser(response.data.user);
+            if (response.data.user) {
+                updateUser(response.data.user);
+            }
+
         }).catch((error) => {
-            console.log(error);
+            console.log(error.response.data.message);
         });
-        // updateUser({username: username});
-        // navigate('/Profile');
     }
     const checkTwoFactorAuth = async () => {
         // Replace with your actual API endpoint

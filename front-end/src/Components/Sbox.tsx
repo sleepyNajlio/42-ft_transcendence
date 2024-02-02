@@ -108,8 +108,8 @@ export default function Sbox(props: any) {
                         )}
                         {Players && !props.inviter && (
                           <div className="players">
-                            {users.map((user) => (
-                                <div key={user.id_player} className="player">
+                            {users.map((user : User, index : number) => (
+                                <div key={index} className="player">
                                 <img src={user.avatar} alt="player" className="player__img" />
                                 <h3 className="player__name">{user.username}</h3>
                                 <button onClick={()=> props.handleFriendClick(user.id_player)} className="player__button" >Invite</button>

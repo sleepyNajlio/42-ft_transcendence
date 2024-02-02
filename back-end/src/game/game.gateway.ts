@@ -792,6 +792,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
           userId: data.adv_id,
           avatar: data.avatar,
           username: data.username,
+          type: NotifType.REJECTED,
         });
       });
       return false;

@@ -40,13 +40,13 @@ function boardData(ball: Ball, pHost: Player, pGuest: Player, scoreLeft: Text, s
 
 function launchBall(socket: Socket, ball: Ball, pHost: Player, ratio: number, dificulty: number = 3) {
   if (ball.vx === 0 && ball.vy === 0) {
-    let tvx = Math.random() * dificulty * 64;
-    let tvy = Math.random() * dificulty * 64;
+    let tvx = (Math.random() * dificulty * 64) - (32 * dificulty);
+    let tvy = (Math.random() * dificulty * 64) - (32 * dificulty);
     while (30 * dificulty > Math.abs(tvx)) {
-      tvx = Math.random() * dificulty * 64;
+      tvx = (Math.random() * dificulty * 64) - (32 * dificulty);
     }
     while (30 * dificulty > Math.abs(tvy)) {
-      tvy = Math.random() * dificulty * 64;
+      tvy = (Math.random() * dificulty * 64) - (32 * dificulty);
     }
     console.log(`tvx: ${tvx}, tvy: ${tvy}, cx: ${ball.cx}, cy: ${ball.cy}` );
     socket.emit('moveBall', { ball: {vx: tvx, vy: tvy , cx: ball.cx / ratio, cy: ball.cy}, action: "start", userId: pHost.user_id });
@@ -495,13 +495,13 @@ export default function game(started: Boolean = false, socket: Socket, dificulty
       scoreRight.text(pGuest.score.toString())
       console.log('reseted ball', ball);
       if (ball.vx === 0 && ball.vy === 0) {
-        let tvx = Math.random() * dificulty * 64;
-        let tvy = Math.random() * dificulty * 64;
+        let tvx = (Math.random() * dificulty * 64) - (32 * dificulty);
+        let tvy = (Math.random() * dificulty * 64) - (32 * dificulty);
         while (30 * dificulty > Math.abs(tvx)) {
-          tvx = Math.random() * dificulty * 64;
+          tvx = (Math.random() * dificulty * 64) - (32 * dificulty);
         }
         while (30 * dificulty > Math.abs(tvy)) {
-          tvy = Math.random() * dificulty * 64;
+          tvy = (Math.random() * dificulty * 64) - (32 * dificulty);
         }
         socket.emit('moveBall', { ball: {vx: tvx , vy: tvy, cx: ball.cx / ratio, cy: ball.cy}, action: "start", userId: pHost.user_id });
       }

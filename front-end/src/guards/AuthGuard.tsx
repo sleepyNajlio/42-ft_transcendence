@@ -35,7 +35,6 @@ const AuthGuard = ({ component }: { component: ReactNode }) => {
 				navigate('/');
 			}
 		}).catch(() => {
-			// console.error(error.response.data.message);
 			setStatus(false);
 			navigate('/');
 		});

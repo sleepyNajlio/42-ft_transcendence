@@ -154,8 +154,8 @@ export default function Navbar(props: any) {
         <UserInfo onBlur={handleOnBlur} onFocus={handleFocus} onSearch={handleSearch} />
         <div className="players">
             {
-                search && users.map((player : any) => (
-                    <div className="user_rec" onClick={() => searchPlayer(player.id_player)} >
+                search && users.map((player : any, index : number) => (
+                    <div key={index} className="user_rec" onClick={() => searchPlayer(player.id_player)} >
                         <div className="image" style={{ backgroundImage: `url(${player.avatar})` }}></div>
                         <span className="text">{player.username}</span>
 

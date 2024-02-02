@@ -192,30 +192,34 @@ box-sizing: border-box;
     
 }
 
+.bt a button{
+    color:white;
+}
+
 .bt a{
-  z-index: 2;
-  color:white;
-  font-family: 'Raleway-Bold';
-  font-weight:bold;
-  font-size:15px;
-  text-align: center;
-  text-decoration:none;
-  background-color: #0F597B;
-  display:block;
-  position:relative;
-  padding:12px 21px;
-  
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  text-shadow: 0px 1px 0px #000;
-  filter: dropshadow(color=#000, offx=0px, offy=1px);
-  
-  -webkit-box-shadow:inset 0 1px 0 #2c6681, 0 10px 0 #173256ba;
-  -moz-box-shadow:inset 0 1px 0 #2c6681, 0 10px 0 #173256ba;
-  box-shadow:inset 0 1px 0 #2c6681, 0 10px 0 #173256ba;
-  
-  -webkit-border-radius: 5px;
-  -moz-border-radius: 5px;
-  border-radius: 5px;
+    color:white;
+    z-index: 2;
+    font-family: 'Raleway-Bold';
+    font-weight:bold;
+    font-size:15px;
+    text-align: center;
+    text-decoration:none;
+    background-color: #0F597B;
+    display:block;
+    position:relative;
+    padding:12px 21px;
+    
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    text-shadow: 0px 1px 0px #000;
+    filter: dropshadow(color=#000, offx=0px, offy=1px);
+    
+    -webkit-box-shadow:inset 0 1px 0 #2c6681, 0 10px 0 #173256ba;
+    -moz-box-shadow:inset 0 1px 0 #2c6681, 0 10px 0 #173256ba;
+    box-shadow:inset 0 1px 0 #2c6681, 0 10px 0 #173256ba;
+    
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
 }
 
 .bt a:active{

@@ -267,8 +267,8 @@ export default function ChatHeaderComponent(props : any) {
               <img title="Add user" src={adduser} width='22' height='22' alt="leave" />
               {DisplayUsers && (
                   <div className="user-list-dropdown">
-                    {props.friends.map((friend: any) => (
-                        <button key={friend.id_player} className="admin-button" onClick={() => handleAddUser(friend.username)}>
+                    {props.friends.map((friend: any, index : number) => (
+                        <button key={index} className="admin-button" onClick={() => handleAddUser(friend.username)}>
                           <img src={friend.avatar} alt={friend.username} />
                           {friend.username}
                         </button>
@@ -284,9 +284,9 @@ export default function ChatHeaderComponent(props : any) {
             <img title="Set Admin" src={set_admin} width='20' height='20' alt="leave" />
           {setAdmin && Array.isArray(props.chatUsers) && !props.chatUsers.some((user: any) => user.role === 'ADMIN') && (
           <div className="user-list-dropdown">
-            {props.chatUsers.map((user: any) => (
+            {props.chatUsers.map((user: any, index : number) => (
               user && user.role === 'MEMBER' && !user.isBanned && !user.isMuted && (
-                <button key={user.userId} className="admin-button" onClick={() => handleAdmin(user.user.username)}>
+                <button key={index} className="admin-button" onClick={() => handleAdmin(user.user.username)}>
                   <img src={user.user.avatar} alt={user.user.username} />
                   {user.user.username}
                 </button>

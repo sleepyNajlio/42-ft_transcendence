@@ -1107,7 +1107,7 @@ export class MessagesService {
           },
         });
       },
-      5 * 6 * 1000,
+      5 * 60 * 1000,
     );
     return mutedChatUser;
   }

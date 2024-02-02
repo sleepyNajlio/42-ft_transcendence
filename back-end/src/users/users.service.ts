@@ -15,20 +15,21 @@ export class UsersService {
   async GetUserByToken(token: string) {
     // console.log("token:", "'", token, "'");
     const payload = this.jwt.verify(token.trim());
-    // console.log("payload: ", payload);
+    console.log("payload: ", payload);
+    let user : any = null;
     try{
-      const user = await this.prisma.player.findUnique({
-      where: { email: payload.email },
-    });
+      user = await this.prisma.player.findUnique({
+        where: { email: payload.email },
+      });
+    }
+    catch(err){
+      console.log("cannot find player with token: ", token);
+    }
     if (!user) {
         throw new HttpException('invalid token', HttpStatus.UNAUTHORIZED);
       }
-      return user;
-    }
-    catch(err){
-      console.log("errorr");
-    }
-    }
+    return user;
+  }
 
   async findByEmail(email: string) {
     const user = await this.prisma.player.findUnique({
@@ -96,13 +97,21 @@ export class UsersService {
   }
 
   async updateUsername(id: number, username: string) {
-    const user = await this.prisma.player.update({
-      where: { id_player: id },
-      data: {
-        username: username,
-      },
+    const user = await this.prisma.player.findFirst({
+      where: { username: username },
     });
-    return user;
+    if (!user) {
+      const user = await this.prisma.player.update({
+        where: { id_player: id },
+        data: {
+          username: username,
+        },
+      });
+      return user;
+    }
+    else{
+      throw new HttpException('Username already exists', HttpStatus.CONFLICT);
+    }
   }
 
   async UploadAvatar(id: number, file: Express.Multer.File) {

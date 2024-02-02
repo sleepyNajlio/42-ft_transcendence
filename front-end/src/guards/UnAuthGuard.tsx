@@ -37,6 +37,9 @@ const UnAuthGuard = ({ component }: { component: ReactNode }) => {
 				navigate('/');
 			}
 			
+		}).catch(() => {
+			setStatus(true);
+			navigate('/');
 		});
 	};
 	return status ? <React.Fragment>{component}</React.Fragment> : <React.Fragment></React.Fragment>;

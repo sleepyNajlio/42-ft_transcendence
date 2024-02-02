@@ -61,7 +61,7 @@ export function ProfilInfo(props : {status: string, setFriend:React.Dispatch<Rea
                   </div>
               </div>
             ) : (status === "PENDING") ? (
-              ((props.state?.friendId === Number(user?.id))) || newRequest ?
+              (((props.state?.friendId === Number(user?.id))) || newRequest) ?
               (
                 <div className="btx">
                   <span style={{ marginTop: '17px' }}>PENDING</span>
