@@ -1,6 +1,5 @@
 import  './styles/css/chat.css'
-import { useState, useEffect, useContext} from 'react';
-import { useToasts } from 'react-toast-notifications';
+import React, { useState, useEffect, useContext} from 'react';
 import { UserContext } from './UserProvider.tsx';
 import Leftchat from './Components/Leftchat.tsx';
 import Rightchat from './Components/Rightchat.tsx';
@@ -10,7 +9,9 @@ import './styles/css/Simpleco.css';
 import './styles/css/Switchgrpdm.css';
 import './styles/css/ChatHeaderComponent.css';
 import './styles/css/chatui.css';
-import { Use } from '@svgdotjs/svg.js';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 // import { off } from '@svgdotjs/svg.js';
 // import { user } from './Components/types.ts';
 
@@ -38,7 +39,8 @@ interface Room {
     // lastMessage: string;
 }
 
-export function Chat(props : any) { // get values from data base
+
+export default function Chat (props: any)  {
     const [joined, setJoined] = useState(false);
     const { user, socket } = useContext(UserContext);
     const [name, setName] = useState('');
@@ -80,7 +82,7 @@ export function Chat(props : any) { // get values from data base
     };
 
 
-    const { addToast } = useToasts();
+    // const { addToast } = useToasts();
 
 
     // const handlejoinpass = () => {
@@ -92,7 +94,7 @@ export function Chat(props : any) { // get values from data base
     // save the states in local storage
     useEffect(() => { 
         if (!joined || !selectedRoom) return;
-
+        setMessages([]);
         console.log("use effect called in join with rooms : ");
         // console.log(Rooms);
         let id : number;
@@ -105,13 +107,13 @@ export function Chat(props : any) { // get values from data base
           }, (response: any[]) => {
             if (response) {
               socket?.emit('findAllMessages', { name: selectedRoom?.name, id: user?.id }, (response: any[]) => {
-                
                 setMessages(response);
               });
             } else {
               setShowRoom(false);
             }
           });
+
           
         let isUserBanned: boolean;
         let friendshipStatus : any;
@@ -214,31 +216,35 @@ export function Chat(props : any) { // get values from data base
             // console.log(messages);
         });
         socket?.on('message', (message) => {
-            // console.log("id chat of the message is: ");
-            // console.log(message);
+            console.log("id chat of the message is: ");
+            console.log(message);
             if ((message.user.username === username || message.user.username === name) && message.chat.name ===  null && message.chat.type === 'PRIVATE')
             {
                 console.log("messageDmmm in front : ");
                 console.log(message);
                 setMessages((prevMessages) => [...prevMessages, message]);
             }
-            setFriends((prevFriends) => {
-                const updatedFriends = prevFriends.map((friend) => {
-                    if (friend.username === message.user.username || (name && friend.username === name)) {
-                        return {
-                            ...friend,
-                            lastMessage: {
-                                message: message.message,
-                                user: {
-                                    username: message.user.username,
+            if (message.chat.name === null && message.chat.type === 'PRIVATE')
+            {
+                setFriends((prevFriends) => {
+                    const updatedFriends = prevFriends.map((friend) => {
+                        console.log("ooooooooo", friend.username, message.user.username, name);
+                        if (friend.username === message.user.username || (message.user.username === user?.username && friend.username === name) ) {
+                            return {
+                                ...friend,
+                                lastMessage: {
+                                    message: message.message,
+                                    user: {
+                                        username: message.user.username,
+                                    },
                                 },
-                            },
-                        };
-                    }
-                    return friend;
+                            };
+                        }
+                        return friend;
+                    });
+                    return updatedFriends;
                 });
-                return updatedFriends;
-            });
+            }
         });
         setShowRoom(false);
         setJoinfriend(false);
@@ -272,6 +278,7 @@ export function Chat(props : any) { // get values from data base
             if (!response)
                 alert("room already exist");
         });
+
         // socket?.off('rooms');
         // socket?.on('rooms', (room) => {
         //     setRooms((prevRooms: Room[] | null) => {
@@ -281,7 +288,6 @@ export function Chat(props : any) { // get values from data base
         //         return [...prevRooms, room];
         //     });
         // });
-        setIsOwner(true);
         setDisplayRoom(true);
         setCreated(false);
         setName("");
@@ -301,10 +307,16 @@ export function Chat(props : any) { // get values from data base
         id = Number(user?.id);
         socket?.emit('DisplayRoom', { id },  (response : Room[]) => {
             setRooms(response);
+        console.log("use effect called in display room", Rooms);
+
         });
-        
             socket?.on('rooms', (room) => {
-            // console.log("from front rooms: ", room);
+            console.log("from front rooms: ", room);
+            if (room.chatUser.userId != user?.id)
+            {
+                room.chatUser.role = "MEMBER";
+                room.chatUser.userId = user?.id;
+            }
             setRooms((prevRooms: Room[] | null) => {
                 if (prevRooms === null) {
                         return [room];
@@ -507,11 +519,9 @@ export function Chat(props : any) { // get values from data base
     useEffect(() => {
     console.log("use effect called in show notifff");
     if (showNotifKick)
-    addToast(`You were kicked from the room ${KickNotification}`, {
-        appearance: 'error',
-        autoDismiss: true,
-        autoDismissTimeout: 10000,
-        });
+    toast.error(`You were kicked from the room ${KickNotification}`, {
+        autoClose: 10000
+    });
         setShownotifKick(false);
 
     }, [showNotifKick]);
@@ -567,12 +577,10 @@ export function Chat(props : any) { // get values from data base
         useEffect(() => {
             console.log("use effect called in show notifff");
             if (showNotifBan)
-            addToast(`You were banned from the room ${BanNotification}`, {
-                appearance: 'error',
-                autoDismiss: true,
-                autoDismissTimeout: 10000,
-                });
-                setShownotifBan(false);
+            toast.error(`You were banned from the room ${BanNotification}`, {
+                autoClose: 10000
+            });
+            setShownotifBan(false);
         
             }, [showNotifBan]);
 
@@ -651,11 +659,9 @@ export function Chat(props : any) { // get values from data base
     useEffect(() => {
         console.log("use effect called in show  mute notifff");
         if (showNotifMute)
-        addToast(`You were muted for 5 min from the room ${MuteNotification}`, {
-            appearance: 'error',
-            autoDismiss: true,
-            autoDismissTimeout: 10000,
-            });
+        toast.error(`You were muted for 5 min from the room ${MuteNotification}`, {
+            autoClose: 10000
+        });
             setShownotifMute(false);
     
         }, [showNotifMute]);
@@ -663,11 +669,9 @@ export function Chat(props : any) { // get values from data base
     useEffect(() => {
             console.log("use effect called in mute is over");
             if (MuteisOver)
-            addToast(`Your mute for 5 min in room ${MuteNotification} is over`, {
-                appearance: 'success',
-                autoDismiss: true,
-                autoDismissTimeout: 10000,
-                });
+            toast.success(`Your mute for 5 min in room ${MuteNotification} is over`, {
+                autoClose: 10000
+            });
                 setMuteisOver(false);
         
             }, [MuteisOver]);
@@ -675,11 +679,9 @@ export function Chat(props : any) { // get values from data base
     useEffect(() => {
         console.log("use effect called in userAdded");
         if (userAdded)
-        addToast(`Your were Added in room ${RoomAdded}`, {
-            appearance: 'success',
-            autoDismiss: true,
-            autoDismissTimeout: 10000,
-            });
+        toast.success(`Your were Added in room ${RoomAdded}`, {
+            autoClose: 10000
+        });
             setUserAdded(false);
     
     }, [userAdded]);
@@ -978,9 +980,13 @@ export function Chat(props : any) { // get values from data base
         setJoined(true);
     };
     const create = () => {
-        setDisplayDms(true);
-        setDisplayDms(false);
-        setDisplayRoom(false);
+        if (showRoom || ShowDm)
+        {
+            setShowDm(false);
+            setShowRoom(false);
+            setwelcomeMsg(true);
+            setMessages([]);
+        }
         setCreated(!created);
         setCreating(false);
     };
@@ -1031,14 +1037,9 @@ export function Chat(props : any) { // get values from data base
     // for joining room
     const handleRoomClick = (room: Room) => {
         socket?.off('message');
-        // console.log('room clickedddd with :');
-        // console.log(room.id_chat);
-        // console.log(room.name + " ===== " + room.type + " " );
-        // console.log("with pass = " + selectedPswd);
-
         getChatUsers(room.name);
         if (room.chatUser && room.chatUser.role === 'OWNER') {
-            // console.log("is owner is set to true");
+            console.log("is owner is set to true in handle Room click");
           setIsOwner(true);
         } else {
           setIsOwner(false);
@@ -1067,6 +1068,7 @@ export function Chat(props : any) { // get values from data base
             // console.log("room protected and it's modified");
             setSelectedRoom(room);
             setShowRoom(false);
+            setShowDm(false);
             setwelcomeMsg(true);
             return;
         }
@@ -1076,6 +1078,7 @@ export function Chat(props : any) { // get values from data base
             setPassjoin(true);
             // console.log(room);
             setSelectedRoom(room);
+            setShowDm(false);
             setShowRoom(false);
             setwelcomeMsg(true);
             return;
@@ -1169,6 +1172,7 @@ export function Chat(props : any) { // get values from data base
                      messages={messages} isOwner={isOwner} passjoin={passjoin} toggleDarkMode={toggleDarkMode} darkMode={darkMode}/>}
                 </div>            
                 </div>
+                <ToastContainer/>
         </>
     );
 }

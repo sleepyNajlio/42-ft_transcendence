@@ -663,6 +663,7 @@ box-sizing: border-box;
     margin-top: 30px;
     height: 180px;
     object-fit: contain;
+    width: 100%;
 }
 
 .profil__info .profil__user

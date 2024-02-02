@@ -24,6 +24,8 @@ export async function getUserInfo(id?: number): Promise<user | null> {
     }
     if (response.ok) {
         const res = await response.json();
+        if (!res.user)
+            return null;
         const stats: user_stats = {
             winsRat: Number(res.user.wins) ? Number(res.user.wins) / (Number(res.user.wins) + Number(res.user.loses)): 0,
             wins: Number(res.user.wins),
@@ -104,6 +106,8 @@ export async function getMatchHistory(id: number): Promise<History[] | null> {
 export async function initializeUser() : Promise<Boolean>  {
     try {
         const res = await getUserInfo();
+        if (!res)
+            return false;
         const res2 = await getMatchHistory(Number(res?.id));
         history = res2;
         player = res;

@@ -1,3 +1,3 @@
-npm install --legacy-peer-deps && chown -R node:node ./ 
+npm install && chown -R node:node ./ 
 
 npm run dev

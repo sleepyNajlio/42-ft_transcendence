@@ -23,7 +23,6 @@ services:
     container_name: nest-container
     volumes:
        - ./back-end:/back-end
-       - /back-end/node_modules
     networks:
       - ft_transcendence
 
@@ -40,7 +39,6 @@ services:
     container_name: react-container
     volumes:
        - ./front-end:/front-end
-       - /front-end/node_modules
     networks:
       - ft_transcendence
 

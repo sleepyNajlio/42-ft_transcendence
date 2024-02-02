@@ -326,72 +326,72 @@ export default function game(started: Boolean = false, socket: Socket, dificulty
 
     let isMouseDown = false;
 
-    const element = document.getElementById("pong");
-    var supportsTouch = 'ontouchstart' in window || navigator.maxTouchPoints;
-    console.log("supportsTouch", supportsTouch);
-    element?.addEventListener("mousedown", handleMouseDown);
-    element?.addEventListener("mouseup", handleMouseUp);
-    element?.addEventListener("mousemove", handleMouseMove);
-    element?.addEventListener("touchstart", handleMouseDown);
-    element?.addEventListener("touchend", handleMouseUp);
-    element?.addEventListener("touchmove", handleMouseMove);
+    // const element = document.getElementById("pong");
+    // var supportsTouch = 'ontouchstart' in window || navigator.maxTouchPoints;
+    // console.log("supportsTouch", supportsTouch);
+    // element?.addEventListener("mousedown", handleMouseDown);
+    // element?.addEventListener("mouseup", handleMouseUp);
+    // element?.addEventListener("mousemove", handleMouseMove);
+    // element?.addEventListener("touchstart", handleMouseDown);
+    // element?.addEventListener("touchend", handleMouseUp);
+    // element?.addEventListener("touchmove", handleMouseMove);
 
 
-    function handleMouseDown(event: MouseEvent | TouchEvent) {
-      // Check if it's a MouseEvent
-      if (event instanceof MouseEvent || event instanceof TouchEvent) {
-        isMouseDown = true;
-        handleMouseMove(event); // Call handleMouseMove to immediately process the event
-      }
-    }
+    // function handleMouseDown(event: MouseEvent | TouchEvent) {
+    //   // Check if it's a MouseEvent
+    //   if (event instanceof MouseEvent || event instanceof TouchEvent) {
+    //     isMouseDown = true;
+    //     handleMouseMove(event); // Call handleMouseMove to immediately process the event
+    //   }
+    // }
 
-    function handleMouseUp(event: MouseEvent | TouchEvent) {
-      // Check if it's a MouseEvent
-      if (event instanceof MouseEvent || event instanceof TouchEvent) {
-        isMouseDown = false;
-        // Send the socket.emit event with paddleDirection set to 0
-        socket.emit('keydown', { ball: {cx: ball.cx / ratio, cy: ball.cy, vx: ball.vx / ratio, vy: ball.vy}, paddleDirection: 0, userId: user.id_player });
-      }
-    }
+    // function handleMouseUp(event: MouseEvent | TouchEvent) {
+    //   // Check if it's a MouseEvent
+    //   if (event instanceof MouseEvent || event instanceof TouchEvent) {
+    //     isMouseDown = false;
+    //     // Send the socket.emit event with paddleDirection set to 0
+    //     socket.emit('keydown', { ball: {cx: ball.cx / ratio, cy: ball.cy, vx: ball.vx / ratio, vy: ball.vy}, paddleDirection: 0, userId: user.id_player });
+    //   }
+    // }
 
-    function handleMouseMove(event: MouseEvent | TouchEvent) {
-      // Check if it's a MouseEvent and the mouse button is held down
-      if ((event instanceof MouseEvent || event instanceof TouchEvent) && isMouseDown) {
-        const element = event.target as HTMLElement;
-        const rect = element.getBoundingClientRect();
-        const clientX = event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
-        const clientY = event instanceof MouseEvent ? event.clientY : event.touches[0].clientY;
-        const clickX = clientX - rect.left;
-        const clickY = clientY - rect.top;
-        console.log("clickX", clickX);
+    // function handleMouseMove(event: MouseEvent | TouchEvent) {
+    //   // Check if it's a MouseEvent and the mouse button is held down
+    //   if ((event instanceof MouseEvent || event instanceof TouchEvent) && isMouseDown) {
+    //     const element = event.target as HTMLElement;
+    //     const rect = element.getBoundingClientRect();
+    //     const clientX = event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
+    //     const clientY = event instanceof MouseEvent ? event.clientY : event.touches[0].clientY;
+    //     const clickX = clientX - rect.left;
+    //     const clickY = clientY - rect.top;
+    //     console.log("clickX", clickX);
 
-        // Now mouseX and mouseY contain the mouse position relative to the element
-        // You can use these values to update your game state or perform other actions
+    //     // Now mouseX and mouseY contain the mouse position relative to the element
+    //     // You can use these values to update your game state or perform other actions
 
-        if ((clickX >= 0 && clickX <= width) && (clickY >= 0 && clickY <= height)) {
-          if (pHost && pHost.paddle && pHost.user_id === user.id_player) {
-            if (pHost.paddle?.cy() > clickY) {
-              console.log("host go up");
-              socket.emit('keydown', { ball: {cx: ball.cx / ratio, cy: ball.cy, vx: ball.vx / ratio, vy: ball.vy}, paddleDirection: -1, userId: user.id_player });
-            } else if (pHost.paddle?.cy() < clickY) {
-              console.log("host go down");
-              socket.emit('keydown', { ball: {cx: ball.cx / ratio, cy: ball.cy, vx: ball.vx / ratio, vy: ball.vy}, paddleDirection: 1, userId: user.id_player });
-            }
-          } else if (pGuest && pGuest.paddle && pGuest.user_id === user.id_player) {
-            if (pGuest.paddle?.cy() > clickY) {
-              socket.emit('keydown', { ball: {cx: ball.cx / ratio, cy: ball.cy, vx: ball.vx / ratio, vy: ball.vy}, paddleDirection: -1, userId: user.id_player });
-              console.log("Guest go up");
-            } else if (pGuest.paddle?.cy() < clickY) {
-              socket.emit('keydown', { ball: {cx: ball.cx / ratio, cy: ball.cy, vx: ball.vx / ratio, vy: ball.vy}, paddleDirection: 1, userId: user.id_player });
-              console.log("Guest go down");
-            }
-          }
-        } else {
-          console.log("Clicked somewhere else on the element");
-        }
-        // socket.emit('keydown', { ball: {cx: ball.cx / ratio, cy: ball.cy, vx: ball.vx / ratio, vy: ball.vy}, paddleDirection: paddleDirection, userId: user.id_player });
-      }
-    }
+    //     if ((clickX >= 0 && clickX <= width) && (clickY >= 0 && clickY <= height)) {
+    //       if (pHost && pHost.paddle && pHost.user_id === user.id_player) {
+    //         if (pHost.paddle?.cy() > clickY) {
+    //           console.log("host go up");
+    //           socket.emit('keydown', { ball: {cx: ball.cx / ratio, cy: ball.cy, vx: ball.vx / ratio, vy: ball.vy}, paddleDirection: -1, userId: user.id_player });
+    //         } else if (pHost.paddle?.cy() < clickY) {
+    //           console.log("host go down");
+    //           socket.emit('keydown', { ball: {cx: ball.cx / ratio, cy: ball.cy, vx: ball.vx / ratio, vy: ball.vy}, paddleDirection: 1, userId: user.id_player });
+    //         }
+    //       } else if (pGuest && pGuest.paddle && pGuest.user_id === user.id_player) {
+    //         if (pGuest.paddle?.cy() > clickY) {
+    //           socket.emit('keydown', { ball: {cx: ball.cx / ratio, cy: ball.cy, vx: ball.vx / ratio, vy: ball.vy}, paddleDirection: -1, userId: user.id_player });
+    //           console.log("Guest go up");
+    //         } else if (pGuest.paddle?.cy() < clickY) {
+    //           socket.emit('keydown', { ball: {cx: ball.cx / ratio, cy: ball.cy, vx: ball.vx / ratio, vy: ball.vy}, paddleDirection: 1, userId: user.id_player });
+    //           console.log("Guest go down");
+    //         }
+    //       }
+    //     } else {
+    //       console.log("Clicked somewhere else on the element");
+    //     }
+    //     // socket.emit('keydown', { ball: {cx: ball.cx / ratio, cy: ball.cy, vx: ball.vx / ratio, vy: ball.vy}, paddleDirection: paddleDirection, userId: user.id_player });
+    //   }
+    // }
 
 
     on(document, 'keyup', function (e: any) {

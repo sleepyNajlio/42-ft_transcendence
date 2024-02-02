@@ -16,14 +16,19 @@ export class UsersService {
     // console.log("token:", "'", token, "'");
     const payload = this.jwt.verify(token.trim());
     // console.log("payload: ", payload);
-    const user = await this.prisma.player.findUnique({
+    try{
+      const user = await this.prisma.player.findUnique({
       where: { email: payload.email },
     });
     if (!user) {
-      throw new HttpException('invalid token', HttpStatus.UNAUTHORIZED);
+        throw new HttpException('invalid token', HttpStatus.UNAUTHORIZED);
+      }
+      return user;
     }
-    return user;
-  }
+    catch(err){
+      console.log("errorr");
+    }
+    }
 
   async findByEmail(email: string) {
     const user = await this.prisma.player.findUnique({

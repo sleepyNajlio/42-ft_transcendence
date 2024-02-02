@@ -19,11 +19,13 @@ export function Verify2FA() {
         if (res.data.success) {
           navigate('/Profile'); 
         } else {
+          setInputKolo('');
           console.log("Wrong code");
         }
       })
       .catch(() => {
-        console.log("Wrong code");
+          setInputKolo('');
+          console.log("Wrong code");
       });
       
   }
@@ -31,7 +33,6 @@ export function Verify2FA() {
     if (inputKolo.length === 6) {
       Verify();
       console.log(inputKolo);
-
     }
   }, [inputKolo]);
   const handleKeyPress = (

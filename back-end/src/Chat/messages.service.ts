@@ -352,14 +352,14 @@ export class MessagesService {
       });
     }
 
-    await this.prisma.chatUser.create({
+    const chatUser = await this.prisma.chatUser.create({
       data: {
         chatId: newChat.id_chat,
         userId: id,
         role: 'OWNER',
       },
     });
-
+    newChat = {...newChat, chatUser};
     // console.log(newChat);
     // console.log('-------------------');
     // console.log(chatUSers);

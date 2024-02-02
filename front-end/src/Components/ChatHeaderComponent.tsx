@@ -105,7 +105,7 @@ const SettingsComponent = (props: any) => {
 };
 
 
-const ChatHeaderComponent: React.FC = (props : any) => {
+export default function ChatHeaderComponent(props : any) {
   
   const [showSettings, setShowSettings] = useState(false);
   const [leaveRoom, setLeaveRoom] = useState(false);
@@ -114,6 +114,7 @@ const ChatHeaderComponent: React.FC = (props : any) => {
   const [DisplayUsers, setDisplayUsers] = useState(false);
   const { user, getUserById, getMatchHistory } = useContext(UserContext);
   const navigate = useNavigate();
+
 
 
   // const navigate = useNavigate();
@@ -213,10 +214,11 @@ const ChatHeaderComponent: React.FC = (props : any) => {
   }
     
   // console.log("room type setting : " , props.room.type);
-  console.log("dark mode is : " , props.darkMode);
+  console.log('user is owner in chatHeader: ' + props.isOwner)
 
   if (props.showRoom && !props.isOwner && !props.isAdmin)
   {
+    console.log("show rooom");
     return (
       <div className="chat-header-container">
         <img className="profile-image" src={props.profileImageUrl} alt="Friend" />
@@ -254,7 +256,7 @@ const ChatHeaderComponent: React.FC = (props : any) => {
           <div className='blank'>
           </div>
           <div className='profil' onClick={handleSettings}>
-            <img title="Settings" src={Setting} width='20' height='20' style={{ marginLeft: '30px' }} alt="Settings" />
+            <img title="Settings" src={Setting} width='20' height='20' alt="Settings" />
           </div>
           {showSettings && <SettingsComponent  Roomtype={props.Roomtype} setShowSettings={setShowSettings}
               showSettings={showSettings} handleUpdateRoom={props.handleUpdateRoom}
@@ -277,6 +279,7 @@ const ChatHeaderComponent: React.FC = (props : any) => {
             
             </div>
           }
+          <div className='blank'> </div>
           <div className='profil' onClick={handlesetAdmin}>
             <img title="Set Admin" src={set_admin} width='20' height='20' alt="leave" />
           {setAdmin && Array.isArray(props.chatUsers) && !props.chatUsers.some((user: any) => user.role === 'ADMIN') && (
@@ -340,6 +343,7 @@ const ChatHeaderComponent: React.FC = (props : any) => {
   }
   else if (props.showDm)
   {
+    console.log("show dmmmm");
     return (
       <div className="chat-header-container">
     <img className="profile-image" src={props.profileImageUrl} alt="Friend" />
@@ -360,5 +364,3 @@ const ChatHeaderComponent: React.FC = (props : any) => {
     );
   }
 };
-
-export default ChatHeaderComponent;

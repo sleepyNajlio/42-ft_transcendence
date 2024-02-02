@@ -5,7 +5,7 @@ import './styles/css/App.css';
 import { TwoFA } from './TwoFA.tsx';
 import { Verify2FA } from './Verify2FA.tsx';
 import { Play } from './Play.tsx';
-import { Chat } from './Chat.tsx';
+import Chat from "./Chat.tsx"
 import { Settings } from './Settings.tsx'
 import { Leaderboard } from './Leaderboard.tsx'
 import { Profile } from './Profile.tsx'
@@ -19,7 +19,6 @@ import {inviteStatus, user} from './Components/types.ts'
 import { TestChat } from './Testchat.tsx';
 import axios from 'axios';
 import { History } from './Components/types.ts';
-import { ToastProvider } from 'react-toast-notifications';
 import ButtonsComponent from './ButtonsComponent.tsx';
 import Notfound from './Components/Notfound.tsx';
 
@@ -316,7 +315,6 @@ function App()
             element={
                 <AuthGuard
                     component={
-                        <ToastProvider>
                         <>
                             {(location.pathname === "/Profile" || location.pathname === "/Play" || location.pathname === "/Chat" || location.pathname === "/Settings" || location.pathname === "/Leaderboard") &&
                             (<Navbar profile={profile} setProfile={setProfile} setHistory={setHistory} invite={invite} inviters={inviters} inviteResp={inviteResp} setInvite={setInvite}/>)
@@ -335,7 +333,6 @@ function App()
                             }
                             
                         </>
-                        </ToastProvider>
                     }
                 />
             }
