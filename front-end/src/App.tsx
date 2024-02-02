@@ -210,7 +210,7 @@ function App()
         }
         if (inPlay)
             return;
-        setInvite(inviteStatus.INVITED);
+        setInvite(inviteStatus.REJECTED);
     }
     const handleInvited = (data: any) => {
         setInviters(prevInviters => [...prevInviters, {user_id: data.user_id, avatar: data.avatar, username: data.username, type: data.type, paddle: data.paddle}]);

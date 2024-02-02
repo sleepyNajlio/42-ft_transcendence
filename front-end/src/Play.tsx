@@ -34,23 +34,13 @@ export function Play({ setInPlay, inviter, setInviter}: { setInPlay: any , invit
     });
     
     const handleFriendClick = async (player_id: number) => {
-      if (socket && componentRef.current?.offsetWidth)
+      if (socket)
       {
-        const gameResponse = await axios.get(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/game/creategame`,  { withCredentials: true });
-        const gameId = gameResponse.data.id_game;
-        await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/game/${gameId}/joinGame`, {userId: user?.id},  { withCredentials: true });
-        setGameId(gameId);
-        console.log('game', gameId, " created");
         socket.emit('invite', 
         {
-          gameId: gameId,
+          checkfriend: true,
           adv_id: player_id.toString(),
           userId: user?.id.toString(),
-          username: user?.username,
-          avatar: user?.avatar,
-          width: componentRef.current?.offsetWidth > 750 ? componentRef.current?.offsetWidth * 0.8 : componentRef.current?.offsetWidth,
-          difficulty: 3,
-          padl: currentPad,
         }, async (response: any) => {
           console.log('Received acknowledgement from server:', response);
           if (!response) {
@@ -60,7 +50,26 @@ export function Play({ setInPlay, inviter, setInviter}: { setInPlay: any , invit
           }
           setIsLoading(true);
           setInviter(null)
+          const gameResponse = await axios.get(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/game/creategame`,  { withCredentials: true });
+          const gameId = gameResponse.data.id_game;
+          await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/game/${gameId}/joinGame`, {userId: user?.id},  { withCredentials: true });
+          setGameId(gameId);
+          console.log('game', gameId, " created");
+          if (componentRef.current?.offsetWidth)
+            socket.emit('invite', 
+            {
+              gameId: gameId,
+              adv_id: player_id.toString(),
+              userId: user?.id.toString(),
+              username: user?.username,
+              avatar: user?.avatar,
+              width: componentRef.current?.offsetWidth > 750 ? componentRef.current?.offsetWidth * 0.8 : componentRef.current?.offsetWidth,
+              difficulty: 3,
+              padl: currentPad,
+              checkfriend: false,
+            });
         });
+        
       }
     };
 

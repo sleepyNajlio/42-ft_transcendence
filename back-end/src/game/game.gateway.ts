@@ -392,16 +392,19 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('invite')
   handelInvite(client: Socket, data: any) {
     console.log('invite to ', data.adv_id, ' by ', data.userId);
-    if (this.notifs[data.userId]) {
-      const player = this.notifs[data.userId].find(
-        (player) => player.user_id === data.adv_id,
-      );
-      if (player) {
+    if (data.checkfriend) {
+      if (this.notifs[data.userId]) {
+        const player = this.notifs[data.userId].find(
+          (player) => player.user_id === data.adv_id,
+        );
+        if (player) {
+          return false;
+        }
+      }
+      if (this.players[data.adv_id]?.state === PlayerState.PLAYING) {
         return false;
       }
-    }
-    if (this.players[data.adv_id]?.state === PlayerState.PLAYING) {
-      return false;
+      return true;
     }
     this.players[data.userId] = {
       s_id: client.id,
@@ -785,7 +788,11 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         gameStatus.SEARCHING,
       );
       this.socketGateway.getClientSocket(data.userId).map((socketa) => {
-        socketa.emit('rejected', data.adv_id);
+        socketa.emit('rejected', {
+          userId: data.adv_id,
+          avatar: data.avatar,
+          username: data.username,
+        });
       });
       return false;
     }

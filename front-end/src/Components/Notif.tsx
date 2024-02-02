@@ -37,7 +37,7 @@ const Notification: React.FC<NotificationProps> = ({setInvite, inviters, inviteR
         console.log("inviters: ", inviters);
     } , [inviters]);
     const navigate = useNavigate();
-    
+
     const HandleAccept = async (id: number) => {
         setProfile((prevProfile: user | null) => {
             if (!prevProfile) {
