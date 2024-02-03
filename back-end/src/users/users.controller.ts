@@ -10,7 +10,6 @@ import {
   UseInterceptors,
   UploadedFile,
   Body,
-  HttpCode
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { Request, Response } from 'express';
@@ -19,13 +18,12 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { editFilename } from './AvatarTools';
 import { imageFileFilter } from './AvatarTools';
-import { error } from 'console';
 import { UpdateUsernameDTO } from './dto/SignUp.dto';
 
 @Controller('user')
 export class UsersController {
   constructor(
-    private readonly UsersService: UsersService,
+    private readonly usersService: UsersService,
     private Config: ConfigService,
   ) {}
 
@@ -37,14 +35,14 @@ export class UsersController {
       return { twoFA: true };
     }
     if (req.cookies['JWT_TOKEN']) {
-      const user = await this.UsersService.GetUserByToken(
+      const user = await this.usersService.GetUserByToken(
         req.cookies['JWT_TOKEN'],
       );
       return user;
     } else if (req.cookies['USER']) {
-      const user = await this.UsersService.GetUserByToken(req.cookies['USER']);
+      const user = await this.usersService.GetUserByToken(req.cookies['USER']);
       return user;
-    } else return {msg: "no cookies"};
+    } else return { msg: 'no cookies' };
   }
 
   @SetMetadata('isPublic', true)
@@ -55,7 +53,7 @@ export class UsersController {
         destination: './avatars',
         filename: editFilename,
       }),
-      fileFilter: imageFileFilter,
+      fileFilter: imageFileFilter,<
       limits: { fileSize: 1024 * 1024 * 5 },
     }),
   )
@@ -63,9 +61,10 @@ export class UsersController {
     @Req() request: Request,
     @UploadedFile() file: Express.Multer.File,
   ) {
-    const user = await this.UsersService.GetUserByToken(
-      request.cookies['JWT_TOKEN']|| request.cookies['USER'],);
-    await this.UsersService.UploadAvatar(user.id_player, file);
+    const user = await this.usersService.GetUserByToken(
+      request.cookies['JWT_TOKEN'] || request.cookies['USER'],
+    );
+    await this.usersService.UploadAvatar(user.id_player, file);
     // if upload is successful
     if (file) {
       console.log({ file });
@@ -74,23 +73,24 @@ export class UsersController {
     return 'madazsh';
   }
 
-  @Post("updateUsername")
+  @Post('updateUsername')
   async updateUsername(@Req() req: Request, @Body() dto: UpdateUsernameDTO) {
-    console.log("username update ", req.user)
-    console.log("username", dto)
-    const user = await this.UsersService.GetUserByToken(
+    console.log('username update ', req.user);
+    console.log('username', dto);
+    const user = await this.usersService.GetUserByToken(
       req.cookies['JWT_TOKEN'] || req.cookies['USER'],
     );
-    const newUser = await this.UsersService.updateUsername(user.id_player, dto.username);
-    return { user: newUser};
+    const newUser = await this.usersService.updateUsername(
+      user.id_player,
+      dto.username,
+    );
+    return { user: newUser };
   }
-
-
 
   // @Get('/:id')
   // async getUserById(@Param() { id }: { id: string }) {
   //   console.log(id);
-  //   const user = await this.UsersService.getUserById(Number(id));
+  //   const user = await this.usersService.getUserById(Number(id));
   //   return user;
   // }
 

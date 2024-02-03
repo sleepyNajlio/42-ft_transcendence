@@ -320,6 +320,7 @@ export class ProfileService {
     });
 
     const matches2: {
+      user1: string;
       score1: number;
       user2: string;
       score2: number;
@@ -343,6 +344,7 @@ export class ProfileService {
 
           if (res) {
             matches2.push({
+              user1: match.user.avatar,
               score1: match.score,
               user2: res.user.avatar,
               score2: res.score,

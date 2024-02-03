@@ -19,7 +19,6 @@ import {inviteStatus, user} from './Components/types.ts'
 import { TestChat } from './Testchat.tsx';
 import axios from 'axios';
 import { History } from './Components/types.ts';
-import ButtonsComponent from './ButtonsComponent.tsx';
 import Notfound from './Components/Notfound.tsx';
 
 interface inviters
@@ -259,7 +258,6 @@ function App()
                     },
                 };
             });
-
         }
         if (inPlay)
             return;
@@ -299,17 +297,11 @@ function App()
     const [boardWidth, setboardWidth] = useState<number | null>(null);
 
     return (
-        
         <div className={`container ` + (checkIfMediumPlus ? "default" : "one")}>
-        
         <Routes>
             <Route key='Login' path='/' element={<UnAuthGuard component={<Login />}  />}/>
             <Route key='Config' path='/Config' element={<UnAuthGuard component={<Config />}  />}/>
             <Route key='Verify2FA' path='/Verify2FA' caseSensitive={true} element={<UnAuthGuard component={<Verify2FA />} />} />
-
-            {/* <Route key='Login' path='*' element={<UnAuthGuard component={<Navigate to='/' />}  />}>
-                {' '}
-            </Route> */}
             <Route
             key='AuthRoutes'
             path='/*'

@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { UserContext } from './UserProvider';
 import { TwoFA } from './TwoFA';
 import UploadAndDisplayImage from './Components/uploadimage';
+import axios from 'axios';
 
 async function finishSignup(email: string, username: string, avatar: string): Promise<any> {
   try {
@@ -34,7 +35,6 @@ async function finishSignup(email: string, username: string, avatar: string): Pr
   } catch (error) {
     console.error("Error:", username, email, avatar);
     console.error("Error:", error);
-    throw error; // Rethrow the error to be caught by the calling code
   }
 }
 
@@ -60,12 +60,12 @@ async function getPreAuthData() {
 }
 
 export function Config() {
-  const { initialize } = useContext(UserContext);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const[twoFA, setTwoFa] = useState(false);
   const [userpre, setUserpre] = useState<{id: String, email: string, username: string, avatar: string}>({id : "" ,email: "", username: "", avatar: ""});
   const navigate = useNavigate();
-  const [newUsername, setUsername] = useState<string>("kkkk");
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [newUsername, setUsername] = useState<string>("");
+  const [error, setError] = useState<Boolean>(false);
   
   useEffect(() => {
     const fetchData = async () => {
@@ -76,32 +76,49 @@ export function Config() {
           setUsername(res.username);
         }
       }
-      ).catch(error => {
-        console.error("Failed to get user: ", error);
+      ).catch(() => {
+        setError(true);
         return false;
       });
     };
     fetchData();
   }, []);
 
+
+  async function uploadImage(file: File): Promise<string | null> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+        const response = await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/user/avatar`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            },
+            withCredentials: true,
+        });
+        return response.data as string;
+    } catch {
+        // Handle error here
+        setError(true);
+        return null;
+    }
+  }
+
   const submitForm = async (path: string) => {
     console.log('form userpre:', userpre);
+    let avatar : string | null = null;
+    if (selectedImage)
+      avatar = await uploadImage(selectedImage);
     try {
-      const res = await finishSignup(userpre.email, newUsername || "", userpre.avatar);
+      const res = await finishSignup(userpre.email, newUsername || "", avatar || userpre.avatar);
       console.log("sign up", res);
       navigate(path);
-    } catch (error) {
-      console.error("Failed to finish signup: ", error);
+    } catch {
+      setError(true);
       // Handle the error or return false if needed
     }
   };
 
-  const handleFileChange = (selectedFile: File | null) => {
-    // You can now use the selectedFile in the parent component as needed.
-    console.log('Selected File:', selectedFile);
-    setSelectedFile(selectedFile);
-};
-  
 
 
 return (
@@ -109,12 +126,18 @@ return (
       <section className="Config">
         <Logo name={''}></Logo>
         {
-          !twoFA && (
+          !twoFA && userpre && (
           <div className="lll">
-            <UploadAndDisplayImage davatar={userpre?.avatar} onFileChange={handleFileChange} width={200} userpre={userpre} setuserpre={setUserpre} ></UploadAndDisplayImage>
-            {/* <div className="cercle" >
-            </div> */}
+            {
+              error && 
+              (
+                <div className="sbox__title">
+                    <h1 className="btitle" style={{color: "red"}}>Error</h1>
+                </div>
+              )
+            }
             <form onSubmit={(e) => e.preventDefault()} style={{display: 'flex', flexDirection: 'column', gap: '30px', alignItems: 'center'}}>
+              <UploadAndDisplayImage selectedImage={selectedImage} setSelectedImage={setSelectedImage} davatar={userpre.avatar} width={200} ></UploadAndDisplayImage>
               <input
                   required
                   type="text"
@@ -125,8 +148,8 @@ return (
                   }}
               ></input>
               <Button value="/Profile" link="#" msg="Done" onClick={() => submitForm('/Profile')}/>
-              <Button value="/TwoFA" link="#" msg="Enable 2FA" onClick={() => setTwoFa(true)}/>
             </form>
+            <Button value="/TwoFA" link="#" msg="Enable 2FA" onClick={() => setTwoFa(true)}/>
           </div>
           )
         }

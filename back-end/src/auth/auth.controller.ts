@@ -9,7 +9,6 @@ import {
   Body,
   HttpException,
   HttpStatus,
-  Param,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Request, Response } from 'express';
@@ -76,7 +75,9 @@ export class AuthController {
   @Get('twofa/generate')
   @SetMetadata('isPublic', true)
   async register(@Req() req: Request, @Res() res: Response) {
-    const user = await this.user.GetUserByToken(req.cookies['USER'] || req.cookies['JWT_TOKEN']);
+    const user = await this.user.GetUserByToken(
+      req.cookies['USER'] || req.cookies['JWT_TOKEN'],
+    );
     const otpauthUrl = await this.twofaService.genrateTwoFaSecret(
       user.id_player,
       user.email,
@@ -88,7 +89,9 @@ export class AuthController {
   @SetMetadata('isPublic', true)
   async turnOnTwoFa(@Req() req: Request, @Body() twofa: Update2faDTO) {
     console.log('turnOnTwoFa controller', twofa);
-    const user = await this.user.GetUserByToken(req.cookies['USER'] || req.cookies['JWT_TOKEN']);
+    const user = await this.user.GetUserByToken(
+      req.cookies['USER'] || req.cookies['JWT_TOKEN'],
+    );
     const isCodeValid = await this.twofaService.verifyTwoFaToken(
       twofa.twoFaCode,
       user,
@@ -112,10 +115,13 @@ export class AuthController {
     return { success: true };
   }
 
-  
   @Post('twofa/verify')
   @SetMetadata('isPublic', true)
-  async verifyTwoFa(@Req() req: Request, @Body() twofa: Update2faDTO, @Res({ passthrough: true }) res: Response ) {
+  async verifyTwoFa(
+    @Req() req: Request,
+    @Body() twofa: Update2faDTO,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     console.log('verifyTwoFa controller');
     if (req.cookies['TWOFA']) {
       const user = await this.user.GetUserByToken(req.cookies['TWOFA']);
@@ -130,12 +136,8 @@ export class AuthController {
       res.cookie('TWOFA', '', { expires: new Date() });
       res.cookie('JWT_TOKEN', token);
       return { success: true };
-    }
-    else {
+    } else {
       return { success: false, msg: 'Invalid Request' };
     }
-
-    
   }
-
 }

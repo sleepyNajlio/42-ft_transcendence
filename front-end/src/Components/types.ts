@@ -7,6 +7,7 @@ export type user_stats = {
 };
 
 export type History = {
+  user1: string;
   score1: number;
   user2: string;
   score2: number;

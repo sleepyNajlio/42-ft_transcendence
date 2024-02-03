@@ -15,19 +15,18 @@ export class UsersService {
   async GetUserByToken(token: string) {
     // console.log("token:", "'", token, "'");
     const payload = this.jwt.verify(token.trim());
-    console.log("payload: ", payload);
-    let user : any = null;
-    try{
+    console.log('payload: ', payload);
+    let user: any = null;
+    try {
       user = await this.prisma.player.findUnique({
         where: { email: payload.email },
       });
-    }
-    catch(err){
-      console.log("cannot find player with token: ", token);
+    } catch (err) {
+      console.log('cannot find player with token: ', token);
     }
     if (!user) {
-        throw new HttpException('invalid token', HttpStatus.UNAUTHORIZED);
-      }
+      throw new HttpException('invalid token', HttpStatus.UNAUTHORIZED);
+    }
     return user;
   }
 
@@ -108,8 +107,7 @@ export class UsersService {
         },
       });
       return user;
-    }
-    else{
+    } else {
       throw new HttpException('Username already exists', HttpStatus.CONFLICT);
     }
   }

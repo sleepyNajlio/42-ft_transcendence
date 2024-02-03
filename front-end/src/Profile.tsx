@@ -73,7 +73,7 @@ export function Profile(props: {setFriend: React.Dispatch<React.SetStateAction<u
                     {history && (props.fhistory || history).map((item, index) => (
                       <div className="rankbar" key={index} style={{ boxShadow: item.score1 < item.score2 ? '0 0 5px red' : '0 0 5px green' }}>
                         <div className="rank__user" >
-                          <div className="rank__cercle" style={{backgroundImage: `url(${user?.avatar})`}}></div>
+                          <div className="rank__cercle" style={{backgroundImage: `url(${item.user1})`}}></div>
                         </div>
                           <div className="score">
                             <span className="rankval">{item.score1}</span>

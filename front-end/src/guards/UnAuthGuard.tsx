@@ -19,28 +19,28 @@ const UnAuthGuard = ({ component }: { component: ReactNode }) => {
 	const checkToken = async () => {
 		console.log('checkToken');
 		axios.get(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/user`, { withCredentials: true })
-		.then((res) => {
-			if (res.data.twoFA == true) {
-				setStatus(true);
-				navigate('/Verify2FA');
-			}
-			else if (res.data.isAuthenticated == false) {
-				setStatus(true);
-				navigate('/Config');
-			}
-			else if (res.data.isAuthenticated == true) {
-				setStatus(true);
-				navigate('/Profile');
-			}
-			else {
-				setStatus(true);
-				navigate('/');
-			}
-			
-		}).catch(() => {
-			setStatus(true);
-			navigate('/');
-		});
+  .then((res) => {
+    // Handle the successful response
+    if (res.data.twoFA == true) {
+      setStatus(true);
+      navigate('/Verify2FA');
+    } else if (res.data.isAuthenticated == false) {
+      setStatus(true);
+      navigate('/Config');
+    } else if (res.data.isAuthenticated == true) {
+      setStatus(true);
+      navigate('/Profile');
+    } else {
+      setStatus(true);
+      navigate('/');
+    }
+  })
+  .catch((error) => {
+    // Omitted console.error statements to prevent logging to the console
+
+      setStatus(true);
+      navigate('/');
+  });
 	};
 	return status ? <React.Fragment>{component}</React.Fragment> : <React.Fragment></React.Fragment>;
 };

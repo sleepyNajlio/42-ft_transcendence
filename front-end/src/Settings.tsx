@@ -1,12 +1,9 @@
-import Navbar from './Components/Navbar.tsx';
 import  './styles/css/main.css'
 import UploadAndDisplayImage from './Components/uploadimage.tsx';
 import { useContext, useEffect, useState } from 'react';
 import { UserContext } from './UserProvider.tsx';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
 import { TwoFA } from './TwoFA.tsx';
-import { UserProvider } from './UserProvider.tsx';
 import { error } from 'console';
 
 
@@ -18,10 +15,11 @@ export async function turnOffTwoFactorAuth() {
   }
 export function Settings() {
     const {user, updateUser} = useContext(UserContext);
-    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [selectedImage, setSelectedImage] = useState<File | null>(null);
     const [username, setUsername] = useState<string>(user?.username || " ");
     const [isTwoFactorAuthEnabled, setTwoFactorAuthEnabled] = useState(false);
     const[twoFA, setTwoFa] = useState(false);
+    const [error, setError] = useState<Boolean>(false);
     // const navigate = useNavigate();
 
     useEffect(() => {
@@ -29,13 +27,29 @@ export function Settings() {
             setUsername(user.username);
     }, [user]);
 
-    const handleFileChange = (selectedFile: File | null) => {
-        // You can now use the selectedFile in the parent component as needed.
-        console.log('Selected File:', selectedFile);
-        setSelectedFile(selectedFile);
-    };
+    async function uploadImage(file: File): Promise<string | null> {
+        const formData = new FormData();
+        formData.append('file', file);
+        try {
+            const response = await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/user/avatar`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                },
+                withCredentials: true,
+            });
+            return response.data as string;
+        } catch {
+            // Handle error here
+            setError(true)
+            return null;
+        }
+      }
 
     const onSubmitSettings = async () => {
+        let avatar : string | null = null;
+        setError(false)
+        if (selectedImage)
+            avatar = await uploadImage(selectedImage);
         axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/user/updateUsername`, { username }, {withCredentials: true})
         .then((response) => {
             // console.log("helloo", response.data.user);
@@ -43,8 +57,8 @@ export function Settings() {
                 updateUser(response.data.user);
             }
 
-        }).catch((error) => {
-            console.log(error.response.data.message);
+        }).catch(() => {
+            setError(true)
         });
     }
     const checkTwoFactorAuth = async () => {
@@ -54,8 +68,8 @@ export function Settings() {
             // console.log('2FA enabled:', response.data);
             setTwoFactorAuthEnabled(response.data.isTwoFaEnabled);
         })
-        .catch((error) => {
-            console.error('Failed to check 2FA:', error);
+        .catch(() => {
+            setError(true);
         });
     };
 
@@ -77,9 +91,17 @@ export function Settings() {
                         <h1 className="btitle">Settings</h1>
                         <h3 className="stitle">Adjust your profile</h3>
                     </div>
+                    {
+                        error && 
+                        (
+                            <div className="sbox__title">
+                                <h1 className="btitle" style={{color: "red"}}>Error</h1>
+                            </div>
+                        )
+                    }
                     <div className="bbox">
                         <div className="sbox__user">
-                            <UploadAndDisplayImage davatar={user?.avatar} onFileChange={handleFileChange} width={70}></UploadAndDisplayImage>
+                        <UploadAndDisplayImage selectedImage={selectedImage} setSelectedImage={setSelectedImage} davatar={user?.avatar} width={70} ></UploadAndDisplayImage>
                             <span className="sbox__name">{username}</span>
                         </div>
                         <div className="sbox__checkbox">

@@ -88,6 +88,7 @@ export async function getMatchHistory(id: number): Promise<History[] | null> {
                 const matches: History[] = [];
                 res.data.forEach((match: any) => {
                     matches.push({
+                        user1: match.user1,
                         score1: match.score1,
                         user2: match.user2,
                         score2: match.score2,

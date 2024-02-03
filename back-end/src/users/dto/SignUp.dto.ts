@@ -40,8 +40,7 @@ export class TwoFaDTO extends PartialType(SignUpDTO) {
   TwoFaStatus: boolean;
 }
 
-export class UserDTO extends PartialType(TwoFaDTO) 
-{
+export class UserDTO extends PartialType(TwoFaDTO) {
   twoFASecret?: string;
 }
 
