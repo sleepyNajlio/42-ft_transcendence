@@ -33,26 +33,17 @@ export function Profile(props: {setFriend: React.Dispatch<React.SetStateAction<u
         rank: user.rank,
         achievement: user.achievement,
       }));
-      console.log("hstoire: ");
-      console.log(history);
     }
-    console.log("user updated: ");
-    // console.log(user);
-    // console.log("tempuser: ");
-    // console.log(tempuser);
   }, [user]);
   // use user to fill tempuser
   const checkIfMediumPlus = useMediaPredicate(
     '(min-width: 769px)'
   );
   useEffect(() => {
-    console.log("profile mounted");
     return () => {
-      console.log("profile unmounted");
     };
   } , []);
   // const [user1, setUser] = useState<User | null>(null);
-  // console.log(user1);
   return (
     <>
       

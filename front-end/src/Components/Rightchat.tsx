@@ -19,7 +19,6 @@ const Rightchat: React.FC = (props: any) => {
   const lightModeClass = "light-mode";
   const darkModeClass = "dark-mode";
 
-  // console.log("Messages isssss : ", props.messages);
 
   // const MessageRef = useRef(null);
 

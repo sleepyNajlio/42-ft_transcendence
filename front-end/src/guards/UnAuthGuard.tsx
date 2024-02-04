@@ -17,7 +17,6 @@ const UnAuthGuard = ({ component }: { component: ReactNode }) => {
 
 
 	const checkToken = async () => {
-		console.log('checkToken');
 		axios.get(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/user`, { withCredentials: true })
   .then((res) => {
     // Handle the successful response

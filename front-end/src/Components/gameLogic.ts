@@ -48,7 +48,6 @@ function launchBall(socket: Socket, ball: Ball, pHost: Player, ratio: number, di
     while (30 * dificulty > Math.abs(tvy)) {
       tvy = (Math.random() * dificulty * 64) - (32 * dificulty);
     }
-    console.log(`tvx: ${tvx}, tvy: ${tvy}, cx: ${ball.cx}, cy: ${ball.cy}` );
     socket.emit('moveBall', { ball: {vx: tvx, vy: tvy , cx: ball.cx / ratio, cy: ball.cy}, action: "start", userId: pHost.user_id });
   }
 }
@@ -65,7 +64,6 @@ function endGame(width: number, height: number, message: string, nested: any, in
       nested.children()[1].show().scale(-1, 1).animate(1000).cy(height - 120);
     }, 1000);
   }, 2000);
-  console.log(message);
   nested.children()[1].off('click');
   nested.children()[1].click(function() {
     initia();
@@ -83,7 +81,6 @@ const reset = async (playerRight: number = 0, playerLeft: number = 0, width: num
 
 export default function game(started: Boolean = false, socket: Socket, dificulty: number = 10, gameId: number | null, Board: number, players: Players = {}, ball: Ball, width: number, user: User, ratio: number, vxratio: number, initia: () => void, updatestats: (win:Boolean) => void, updateHistory: (gameId: number) => void): () => void {
     // define board size and create a svg board
-    // console.log("game ratio ", ratio);
     let pHost: Player;
     let pGuest: Player;
     // width = width * 0.9 > 900 ? 900 : width * 0.9;
@@ -239,7 +236,6 @@ export default function game(started: Boolean = false, socket: Socket, dificulty
     }
 
     nested.children()[1].click(function() {
-      console.log("clicked")
       launchBall(socket, ball, pHost, ratio, dificulty);
     })
     let chck = false;
@@ -256,7 +252,6 @@ export default function game(started: Boolean = false, socket: Socket, dificulty
     }
     
     socket.on('winByAbort', (data:{gameId:number}) => {
-      console.log("winByAbort", gameId);
       updateHistory(gameId as number);
       updatestats(true);
       reset(pGuest.score, pHost.score, width, height, socket, pHost, pGuest);
@@ -267,7 +262,6 @@ export default function game(started: Boolean = false, socket: Socket, dificulty
     let isKeyDown = false;
     socket.on('getFrame', (data, ack) => {
       ack('Acknowledgement from server');
-      console.log("catched getFrame");
       if (pGuest && pGuest.paddle && pHost && pHost.paddle)
         socket.emit('paddlePos', { y1: pGuest.paddle.cy(), y2: pHost.paddle.cy(),  playerLeft: pHost.score, playerRight: pGuest.score, ball: {cx: ball.cx / ratio, cy: ball.cy, vx: ball.vx / vxratio, vy: ball.vy}, userId: pGuest.user_id});
       return true;
@@ -328,7 +322,6 @@ export default function game(started: Boolean = false, socket: Socket, dificulty
 
     // const element = document.getElementById("pong");
     // var supportsTouch = 'ontouchstart' in window || navigator.maxTouchPoints;
-    // console.log("supportsTouch", supportsTouch);
     // element?.addEventListener("mousedown", handleMouseDown);
     // element?.addEventListener("mouseup", handleMouseUp);
     // element?.addEventListener("mousemove", handleMouseMove);
@@ -363,7 +356,6 @@ export default function game(started: Boolean = false, socket: Socket, dificulty
     //     const clientY = event instanceof MouseEvent ? event.clientY : event.touches[0].clientY;
     //     const clickX = clientX - rect.left;
     //     const clickY = clientY - rect.top;
-    //     console.log("clickX", clickX);
 
     //     // Now mouseX and mouseY contain the mouse position relative to the element
     //     // You can use these values to update your game state or perform other actions
@@ -371,23 +363,18 @@ export default function game(started: Boolean = false, socket: Socket, dificulty
     //     if ((clickX >= 0 && clickX <= width) && (clickY >= 0 && clickY <= height)) {
     //       if (pHost && pHost.paddle && pHost.user_id === user.id_player) {
     //         if (pHost.paddle?.cy() > clickY) {
-    //           console.log("host go up");
     //           socket.emit('keydown', { ball: {cx: ball.cx / ratio, cy: ball.cy, vx: ball.vx / ratio, vy: ball.vy}, paddleDirection: -1, userId: user.id_player });
     //         } else if (pHost.paddle?.cy() < clickY) {
-    //           console.log("host go down");
     //           socket.emit('keydown', { ball: {cx: ball.cx / ratio, cy: ball.cy, vx: ball.vx / ratio, vy: ball.vy}, paddleDirection: 1, userId: user.id_player });
     //         }
     //       } else if (pGuest && pGuest.paddle && pGuest.user_id === user.id_player) {
     //         if (pGuest.paddle?.cy() > clickY) {
     //           socket.emit('keydown', { ball: {cx: ball.cx / ratio, cy: ball.cy, vx: ball.vx / ratio, vy: ball.vy}, paddleDirection: -1, userId: user.id_player });
-    //           console.log("Guest go up");
     //         } else if (pGuest.paddle?.cy() < clickY) {
     //           socket.emit('keydown', { ball: {cx: ball.cx / ratio, cy: ball.cy, vx: ball.vx / ratio, vy: ball.vy}, paddleDirection: 1, userId: user.id_player });
-    //           console.log("Guest go down");
     //         }
     //       }
     //     } else {
-    //       console.log("Clicked somewhere else on the element");
     //     }
     //     // socket.emit('keydown', { ball: {cx: ball.cx / ratio, cy: ball.cy, vx: ball.vx / ratio, vy: ball.vy}, paddleDirection: paddleDirection, userId: user.id_player });
     //   }
@@ -410,7 +397,6 @@ export default function game(started: Boolean = false, socket: Socket, dificulty
     });
 
     socket.on('start', (data: {ball: Ball }) => {
-      console.log("received start ", data.ball.vx, "  ", data.ball.vy);
       scoreRight.show();
       scoreLeft.show();
       // data.ball.cx = data.ball.cx * ratio;
@@ -419,7 +405,6 @@ export default function game(started: Boolean = false, socket: Socket, dificulty
       // data.ball.vy = data.ball.vy * ratio;
       data.ball.cx = width / 2;
       data.ball.cy = height / 2;
-      console.log("rt received start ", data.ball.vx, "  ", data.ball.vy);
       ball = {
         ...ball,
         ...data.ball,
@@ -451,17 +436,12 @@ export default function game(started: Boolean = false, socket: Socket, dificulty
       // if (gameId && gameId.data && !Number.isNaN(gameId.data.id_game))
       // {
       //   gameId = gameId.data.id_game;
-      //   console.log("sending gameId", gameId);
       //   await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/game/${gameId}/updateGame`,{status: "FINISHED"}, { withCredentials: true });
       //   await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/game/${gameId}/${data.winnerId}/updateUserGame`,{win : 1, score: Math.max(pHost.score, pGuest.score)}, { withCredentials: true });
       //   await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/game/${gameId}/${data.loserId}/updateUserGame`,{win : 0, score: Math.min(pHost.score, pGuest.score)}, { withCredentials: true });
       // }
-      console.log("winnerId", data.winnerId);
-      console.log("loserId", data.loserId);
-      console.log("user.id_player", user.id_player);
       const id: number = Number(user.id_player);
       const winid: number = Number(data.winnerId);
-      console.log("id", gameId);
       if (winid === id){
         updatestats(true);
         endGame(width, height, "You Won !", nested, initia, pHost, pGuest, cleanup)
@@ -493,7 +473,6 @@ export default function game(started: Boolean = false, socket: Socket, dificulty
       pGuest.score = data.playerRight;
       scoreLeft.text(pHost.score.toString())
       scoreRight.text(pGuest.score.toString())
-      console.log('reseted ball', ball);
       if (ball.vx === 0 && ball.vy === 0) {
         let tvx = (Math.random() * dificulty * 64) - (32 * dificulty);
         let tvy = (Math.random() * dificulty * 64) - (32 * dificulty);
@@ -530,11 +509,8 @@ export default function game(started: Boolean = false, socket: Socket, dificulty
       //   pGuest.paddle?.cy(data.pG);
     });
     socket.on('ballVel', (data:{reset: Boolean, ball: Ball}) => {
-      console.log("received ballVel ", data.ball.vx, "  ", data.ball.vy);
-      console.log("received ballpos ", data.ball.cx, "  ", data.ball.cy);
       if (data.reset)
       {
-        console.log("reseting ball");
         if (data.ball.vx < 0)
           data.ball.cx = width - paddleWidth - (ballSize / 2);
         else
@@ -561,7 +537,6 @@ export default function game(started: Boolean = false, socket: Socket, dificulty
       // ball.vy = data.ball.vy;
       // ball.cx = data.ball.cx;
       ball.cercle?.cy(data.ball.cy);
-      console.log("ballpos ", ball.cx  / ratio, "  ", ball.cy);
     });
     
     function update(dt: number) {

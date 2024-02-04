@@ -11,7 +11,6 @@ const MessageInput: React.FC<MessageInputProps> = ({ onSendMessage }) => {
 
   const handleMessageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.value.length <= 350){
-      // console.log(e.target.value.length);
       setMessage(e.target.value);
     }
   };

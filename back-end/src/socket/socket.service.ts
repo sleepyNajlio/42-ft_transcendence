@@ -16,39 +16,49 @@ export class SocketService {
   // }
   // Add more methods for handling events, messages, etc.
   async updateUserStatus(id: number, status: string) {
-    console.log('updateUserStatus called : ', typeof id, id, status);
-    await this.prisma.player.update({
-      where: {
-        id_player: id,
-      },
-      data: {
-        status: status as any,
-      },
-    });
+    try
+    {
+      await this.prisma.player.update({
+        where: {
+          id_player: id,
+        },
+        data: {
+          status: status as any,
+        },
+      });
+    }
+    catch
+    {
+      console.log('trying to update user status');
+    }
   }
   async getFriends(userId: number) {
-    const friends = await this.prisma.friendShip.findMany({
-      where: {
-        OR: [{ userId: userId }, { friendId: userId }],
-        status: 'ACCEPTED',
-      },
-      include: {
-        user: {
-          select: {
-            id_player: true,
-            username: true,
-            status: true,
+    try {
+        const friends = await this.prisma.friendShip.findMany({
+        where: {
+          OR: [{ userId: userId }, { friendId: userId }],
+          status: 'ACCEPTED',
+        },
+        include: {
+          user: {
+            select: {
+              id_player: true,
+              username: true,
+              status: true,
+            },
+          },
+          friend: {
+            select: {
+              id_player: true,
+              username: true,
+              status: true,
+            },
           },
         },
-        friend: {
-          select: {
-            id_player: true,
-            username: true,
-            status: true,
-          },
-        },
-      },
-    });
-    return friends;
+      });
+      return friends;
+    } catch {
+      throw new Error('Error getting friends');
+    }
   }
 }

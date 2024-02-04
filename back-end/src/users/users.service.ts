@@ -13,16 +13,13 @@ export class UsersService {
   ) {}
 
   async GetUserByToken(token: string) {
-    // console.log("token:", "'", token, "'");
     const payload = this.jwt.verify(token.trim());
-    console.log('payload: ', payload);
     let user: any = null;
     try {
       user = await this.prisma.player.findUnique({
         where: { email: payload.email },
       });
     } catch (err) {
-      console.log('cannot find player with token: ', token);
     }
     if (!user) {
       throw new HttpException('invalid token', HttpStatus.UNAUTHORIZED);

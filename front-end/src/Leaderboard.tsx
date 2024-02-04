@@ -8,7 +8,6 @@ import { UserContext } from './UserProvider.tsx';
 export function Leaderboard() {
 
     const { leadboard } = useContext(UserContext);
-    console.log(leadboard);
     return (
         <>
             <main className="wrapper leader">

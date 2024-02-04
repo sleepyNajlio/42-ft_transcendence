@@ -70,7 +70,6 @@ const GamePattern: React.FC<GamePatternProps> = ({ pad, board, width, height, cx
                 }
             }
         }
-        console.log("pad: ", pad);
     }, [pad, board]);
 
     return <div ref={psvgRef}></div>;

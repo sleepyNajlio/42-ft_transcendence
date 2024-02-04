@@ -14,32 +14,25 @@ const Leftchat: React.FC = (props: any) => {
   const lightModeClass = "light-mode";
   const darkModeClass = "dark-mode";
 
-  // console.log("Messages isssss : ", props.messages);
 
   // const MessageRef = useRef(null);
 
   const handleMenuOptionClick = (option: string, name : string, userId : number) => {
     // Perform actions based on the selected option
     if (option === 'kick') {
-      console.log("user want to kick in " + name + "user with id : " + userId);
       props.handleKick(name, userId);
     } else if (option === 'ban') {
-      console.log("user want to ban in " + name + "user with id : " + userId);
       props.handleBan(name, userId);
 
     } else if (option === 'mute') {
-      console.log("user want to mute in " + name + "user with id : " + userId);
       props.handleMute(name, userId);
     }
   };
 
 
-  // console.log("user is owner : " + props.isOwner);
 
   if (props.showRoom)
   {
-    // console.log("Show room called in left chat with " + props.Roomtype);
-    // console.log(props.Roomtype);
     return (
       <div className="composant-gauche">
         <ChatHeaderComponent friendName={props.name} showRoom={props.showRoom} isOwner={props.isOwner} isAdmin={props.isAdmin} profileImageUrl={ftlogo}
@@ -70,8 +63,6 @@ const Leftchat: React.FC = (props: any) => {
   }
   else if (props.showDm)
   {
-    // console.log("show dm called in left chat with");
-    // console.log("name : " +  props.name);
     return (
       <div className="composant-gauche">
         <ChatHeaderComponent friendName={props.name} showDm={props.showDm} profileImageUrl={props.Friends.find((friend: any) => friend.username === props.name)?.avatar || ftlogo}

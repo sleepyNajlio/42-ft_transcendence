@@ -46,7 +46,6 @@ export class AuthGuard implements CanActivate {
         twofa
       };
     } catch {
-      console.log("error!!");
       return false;
     }
     return true;

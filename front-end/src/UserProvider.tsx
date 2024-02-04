@@ -75,7 +75,6 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
       const newHistory: History = {} as History;
       newHistory.score1 = newusergames.find(game => game.userId === user?.id)?.score;
       newHistory.score2 = newusergames.find(game => game.userId !== user?.id)?.score;
-      console.log('score1', newHistory.score1, 'score2', newHistory.score2);
       newHistory.user2 = newusergames.find(game => game.userId !== user?.id).user.avatar;
       setHistory(prevHistory => {
         if (prevHistory) {
@@ -122,7 +121,6 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   const initialize = async () => {
     if (!hasInitialized.current) {
       await initializeUser().then(res => {
-        // console.log("User: initialize", res);
         if (res) {
           getUser().then(res => {
             if (res) {
@@ -143,12 +141,10 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
                 console.error("Failed to get leaderboard: ", error);
                 return false;
               } );
-              // console.log("User: set", res);
             }
             if(!socket){
               initializeSocket(res.id, getSessionCookies()).then(res => {
                 if (res) {
-                  console.log("Socket: set", res);
                   setSocket(res);
                 } else {
                   console.error("Failed to initialize socket: ", res);
@@ -158,7 +154,6 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
                 return false;
               } );
             }
-            console.log("User: provider", res);
             
           } ).catch(error => {
             console.error("Failed to get user: ", error);
@@ -171,7 +166,6 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         console.error("Failed to get user: ", error);
         return false;
       } );
-      console.log("User: provider");
     }
   }
 

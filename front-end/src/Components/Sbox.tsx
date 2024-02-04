@@ -47,7 +47,6 @@ export default function Sbox(props: any) {
             method: "GET",
           });
           const data = await response.json(); // Parse the response as JSON
-          console.log("data: ", data);
           setUsers(data.users); // Set the parsed data to state
         } catch (error) {
           console.error(error);
@@ -55,8 +54,6 @@ export default function Sbox(props: any) {
       };
     useEffect(() => {
       if (users.length > 0) {
-        console.log("users1: ", users);
-        console.log("showing users");
         setPlayers(true);
       }
     }, [users]);
@@ -88,7 +85,6 @@ export default function Sbox(props: any) {
     }, [currentBoard]);
 
     useEffect(() => {
-      console.log("sbox show");
       return () => {
         bsvgRef.current?.remove();
         psvgRef.current?.remove();

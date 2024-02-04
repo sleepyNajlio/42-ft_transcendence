@@ -7,12 +7,6 @@ import { UsersModule } from 'src/users/users.module';
 @Module({
   imports: [
     UsersModule,
-    JwtModule.register({
-      global: true,
-      secret: 'dontTellAnyone',
-      // secret: new ConfigService().get('JWT_SECRET'),
-      signOptions: { expiresIn: '30d' },
-    }),
   ],
   providers: [ProfileService],
   controllers: [ProfileController],

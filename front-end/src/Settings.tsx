@@ -10,7 +10,6 @@ import { error } from 'console';
 export async function turnOffTwoFactorAuth() {
     await axios.get(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/auth/twofa/turn-off`, { withCredentials: true })
     .then(response => {
-      console.log(response.data);
     })
   }
 export function Settings() {
@@ -52,7 +51,6 @@ export function Settings() {
             avatar = await uploadImage(selectedImage);
         axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/user/updateUsername`, { username }, {withCredentials: true})
         .then((response) => {
-            // console.log("helloo", response.data.user);
             if (response.data.user) {
                 updateUser(response.data.user);
             }
@@ -65,7 +63,6 @@ export function Settings() {
         // Replace with your actual API endpoint
         await axios.get(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/auth/twofa/check`, {withCredentials: true})
         .then((response) => {
-            // console.log('2FA enabled:', response.data);
             setTwoFactorAuthEnabled(response.data.isTwoFaEnabled);
         })
         .catch(() => {

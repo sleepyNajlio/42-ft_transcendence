@@ -65,8 +65,6 @@ function App()
     const inviteResp = async (resp: Boolean, inviter: any) => {
         // if (componentRef)
         // {
-            console.log('componentRef: ', width);
-            // console.log('componentRef.current: ', componentRef.current);
             // componentRef.current?.scrollIntoView({ behavior: 'smooth' });
         // }
         if (socket && width)
@@ -81,18 +79,14 @@ function App()
                 width: width > 750 ? width * 0.8 : width,
             }, async (response: any) => {
                 // got players ratio
-                console.log('Received acknowledgement from server:', response);
                 if (!response) {
-                    console.log('error');
                     // setInvite(inviteStatus.ABORTED);
                     // setInviter(null);
                     return;
                 }
                 setInvite(inviteStatus.ACCEPTED);
                 let gameId = await axios.get(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/game/${inviter.user_id}/getgame/SEARCHING`, { withCredentials: true });
-                console.log('gameId: ', gameId);
                 gameId = gameId.data.id_game;
-                console.log('gameId: ', gameId);                
                 await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/game/${gameId}/joinGame`, {userId: user?.id},  { withCredentials: true });
                 await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/game/${gameId}/updateGame`, {status: 'PLAYING'},  { withCredentials: true });
             });
@@ -102,16 +96,13 @@ function App()
     const isMounted = useRef(true); // useRef to track whether the component is mounted
     const width = useMemo(() => {
         if (!isMounted.current) {
-            console.log('isMediumPlus: ', isMediumPlus, ' isMedium: ', isMedium, ' isSmall: ', isSmall);
             if (isMediumPlus){
-                console.log('kbira document.body.clientWidth: ', document.body.offsetWidth);
                 return document.body.offsetWidth * 0.8;
             }
             else if (isMedium)
                 return document.body.offsetWidth - 225;
             else if (isSmall)
             {
-                console.log('sghir document.body.clientWidth: ', document.body.offsetWidth);
                 return document.body.offsetWidth;
             }
             else
@@ -119,22 +110,18 @@ function App()
         }
     } , [isMediumPlus, isMedium, isSmall] );
     useEffect(() => {
-        console.log('pathname: ', location.pathname);
         location.pathname = location.pathname.replace(/(?!^\/)\/+/g, ''); // Replace all "/" except the first one
         const paths = ['/Testchat', '/Profile', '/Play', '/Chat', '/test', '/Settings', '/Leaderboard']; // replace with the paths you're interested in
         if (paths.includes(location.pathname) && !isMounted.current) {
-            console.log("3awd initializa zbi");
             initialize();
         }
         return () => {
-            console.log('isMounted: ', isMounted.current);
             isMounted.current = false;
         }
     }, [location.pathname]);
 
     useEffect(() => {
         if (isMounted.current) {
-        console.log('isMounted: ', isMounted.current);
         // socket.emit('playOpen', { id: socket.id });
         }
         return () => {
@@ -145,14 +132,11 @@ function App()
     useEffect(() => {
         if (socket)
         {
-            console.log('listening socket: invited');
             socket.emit('getNotifs', {userId: user?.id.toString()}, (response: any) => {
-                console.log('Received acknowledgement from server:', response);
                 if (response.length > 0) {
                     // use user_id and username from response to setInviters
                     setInviters(response);
                     setInvite(inviteStatus.NONE);
-                    console.log('response: ', response);
                 }
             });
             socket.on('invited', (data: any) => handleInvited(data));
@@ -170,16 +154,11 @@ function App()
                 socket.off('status', handleStatus);
             };
         }
-        else
-            console.log('no socket');
         // Clean up the event listener on unmount
     }, [socket]);
     const handleStatus = (data: {id_player: number, status: string}) => {
-        console.log("status ", data);
         setProfile((prevProfile: user | null) => {
-            console.log("prevProfile ", prevProfile);
             if (!prevProfile || Number(prevProfile.id) !== data.id_player) {
-                console.log("didn't find profile", prevProfile?.id,);
                 return prevProfile;
             }
             return {
@@ -218,10 +197,8 @@ function App()
         {
             setProfile((prevProfile: user | null) => {
                 if (!prevProfile ) {
-                    console.log("invited1 ", data);
                     return prevProfile;
                 }
-                console.log("inviteeeeeeeeeeeeeeeeeeeeeeeeed ", data);
                 return {
                     ...prevProfile,
                     friend: {
@@ -238,7 +215,6 @@ function App()
         setInvite(inviteStatus.INVITED);
     };
     const handleBlocked = (data: any) => {
-        console.log("blocked ", data);
         setInviters(prevInviters => prevInviters.filter((inviter) => inviter.user_id !== data.user_id && inviter.type !== NotifType.INVITE));
         setInviters(prevInviters => [...prevInviters, {user_id: data.user_id, avatar: data.avatar, username: data.username, type: data.type, paddle: data.paddle}]);
         setProfile(null);
@@ -289,8 +265,6 @@ function App()
         setInvite(inviteStatus.INVITED);
     };
     const handleRmInvite = (data: any) => {
-        console.log("invite removed ", data);
-        console.log("inviters ", inviters);
         setInviters(prevInviters => prevInviters.filter((inviter) => inviter.user_id !== data || (inviter.user_id === data  && inviter.type === NotifType.BLOCKED)));
     };
     const componentRef = useRef<HTMLDivElement>(null);

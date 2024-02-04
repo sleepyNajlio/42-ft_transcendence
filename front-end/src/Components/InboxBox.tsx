@@ -28,14 +28,7 @@ import { useState } from 'react';
   }
   export default function InboxBox(props : any) {
     
-    // console.log("props in inboxbox : ")
-    // console.log("room in inbox box: " + props.room.users);
     // if (props.room.chatUser)
-    //   console.log(props.room.chatUser.userId);
-    // console.log('userId issss: ' + props.userId)
-    // console.log("props.room.users : " , props.room.users);
-    // console.log("props.id : " , props.id);
-    // console.log("props.lastmes : " , props.lastMessage);
    
     const handleImageClick = () => {
       props.joindDm(props.friend.username);

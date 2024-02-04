@@ -63,11 +63,9 @@ export class AuthController {
       if (!req.cookies['USER'])
         throw new HttpException('Invalid Request', HttpStatus.BAD_REQUEST);
     } else throw new HttpException('Invalid Request', HttpStatus.BAD_REQUEST);
-    // console.log('finish_signup controller');
     const UserToken = req.cookies['USER'];
     const token = await this.authService.finish_signup(dto, UserToken);
     res.cookie('JWT_TOKEN', token);
-    // console.log(res.cookie);
     res.cookie('USER', '', { expires: new Date() });
     return { msg: 'User created' };
   }
@@ -88,7 +86,6 @@ export class AuthController {
   @Post('twofa/turn-on')
   @SetMetadata('isPublic', true)
   async turnOnTwoFa(@Req() req: Request, @Body() twofa: Update2faDTO) {
-    console.log('turnOnTwoFa controller', twofa);
     const user = await this.user.GetUserByToken(
       req.cookies['USER'] || req.cookies['JWT_TOKEN'],
     );
@@ -96,7 +93,6 @@ export class AuthController {
       twofa.twoFaCode,
       user,
     );
-    console.log(isCodeValid);
     if (!isCodeValid) {
       return { success: false, msg: 'Invalid Code' };
     }
@@ -110,7 +106,6 @@ export class AuthController {
 
   @Get('twofa/turn-off')
   async turnOffTwoFa(@Req() req: Request) {
-    console.log('turnOffTwoFa controller');
     await this.user.updateTwoFaStatus(req.user['id_player'], false);
     return { success: true };
   }
@@ -122,7 +117,6 @@ export class AuthController {
     @Body() twofa: Update2faDTO,
     @Res({ passthrough: true }) res: Response,
   ) {
-    console.log('verifyTwoFa controller');
     if (req.cookies['TWOFA']) {
       const user = await this.user.GetUserByToken(req.cookies['TWOFA']);
       const isCodeValid = await this.twofaService.verifyTwoFaToken(

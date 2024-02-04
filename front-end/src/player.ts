@@ -8,7 +8,6 @@ let stats: user_stats | null;
 
 export async function getUserInfo(id?: number): Promise<user | null> {
     let response;
-    console.log("id: ", id);
     if (!id) {
         response = await fetch(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/profile`, {
             credentials: "include",
@@ -42,8 +41,6 @@ export async function getUserInfo(id?: number): Promise<user | null> {
             stats.achievement += 1;
         const achievement : number = stats.achievement;
         const rank: number = (await axios.get(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/profile/rank/${res.user.id_player}`, { withCredentials: true })).data;
-        console.log("rank: ", rank);
-        // console.log("achie: ", achievement);
         const user: user = {
             id: res.user.id_player,
             username: res.user.username,
@@ -57,9 +54,7 @@ export async function getUserInfo(id?: number): Promise<user | null> {
         return user;
     } else {
         // alert("Failed to fetch user data");
-        console.log("Failed to fetch user data");
         return null;
-        // console.log(response.message);
     }
 }
 
@@ -97,7 +92,6 @@ export async function getMatchHistory(id: number): Promise<History[] | null> {
                 resolve(matches);
             })
             .catch((err) => {
-                console.log('err: ', err);
                 reject(null);
             });
     });
@@ -114,7 +108,6 @@ export async function initializeUser() : Promise<Boolean>  {
         player = res;
         return true;
     } catch (err) {
-        console.log(err);
         return false;
     }
 }
@@ -129,9 +122,7 @@ export async function addFriend (id: number) {
         {
           socket.emit('addFriend', {id: Number(player?.id), frId: id, username: player?.username, avatar: player?.avatar});
         }
-      console.log(response.data.message);
     } catch (error : any) {
-      console.error(error.response.data);
     }
 }
 
@@ -146,9 +137,7 @@ export async function blockFriend (id: number) {
         {
         socket.emit('block', {id: Number(player?.id), frId: id, username: player?.username, avatar: player?.avatar});
         }
-    console.log(response.data.message);
     } catch (error : any) {
-    console.error(error.response.data);
     }
 }
 
@@ -163,9 +152,7 @@ export async function acceptFriend (id: number) {
         {
             socket.emit('acceptFriend', {id: Number(player?.id), frId: id, username: player?.username, avatar: player?.avatar});
         }
-        console.log(response.data.message);
     } catch (error : any) {
-      console.error(error.response.data);
     }
 }
 
@@ -180,10 +167,8 @@ export async function rejectFriend (id: number) {
         {
             socket.emit('rejectedFriend', {id: Number(player?.id), frId: id, username: player?.username, avatar: player?.avatar});
         }
-      console.log(response.data.message);
       // props.setFriend(null);
     } catch (error : any) {
-      console.error(error.response.data);
     }
 }
 
@@ -205,7 +190,6 @@ export async function getHistory() : Promise<History[]> {
 
 export async function getRanks() : Promise<user[]> {
     const res = await axios.get(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/profile/ranks`, { withCredentials: true });
-    console.log("ranks: ", res.data);
     const ranks: user[] = [];
     let achi: number = 0;
     res.data.forEach((rank: any) => {
@@ -234,6 +218,5 @@ export async function getRanks() : Promise<user[]> {
         };
         ranks.push(user);
     });
-    console.log("ranks: ", ranks);
     return ranks;
 }

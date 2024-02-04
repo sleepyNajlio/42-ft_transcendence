@@ -36,3 +36,8 @@ lerna-debug.log*
 
 /prisma/migrations/*
 /avatars
+
+.env
+
+# package-lock.json
+./package-lock.json

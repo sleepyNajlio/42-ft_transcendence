@@ -72,14 +72,12 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     // set an interval of 20 sec to remove the notifs that exceed 20 sec
     // setInterval(() => {
     //   for (const key in this.notifs) {
-    //     console.log('notifs', this.notifs);
     //     this.notifs[key] = this.notifs[key].filter(
     //       (notif) => notif.time === 0 || Date.now() - notif.time < 20000,
     //     );
     //     if (this.notifs[key].length === 0) {
     //       delete this.notifs[key];
     //     }
-    //     console.log('notifs2', this.notifs);
     //   }
     // }, 20000);
   }
@@ -95,21 +93,19 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const playerState = this.players[userId].state;
     if (playerState === PlayerState.SEARCHING) {
       const queue = this.queue.find((c) => c.userId === userId);
-      console.log('abort in queue');
       // Remove the socket from the queue
       this.queue.splice(this.queue.indexOf(queue), 1);
       // Remove usergame from database
       // Remove game from database
-      this.gameService.deleteGameByUserId(Number(userId), gameStatus.SEARCHING);
+      this.gameService.deleteGameByUserId(Number(userId));
       this.socketGateway.getClientSocket(userId)?.map((socketa) => {
         if (socketa.id !== client.id) socketa.emit('InitializeGame');
       });
       delete this.players[userId];
     } else if (playerState === PlayerState.INVITING) {
-      console.log('abort in invite');
       // Remove usergame from database
       // Remove game from database
-      this.gameService.deleteGameByUserId(Number(userId), gameStatus.SEARCHING);
+      this.gameService.deleteGameByUserId(Number(userId));
       this.socketGateway.getClientSocket(userId)?.map((socketa) => {
         if (socketa.id !== client.id) socketa.emit('InitializeGame');
       });
@@ -139,7 +135,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         }
       }
     } else if (playerState === PlayerState.PLAYING) {
-      console.log('abort in game');
       // Socket is not in the queue, check if it is in a game
       const gameId = Object.keys(this.games).find(
         (id) => this.games[id].players[userId],
@@ -167,8 +162,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
             socketa.leave(gameId);
           }
         });
-        console.log('abort in game');
-        console.log(gamed);
         this.socketGateway.getClientSocket(opponentId)?.map((socketa) => {
           if (socketa.id !== client.id) {
             socketa.emit('winByAbort', { gameId: gamed });
@@ -195,7 +188,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {
     // Check if the user is already in the queue based on a unique identifier (e.g., user ID)
     // const userId = getUserIdFromClient('matchmaking', client); // Implement a function to extract the user ID
-
+    console.log('matchmaking', data.width);
     // If the user is not already in the queue, add them
     const userId = getUserIdFromClient('matchmaking', client);
     const isUserInQueue = this.queue.find((c) => c.userId === userId);
@@ -234,12 +227,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       const player2 = this.queue.shift();
       // Create a unique game ID
       const gameId = `${player1.socket.id}-${player2.socket.id}`;
-      console.log(
-        'gameId',
-        gameId,
-        'speed',
-        this.players[player1.userId].paddleSpeed,
-      );
       this.players[player1.userId].state = PlayerState.PLAYING;
       this.players[player2.userId].state = PlayerState.PLAYING;
       // Initialize the game state
@@ -302,13 +289,11 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         });
         this.gameService.deleteGameByUserId(
           Number(player.user_id),
-          gameStatus.SEARCHING,
         );
       });
       delete this.notifs[player1.userId];
       this.gameService.deleteGameByUserId(
         Number(player2.userId),
-        gameStatus.SEARCHING,
       );
       this.notifs[player2.userId]?.map((player) => {
         if (player.user_id !== player1.userId) {
@@ -391,7 +376,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('invite')
   handelInvite(client: Socket, data: any) {
-    console.log('invite to ', data.adv_id, ' by ', data.userId);
     if (data.checkfriend) {
       if (this.notifs[data.userId]) {
         const player = this.notifs[data.userId].find(
@@ -441,7 +425,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.socketGateway.getClientSocket(data.userId)?.map((socketa) => {
       if (socketa.id !== client.id) socketa.emit('alreadyInQueue');
     });
-    this.socketGateway.getClientSocket(data.adv_id).map((socketa) => {
+    this.socketGateway.getClientSocket(data.adv_id)?.map((socketa) => {
       socketa.emit('invited', newNotification);
     });
     return true;
@@ -449,7 +433,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('addFriend')
   handelFriendInvite(client: Socket, data: any) {
-    console.log('invite to', data.frId, 'by ', data.id);
     if (!this.notifs[data.frId]) {
       this.notifs[data.frId] = [];
     }
@@ -463,7 +446,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.notifs[data.frId] = [...this.notifs[data.frId], newNotification];
     this.logger.log(`emiting request to ${data.username}`);
     this.logger.log(this.notifs);
-    this.socketGateway.getClientSocket(data.frId.toString()).map((socketa) => {
+    this.socketGateway.getClientSocket(data.frId?.toString())?.map((socketa) => {
       socketa.emit('invited', newNotification);
     });
     return true;
@@ -471,7 +454,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('block')
   handelBlock(client: Socket, data: any) {
-    console.log(data.frId, 'block ', data.id);
     if (!this.notifs[data.frId]) {
       this.notifs[data.frId] = [];
     } else {
@@ -498,13 +480,11 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.notifs[data.frId] = [...this.notifs[data.frId], newNotification];
     this.logger.log(`emiting block to ${data.username}`);
     this.logger.log(this.notifs);
-    this.socketGateway.getClientSocket(data.frId.toString()).map((socketa) => {
-      console.log('emiting block to ', socketa.id);
+    this.socketGateway.getClientSocket(data.frId?.toString())?.map((socketa) => {
       socketa.emit('blocked', newNotification);
       socketa.emit('rminvite', data.id);
     });
-    this.socketGateway.getClientSocket(data.id.toString()).map((socketa) => {
-      console.log('emiting rm to ', socketa.id);
+    this.socketGateway.getClientSocket(data.id?.toString())?.map((socketa) => {
       socketa.emit('rminvite', data.frId);
     });
     return true;
@@ -512,7 +492,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('acceptFriend')
   handelAcceptFriend(client: Socket, data: any) {
-    console.log(data.frId, 'accepted ', data.id);
     this.logger.log(this.notifs);
     if (!this.notifs[data.frId]) {
       this.notifs[data.frId] = [];
@@ -533,10 +512,10 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.notifs[data.frId] = [...this.notifs[data.frId], newNotification];
     this.logger.log(`emiting accept to ${data.username}`);
     this.logger.log(this.notifs);
-    this.socketGateway.getClientSocket(data.frId.toString()).map((socketa) => {
+    this.socketGateway.getClientSocket(data.frId?.toString())?.map((socketa) => {
       socketa.emit('accepted', newNotification);
     });
-    this.socketGateway.getClientSocket(data.id.toString()).map((socketa) => {
+    this.socketGateway.getClientSocket(data.id?.toString())?.map((socketa) => {
       socketa.emit('rminvite', data.frId);
     });
     return true;
@@ -544,17 +523,16 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('rejectedFriend')
   handleRejectFriend(client: Socket, data: any) {
-    console.log(data.frId, 'rejected ', data.id);
     if (!this.notifs[data.frId]) {
       this.notifs[data.frId] = [];
     } else {
-      this.notifs[data.frId] = this.notifs[data.frId].filter(
+      this.notifs[data.frId] = this.notifs[data.frId]?.filter(
         (player) =>
           player.user_id !== data.id && player.type !== NotifType.INVITE,
       );
     }
     if (this.notifs[data.id]) {
-      this.notifs[data.id] = this.notifs[data.id].filter(
+      this.notifs[data.id] = this.notifs[data.id]?.filter(
         (player) =>
           player.user_id !== data.frId && player.type !== NotifType.INVITE,
       );
@@ -569,10 +547,10 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.notifs[data.frId] = [...this.notifs[data.frId], newNotification];
     this.logger.log(`emiting reject to ${data.username}`);
     this.logger.log(this.notifs);
-    this.socketGateway.getClientSocket(data.frId.toString()).map((socketa) => {
+    this.socketGateway.getClientSocket(data.frId?.toString())?.map((socketa) => {
       socketa.emit('rejected', newNotification);
     });
-    this.socketGateway.getClientSocket(data.id.toString()).map((socketa) => {
+    this.socketGateway.getClientSocket(data.id?.toString())?.map((socketa) => {
       socketa.emit('rminvite', data.frId);
     });
     return true;
@@ -582,17 +560,16 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   handelInviteResp(client: Socket, data: any) {
     if (data.accepted) {
       if (!this.players[data.userId]) {
-        this.socketGateway.getClientSocket(data.adv_id).map((socketa) => {
+        this.socketGateway.getClientSocket(data.adv_id)?.map((socketa) => {
           socketa.emit('rejected', data.adv_id);
         });
         return false;
       }
-      const isUserInQueue = this.queue.find((c) => c.userId === data.adv_id);
+      const isUserInQueue = this.queue?.find((c) => c.userId === data.adv_id);
       if (isUserInQueue) {
-        this.queue.splice(this.queue.indexOf(isUserInQueue), 1);
+        this.queue?.splice(this.queue?.indexOf(isUserInQueue), 1);
         this.gameService.deleteGameByUserId(
           Number(data.adv_id),
-          gameStatus.SEARCHING,
         );
       }
       this.players[data.adv_id] = {
@@ -606,13 +583,13 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         paddleDirection: 0,
         paddle: null,
         score: 0,
-        paddleSpeed: this.players[data.userId].paddleSpeed,
-        padl: this.players[data.userId].padl,
+        paddleSpeed: this.players[data.userId]?.paddleSpeed,
+        padl: this.players[data.userId]?.padl,
         width: data.width,
         state: PlayerState.PLAYING,
       };
       this.players[data.userId].state = PlayerState.PLAYING;
-      const gameId = `${this.players[data.userId].s_id}-${
+      const gameId = `${this.players[data.userId]?.s_id}-${
         this.players[data.adv_id].s_id
       }`;
       // Initialize the game state
@@ -648,17 +625,11 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
           (this.games[gameId].players[data.adv_id].width - 50) /
           (this.games[gameId].players[data.userId].width - 50);
       }
-      this.logger.log(
-        `ratio 1 ${this.games[gameId].players[data.userId].ratio}`,
-      );
-      this.logger.log(
-        `ratio 2 ${this.games[gameId].players[data.adv_id].vxratio}`,
-      );
       // Add the players to the game room
-      this.socketGateway.getClientSocket(data.userId).map((socketa) => {
+      this.socketGateway.getClientSocket(data.userId)?.map((socketa) => {
         socketa.join(gameId);
       });
-      this.socketGateway.getClientSocket(data.adv_id).map((socketa) => {
+      this.socketGateway.getClientSocket(data.adv_id)?.map((socketa) => {
         socketa.join(gameId);
       });
       this.logger.log(`game ${gameId} is created.`);
@@ -666,7 +637,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.socketGateway.getServer().to(gameId).emit('startGame', {
         players: this.games[gameId].players,
         bball: this.games[gameId].ball,
-        gameId: this.players[data.userId].gameId,
+        gameId: this.players[data.userId]?.gameId,
       });
       this.socketGateway.updateStatus(Number(data.userId), 'INGAME');
       this.socketGateway.updateStatus(Number(data.adv_id), 'INGAME');
@@ -680,13 +651,11 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         });
         this.gameService.deleteGameByUserId(
           Number(player.user_id),
-          gameStatus.SEARCHING,
         );
       });
       delete this.notifs[data.userId];
       this.gameService.deleteGameByUserId(
         Number(data.adv_id),
-        gameStatus.SEARCHING,
       );
       this.notifs[data.adv_id]?.map((player) => {
         if (player.user_id !== data.userId) {
@@ -709,7 +678,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       for (const key in this.notifs) {
         // get the key that the player is inviting
-        const player = this.notifs[key].find(
+        const player = this.notifs[key]?.find(
           (player) => player.user_id === data.userId,
         );
         if (!player) {
@@ -723,18 +692,18 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
               socketa.emit('rejected', player.user_id);
           });
           // Filter out the deleted player
-          this.notifs[key] = this.notifs[key].filter(
+          this.notifs[key] = this.notifs[key]?.filter(
             (player) => player.user_id !== data.userId,
           );
           // If there are no more invites for this player, delete the key
-          if (this.notifs[key].length === 0) {
+          if (this.notifs[key]?.length === 0) {
             delete this.notifs[key];
           }
         }
       }
       for (const key in this.notifs) {
         // get the key that the player is inviting
-        const player = this.notifs[key].find(
+        const player = this.notifs[key]?.find(
           (player) => player.user_id === data.adv_id,
         );
         if (!player) {
@@ -748,11 +717,11 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
               socketa.emit('rejected', player.user_id);
           });
           // Filter out the deleted player
-          this.notifs[key] = this.notifs[key].filter(
+          this.notifs[key] = this.notifs[key]?.filter(
             (player) => player.user_id !== data.adv_id,
           );
           // If there are no more invites for this player, delete the key
-          if (this.notifs[key].length === 0) {
+          if (this.notifs[key]?.length === 0) {
             delete this.notifs[key];
           }
         }
@@ -762,7 +731,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.logger.log('inivite rejected', data.userId);
       for (const key in this.notifs) {
         // get the key that the player is inviting
-        const player = this.notifs[key].find(
+        const player = this.notifs[key]?.find(
           (player) => player.user_id === data.userId,
         );
         if (!player) {
@@ -774,7 +743,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
             socketa.emit('rminvite', data.userId);
           });
           // Filter out the deleted player
-          this.notifs[key] = this.notifs[key].filter(
+          this.notifs[key] = this.notifs[key]?.filter(
             (player) => player.user_id !== data.userId,
           );
           // If there are no more invites for this player, delete the key
@@ -785,9 +754,8 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       }
       this.gameService.deleteGameByUserId(
         Number(data.userId),
-        gameStatus.SEARCHING,
       );
-      this.socketGateway.getClientSocket(data.userId).map((socketa) => {
+      this.socketGateway.getClientSocket(data.userId)?.map((socketa) => {
         socketa.emit('rejected', {
           userId: data.adv_id,
           avatar: data.avatar,
@@ -912,7 +880,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         // Emit the 'start' event to players in the game to start the game
         this.games[gameId].update = true;
         this.games[gameId].state = gameStatus.PLAYING;
-        console.log('start');
         this.socketGateway
           .getServer()
           .to(gameId)
@@ -991,7 +958,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       // playeer is already in game
       client.to(gameId).emit('getFrame', data, (response: any) => {
         // Handle the response here
-        console.log(response);
         if (response instanceof Error) {
           this.socketGateway
             .getServer()
@@ -1010,7 +976,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
             });
           // Add additional error handling logic here
         } else {
-          console.log('Response from getFrame:', response);
           // Handle the successful response here
         }
       });
@@ -1020,13 +985,11 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('playOpen')
   async handlePlayOpen(client: Socket, data: any) {
     // Extract the user ID from the client
-    console.log('playOpen');
     const gameId = Object.keys(this.games).find(
       (id) => this.games[id].players[data.userId],
     );
 
     if (gameId) {
-      console.log('is in game');
       // Add the new socket to the game room
       client.join(gameId);
       // playeer is already in game
@@ -1036,7 +999,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         gameId: this.players[data.userId].gameId,
       });
     } else {
-      console.log('is not in game');
     }
   }
 

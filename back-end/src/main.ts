@@ -16,7 +16,9 @@ async function bootstrap() {
   });
   app.use(cookieParser());
   app.use(passport.initialize());
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(new ValidationPipe({
+    disableErrorMessages: true,
+  }));
   await app.listen(3001, '0.0.0.0');
 }
 

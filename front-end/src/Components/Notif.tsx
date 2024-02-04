@@ -34,7 +34,6 @@ const Notification: React.FC<NotificationProps> = ({setInvite, inviters, inviteR
     // setNotifContainer('notif-container');
     const psvgRef = useRef<HTMLDivElement>(null); // Declare psvgRef using useRef hook
     useEffect(() => {
-        console.log("inviters: ", inviters);
     } , [inviters]);
     const navigate = useNavigate();
 

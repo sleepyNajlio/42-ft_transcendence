@@ -20,26 +20,22 @@ export function Verify2FA() {
           navigate('/Profile'); 
         } else {
           setInputKolo('');
-          console.log("Wrong code");
         }
       })
       .catch(() => {
           setInputKolo('');
-          console.log("Wrong code");
       });
       
   }
   useEffect(() => {
     if (inputKolo.length === 6) {
       Verify();
-      console.log(inputKolo);
     }
   }, [inputKolo]);
   const handleKeyPress = (
     event: React.KeyboardEvent<HTMLInputElement>,
     currentTextbox: number
   ) => {
-        // console.log(event.keyCode);
         var nextTextbox;
         // setIsntValidKolo(false);
         if (event.keyCode === 37) {
@@ -61,7 +57,6 @@ export function Verify2FA() {
           if (nextTextbox >= 1 && nextTextbox <= 6) {
             // if(nextTextbox)
             // {
-            //   console.log("6666666666666666666");
             // }
             var currentInput = document.querySelector(
               "input:nth-child(" + currentTextbox + ")"
@@ -149,7 +144,6 @@ export function Verify2FA() {
             if (nextTextbox <= 6) {
               if(nextTextbox === 6)
               {
-                console.log("6666666666666666666");
               }
             var nextInput = document.querySelector(
               "input:nth-child(" + nextTextbox + ")"

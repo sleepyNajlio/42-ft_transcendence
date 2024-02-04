@@ -31,16 +31,18 @@ export class ProfileController {
     const user = await this.profileService.getUserInfoFromToken(token);
     return { user: user };
   }
+
   @Get('/friend/:id')
   async getUserById(@Req() req: Request, @Param() { id }: { id: string }) {
     const owuser = req.user;
-    const { user } = await this.profileService.getUserById(Number(id));
+    const  user  = await this.profileService.getUserById(Number(id));
     const friendStatus = await this.profileService.getFriendStatus(
       Number(id),
       Number(owuser['id_player']),
     );
     return { user, state: friendStatus };
   }
+  
   @Post('/friend')
   async addFriend(@Req() req: Request, @Body() { id }: { id: string }) {
     const owuser = req.user;
@@ -57,14 +59,12 @@ export class ProfileController {
     @Body() { id, status }: { id: string; status: string },
   ) {
     const owuser = req.user;
-    console.log(owuser);
-    console.log(id);
-    await this.profileService.updateStatus(
-      Number(id),
-      Number(owuser['id_player']),
-      status,
-    );
-    return { message: 'Friend is blocked' };
+      await this.profileService.updateStatus(
+        Number(id),
+        Number(owuser['id_player']),
+        status,
+      );
+      return { message: 'Friend is '+ status };
   }
 
   @Get('/notfriend')
@@ -124,45 +124,14 @@ export class ProfileController {
     return users;
   }
 
-  @Post('/upload/:userId')
-  @UseInterceptors(
-    FileInterceptor('file', {
-      storage: diskStorage({
-        destination: './uploads', // Specify your upload directory
-        filename: (req, file, callback) => {
-          const randomName = Array(32)
-            .fill(null)
-            .map(() => Math.round(Math.random() * 16).toString(16))
-            .join('');
-          return callback(null, `${randomName}${extname(file.originalname)}`);
-        },
-      }),
-    }),
-  )
-  async uploadFile(
-    @UploadedFile() file: any,
-    @Body() body: { username: string },
-    @Param('userId') userId: string,
-  ) {
-    console.log(file); // You can access the file details here
-    await this.profileService.updateUser(
-      Number(userId),
-      file.filename,
-      body.username,
-    );
-    return { message: 'File uploaded successfully' };
-  }
-
   @Get('/rank/:id')
   async getUsersRankId(@Param() { id }: { id: string }) {
-    console.log(id);
     const rank = await this.profileService.getUsersRankId(Number(id));
     return rank;
   }
 
   // @Get('/rank/:id')
   // async getUsersRankId(@Param() { id }: { id: string }) {
-  //   console.log(id);
   //   const user = await this.profileService.getUsersRankId(Number(id));
   //   return user;
   // }

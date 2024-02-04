@@ -71,7 +71,6 @@ export function Config() {
     const fetchData = async () => {
       await getPreAuthData().then(res => {
         if (res) {
-          console.log("username set to: ", res);
           setUserpre ({id : res.id_player, email: res.email, username: res.username, avatar: res.avatar});
           setUsername(res.username);
         }
@@ -105,13 +104,11 @@ export function Config() {
   }
 
   const submitForm = async (path: string) => {
-    console.log('form userpre:', userpre);
     let avatar : string | null = null;
     if (selectedImage)
       avatar = await uploadImage(selectedImage);
     try {
       const res = await finishSignup(userpre.email, newUsername || "", avatar || userpre.avatar);
-      console.log("sign up", res);
       navigate(path);
     } catch {
       setError(true);

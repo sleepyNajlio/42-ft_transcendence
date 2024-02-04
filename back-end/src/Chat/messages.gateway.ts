@@ -7,11 +7,13 @@ import {
   OnGatewayDisconnect,
 } from '@nestjs/websockets';
 import { MessagesService } from './messages.service';
-import { CreateMessageDto } from './dto/create-message.dto';
+import { CreateMessageDto, 
+        createRoomDto,
+        updatedRoomDto,
+      selectedPswdDto} from './dto/create-message.dto';
 import { Server, Socket } from 'socket.io';
 import { SocketGateway } from 'src/socket/socket.gateway';
-import { ChatType } from '@prisma/client';
-import { subscribe } from 'diagnostics_channel';
+import * as bcrypt from 'bcrypt';
 
 type updatedRoom = {
   name: string;
@@ -36,70 +38,80 @@ export class MessagesGateway
   ) {}
 
   handleDisconnect(client: any) {
-    console.log(`Message gateway client disconnected: ${client.id}`);
     delete this.messagesService.clients[client.id];
   }
 
   async handleConnection(client: any, ...args: any[]) {
-    console.log(`Message gateway client connected: ${client.id}`);
     this.messagesService.clients[client.id] = client;
   }
 
   @SubscribeMessage('Friends')
   async DisplayFriends(@MessageBody('id') id: number) {
-    const Users = await this.messagesService.getUsers(id);
-    // this.socketGateway.getServer().emit('users', Users);
-    // console.log('users in gateway : ');
-    // console.log(Users);
-    return Users;
+    try {
+      const Users = await this.messagesService.getUsers(id);
+      // this.socketGateway.getServer().emit('users', Users);
+      return Users;
+    }
+    catch
+    {
+      return "error";
+    }
   }
 
   @SubscribeMessage('DisplayRoom')
   async displayRoom(@MessageBody('id') id: number) {
-    const rooms = await this.messagesService.getRooms(id);
+    try
+    {
+      const rooms = await this.messagesService.getRooms(id);
+      return rooms;
+    }
+    catch
+    {
+      return "error";
+    }
     // this.socketGateway.getServer().emit('rooms', rooms);
-    // console.log('rooms in gateway : ');
-    // console.log(rooms);
-    return rooms;
   }
 
   @SubscribeMessage('updateRoom')
   async updateRoom(
-    @MessageBody('id') id: number,
-    @MessageBody('name') name: string,
-    @MessageBody('type') type: string,
-    @MessageBody('newPass') newPass: string,
-    @MessageBody('modifypass') modifypass: boolean,
-    @MessageBody('setPass') setPass: boolean,
-    @MessageBody('removepass') removepass: boolean,
+    @MessageBody() updatedRoomDto : updatedRoomDto,
   ) {
     // const paswd : string | null = newPass || null;
     // const newtype : ChatType = type as ChatType;
     // const role : string = 'ADMIN';
-    const Room = await this.messagesService.updateRoom(
-      id,
-      name,
-      type,
-      newPass,
-      modifypass,
-      setPass,
-      removepass,
-    );
+    try
+    {
+      let hashedPassword = null;
+      const {id, name, type, newPass, modifypass, setPass, removepass} = updatedRoomDto;
+      if (newPass) {
+        hashedPassword = await bcrypt.hash(newPass, 10);
+        // Now update the room in the database with the hashed password
+      }
+      const Room = await this.messagesService.updateRoom(
+        id,
+        name,
+        type,
+        hashedPassword,
+        modifypass,
+        setPass,
+        removepass,
+      );
 
-    const room: updatedRoom = {
-      name: Room.name,
-      newPass: Room.password ? Room.password : null,
-      type: Room.type,
-      id: Room.id_chat,
-      Role: Room.users[0].role,
-      userId : id,
+      const room: updatedRoom = {
+        name: Room.name,
+        newPass: Room.password ? Room.password : null,
+        type: Room.type,
+        id: Room.id_chat,
+        Role: Room.users[0].role,
+        userId : id,
 
-    };
-    // console.log('rooooooom in gateway : ');
-    // console.log(room);
+      };
 
-    this.socketGateway.getServer().emit('update', room);
-    return room;
+      this.socketGateway.getServer().emit('update', room);
+      return room;
+    } catch {
+      return "error";
+    }
 
     //  return await this.messagesService.updateRoom(id, name,type,newPass,modifypass,setPass,removepass);
   }
@@ -107,53 +119,55 @@ export class MessagesGateway
   @SubscribeMessage('createMessage') // to be able to send new messages
   async create(
     @MessageBody() createMessageDto: CreateMessageDto,
-    @MessageBody('id') id: number,
     @ConnectedSocket() client: Socket,
-    @MessageBody('username') username: string | null,
   ) {
-    const message = await this.messagesService.create(
-      createMessageDto,
-      client.id,
-      id,
-      username,
-    );
-      
-    if (!message) return false;
-    // console.log('message in gateway : ');
-    const room = 'chat_' + message.chatId;
-    // console.log('room in gateway : ');
-    // console.log(room);
-    this.socketGateway.getServer().to(room).emit('message', message);
-
-    return message;
+    try
+    {
+      const message = await this.messagesService.create(
+        createMessageDto,
+        client.id,
+      );
+        
+      if (!message) return false;
+      const room = 'chat_' + message.chatId;
+      this.socketGateway.getServer().to(room).emit('message', message);
+  
+      return message;
+    }
+    catch
+    {
+      return "error";
+    }
   }
 
   @SubscribeMessage('createRoom')
   async creatRoom(
-    @MessageBody('id1') id1: number,
-    @MessageBody('name') name: string,
-    @MessageBody('roomType') roomType: ChatType,
-    @MessageBody('roomPassword') roomPassword: string,
+    @MessageBody() createRoomDto : createRoomDto,
     @ConnectedSocket() client: Socket,
   ) {
-    // console.log('create called');
-    // console.log('in gateway -- id: ' + id1 + ' user: ' + name + ' just created the chat');
-    const Room = await this.messagesService.createChannel(
-      id1,
-      name,
-      roomType,
-      roomPassword,
-    );
-
-    // console.log('created room in gateway : ');
-    // console.log(Room);
-
-    if (Room) {
-      if (Room.type == 'PRIVATE')
-        this.socketGateway.getServer().to(client.id).emit('rooms', Room);
-      else this.socketGateway.getServer().emit('rooms', Room);
-    } else return false;
-    // return Room;
+    try{
+      const {id1, name, roomType, roomPassword} = createRoomDto;
+      let hashedPassword = null;
+      if(roomPassword)
+        hashedPassword = await bcrypt.hash(roomPassword, 10);
+      const Room = await this.messagesService.createChannel(
+        id1,
+        name,
+        roomType,
+        hashedPassword,
+      );
+  
+  
+      if (Room) {
+        if (Room.type == 'PRIVATE')
+          this.socketGateway.getServer().to(client.id).emit('rooms', Room);
+        else this.socketGateway.getServer().emit('rooms', Room);
+      } else return false;
+    } 
+    catch
+    {
+      return "error";
+    }
   }
   @SubscribeMessage('findAllMessagesDm') // to be able to see the old messages
   async findAll(
@@ -162,7 +176,14 @@ export class MessagesGateway
     @MessageBody('username') username: string | null,
     // @ConnectedSocket() client: Socket,
   ) {
-    return await this.messagesService.findAllDm(name, id, username);
+    try{
+      const messages =  await this.messagesService.findAllDm(name, id, username);
+      return messages;
+    }
+    catch
+    {
+      return "error";
+    }
   }
 
   @SubscribeMessage('findAllMessages')
@@ -171,7 +192,14 @@ export class MessagesGateway
     @MessageBody('id') id: number,
     @ConnectedSocket() client: Socket,
   ) {
-    return await this.messagesService.findAllMessages(name, id);
+    try{
+      const messages = await this.messagesService.findAllMessages(name, id);
+      return messages;
+    }
+    catch
+    {
+      return "error";
+    }
   }
 
   @SubscribeMessage('join')
@@ -179,30 +207,27 @@ export class MessagesGateway
     @MessageBody('id') id: number,
     @MessageBody('name') name: string,
     @MessageBody('type') selectedType: string,
-    @MessageBody('selectedPswd') selectedPswd: string,
+    @MessageBody() selectedPswdDto: selectedPswdDto,
     @ConnectedSocket() client: Socket,
   ) {
-    // console.log('selcted pswd in gateway : ');
-    // console.log(selectedPswd)
-    // console.log('room name in gateway : ');
-    // console.log(name);
-    // console.log('room type in gateway : ');
-    // console.log(selectedType);
-    const room = await this.messagesService.identify(
-      id,
-      name,
-      selectedType,
-      selectedPswd,
-    );
-    // console.log('room in gateway : ');
-    // console.log(room);
-    console.log('user: ' + id + ' joined the chat');
-    if (room) {
-      client.join('chat_' + room.id_chat);
-      console.log('user: ' + id + ' joined the chat');
-      return room;
+    try{
+      const {selectedPswd} = selectedPswdDto;
+      const room = await this.messagesService.identify(
+        id,
+        name,
+        selectedType,
+        selectedPswd,
+      );
+      if (room) {
+        client.join('chat_' + room.id_chat);
+        return room;
+      }
+      return false;
     }
-    return false;
+    catch
+    {
+      return "error";
+    }
   }
 
   @SubscribeMessage('getChatUsers')
@@ -210,8 +235,14 @@ export class MessagesGateway
     @MessageBody('name') name: string,
     @MessageBody('id') id: number,
   ) {
-    const users = await this.messagesService.getChatUsers(name, id);
-    return users;
+    try{
+      const users = await this.messagesService.getChatUsers(name, id);
+      return users;
+    }
+    catch
+    {
+      return "error";
+    }
   }
 
   @SubscribeMessage('setAdmin')
@@ -220,9 +251,15 @@ export class MessagesGateway
     @MessageBody('username') username: string,
     @MessageBody('name') name: string,
   ) {
-    const room = await this.messagesService.setAdmin(id, username, name);
-    this.socketGateway.getServer().emit('Admin', room);
-    return room;
+    try{
+      const room = await this.messagesService.setAdmin(id, username, name);
+      this.socketGateway.getServer().emit('Admin', room);
+      return room;
+    }
+    catch
+    {
+      return "error";
+    }
   }
 
   @SubscribeMessage('addUser')
@@ -231,14 +268,20 @@ export class MessagesGateway
     @MessageBody('username') username: string,
     @MessageBody('name') name: string,
   ) {
-    const room = await this.messagesService.addUser(id, username, name);
-    if (room)
-    {
-      this.socketGateway.getServer().emit('onadd', room);
-      return room;
+    try{
+      const room = await this.messagesService.addUser(id, username, name);
+      if (room)
+      {
+        this.socketGateway.getServer().emit('onadd', room);
+        return room;
+      }
+      else
+        return false;
     }
-    else
-      return false;
+    catch
+    {
+      return "error";
+    }
   }
 
   @SubscribeMessage('kick')
@@ -247,23 +290,25 @@ export class MessagesGateway
     @MessageBody('name') name: string,
     @ConnectedSocket() client: Socket,
   ) {
-    console.log('kick called ');
-    this.socketGateway.getClientSocket(id.toString())?.map((socketa) => {
-      // console.log('socketat');
-      // console.log(socketa.id);
-      // if (socketa.id !== client.id) {
-        console.log('socketat');
-        console.log(socketa.id);
-        // socketa.leave('chat_' + id);
-      // }
-    });
-    // Log all client IDs
-    const room = await this.messagesService.kick(id, name);
-    if (room) {
-      this.socketGateway.getServer().emit('onkick', room);
-      return room;
-    } else {
-      return false;
+    try
+    {
+      this.socketGateway.getClientSocket(id.toString())?.map((socketa) => {
+        // if (socketa.id !== client.id) {
+          // socketa.leave('chat_' + id);
+        // }
+      });
+      // Log all client IDs
+      const room = await this.messagesService.kick(id, name);
+      if (room) {
+        this.socketGateway.getServer().emit('onkick', room);
+        return room;
+      } else {
+        return false;
+      }
+    }
+    catch
+    {
+      return "error";
     }
   }
 
@@ -273,15 +318,19 @@ async ban(
   @MessageBody('name') name: string,
   @ConnectedSocket() client: Socket,
 ) {
-
-
-  const room = await this.messagesService.ban(id, name);
-  if (room) {
-    this.socketGateway.getServer().emit('onban', room);
-    return room;
+  try{
+    const room = await this.messagesService.ban(id, name);
+    if (room) {
+      this.socketGateway.getServer().emit('onban', room);
+      return room;
+    }
+    else {
+      return false;
+    }
   }
-  else {
-    return false;
+  catch
+  {
+    return "error";
   }
 }
 
@@ -291,14 +340,19 @@ async mute(
   @MessageBody('name') name: string,
   @ConnectedSocket() client: Socket,
 ) {
-
-  const room = await this.messagesService.mute(id, name);
-  if (room) {
-    this.socketGateway.getServer().emit('onmute', room);
-    return room;
+  try{
+    const room = await this.messagesService.mute(id, name);
+    if (room) {
+      this.socketGateway.getServer().emit('onmute', room);
+      return room;
+    }
+    else {
+      return false;
+    }
   }
-  else {
-    return false;
+  catch
+  {
+    return "error";
   }
 }
 
@@ -309,11 +363,16 @@ async mute(
     @MessageBody('name') name: string,
     @ConnectedSocket() client: Socket,
   ) {
-    const room = await this.messagesService.leave(id, name);
-    client.leave('chat_' + room.chatId);
-    console.log('user: ' + id + ' left the chat');
-    this.socketGateway.getServer().emit('onleave', room);
-    return room;
+    try{
+      const room = await this.messagesService.leave(id, name);
+      client.leave('chat_' + room.chatId);
+      this.socketGateway.getServer().emit('onleave', room);
+      return room;
+    }
+    catch
+    {
+      return "error";
+    }
   }
 
   @SubscribeMessage('joinDm')
@@ -323,27 +382,15 @@ async mute(
     @MessageBody('username') username: string,
     @ConnectedSocket() client: Socket,
   ) {
-    // console.log('the user with id ' + id +' and name  ' + username + ' wants to join the dm with ' + name);
-
-    const room = await this.messagesService.identifyDm(id, name, username);
-    client.join('chat_' + room.id_chat);
-    // console.log('user: ' + username + ' joined the chat with ' + name + ' in ' + room.id_chat);
-    return room;
+    try
+    {
+      const room = await this.messagesService.identifyDm(id, name, username);
+      client.join('chat_' + room.id_chat);
+      return room;
+    }
+    catch
+    {
+      return "error";
+    }
   }
-
-  // @SubscribeMessage('typing')
-  // async typing(
-  //   @MessageBody('name') name: string,
-  //   @MessageBody('isTyping') isTyping: boolean,
-  //   @MessageBody('username') username: string,
-  //   @ConnectedSocket() client: Socket,
-  // ) {
-  //   console.log('typing called');
-  //   console.log(name);
-  //   const chat = await this.messagesService.findRoom(name);
-
-  //   const room = "chat_" + chat.id_chat;
-  //   client.broadcast.to(room).emit('typing', { username:username, isTyping: isTyping });
-
-  // }
 }

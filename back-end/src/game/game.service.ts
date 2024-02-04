@@ -16,13 +16,12 @@ export class GameService {
       });
       return game;
     } catch (error) {
-      console.error(error);
     }
   }
 
-  getGameByUserId(userId: number, status: GameStatus) {
+  async getGameByUserId(userId: number, status: GameStatus) {
     try {
-      const game = this.prisma.game.findFirst({
+      const game = await this.prisma.game.findFirst({
         where: {
           status: status,
           users: {
@@ -34,16 +33,15 @@ export class GameService {
       });
       return game;
     } catch (error) {
-      console.error('getGameByUserId', error);
       return null;
     }
   }
 
-  async deleteGameByUserId(userId: number, status: GameStatus) {
+  async deleteGameByUserId(userId: number) {
     try {
       const game = await this.prisma.game.findFirst({
         where: {
-          status: status,
+          status: "SEARCHING",
           users: {
             some: {
               userId: userId,
@@ -69,7 +67,6 @@ export class GameService {
       Logger.log('delete Game');
       return true;
     } catch (error) {
-      console.error(error);
       return false;
     }
   }
@@ -92,7 +89,7 @@ export class GameService {
       });
       return userGame;
     } catch (error) {
-      console.error(error);
+      return false;
     }
   }
 
@@ -108,7 +105,7 @@ export class GameService {
       });
       return Game;
     } catch (error) {
-      console.error(error);
+      return false;
     }
   }
 
@@ -118,9 +115,6 @@ export class GameService {
     win: number,
     score: number,
   ) {
-    console.log(
-      ' updateUserGame ' + userId + ' game ' + gameId + 'status ' + win + '',
-    );
     try {
       const userGame = await this.prisma.userGame.update({
         where: {
@@ -149,7 +143,7 @@ export class GameService {
       });
       return userGame;
     } catch (error) {
-      console.error(error);
+      return false;     
     }
   }
 
@@ -160,16 +154,20 @@ export class GameService {
     loserSc: number,
     state: GameStatus,
   ) {
-    const gameId = await this.getGameByUserId(userId, GameStatus.PLAYING);
-    if (!gameId) {
+    try{
+      const gameId = await this.getGameByUserId(userId, GameStatus.PLAYING);
+      if (!gameId) {
+        return false;
+      }
+      this.updateGame(gameId.id_game, state);
+      
+      this.updateUserGame(userId, gameId.id_game, 0, loserSc);
+      this.updateUserGame(opponentId, gameId.id_game, 1, winnerSc);
+      return gameId.id_game;
+    }
+    catch{
       return false;
     }
-    this.updateGame(gameId.id_game, state);
-    console.log('loserSc ' + loserSc + ' winnerSc ' + winnerSc);
-    
-    this.updateUserGame(userId, gameId.id_game, 0, loserSc);
-    this.updateUserGame(opponentId, gameId.id_game, 1, winnerSc);
-    return gameId.id_game;
   }
 
   async getGame() {

@@ -12,7 +12,6 @@ type htmlclass = {
     const Navigate = useNavigate();
 
     const handleLogoclick = () => {
-        console.log("logo clicked");
         Navigate(`/Profile`);
     }
       return (

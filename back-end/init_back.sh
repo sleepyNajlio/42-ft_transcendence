@@ -13,3 +13,5 @@ npm run start:dev &
 
 # Start Prisma Studio in the foreground as the node user
 npx prisma studio
+
+sleep 2

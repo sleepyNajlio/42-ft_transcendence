@@ -70,7 +70,6 @@ const SettingsComponent = (props: any) => {
   };
 
 
-  // console.log("room type in settings : " + props.Roomtype);
 
   return (
     <div className="settings-navbar">
@@ -118,25 +117,16 @@ export default function ChatHeaderComponent(props : any) {
 
 
   // const navigate = useNavigate();
-  // console.log("chatUsers got in chatHeeder : " , props.chatUsers);
   
   // props.chatUsers.map((user: any) => {
-    // console.log("user in chat header : " , user);
-    // console.log("username in chat header : " , user.user.username);
-    // // console.log(user);
     // return null;
   // });
 
-  // console.log("isAdmin is : " , props.isAdmin);
-  // console.log("isOwner is : " , props.isOwner);
   function searchPlayer(id_player: string): void {
-    console.log("id_player: ", id_player);
     getMatchHistory(Number(id_player)).then (res => {
-      console.log("history: ", res);
       props.setHistory(res);
     } );
     getUserById(Number(id_player)).then (res => {
-      console.log("player: ", res);
       props.setProfile(res);
     });
     navigate("/Profile")
@@ -178,7 +168,6 @@ export default function ChatHeaderComponent(props : any) {
   }
 
   const handleAdmin = (username : string) => {
-    console.log("user clicked : " , username);
     props.handleAdmin(username);
   }
 
@@ -213,12 +202,9 @@ export default function ChatHeaderComponent(props : any) {
       // navigate(`/Profile/${props.friendName}`);
   }
     
-  // console.log("room type setting : " , props.room.type);
-  console.log('user is owner in chatHeader: ' + props.isOwner)
 
   if (props.showRoom && !props.isOwner && !props.isAdmin)
   {
-    console.log("show rooom");
     return (
       <div className="chat-header-container">
         <img className="profile-image" src={props.profileImageUrl} alt="Friend" />
@@ -282,7 +268,7 @@ export default function ChatHeaderComponent(props : any) {
           <div className='blank'> </div>
           <div className='profil' onClick={handlesetAdmin}>
             <img title="Set Admin" src={set_admin} width='20' height='20' alt="leave" />
-          {setAdmin && Array.isArray(props.chatUsers) && !props.chatUsers.some((user: any) => user.role === 'ADMIN') && (
+          {setAdmin && Array.isArray(props.chatUsers) && (
           <div className="user-list-dropdown">
             {props.chatUsers.map((user: any, index : number) => (
               user && user.role === 'MEMBER' && !user.isBanned && !user.isMuted && (
@@ -343,7 +329,6 @@ export default function ChatHeaderComponent(props : any) {
   }
   else if (props.showDm)
   {
-    console.log("show dmmmm");
     return (
       <div className="chat-header-container">
     <img className="profile-image" src={props.profileImageUrl} alt="Friend" />

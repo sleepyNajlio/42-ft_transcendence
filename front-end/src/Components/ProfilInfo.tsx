@@ -29,7 +29,6 @@ export function ProfilInfo(props : {status: string, setFriend:React.Dispatch<Rea
   useEffect(() => {
     setstatus(props.state?.status)
     setNewRequest(false);
-    console.log("state ",props.state, "status ", status, "newRequest ", newRequest);
     return () => {
       setstatus("")
     }
@@ -40,7 +39,6 @@ export function ProfilInfo(props : {status: string, setFriend:React.Dispatch<Rea
     setstatus("ACCEPTED")
   }
 
-  console.log("state ",props.state, "status ", status);
     return (
     <>
     <div className="left-content profil__info">

@@ -11,11 +11,8 @@ export function Login() {
   // const code = 
   // const state = new URLSearchParams(location.search).get('state');
 
-  // console.log(`cooode: ${code}`);
-  // console.log(`state: ${state}`);
   useEffect(() => {
     return () => {
-      console.log('unmounting...');
     }
   } , []);
 

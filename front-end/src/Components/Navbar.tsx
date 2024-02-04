@@ -7,6 +7,7 @@ import ranking_icon from '../assets/chart_icon.svg';
 import play_icon from '../assets/playground_icon.svg';
 import settings from '../assets/settings_icon.svg';
 import exit from '../assets/exit.svg';
+import Ringbell from '../assets/bell.png';
 import { useContext, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { UserContext } from '../UserProvider.tsx';
@@ -34,7 +35,6 @@ export default function Navbar(props: any) {
             method: "GET",
           });
           const data = await response.json(); // Parse the response as JSON
-          console.log("data: ", data);
           setUsers(data.users); // Set the parsed data to state
         } catch (error) {
           console.error(error);
@@ -43,8 +43,6 @@ export default function Navbar(props: any) {
 
     useEffect(() => {
         if (users.length > 0) {
-          console.log("users1: ", users);
-          console.log("showing users");
         //   setPlayers(true);
         }
       }, [users]);
@@ -85,13 +83,10 @@ export default function Navbar(props: any) {
 
     function searchPlayer(id_player: string): void {
         setSearch(!search);
-        console.log("id_player: ", id_player);
         getMatchHistory(Number(id_player)).then (res => {
-          console.log("history: ", res);
           props.setHistory(res);
         } );
         getUserById(Number(id_player)).then (res => {
-          console.log("player: ", res);
           props.setProfile(res);
         });
         navigate("/Profile")
@@ -100,7 +95,6 @@ export default function Navbar(props: any) {
     //   let flag = true;
     const [Notifs, setNotifs] = useState<Boolean>(false);
       function popNotifs() {
-          console.log("hhhhh\n");
           if(props.invite === inviteStatus.NONE){
               setNotifs(!Notifs);
             //   flag = false;
@@ -108,19 +102,15 @@ export default function Navbar(props: any) {
             props.setInvite(inviteStatus.NONE);
         }
         useEffect(() => {
-            console.log("YOOOOOOO", NotifContainer);
         }, [NotifContainer, Notifs]);
     
         useEffect(() => {
-            console.log("Notifs Clicked", NotifContainer, Notifs);
             if (Notifs) {
             setNotifContainer("notif-container");
-            console.log("Notifs appear", NotifContainer);
         }
         else if (NotifContainer === "notif-container") 
         {
             setNotifContainer("notifmacontainer");
-            console.log("Notifs disappear", NotifContainer);
             setTimeout(() => {
                 setNotifContainer("notif-container");
             } , 450);
@@ -197,7 +187,7 @@ export default function Navbar(props: any) {
         <div className="btn_container">
             <button onClick={popNotifs} className="btn">Notification</button>
             <div className="icon">
-                <img src={settings} alt="Notification Icon"/>
+                <img src={Ringbell} alt="Notification Icon"/>
             </div>
         </div>
         <div className="btn_container">

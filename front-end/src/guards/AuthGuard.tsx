@@ -19,7 +19,6 @@ const AuthGuard = ({ component }: { component: ReactNode }) => {
 		await axios.get(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/user`, { withCredentials: true })
 		.then(res => {
 			if (res.data.twoFA == true) {
-				// console.log("verify azzbi ", res.data);
 				setStatus(true);
 				navigate('/Verify2FA');
 			}

@@ -30,7 +30,6 @@ export class UsersController {
   @SetMetadata('isPublic', true)
   @Get()
   async GetProfileData(@Req() req: Request) {
-    // console.log("GetProfileData begin");
     if (req.cookies['TWOFA']) {
       return { twoFA: true };
     }
@@ -53,7 +52,7 @@ export class UsersController {
         destination: './avatars',
         filename: editFilename,
       }),
-      fileFilter: imageFileFilter,<
+      fileFilter: imageFileFilter,
       limits: { fileSize: 1024 * 1024 * 5 },
     }),
   )
@@ -67,7 +66,6 @@ export class UsersController {
     await this.usersService.UploadAvatar(user.id_player, file);
     // if upload is successful
     if (file) {
-      console.log({ file });
       return `${this.Config.get('VITE_REACT_APP_BACKEND_URL')}/` + file.path;
     }
     return 'madazsh';
@@ -75,8 +73,6 @@ export class UsersController {
 
   @Post('updateUsername')
   async updateUsername(@Req() req: Request, @Body() dto: UpdateUsernameDTO) {
-    console.log('username update ', req.user);
-    console.log('username', dto);
     const user = await this.usersService.GetUserByToken(
       req.cookies['JWT_TOKEN'] || req.cookies['USER'],
     );
@@ -89,14 +85,12 @@ export class UsersController {
 
   // @Get('/:id')
   // async getUserById(@Param() { id }: { id: string }) {
-  //   console.log(id);
   //   const user = await this.usersService.getUserById(Number(id));
   //   return user;
   // }
 
   @Get('/logout')
   async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
-    console.log('logging out');
     if (req.cookies['JWT_TOKEN']) {
       res.cookie('JWT_TOKEN', '', { expires: new Date() });
       res.redirect(`${this.Config.get('FRONTEND_URL')}/`);

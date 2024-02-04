@@ -42,10 +42,8 @@ export function Play({ setInPlay, inviter, setInviter}: { setInPlay: any , invit
           adv_id: player_id.toString(),
           userId: user?.id.toString(),
         }, async (response: any) => {
-          console.log('Received acknowledgement from server:', response);
           if (!response) {
             setError(true);
-            console.log('error');
             return;
           }
           setIsLoading(true);
@@ -54,7 +52,6 @@ export function Play({ setInPlay, inviter, setInviter}: { setInPlay: any , invit
           const gameId = gameResponse.data.id_game;
           await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/game/${gameId}/joinGame`, {userId: user?.id},  { withCredentials: true });
           setGameId(gameId);
-          console.log('game', gameId, " created");
           if (componentRef.current?.offsetWidth)
             socket.emit('invite', 
             {
@@ -76,18 +73,14 @@ export function Play({ setInPlay, inviter, setInviter}: { setInPlay: any , invit
     const handleMatchClick = async () => {
       let resp: {id: string | null} = {id: null};
       let userId: string | null = null;
-      console.log('user in play : ', user);
       if (user) {
         userId = user.id;
       }
       // here we set a state for the game id
-      console.log('currentPad: ', currentPad);
       if (socket && componentRef.current)
       socket.emit('matchmaking', { id: socket.id, width: componentRef.current?.offsetWidth > 750 ? componentRef.current?.offsetWidth * 0.8 : componentRef.current?.offsetWidth, difficulty: 3, padl: currentPad, username: user?.username, avatar:user?.avatar }, async (response: any) => {
-        console.log('Received acknowledgement from server:', response);
         resp = response;
         if (!resp) {
-          console.log('error');
         }
         else if (!resp.id) {
           const gameResponse = await axios.get(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/game/creategame`,  { withCredentials: true });
@@ -101,7 +94,6 @@ export function Play({ setInPlay, inviter, setInviter}: { setInPlay: any , invit
           const gameResponse = await axios.get(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/game/${resp.id}/getgame/SEARCHING`, { withCredentials: true });
           const gameId = gameResponse.data.id_game;
           setGameId(gameId);
-          console.log('gameId: ', gameId);
           await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/game/${gameId}/joinGame`, {userId: userId},  { withCredentials: true });
           await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/game/${gameId}/updateGame`, {status: 'PLAYING'},  { withCredentials: true });
         }
@@ -116,20 +108,16 @@ export function Play({ setInPlay, inviter, setInviter}: { setInPlay: any , invit
         if (res.data.id_game) {
           setInGame(true);
           socket.emit('playOpen', {  id: socket.id, userId: user?.id });
-          console.log('res: ', res);
           setGameId(res.data.id_game);
         }
       }).catch((err) => {
-        console.log('err: ', err);
       });
       axios.get(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/game/${user.id}/getgame/SEARCHING`, { withCredentials: true }).then
       ((res) => {
         if (res.data.id_game) {
           setIsLoading(true);
-          console.log('res: ', res);
         }
       }).catch((err) => {
-        console.log('err: ', err);
       });
       socket.on('startGame', ({players, bball, gameId}) => {
         // if we receive startGame, with gameid, it's from an invite and should set the new state
@@ -140,18 +128,15 @@ export function Play({ setInPlay, inviter, setInviter}: { setInPlay: any , invit
         setShowSbox(false);
         setPlayers(players);
         setshowGame(true);
-        console.log("game started: ", gameId);
         bballRef.current = bball;
       });
       socket.on('alreadyInQueue', () => {
         setIsLoading(true); // Set loading to false when the game starts
-        console.log("game alreadyInQueue");
         return {inGame: true};
         // axios.delete(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/game/${user?.id}/deletegame/SEARCHING`, { withCredentials: true }).then
       });
 
       socket.on('rejected', () => {
-        console.log("rejected");
         // setInvite(inviteStatus.DECLINED);
         inita();
       });
@@ -160,12 +145,9 @@ export function Play({ setInPlay, inviter, setInviter}: { setInPlay: any , invit
         setIsLoading(false); // Set loading to false when the game starts
         setShowSbox(true);
         setshowGame(false);
-        console.log("game aborted");
       });
       socket.on('disconnectGame', () => {
-        console.log('disconnectGame');
       } );
-      console.log('walla');
       setInPlay(true);
       return () => {
         setInPlay(false);
@@ -182,7 +164,6 @@ export function Play({ setInPlay, inviter, setInviter}: { setInPlay: any , invit
       if (!isMounted.current || !socket)
         return;
       // if (isDocumentVisible) {
-      //   console.log('isDocumentVisible: ', isDocumentVisible);
       //   socket.emit('documentVisible', { id: socket.id, userId: user?.id });
       // }
       // else {
@@ -206,7 +187,6 @@ export function Play({ setInPlay, inviter, setInviter}: { setInPlay: any , invit
       setIsLoading(false); // Set loading to false when the game starts
       setShowSbox(true);
       setshowGame(false);
-      console.log("game aborted");
     };
 
     useEffect(() => {
@@ -217,7 +197,6 @@ export function Play({ setInPlay, inviter, setInviter}: { setInPlay: any , invit
       
       if (showGame && componentRef.current) {
         const width = componentRef.current.offsetWidth;
-        console.log('ball: ', bballRef.current);
         if (user){
           const guser: User = {
             id_player: user.id.toString(),
@@ -225,7 +204,6 @@ export function Play({ setInPlay, inviter, setInviter}: { setInPlay: any , invit
             avatar: user.avatar,
             isAuthenticated: true,
           }
-          console.log('gamila: ', gameId);
           let cleanup = () => {};
           if (gameId)
             cleanup = game(inGame ,socket, 6, gameId, currentBoard, players, bballRef.current, width > 750 ? width * 0.8 : width, guser, players[user.id].ratio, players[user.id].vxratio, inita, updateStats, updatehistory);

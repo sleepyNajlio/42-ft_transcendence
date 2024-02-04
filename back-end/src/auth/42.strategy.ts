@@ -40,14 +40,19 @@ export class FTStrategy extends PassportStrategy(Strategy, '42') {
     profile: profile,
     cb: any,
   ): Promise<any> {
-    // Add your logic to validate or create a user based on the profile data
-    console.log('FTStrategy validate begin');
-    const user = await this.authService.validateUser({
-      username: profile.username,
-      email: profile.emails[0].value,
-      avatar: profile._json.image.link,
-    });
-    if (user) cb(null, user);
-    else cb(null, false);
+    try
+    {
+      const user = await this.authService.validateUser({
+        username: profile.username,
+        email: profile.emails[0].value,
+        avatar: profile._json.image.link,
+      });
+      if (user) cb(null, user);
+      else cb(null, false);
+    }
+    catch
+    {
+      cb(null, false);
+    }
   }
 }

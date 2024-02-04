@@ -33,7 +33,6 @@ const UploadAndDisplayImage = (props: any) => {
                 onChange={(event) => {
                     if (event.target.files)
                     {
-                        console.log(event.target.files[0]);
                         props.setSelectedImage(event.target.files[0] ? event.target.files[0] : null);
                     }
                 }}

@@ -29,7 +29,6 @@ export class TwofaService {
   }
 
   async verifyTwoFaToken(twoFaCode: string, user: UserDTO): Promise<boolean> {
-    // console.log("verifyTwoFaToken, ", twoFaCode, user.twoFASecret);
     const isValid = authenticator.verify({
       token: twoFaCode,
       secret: user.twoFASecret,

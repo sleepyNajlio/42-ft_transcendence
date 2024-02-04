@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ChatType, Prisma } from '@prisma/client';
-// import { getUser } from 'src/player';
+import * as bcrypt from 'bcrypt';
 
 type ChatWhereInput = Prisma.ChatWhereInput;
 
@@ -20,9 +20,6 @@ export class MessagesService {
   ) {
     let chatUSers: any = null;
 
-    // console.log('password in service: ');
-    // console.log(selectedPswd);
-    // console.log('called identify');
 
     const existingChat = await this.prisma.chat.findFirst({
       where: {
@@ -44,7 +41,6 @@ export class MessagesService {
       (user) => user.id_player === id,
     );
 
-    // console.log('id: ' + id + ' user: ' + name + ' is trying to join the chat');
     if (existingChat.type === 'PROTECTED') {
       chatUSers = await this.prisma.chatUser.findFirst({
         where: {
@@ -52,15 +48,15 @@ export class MessagesService {
           userId: id,
         },
       });
-      if (selectedPswd !== existingChat.password && chatUSers === null) {
-        // console.log('id: ' + id + ' user: ' + name + ' cant join the chat because of wrong password');
+      const isPasswordMatch = await bcrypt.compare(selectedPswd, existingChat.password);
+       if (!isPasswordMatch && chatUSers === null) {
+     
         return false;
       }
       if (chatUSers) {
         return existingChat;
       } else {
         if (isBanned || isMuted) {
-          console.log('user was Banned or muted in the room before');
           chatUSers = await this.prisma.chatUser.create({
             data: {
               chatId: existingChat.id_chat,
@@ -71,7 +67,6 @@ export class MessagesService {
             },
           });
         } else {
-          console.log('user was not Banned in the room before');
           chatUSers = await this.prisma.chatUser.create({
             data: {
               chatId: existingChat.id_chat,
@@ -99,7 +94,6 @@ export class MessagesService {
         return existingChat;
       } else {
         if (isBanned || isMuted) {
-          console.log('user was Banned or muted in the room before');
           chatUSers = await this.prisma.chatUser.create({
             data: {
               chatId: existingChat.id_chat,
@@ -110,7 +104,6 @@ export class MessagesService {
             },
           });
         } else {
-          console.log('user was not Banned in the room before');
           chatUSers = await this.prisma.chatUser.create({
             data: {
               chatId: existingChat.id_chat,
@@ -118,18 +111,9 @@ export class MessagesService {
             },
           });
         }
-        // console.log('chatUser that just joined in jooiin the chat is: ');
-        // console.log(chatUSers);
-        // console.log('-------------------');
-        // console.log('jooooined at : ');
-        // console.log(chatUSers.joinedAt);
       }
     }
-    // console.log('id: ' + id + ' user: ' + name + ' joined the chat');
 
-    // console.log(existingChat);
-    // console.log('-------------------');
-    // console.log(chatUSers);
     return existingChat;
   }
 
@@ -170,8 +154,6 @@ export class MessagesService {
         },
       },
     });
-    // console.log('chat users are: ');
-    // console.log(chatUsers);
     return chatUsers;
   }
 
@@ -188,7 +170,6 @@ export class MessagesService {
       },
     });
     if (!chatUser) {
-      console.log('user is not in the chat');
       return false;
     }
     const chatUserDeleted = await this.prisma.chatUser.delete({
@@ -229,7 +210,6 @@ export class MessagesService {
       },
     });
     if (!chatUser) {
-      console.log('user is not in the chat');
       return false;
     }
     const newChatUser = await this.prisma.chatUser.update({
@@ -240,15 +220,11 @@ export class MessagesService {
         role: 'ADMIN',
       },
     });
-    // console.log('new chat user is: ');
-    // console.log(newChatUser);
     return newChatUser;
   }
 
   async getSocketByUserId(id: number) {
     const socketId = this.clients[id];
-    // console.log('socket id is: ');
-    // console.log(socketId);
     if (socketId) {
       return this.clients[id];
     }
@@ -277,9 +253,7 @@ export class MessagesService {
         ],
       } as ChatWhereInput,
     });
-    // console.log('id: ' + id + ' user: ' + username + ' is trying to join the chat');
     if (existingChat) {
-      // console.log('id: ' + id + ' user: ' + username + ' already joined the chat');
       return existingChat;
     } else {
       const newChat = await this.prisma.chat.create({
@@ -300,12 +274,6 @@ export class MessagesService {
           userId: usertojoin.id_player,
         },
       });
-      // console.log('id: ' + id + ' user: ' + username + ' joined the chat');
-      // console.log(newChat);
-      // console.log('-------------------');
-      // console.log(chatUSers);
-      // console.log('-------------------');
-      // console.log(chatUSers2);
       return newChat;
     }
   }
@@ -318,12 +286,9 @@ export class MessagesService {
     roomType: ChatType,
     roomPassword: string,
   ) {
-    console.log('id: ' + id + ' user: ' + name + ' been created');
 
     type roomType = 'PUBLIC' | 'PRIVATE' | 'PROTECTED';
     const roomType1: roomType = roomType as roomType;
-    // console.log('room type: ');
-    // console.log(roomType1);
     const existingChat = await this.prisma.chat.findFirst({
       where: {
         name: {
@@ -360,9 +325,6 @@ export class MessagesService {
       },
     });
     newChat = {...newChat, chatUser};
-    // console.log(newChat);
-    // console.log('-------------------');
-    // console.log(chatUSers);
     return newChat;
     // return Object.values(this.clients);
   }
@@ -376,18 +338,16 @@ export class MessagesService {
   async create(
     createMessageDto: CreateMessageDto,
     clientId: string,
-    id: number,
-    username: string | null,
   ) {
-    // console.log(createMessageDto.);
 
     const message = {
       name: createMessageDto.name,
       text: createMessageDto.text,
+      id : createMessageDto.id,
+      username: createMessageDto.username,
     };
     let createdChatMessage = null;
-    if (username === null) {
-      // console.log('username is null so its a channel');
+    if (message.username === null) {
       const chat = await this.prisma.chat.findFirst({
         where: {
           name: message.name,
@@ -395,12 +355,11 @@ export class MessagesService {
       });
       const chatUser = await this.prisma.chatUser.findFirst({
         where: {
-          userId: id,
+          userId: message.id,
           chatId: chat.id_chat,
         },
       });
       if (chatUser.isBanned || chatUser.isMuted) {
-        console.log('user is banned or muted');
         return false;
       }
 
@@ -408,7 +367,7 @@ export class MessagesService {
         data: {
           message: message.text,
           chatId: chat.id_chat as number,
-          userId: id as number,
+          userId: message.id as number,
         },
         include: {
           user: {
@@ -429,8 +388,6 @@ export class MessagesService {
           },
         },
       });
-      // console.log('message that just got created : ');
-      // console.log(createdChatMessage);
     } else {
       const user = await this.prisma.player.findFirst({
         where: {
@@ -442,7 +399,7 @@ export class MessagesService {
           AND: [
             { type: 'PRIVATE' },
             {
-              users: { some: { userId: id } },
+              users: { some: { userId: message.id } },
             },
             {
               users: { some: { userId: user.id_player } },
@@ -450,13 +407,12 @@ export class MessagesService {
           ],
         } as ChatWhereInput,
       });
-      // console.log('username ' + username + ' want to send msg to ' + message.name + 'in chat : ' + chat.id_chat);
 
       createdChatMessage = (await this.prisma.chatMessage.create({
         data: {
           message: message.text,
           chatId: chat.id_chat as number,
-          userId: id as number,
+          userId: message.id as number,
         },
         include: {
           user: {
@@ -482,8 +438,6 @@ export class MessagesService {
         sentAt: Date;
       };
 
-      // console.log('message that just got created : ');
-      // console.log(createdChatMessage);
     }
 
     return createdChatMessage;
@@ -519,10 +473,6 @@ export class MessagesService {
       },
     });
 
-    // console.log('chat user isssssss : ');
-    // console.log(chatUser);
-    // console.log('is chatUser banned : ');
-    // console.log(chatUser.isBanned);
 
     if (chatUser && chatUser.isBanned) {
       Messages = await this.prisma.chatMessage.findMany({
@@ -549,10 +499,6 @@ export class MessagesService {
       });
     }
     else {
-      console.log('chat user got in findmsgs is: ');
-      if (chatUser) console.log(chatUser);
-      console.log('chat user joined in find msgs at is: ');
-      if (chatUser) console.log(chatUser.joinedAt);
       Messages = await this.prisma.chatMessage.findMany({
         where: {
           AND: [
@@ -587,16 +533,12 @@ export class MessagesService {
       });
     }
 
-    // console.log('messages are: ');
-    // console.log(Messages);
     return Messages;
   }
 
   ///////////////////// find Dm Messages /////////////////////////
 
   async findAllDm(name: string, id: number, username: string) {
-    // console.log('name: ');
-    // console.log(name);
     let Messages = null;
 
     const user = await this.prisma.player.findFirst({
@@ -675,9 +617,7 @@ export class MessagesService {
       return friend.userId;
     });
 
-    console.log('friends aaare: ', friends);
 
-    console.log('friends ids are: ', friendsIds);
 
     const chats = await this.prisma.chat.findMany({
       where: {
@@ -717,21 +657,15 @@ export class MessagesService {
         sentAt: 'desc',
       },
     });
-    // console.log('last Messages is: ');
-    // console.log(lastMessages);
     const lastMesssage = [];
     chats.map((chat) => {
       lastMesssage.push(
         lastMessages.find((message) => message.chatId === chat.id_chat),
       );
-      console.log('last message from chatmap is: ');
-      console.log(lastMesssage);
     });
 
     return users.map((user) => {
       let lastMessage = null;
-      // console.log('chats are: ');
-      // console.log(chats);
       lastMesssage.map((message) => {
         if (message) {
           if (
@@ -742,8 +676,6 @@ export class MessagesService {
           }
         }
       });
-      // console.log('last message is: ');
-      // console.log(lastMessage);
       return {
         ...user,
         lastMessage: lastMessage,
@@ -816,8 +748,6 @@ export class MessagesService {
           message.chatId === room.id_chat &&
           message.sentAt >= chatUser?.joinedAt, // Filter messages sent after chatUser joined
       );
-      // console.log('last Messages got to user : ' + id);
-      // console.log(lastMessage);
       return {
         ...room,
         chatUser: chatUser,
@@ -895,7 +825,6 @@ export class MessagesService {
       },
     });
     if (!chatUser) {
-      console.log('user is not in the chat or already banned');
       return false;
     }
     if (chatUser.role === 'ADMIN') {
@@ -1006,7 +935,6 @@ export class MessagesService {
       },
     });
     if (!chatUser) {
-      console.log('user is not in the chat or already muted');
       return false;
     }
     let mutedChatUser: any = null;
@@ -1078,7 +1006,6 @@ export class MessagesService {
 
         if (existingUser) {
           // User still exists, update the mute status
-          console.log('User still exists in the chat.');
 
           mutedChatUser = await this.prisma.chatUser.update({
             where: {
@@ -1088,11 +1015,8 @@ export class MessagesService {
               isMuted: false,
             },
           });
-          console.log('User is no longer muted.');
-          console.log(mutedChatUser);
         } else {
           // User no longer exists, handle accordingly (e.g., log a message)
-          console.log('User no longer exists in the chat.');
         }
         await this.prisma.chat.update({
           where: {
@@ -1131,7 +1055,6 @@ export class MessagesService {
       },
     });
     if (chatUser) {
-      console.log('user already in the chat');
       return false;
     }
     const newChatUser = await this.prisma.chatUser.create({
@@ -1178,7 +1101,6 @@ export class MessagesService {
     setPass: boolean,
     removepass: boolean,
   ) {
-    // console.log('update room called with id: ' + id + " and name" + name);
 
     let newChat: any = null;
 
@@ -1227,8 +1149,6 @@ export class MessagesService {
       });
     }
     // const Rooms = await this.getRooms(id);
-    // console.log('rooms in service : ');
-    // console.log(Rooms);
     return newChat;
   }
 }

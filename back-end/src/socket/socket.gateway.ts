@@ -8,6 +8,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { SocketService } from './socket.service';
+import { HttpException, HttpStatus } from '@nestjs/common';
 
 @WebSocketGateway()
 export class SocketGateway
@@ -22,16 +23,11 @@ export class SocketGateway
 
   afterInit(server: Server) {
     this.server = server;
-    console.log('Socket.IO server initialized');
     // setInterval(() => {
-    //   console.log('userSockets', this.userSockets);
     // }, 7000);
   }
 
   handleConnection(client: Socket) {
-    console.log(
-      `Client ${client.id} connected. ${client.handshake.query.userId}`,
-    );
 
     // Extract user ID from query parameter
     const userId = client.handshake.query.userId as string;
@@ -41,11 +37,9 @@ export class SocketGateway
       this.userSockets.set(userId, []);
     }
     this.userSockets.get(userId).push(client);
-    // console.log('userSockets', this.userSockets);
   }
 
   handleDisconnect(client: Socket) {
-    console.log(`Client ${client.id} disconnected.`);
     // client.emit('disconnectGame');
     // Remove the socket from the user's sockets
     const userId = client.handshake.query.userId as string;
@@ -59,7 +53,6 @@ export class SocketGateway
           this.userSockets.delete(userId);
           this.updateStatus(Number(userId), 'OFFLINE');
         }
-        console.log('userSockets', this.userSockets);
       }
     }
   }
@@ -82,15 +75,17 @@ export class SocketGateway
             });
           }
         });
+      }).catch(() => {
+        return 'error';
       });
-      console.log('updateUserStatus', res);
+    }).catch(() => {
+      return 'error';
     });
   }
 
   // @SubscribeMessage('logedIn')
   // async handleMessageLogin(client: Socket, data: any) {
   //   // Handle login message logic here
-  //   // console.log('Received login message:', data);
   //   // Example: Send a response back to the client
   //   this.clients.set(data.id_player, client);
   //   try {
@@ -104,9 +99,7 @@ export class SocketGateway
   //     });
 
   //     if (!updatedPlayer) {
-  //       console.log(`No player found with username: ${data.username}`);
   //     } else {
-  //       console.log('Player status updated:', updatedPlayer);
   //     }
   //   } catch (error) {
   //     console.error('Error updating player status:', error);

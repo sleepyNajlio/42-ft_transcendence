@@ -19,10 +19,8 @@ export function TwoFA(props: any) {
     useEffect(() => {
       if (inputKolo.length === 6) {
         // // Assuming you want to navigate when the input length is 6
-        console.log(inputKolo);
         axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/auth/twofa/turn-on`, {"twoFaCode":inputKolo}, { withCredentials: true })
         .then(response => {
-          console.log(response.data);
           if (response.data.success) {
             onDone();
           } else {
@@ -38,7 +36,6 @@ export function TwoFA(props: any) {
     event: React.KeyboardEvent<HTMLInputElement>,
     currentTextbox: number
   ) => {
-        // console.log(event.keyCode);
         var nextTextbox;
         // setIsntValidKolo(false);
         if (event.keyCode === 37) {
@@ -60,7 +57,6 @@ export function TwoFA(props: any) {
           if (nextTextbox >= 1 && nextTextbox <= 6) {
             // if(nextTextbox)
             // {
-            //   console.log("6666666666666666666");
             // }
             var currentInput = document.querySelector(
               ".TFnumbers input:nth-child(" + currentTextbox + ")"
@@ -148,7 +144,6 @@ export function TwoFA(props: any) {
             if (nextTextbox <= 6) {
               if(nextTextbox === 6)
               {
-                console.log("6666666666666666666");
               }
             var nextInput = document.querySelector(
               ".TFnumbers input:nth-child(" + nextTextbox + ")"
