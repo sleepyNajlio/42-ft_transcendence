@@ -34,15 +34,15 @@ export class ProfileService {
         return 'Invalid Request';
       }
       if (!status) {
-        const zbi = await this.prisma.friendShip.create({
+        const friendship = await this.prisma.friendShip.create({
           data: {
             userId: id,
             friendId: invId,
           },
         });
-        return zbi;
+        return friendship;
       } else if (status.status === 'REJECTED') {
-        const zbi = await this.prisma.friendShip.update({
+        const friendship = await this.prisma.friendShip.update({
           where: {
             userId_friendId: {
               userId: status.userId,
@@ -55,7 +55,7 @@ export class ProfileService {
             status: 'PENDING',
           },
         });
-        return zbi;
+        return friendship;
       }
     }
     catch {
@@ -179,6 +179,15 @@ export class ProfileService {
             },
           ],
         },
+        select: {
+          id_player: true,
+          username: true,
+          avatar: true,
+          level: true,
+          wins: true,
+          loses: true,
+          status: true,
+        },
       });
       return users;
     }
@@ -272,6 +281,15 @@ export class ProfileService {
             },
           ],
         },
+        select: {
+          id_player: true,
+          username: true,
+          avatar: true,
+          level: true,
+          wins: true,
+          loses: true,
+          status: true,
+        },
       });
       return users;
     }
@@ -308,6 +326,15 @@ export class ProfileService {
       const user = await this.prisma.player.findUnique({
         where: {
           id_player: id,
+        },
+        select: {
+          id_player: true,
+          username: true,
+          avatar: true,
+          level: true,
+          wins: true,
+          loses: true,
+          status: true,
         },
       });
       return user;
@@ -429,6 +456,15 @@ export class ProfileService {
         orderBy: {
           wins: 'desc',
         },
+        select: {
+          id_player: true,
+          username: true,
+          avatar: true,
+          level: true,
+          wins: true,
+          loses: true,
+          status: true,
+        },
       });
       // const filteredPlayers = players.filter((player) => player.loses > 0);
 
@@ -452,6 +488,15 @@ export class ProfileService {
         data: {
           avatar: avatar,
           username: username,
+        },
+        select: {
+          id_player: true,
+          username: true,
+          avatar: true,
+          level: true,
+          wins: true,
+          loses: true,
+          status: true,
         },
       });
       return user;

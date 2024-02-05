@@ -40,6 +40,10 @@ export class ProfileController {
       Number(id),
       Number(owuser['id_player']),
     );
+    console.log(friendStatus);
+    if (friendStatus && friendStatus != "error" && friendStatus.status === 'BLOCKED') {
+      throw new HttpException('User is blocked', HttpStatus.OK);
+    }
     return { user, state: friendStatus };
   }
   
@@ -76,16 +80,6 @@ export class ProfileController {
     return { users: users };
   }
 
-  @Get('/block')
-  async getBockedUsers(@Req() req: Request) {
-    const owuser = req.user;
-    /* get all blocked users */
-    const users = await this.profileService.getBockedUsers(
-      Number(owuser['id_player']),
-    );
-    return { users: users };
-  }
-
   @Get('/notBlocked')
   async getNotBockedUsers(@Req() req: Request) {
     const owuser = req.user;
@@ -93,16 +87,6 @@ export class ProfileController {
     const users = await this.profileService.getNotBockedUsers(
       Number(owuser['id_player']),
     );
-    return { users: users };
-  }
-
-  @Get('/all')
-  async getAllUsers(@Req() req: Request) {
-    const token = req.cookies['JWT_TOKEN']; // Get the JWT from cookies
-    if (!token) {
-      throw new Error('Access token not found');
-    }
-    const users = await this.profileService.getAllUsers(token);
     return { users: users };
   }
 

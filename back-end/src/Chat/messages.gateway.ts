@@ -14,6 +14,7 @@ import { CreateMessageDto,
 import { Server, Socket } from 'socket.io';
 import { SocketGateway } from 'src/socket/socket.gateway';
 import * as bcrypt from 'bcrypt';
+import { ConfigService } from '@nestjs/config';
 
 type updatedRoom = {
   name: string;
@@ -24,9 +25,13 @@ type updatedRoom = {
   userId : number;
 };
 
+const config = new ConfigService();
+
 @WebSocketGateway({
-  // namespace: 'chat',
-  cors: '*:*',
+  namespace: '/',
+  cors: {
+    origin: config.get('FRONTEND_URL'),
+  },
 })
 export class MessagesGateway
   implements OnGatewayConnection, OnGatewayDisconnect

@@ -690,30 +690,6 @@ export default function Chat (props: any)  {
 
     });
 
-    // useEffect(() => {
-
-    //     socket?.on('blocked', (response : any) => {
-    //         let id = Number(user?.id);
-    //         socket?.emit('Friends', { id },  (friends : any) => {
-
-    //             if (name && name === response.username)
-    //             {
-    //                 setFriends(friends.filter((friend : any) => friend.username !== response.username));
-    //                 // setDisplayDms(!DisplayDms);
-    //                 setShowDm(!ShowDm);
-    //                 setwelcomeMsg(true);
-    //             }
-    //             else
-    //             {
-    //                 setFriends(friends.filter((friend : any) => friend.username !== response.username));
-    //             }
-
-    //         });
-    //     });
-    //     return () => {
-    //         socket?.off('blocked');
-    //     }
-    // });
 
     useEffect(() => {
 
@@ -910,8 +886,12 @@ export default function Chat (props: any)  {
                 {
                     setFriends(response.filter((friend : any) => friend.username !== response.username));
                     // setDisplayDms(!DisplayDms);
-                    setShowDm(!ShowDm);
-                    setwelcomeMsg(true);
+                    console.log("blockeddddd");
+                    if (!showRoom)
+                    {
+                        setShowDm(false);
+                        setwelcomeMsg(true);
+                    }
                 }
                 else
                 {

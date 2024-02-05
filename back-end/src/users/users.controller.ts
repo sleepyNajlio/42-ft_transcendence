@@ -30,18 +30,25 @@ export class UsersController {
   @SetMetadata('isPublic', true)
   @Get()
   async GetProfileData(@Req() req: Request) {
-    if (req.cookies['TWOFA']) {
-      return { twoFA: true };
+    try 
+    {
+      if (req.cookies['TWOFA']) {
+        return { twoFA: true };
+      }
+      if (req.cookies['JWT_TOKEN']) {
+        const user = await this.usersService.GetUserByToken(
+          req.cookies['JWT_TOKEN'],
+        );
+        return user;
+      } else if (req.cookies['USER']) {
+        const user = await this.usersService.GetUserByToken(req.cookies['USER']);
+        return user;
+      } else return { msg: 'no cookies' };
     }
-    if (req.cookies['JWT_TOKEN']) {
-      const user = await this.usersService.GetUserByToken(
-        req.cookies['JWT_TOKEN'],
-      );
-      return user;
-    } else if (req.cookies['USER']) {
-      const user = await this.usersService.GetUserByToken(req.cookies['USER']);
-      return user;
-    } else return { msg: 'no cookies' };
+    catch
+    {
+      return { msg: 'wrong cookie' };
+    }
   }
 
   @SetMetadata('isPublic', true)

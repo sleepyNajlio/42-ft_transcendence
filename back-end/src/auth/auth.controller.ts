@@ -39,16 +39,23 @@ export class AuthController {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const cookie = await this.authService.signToken(req.user);
-    if (req.user['twofa']) {
-      res.cookie('TWOFA', cookie, { httpOnly: true });
-      res.redirect(`${this.Config.get('FRONTEND_URL')}/Verify2FA`);
-    } else if (req.user['isAuthenticated']) {
-      res.cookie('JWT_TOKEN', cookie, { httpOnly: true });
-      res.redirect(`${this.Config.get('FRONTEND_URL')}/Profile`);
-    } else {
-      res.cookie('USER', cookie, { httpOnly: true });
-      res.redirect(`${this.Config.get('FRONTEND_URL')}/Config`);
+    try
+    {
+      const cookie = await this.authService.signToken(req.user);
+      if (req.user['twofa']) {
+        res.cookie('TWOFA', cookie, { httpOnly: true });
+        res.redirect(`${this.Config.get('FRONTEND_URL')}/Verify2FA`);
+      } else if (req.user['isAuthenticated']) {
+        res.cookie('JWT_TOKEN', cookie, { httpOnly: true });
+        res.redirect(`${this.Config.get('FRONTEND_URL')}/Profile`);
+      } else {
+        res.cookie('USER', cookie, { httpOnly: true });
+        res.redirect(`${this.Config.get('FRONTEND_URL')}/Config`);
+      }
+    }
+    catch
+    {
+      res.redirect(`${this.Config.get('FRONTEND_URL')}/`);
     }
   }
 

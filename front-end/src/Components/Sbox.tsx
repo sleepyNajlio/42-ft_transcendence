@@ -40,24 +40,6 @@ export default function Sbox(props: any) {
         setCurrentBoard(prevBoard => (prevBoard < 3 ? prevBoard + 1 : 1));
     };
 
-    const getPlayers = async () => {
-        try {
-          const response = await fetch(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}/profile/all`, {
-            credentials: "include",
-            method: "GET",
-          });
-          const data = await response.json(); // Parse the response as JSON
-          setUsers(data.users); // Set the parsed data to state
-        } catch (error) {
-          console.error(error);
-        }
-      };
-    useEffect(() => {
-      if (users.length > 0) {
-        setPlayers(true);
-      }
-    }, [users]);
-
     useEffect(() => {
       if (psvgRef.current && paddleRef.current) {
         if (currentPad === 1) {

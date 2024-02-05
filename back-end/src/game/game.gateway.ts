@@ -8,6 +8,7 @@ import { Logger } from '@nestjs/common';
 import { Socket } from 'socket.io';
 import { SocketGateway } from 'src/socket/socket.gateway';
 import { GameService } from './game.service';
+import { ConfigService } from '@nestjs/config';
 
 interface Ball {
   cx: number;
@@ -38,9 +39,13 @@ enum gameStatus {
   NONE = 'NONE',
 }
 
+const config = new ConfigService();
+
 @WebSocketGateway({
   namespace: '/',
-  cors: '*:*',
+  cors: {
+    origin: config.get('FRONTEND_URL'),
+  },
 })
 export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private players: { [key: string]: any } = {}; // Define the type of players object
