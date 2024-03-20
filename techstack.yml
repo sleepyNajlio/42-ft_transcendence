@@ -1,0 +1,945 @@
+repo_name: sleepyNajlio/42-ft_transcendence
+report_id: e2d043f37d54d626f65cf751f08195f9
+version: 0.1
+repo_type: Public
+timestamp: '2024-03-18T00:26:41+00:00'
+requested_by: sleepyNajlio
+provider: github
+branch: main
+detected_tools_count: 69
+tools:
+- name: CSS 3
+  description: The latest evolution of the Cascading Style Sheets language
+  website_url: https://developer.mozilla.org/en-US/docs/Web/CSS/CSS3
+  open_source: true
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: Languages
+  image_url: https://img.stackshare.io/service/6727/css.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence
+  detection_source: Repo Metadata
+- name: JavaScript
+  description: Lightweight, interpreted, object-oriented language with first-class
+    functions
+  website_url: https://developer.mozilla.org/en-US/docs/Web/JavaScript
+  open_source: true
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: Languages
+  image_url: https://img.stackshare.io/service/1209/javascript.jpeg
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence
+  detection_source: Repo Metadata
+- name: TypeScript
+  description: A superset of JavaScript that compiles to clean JavaScript output
+  website_url: http://www.typescriptlang.org
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: Languages
+  image_url: https://img.stackshare.io/service/1612/bynNY5dJ.jpg
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence
+  detection_source: Repo Metadata
+- name: Bootstrap
+  description: Simple and flexible HTML, CSS, and JS for popular UI components and
+    interactions
+  website_url: http://getbootstrap.com/
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: Front-End Frameworks
+  image_url: https://img.stackshare.io/service/1101/C9QJ7V3X.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/front-end/package.json
+  detection_source: front-end/package.json
+  last_updated_by: fahiid33
+  last_updated_on: 2023-11-12 22:09:03.000000000 Z
+- name: ExpressJS
+  description: Sinatra inspired web development framework for node.js -- insanely
+    fast, flexible, and simple
+  website_url: http://expressjs.com/
+  version: 4.18.2
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: Microframeworks (Backend)
+  image_url: https://img.stackshare.io/service/1163/hashtag.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/back-end/package-lock.json
+  detection_source: back-end/package.json
+  last_updated_by: Hamza Lachkar
+  last_updated_on: 2024-02-04 22:48:54.000000000 Z
+- name: NestJS
+  description: A progressive Node.js framework for building efficient and scalable
+    server-side applications by @kammysliwiec.
+  website_url: nestjs.com
+  version: 10.3.1
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: Frameworks (Full Stack)
+  image_url: https://img.stackshare.io/service/8747/4zsOyxko_400x400.jpg
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/back-end/package-lock.json
+  detection_source: back-end/package.json
+  last_updated_by: fahiid33
+  last_updated_on: 2023-11-12 22:09:03.000000000 Z
+- name: Node.js
+  description: A platform built on Chrome's JavaScript runtime for easily building
+    fast, scalable network applications
+  website_url: http://nodejs.org/
+  version: 21.6.1
+  open_source: true
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: Frameworks (Full Stack)
+  image_url: https://img.stackshare.io/service/1011/n1JRsFeB_400x400.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/front-end/package-lock.json
+  detection_source: back-end/Dockerfile
+  last_updated_by: fahiid33
+  last_updated_on: 2024-01-25 21:33:22.000000000 Z
+- name: React
+  description: A JavaScript library for building user interfaces
+  website_url: https://reactjs.org/
+  version: 18.2.0
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Javascript UI Libraries
+  image_url: https://img.stackshare.io/service/1020/OYIaJ1KK.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/front-end/package-lock.json
+  detection_source: front-end/package.json
+  last_updated_by: haamza
+  last_updated_on: 2024-02-02 00:00:36.000000000 Z
+- name: React Router
+  description: A complete routing solution for React.js
+  website_url: https://github.com/rackt/react-router
+  version: 6.22.0
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: JavaScript Framework Components
+  image_url: https://img.stackshare.io/service/3350/8261421.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/front-end/package-lock.json
+  detection_source: front-end/package.json
+  last_updated_by: haamza
+  last_updated_on: 2024-02-02 00:00:36.000000000 Z
+- name: RxJS
+  description: The Reactive Extensions for JavaScript
+  website_url: http://reactivex.io/rxjs/
+  version: 7.8.1
+  open_source: true
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: Concurrency Frameworks
+  image_url: https://img.stackshare.io/service/1796/984368.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/back-end/package-lock.json
+  detection_source: back-end/package.json
+  last_updated_by: fahiid33
+  last_updated_on: 2023-11-12 22:09:03.000000000 Z
+- name: PostgreSQL
+  description: A powerful, open source object-relational database system
+  website_url: http://www.postgresql.org/
+  version: '16.0'
+  open_source: true
+  hosted_saas: false
+  category: Data Stores
+  sub_category: Databases
+  image_url: https://img.stackshare.io/service/1028/ASOhU5xJ.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/docker-compose.yml
+  detection_source: docker-compose.yml
+  last_updated_by: Hamza Lachkar
+  last_updated_on: 2024-02-04 22:48:54.000000000 Z
+- name: Prisma
+  description: Modern Database Access for TypeScript &amp; Node.js
+  website_url: https://www.prisma.io/
+  version: 5.9.1
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Data Stores
+  sub_category: Object Relational Mapper (ORM)
+  image_url: https://img.stackshare.io/service/8680/Logo_Symbol_White.jpg
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/back-end/package-lock.json
+  detection_source: back-end/package.json
+  last_updated_by: Hamza Lachkar
+  last_updated_on: 2024-02-04 22:48:54.000000000 Z
+- name: Socket.IO
+  description: Realtime application framework (Node.JS server)
+  website_url: http://socket.io/
+  version: 4.7.4
+  open_source: true
+  hosted_saas: false
+  category: Application Hosting
+  sub_category: Realtime Backend / API
+  image_url: https://img.stackshare.io/service/1161/vI0ZZlhZ_400x400.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/back-end/package-lock.json
+  detection_source: back-end/package.json
+  last_updated_by: Hamza Lachkar
+  last_updated_on: 2024-02-04 22:48:54.000000000 Z
+- name: Docker
+  description: Enterprise Container Platform for High-Velocity Innovation.
+  website_url: https://www.docker.com/
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Build, Test, Deploy
+  sub_category: Virtual Machine Platforms & Containers
+  image_url: https://img.stackshare.io/service/586/n4u37v9t_400x400.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence
+  detection_source: Repo Metadata
+- name: ESLint
+  description: The fully pluggable JavaScript code quality tool
+  website_url: http://eslint.org/
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Build, Test, Deploy
+  sub_category: Code Review
+  image_url: https://img.stackshare.io/service/3337/Q4L7Jncy.jpg
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/back-end/package.json
+  detection_source: back-end/package.json
+  last_updated_by: fahiid33
+  last_updated_on: 2023-11-12 22:09:03.000000000 Z
+- name: Git
+  description: Fast, scalable, distributed revision control system
+  website_url: http://git-scm.com/
+  open_source: true
+  hosted_saas: false
+  category: Build, Test, Deploy
+  sub_category: Version Control System
+  image_url: https://img.stackshare.io/service/1046/git.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence
+  detection_source: Repo Metadata
+- name: Jest
+  description: Painless JavaScript Unit Testing
+  website_url: http://facebook.github.io/jest/
+  version: 29.7.0
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Build, Test, Deploy
+  sub_category: Javascript Testing Framework
+  image_url: https://img.stackshare.io/service/830/jest.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/back-end/package-lock.json
+  detection_source: back-end/package.json
+  last_updated_by: fahiid33
+  last_updated_on: 2023-11-12 22:09:03.000000000 Z
+- name: Prettier
+  description: Prettier is an opinionated code formatter.
+  website_url: https://prettier.io/
+  version: 3.2.5
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Build, Test, Deploy
+  sub_category: Code Review
+  image_url: https://img.stackshare.io/service/7035/default_66f265943abed56bcdbfca1c866a4261b1fbb063.jpg
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/back-end/package-lock.json
+  detection_source: back-end/package.json
+  last_updated_by: Hamza Lachkar
+  last_updated_on: 2024-02-04 22:48:54.000000000 Z
+- name: SuperTest
+  description: A library for testing node.js HTTP servers
+  website_url: https://www.npmjs.com/package/supertest
+  version: 6.3.4
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Build, Test, Deploy
+  sub_category: Javascript Testing Framework
+  image_url: https://img.stackshare.io/no-img-open-source.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/back-end/package-lock.json
+  detection_source: back-end/package.json
+  last_updated_by: Hamza Lachkar
+  last_updated_on: 2024-02-04 22:48:54.000000000 Z
+- name: Vite
+  description: Native-ESM powered web dev build tool
+  website_url: https://vitejs.dev/
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Build, Test, Deploy
+  sub_category: JS Build Tools / JS Task Runners
+  image_url: https://img.stackshare.io/service/21547/default_1aeac791cde11ff66cc0b20dcc6144eeb185c905.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/front-end/package.json
+  detection_source: front-end/package.json
+  last_updated_by: fahiid33
+  last_updated_on: 2023-11-12 22:09:03.000000000 Z
+- name: Webpack
+  description: A bundler for javascript and friends
+  website_url: http://webpack.js.org
+  version: 5.89.0
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Build, Test, Deploy
+  sub_category: JS Build Tools / JS Task Runners
+  image_url: https://img.stackshare.io/service/1682/IMG_4636.PNG
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/back-end/package-lock.json
+  detection_source: front-end/webpack.config.js
+  last_updated_by: buflallo
+  last_updated_on: 2023-12-21 23:05:20.000000000 Z
+- name: npm
+  description: The package manager for JavaScript.
+  website_url: https://www.npmjs.com/
+  open_source: false
+  hosted_saas: false
+  category: Build, Test, Deploy
+  sub_category: Front End Package Manager
+  image_url: https://img.stackshare.io/service/1120/lejvzrnlpb308aftn31u.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/front-end/package.json
+  detection_source: front-end/package.json
+  last_updated_by: fahiid33
+  last_updated_on: 2023-11-12 22:09:03.000000000 Z
+- name: Font Awesome
+  description: The internet's most popular icon toolkit
+  website_url: https://fontawesome.com/
+  version: 6.5.1
+  open_source: true
+  hosted_saas: false
+  category: Design
+  sub_category: Fonts
+  image_url: https://img.stackshare.io/service/3244/1_Mr1Fy00XjPGNf1Kkp_hWtw_2x.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/front-end/package-lock.json
+  detection_source: front-end/package.json
+  last_updated_by: buflallo
+  last_updated_on: 2024-01-08 20:52:35.000000000 Z
+- name: Passport
+  description: Simple, unobtrusive authentication for Node.js
+  website_url: http://passportjs.org/
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Application Utilities
+  sub_category: User Management and Authentication
+  image_url: https://ucarecdn.com/8f3cac0e-b146-4f0f-878c-680a6671d804/
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/back-end/package.json
+  detection_source: back-end/package.json
+  last_updated_by: Hamza Lachkar
+  last_updated_on: 2024-02-04 22:48:54.000000000 Z
+- name: SVG.js
+  description: A lightweight library for manipulating and animating SVG
+  website_url: https://svgjs.com/
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Javascript Utilities & Libraries
+  image_url: https://img.stackshare.io/service/11104/iRsdwwuO_400x400.jpg
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/front-end/package.json
+  detection_source: front-end/package.json
+  last_updated_by: fahiid33
+  last_updated_on: 2023-11-12 22:09:03.000000000 Z
+- name: Shell
+  description: A shell is a text-based terminal, used for manipulating programs and
+    files. Shell scripts typically manage program execution.
+  website_url: https://en.wikipedia.org/wiki/Shell_script
+  open_source: false
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: Languages
+  image_url: https://img.stackshare.io/service/4631/default_c2062d40130562bdc836c13dbca02d318205a962.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence
+  detection_source: Repo Metadata
+- name: axios
+  description: Promise based HTTP client for the browser and node.js
+  website_url: https://github.com/mzabriskie/axios
+  version: 1.6.7
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Javascript Utilities & Libraries
+  image_url: https://img.stackshare.io/no-img-open-source.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/front-end/package-lock.json
+  detection_source: front-end/package.json
+  last_updated_by: buflallo
+  last_updated_on: 2023-12-18 16:15:38.000000000 Z
+- name: qrcode
+  website_url: http://goqr.me/
+  open_source: false
+  hosted_saas: false
+  image_url: https://img.stackshare.io/service/8580/no-img-open-source.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/back-end/package.json
+  detection_source: back-end/package.json
+  last_updated_by: sleepyNajlio
+  last_updated_on: 2024-01-15 15:48:16.000000000 Z
+- name: "@fortawesome/fontawesome-free"
+  description: The iconic font, CSS, and SVG framework
+  package_url: https://www.npmjs.com/@fortawesome/fontawesome-free
+  version: 6.5.1
+  license: CC-BY-4.0,OFL-1.1,MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/17170/default_37d9ccc57ae4d32e7ff46614e4f8bb2c4ddc7964.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/front-end/package-lock.json
+  detection_source: front-end/package.json
+  last_updated_by: buflallo
+  last_updated_on: 2024-01-08 20:52:35.000000000 Z
+- name: "@nestjs/common"
+  description: Nest - modern
+  package_url: https://www.npmjs.com/@nestjs/common
+  version: 10.3.1
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/16950/default_ebf16e0c8af5e95030933d9e01479224b6665289.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/back-end/package-lock.json
+  detection_source: back-end/package.json
+  last_updated_by: Hamza Lachkar
+  last_updated_on: 2024-02-04 22:48:54.000000000 Z
+- name: "@nestjs/core"
+  description: Nest - modern, fast, powerful node.js web framework
+  package_url: https://www.npmjs.com/@nestjs/core
+  version: 10.3.1
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/17223/default_48f040bdc5f6c639c70bf350f8b8158ede27286c.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/back-end/package-lock.json
+  detection_source: back-end/package.json
+  last_updated_by: Hamza Lachkar
+  last_updated_on: 2024-02-04 22:48:54.000000000 Z
+- name: "@nestjs/testing"
+  description: Nest - modern
+  package_url: https://www.npmjs.com/@nestjs/testing
+  version: 10.3.1
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/17855/default_dc034f75f103514d23b4d1a7fe578415d63216ee.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/back-end/package-lock.json
+  detection_source: back-end/package.json
+  last_updated_by: Hamza Lachkar
+  last_updated_on: 2024-02-04 22:48:54.000000000 Z
+- name: "@prisma/client"
+  description: Prisma Client is an auto-generated, type-safe and modern JavaScript/TypeScript
+    ORM for Node.js that's tailored to your data
+  package_url: https://www.npmjs.com/@prisma/client
+  version: 5.9.1
+  open_source: false
+  hosted_saas: false
+  category: Build, Test, Deploy
+  sub_category: Package Managers
+  image_url: https://img.stackshare.io/package/npm/image.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/back-end/package-lock.json
+  detection_source: back-end/package.json
+  last_updated_by: Hamza Lachkar
+  last_updated_on: 2024-02-04 22:48:54.000000000 Z
+- name: "@svgr/webpack"
+  description: SVGR webpack loader
+  package_url: https://www.npmjs.com/@svgr/webpack
+  version: 8.1.0
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/16411/default_aa91da3cee4d961f0eea8ca5de77f399ec7ec794.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/front-end/package-lock.json
+  detection_source: front-end/package.json
+  last_updated_by: buflallo
+  last_updated_on: 2023-12-21 23:05:20.000000000 Z
+- name: "@types/express"
+  description: TypeScript definitions for Express
+  package_url: https://www.npmjs.com/@types/express
+  version: 4.17.21
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/16100/default_d947c1690e032a288145c7e2491999eab3ea8ede.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/back-end/package-lock.json
+  detection_source: back-end/package.json
+  last_updated_by: Hamza Lachkar
+  last_updated_on: 2024-02-04 22:48:54.000000000 Z
+- name: "@types/jest"
+  description: TypeScript definitions for Jest
+  package_url: https://www.npmjs.com/@types/jest
+  version: 29.5.12
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/15840/default_004658cda9b38934f2871435e9dc15608c86e8be.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/back-end/package-lock.json
+  detection_source: back-end/package.json
+  last_updated_by: Hamza Lachkar
+  last_updated_on: 2024-02-04 22:48:54.000000000 Z
+- name: "@types/node"
+  description: TypeScript definitions for Node.js
+  package_url: https://www.npmjs.com/@types/node
+  version: 20.11.16
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/15809/default_5e5e8ac63beda29f31f1844df64d4b8247570a66.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/back-end/package-lock.json
+  detection_source: back-end/package.json
+  last_updated_by: Hamza Lachkar
+  last_updated_on: 2024-02-04 22:48:54.000000000 Z
+- name: "@types/react"
+  description: TypeScript definitions for React
+  package_url: https://www.npmjs.com/@types/react
+  version: 18.2.52
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/15894/default_1d65e37e65b7f80761374f0202776043277d505d.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/front-end/package-lock.json
+  detection_source: front-end/package.json
+  last_updated_by: haamza
+  last_updated_on: 2024-02-02 00:00:36.000000000 Z
+- name: "@types/react-dom"
+  description: TypeScript definitions for React
+  package_url: https://www.npmjs.com/@types/react-dom
+  version: 18.2.18
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/15946/default_54b691c123fc8979741e800e4dcd3936c0f3b246.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/front-end/package-lock.json
+  detection_source: front-end/package.json
+  last_updated_by: haamza
+  last_updated_on: 2024-02-02 00:00:36.000000000 Z
+- name: "@types/supertest"
+  description: TypeScript definitions for SuperTest
+  package_url: https://www.npmjs.com/@types/supertest
+  version: 6.0.2
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/16805/default_31a4e0e11d348225088320f3a5c5ea6fa49c27ad.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/back-end/package-lock.json
+  detection_source: back-end/package.json
+  last_updated_by: Hamza Lachkar
+  last_updated_on: 2024-02-04 22:48:54.000000000 Z
+- name: "@typescript-eslint/eslint-plugin"
+  description: TypeScript plugin for ESLint
+  package_url: https://www.npmjs.com/@typescript-eslint/eslint-plugin
+  version: 6.20.0
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/15982/default_8b5680d4e916298d08363c291a0d6e34c07ceb15.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/back-end/package-lock.json
+  detection_source: back-end/package.json
+  last_updated_by: Hamza Lachkar
+  last_updated_on: 2024-02-04 22:48:54.000000000 Z
+- name: "@typescript-eslint/parser"
+  description: An ESLint custom parser which leverages TypeScript ESTree
+  package_url: https://www.npmjs.com/@typescript-eslint/parser
+  version: 6.20.0
+  license: BSD-2-Clause
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/15980/default_732016a20524708efe7a4c77497fe9bfeea19ba6.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/back-end/package-lock.json
+  detection_source: back-end/package.json
+  last_updated_by: Hamza Lachkar
+  last_updated_on: 2024-02-04 22:48:54.000000000 Z
+- name: bcrypt
+  description: A bcrypt library for NodeJS
+  package_url: https://www.npmjs.com/bcrypt
+  version: 5.1.1
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/16526/default_0a704f5fac0bffcf529c9a61658d0b9ddbf7504e.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/back-end/package-lock.json
+  detection_source: back-end/package.json
+  last_updated_by: Hamza Lachkar
+  last_updated_on: 2024-02-04 22:48:54.000000000 Z
+- name: class-transformer
+  description: Proper decorator-based transformation / serialization / deserialization
+    of plain javascript objects to class constructors
+  package_url: https://www.npmjs.com/class-transformer
+  version: 0.5.1
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/17651/default_eb9caf7d7fb4d231f7e3b04a8c1fbef6fcd9fd73.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/back-end/package-lock.json
+  detection_source: back-end/package.json
+  last_updated_by: Hamza Lachkar
+  last_updated_on: 2024-02-04 22:48:54.000000000 Z
+- name: class-validator
+  description: Class-based validation with Typescript / ES6 / ES5 using decorators
+    or validation schemas
+  package_url: https://www.npmjs.com/class-validator
+  version: 0.14.1
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/17583/default_661ab15cb9ea1663765f3e16ee70a1d2d50118d1.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/back-end/package-lock.json
+  detection_source: back-end/package.json
+  last_updated_by: Hamza Lachkar
+  last_updated_on: 2024-02-04 22:48:54.000000000 Z
+- name: cookie-parser
+  description: Parse HTTP request cookies
+  package_url: https://www.npmjs.com/cookie-parser
+  version: 1.4.6
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/16136/default_def3edb85d7fbd20200a5cd7d0a1679e31bc8b3d.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/back-end/package-lock.json
+  detection_source: back-end/package.json
+  last_updated_by: Hamza Lachkar
+  last_updated_on: 2024-02-04 22:48:54.000000000 Z
+- name: eslint-config-prettier
+  description: Turns off all rules that are unnecessary or might conflict with Prettier
+  package_url: https://www.npmjs.com/eslint-config-prettier
+  version: 9.1.0
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/15879/default_0b10af8ca19c215f781dc07442e75bdc831089d0.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/back-end/package-lock.json
+  detection_source: back-end/package.json
+  last_updated_by: Hamza Lachkar
+  last_updated_on: 2024-02-04 22:48:54.000000000 Z
+- name: eslint-plugin-prettier
+  description: Runs prettier as an eslint rule
+  package_url: https://www.npmjs.com/eslint-plugin-prettier
+  version: 5.1.3
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/15896/default_6e6e1d6bb189c8bb26c6410618bd597979578f39.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/back-end/package-lock.json
+  detection_source: back-end/package.json
+  last_updated_by: Hamza Lachkar
+  last_updated_on: 2024-02-04 22:48:54.000000000 Z
+- name: eslint-plugin-react-hooks
+  description: ESLint rules for React Hooks
+  package_url: https://www.npmjs.com/eslint-plugin-react-hooks
+  version: 4.6.0
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/16149/default_1f3a2fc7d882e29a43394ecdf491b8989ea3f0fa.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/front-end/package-lock.json
+  detection_source: front-end/package.json
+  last_updated_by: haamza
+  last_updated_on: 2024-02-02 00:00:36.000000000 Z
+- name: iconv-lite
+  description: Convert character encodings in pure javascript
+  package_url: https://www.npmjs.com/iconv-lite
+  version: 0.4.24
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/16350/default_4cc3f31b8c64a6268fc123f0965a09d1b11180af.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/back-end/package-lock.json
+  detection_source: back-end/package.json
+  last_updated_by: Hamza Lachkar
+  last_updated_on: 2024-02-04 22:48:54.000000000 Z
+- name: js-cookie
+  description: A simple, lightweight JavaScript API for handling cookies
+  package_url: https://www.npmjs.com/js-cookie
+  version: 3.0.5
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/16441/default_89ba91277e3434b03295bb11d22736632df1d04f.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/front-end/package-lock.json
+  detection_source: front-end/package.json
+  last_updated_by: fahiid33
+  last_updated_on: 2023-11-30 05:47:38.000000000 Z
+- name: multer
+  description: Middleware for handling `multipart/form-data`
+  package_url: https://www.npmjs.com/multer
+  version: 1.4.4
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/16421/default_23e0dabcd0197f0c1f0a41268f8ca3f7e8b1f1e2.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/back-end/package-lock.json
+  detection_source: back-end/package.json
+  last_updated_by: sleepyNajlio
+  last_updated_on: 2024-01-12 21:35:37.000000000 Z
+- name: node
+  description: Node
+  package_url: https://www.npmjs.com/node
+  version: 21.6.1
+  license: ISC
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/17983/default_fc5f66cf44024e173fd07c415d4f30ca58b4cbad.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/front-end/package-lock.json
+  detection_source: front-end/package.json
+  last_updated_by: buflallo
+  last_updated_on: 2024-01-26 20:40:37.000000000 Z
+- name: npm-check-updates
+  description: Find newer versions of dependencies than what your package.json or
+    bower.json allows
+  package_url: https://www.npmjs.com/npm-check-updates
+  version: 16.14.14
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/16610/default_50c9ed1615a25628505ab53def64d82450ced26b.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/back-end/package-lock.json
+  detection_source: back-end/package.json
+  last_updated_by: Hamza Lachkar
+  last_updated_on: 2024-02-04 22:48:54.000000000 Z
+- name: passport-jwt
+  description: Passport authentication strategy using JSON Web Tokens
+  package_url: https://www.npmjs.com/passport-jwt
+  version: 4.0.1
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/18238/default_d0bdfc944c04fa7e84198f9a2784cc716a3d91a3.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/back-end/package-lock.json
+  detection_source: back-end/package.json
+  last_updated_by: Hamza Lachkar
+  last_updated_on: 2024-02-04 22:48:54.000000000 Z
+- name: prisma
+  description: Prisma is an open-source database toolkit
+  package_url: https://www.npmjs.com/prisma
+  version: 5.9.1
+  open_source: false
+  hosted_saas: false
+  category: Build, Test, Deploy
+  sub_category: Package Managers
+  image_url: https://img.stackshare.io/package/npm/image.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/back-end/package-lock.json
+  detection_source: back-end/package.json
+  last_updated_by: Hamza Lachkar
+  last_updated_on: 2024-02-04 22:48:54.000000000 Z
+- name: qrcode
+  description: QRCode / 2d Barcode api with both server side and client side support
+    using canvas
+  package_url: https://www.npmjs.com/qrcode
+  version: 1.5.3
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/17638/default_9126b5a628d81e3d41c9b1190587ab1aec9165c5.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/back-end/package-lock.json
+  detection_source: back-end/package.json
+  last_updated_by: sleepyNajlio
+  last_updated_on: 2024-01-15 15:48:16.000000000 Z
+- name: react-bootstrap
+  description: Bootstrap 3 components built with React
+  package_url: https://www.npmjs.com/react-bootstrap
+  version: 2.10.0
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/16383/default_92302d1bbf4c0f67b862869662b4f69002c94aad.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/front-end/package-lock.json
+  detection_source: front-end/package.json
+  last_updated_by: haamza
+  last_updated_on: 2024-02-02 00:00:36.000000000 Z
+- name: react-dom
+  description: React package for working with the DOM
+  package_url: https://www.npmjs.com/react-dom
+  version: 18.2.0
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/15808/default_14fd11531839d935f920b6d55bd6f3528c890ad7.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/front-end/package-lock.json
+  detection_source: front-end/package.json
+  last_updated_by: haamza
+  last_updated_on: 2024-02-02 00:00:36.000000000 Z
+- name: react-router-dom
+  description: DOM bindings for React Router
+  package_url: https://www.npmjs.com/react-router-dom
+  version: 6.22.0
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/16025/default_e25d1fbb04a118c79fb444294461417342bd03bf.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/front-end/package-lock.json
+  detection_source: front-end/package.json
+  last_updated_by: haamza
+  last_updated_on: 2024-02-02 00:00:36.000000000 Z
+- name: react-toastify
+  description: React notification made easy
+  package_url: https://www.npmjs.com/react-toastify
+  version: 10.0.4
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/18461/default_5ff724c0ff89bb42698aa80ef3403008cb0d8f72.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/front-end/package-lock.json
+  detection_source: front-end/package.json
+  last_updated_by: haamza
+  last_updated_on: 2024-02-02 00:00:36.000000000 Z
+- name: socket.io-client
+  description: "[![Build Status]"
+  package_url: https://www.npmjs.com/socket.io-client
+  version: 4.7.4
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/16164/default_ac04a744873b460c4ef30a7450ed0c83223640ab.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/front-end/package-lock.json
+  detection_source: front-end/package.json
+  last_updated_by: buflallo
+  last_updated_on: 2023-11-24 23:03:33.000000000 Z
+- name: source-map-support
+  description: Fixes stack traces for files with source maps
+  package_url: https://www.npmjs.com/source-map-support
+  version: 0.5.13
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/16028/default_c7b204838197013798409fa2b4dafce450edc7fb.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/back-end/package-lock.json
+  detection_source: back-end/package.json
+  last_updated_by: Hamza Lachkar
+  last_updated_on: 2024-02-04 22:48:54.000000000 Z
+- name: svg-inline-loader
+  description: Cleans up and inlines your SVG files into Webpack module
+  package_url: https://www.npmjs.com/svg-inline-loader
+  version: 0.8.2
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/17354/default_66bbb2a75a0234b1bfceaa99b8e82825fa7b8284.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/front-end/package-lock.json
+  detection_source: front-end/package.json
+  last_updated_by: buflallo
+  last_updated_on: 2023-12-21 23:05:20.000000000 Z
+- name: ts-jest
+  description: A preprocessor with source maps support to help use TypeScript with
+    Jest
+  package_url: https://www.npmjs.com/ts-jest
+  version: 29.1.2
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/15864/default_6743ba96cf149a3c3c68a185199f9705d6eff80e.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/back-end/package-lock.json
+  detection_source: back-end/package.json
+  last_updated_by: Hamza Lachkar
+  last_updated_on: 2024-02-04 22:48:54.000000000 Z
+- name: ts-loader
+  description: TypeScript loader for webpack
+  package_url: https://www.npmjs.com/ts-loader
+  version: 9.5.1
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/15938/default_e0a4fb1126d7400f419f0931cf1669947a5bc552.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/back-end/package-lock.json
+  detection_source: back-end/package.json
+  last_updated_by: Hamza Lachkar
+  last_updated_on: 2024-02-04 22:48:54.000000000 Z
+- name: ts-node
+  description: TypeScript execution environment and REPL for node.js
+  package_url: https://www.npmjs.com/ts-node
+  version: 10.9.2
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/15830/default_6743ba96cf149a3c3c68a185199f9705d6eff80e.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/back-end/package-lock.json
+  detection_source: back-end/package.json
+  last_updated_by: Hamza Lachkar
+  last_updated_on: 2024-02-04 22:48:54.000000000 Z
+- name: tsconfig-paths
+  description: Load node modules according to tsconfig paths
+  package_url: https://www.npmjs.com/tsconfig-paths
+  version: 4.2.0
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: npm Packages
+  image_url: https://img.stackshare.io/package/16810/default_55e3ea76a7929df1b71c5ea0c9b4130cc87323a4.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/back-end/package-lock.json
+  detection_source: back-end/package.json
+  last_updated_by: Hamza Lachkar
+  last_updated_on: 2024-02-04 22:48:54.000000000 Z
+- name: vite
+  description: Native-ESM powered web dev build tool
+  package_url: https://www.npmjs.com/vite
+  version: 4.5.2
+  open_source: false
+  hosted_saas: false
+  category: Build, Test, Deploy
+  sub_category: Package Managers
+  image_url: https://img.stackshare.io/package/npm/image.png
+  detection_source_url: https://github.com/sleepyNajlio/42-ft_transcendence/blob/main/front-end/package-lock.json
+  detection_source: front-end/package.json
+  last_updated_by: fahiid33
+  last_updated_on: 2024-01-25 21:33:22.000000000 Z
